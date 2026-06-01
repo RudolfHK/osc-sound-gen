@@ -146,6 +146,12 @@ export class MultiOscillatorEngine {
     return this.ctx;
   }
 
+  async getOrCreateAudioContext(): Promise<AudioContext> {
+    const ctx = this.ensureContext();
+    if (ctx.state === 'suspended') await ctx.resume();
+    return ctx;
+  }
+
   getMasterGain(): GainNode | null {
     return this.masterGain;
   }

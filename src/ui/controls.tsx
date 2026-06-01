@@ -141,13 +141,14 @@ interface LabeledSliderProps {
   color?: string;
   onChange: (v: number) => void;
   disabled?: boolean;
+  title?: string;
 }
 
 export function LabeledSlider({
-  label, value, min, max, step, displayValue, color = '#00ff88', onChange, disabled,
+  label, value, min, max, step, displayValue, color = '#00ff88', onChange, disabled, title,
 }: LabeledSliderProps) {
   return (
-    <div className={`space-y-1 ${disabled ? 'opacity-30 pointer-events-none' : ''}`}>
+    <div className={`space-y-1 ${disabled ? 'opacity-30 pointer-events-none' : ''}`} title={title}>
       <div className="flex justify-between items-baseline">
         <span className="knob-label">{label}</span>
         <span className="control-value" style={{ color }}>{displayValue}</span>
@@ -380,9 +381,10 @@ export function ControlPanel({
       <div className="grid grid-cols-4 gap-4 items-start">
         <LabeledSlider
           label="Phase"
+          title="Phase offset — affects oscilloscope display only, not audio output"
           value={state.phase}
           min={0} max={2 * Math.PI} step={0.01}
-          displayValue={`${phaseDeg}°`}
+          displayValue={`${phaseDeg}° ⓘ`}
           color={color}
           onChange={(v) => set('phase', v)}
         />

@@ -60,9 +60,7 @@ export class SequencerEngine {
     onPlayheadUpdate: (beat: number) => void,
   ): Promise<void> {
     const audioEngine = getAudioEngine();
-    // Ensure AudioContext exists (created on first user gesture — caller ensures this)
-    const ctx = audioEngine.getAudioContext() ?? (await this.initCtx());
-    if (!ctx) return;
+    const ctx = await audioEngine.getOrCreateAudioContext();
 
     this.configure(state, tabs);
     this.onPlayheadUpdate = onPlayheadUpdate;
@@ -272,11 +270,6 @@ export class SequencerEngine {
     this.seqNodes.clear();
   }
 
-  private async initCtx(): Promise<AudioContext | null> {
-    // Force-create the audio context by calling ensureContext via startTab dummy call
-    // In practice, the audio engine's context is created when user first hits Play
-    return getAudioEngine().getAudioContext();
-  }
 }
 
 // ─── Singleton ────────────────────────────────────────────────────────────────

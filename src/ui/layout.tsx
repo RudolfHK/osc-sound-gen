@@ -6,6 +6,7 @@ import { TabBar } from './TabBar';
 import { RecordingControls } from './RecordingControls';
 import { THEME_COLORS } from '../utils/math';
 import { getAudioEngine } from '../engine/audio';
+import { getSequencerEngine } from '../engine/sequencer';
 import { useAppStore, computeEffectiveMutes } from '../store/appStore';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
 
@@ -82,6 +83,13 @@ export function Layout() {
     getAudioEngine().setMasterVolume(state.masterVolume);
   }, [state.masterVolume]);
 
+  // Sync sequencer engine when tracks change during playback (undo/redo, note edits)
+  useEffect(() => {
+    if (state.sequencer.isPlaying) {
+      getSequencerEngine().updateState(state.sequencer, state.tabs);
+    }
+  }, [state.sequencer.tracks]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ─── Tab actions ────────────────────────────────────────────────────────────
 
   const handleTogglePlay = useCallback(async (tabId: string) => {
@@ -119,9 +127,13 @@ export function Layout() {
   }, [state.tabs, dispatch]);
 
   const handleRemoveTab = useCallback((id: string) => {
+    const track = state.sequencer.tracks.find((t) => t.tabId === id);
+    const hasNotes = (track?.notes.length ?? 0) > 0;
+    const tab = state.tabs.find((t) => t.id === id);
+    if (hasNotes && !window.confirm(`Remove "${tab?.label ?? 'oscillator'}" and all its notes?`)) return;
     getAudioEngine().removeTab(id);
     dispatch({ type: 'REMOVE_TAB', id });
-  }, [dispatch]);
+  }, [state.sequencer.tracks, state.tabs, dispatch]);
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 

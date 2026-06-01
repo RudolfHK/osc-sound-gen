@@ -160,7 +160,7 @@ export class Oscilloscope {
           tab.oscillator.pulseWidth,
         );
         if (!tab.isMuted) {
-          sumBuffer[i] += perTabBuffer[i];
+          sumBuffer[i] += perTabBuffer[i] * tab.oscillator.masterVolume;
         }
       }
 

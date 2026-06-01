@@ -3,13 +3,15 @@
  * Chosen because the project has no third-party state library — zero extra deps.
  */
 
-import { createContext, useContext, useReducer, type Dispatch } from 'react';
+import { createContext, useContext, useEffect, useReducer, type Dispatch } from 'react';
 import type { OscillatorState, AdvancedSettings, OscillatorTab, AppState } from '../engine/oscillator';
 import { DEFAULT_STATE, DEFAULT_ADVANCED } from '../engine/oscillator';
 import { getTabColor } from '../utils/colors';
 import { THEME_COLORS } from '../utils/math';
 import {
   makeDefaultSequencerState,
+  makeNoteId,
+  SNAP_BEATS,
   type SequencerNote,
   type SequencerTrack,
   type SequencerState,
@@ -72,6 +74,12 @@ export type Action =
   | { type: 'SEQ_PUSH_UNDO' }
   | { type: 'SEQ_UNDO' }
   | { type: 'SEQ_REDO' }
+  // ── New features ─────────────────────────────────────────────────────────────
+  | { type: 'SEQ_SET_DEFAULT_NOTE_LEN'; len: SnapValue }
+  | { type: 'SEQ_COPY'; notes: SequencerNote[] }
+  | { type: 'SEQ_PASTE'; tabId: string }
+  | { type: 'SEQ_QUANTIZE' }
+  | { type: 'SEQ_TOGGLE_VELOCITY_LANE' }
   // ── Project ──────────────────────────────────────────────────────────────────
   | { type: 'LOAD_PROJECT'; project: SequencerProject };
 
@@ -366,16 +374,65 @@ export function reducer(state: AppState, action: Action): AppState {
       });
     }
 
+    // ── New feature cases ─────────────────────────────────────────────────────────
+
+    case 'SEQ_SET_DEFAULT_NOTE_LEN':
+      return seqUpdate(state, { defaultNoteLength: action.len });
+
+    case 'SEQ_COPY':
+      return seqUpdate(state, { copiedNotes: action.notes });
+
+    case 'SEQ_PASTE': {
+      const { copiedNotes, playheadBeat } = state.sequencer;
+      if (!copiedNotes?.length) return state;
+      const minBeat = Math.min(...copiedNotes.map((n) => n.startBeat));
+      const offset = playheadBeat - minBeat;
+      const newNotes = copiedNotes.map((n) => ({
+        ...n,
+        id: makeNoteId(),
+        startBeat: Math.max(0, n.startBeat + offset),
+      }));
+      return seqUpdate(state, {
+        tracks: state.sequencer.tracks.map((t) =>
+          t.tabId === action.tabId ? { ...t, notes: [...t.notes, ...newNotes] } : t,
+        ),
+        selectedNoteIds: newNotes.map((n) => n.id),
+      });
+    }
+
+    case 'SEQ_QUANTIZE': {
+      if (state.sequencer.selectedNoteIds.length === 0) return state;
+      const grid = SNAP_BEATS[state.sequencer.snapValue];
+      const sel = new Set(state.sequencer.selectedNoteIds);
+      return seqUpdate(state, {
+        tracks: state.sequencer.tracks.map((t) => ({
+          ...t,
+          notes: t.notes.map((n) =>
+            sel.has(n.id) ? { ...n, startBeat: Math.round(n.startBeat / grid) * grid } : n,
+          ),
+        })),
+      });
+    }
+
+    case 'SEQ_TOGGLE_VELOCITY_LANE':
+      return seqUpdate(state, { showVelocityLane: !state.sequencer.showVelocityLane });
+
     // ── Project ──────────────────────────────────────────────────────────────────
 
     case 'LOAD_PROJECT': {
       const p = action.project;
-      return seqUpdate(state, {
+      // Remap stable index-based tabIds → current session tabIds
+      const remapped = p.tracks.map((t, i) => ({
+        ...t,
+        tabId: state.tabs[i]?.id ?? state.tabs[0].id,
+      }));
+      const base = seqUpdate(state, {
         bpm: p.bpm,
         beatsPerBar: p.beatsPerBar,
         songLengthBars: p.songLengthBars,
-        tracks: p.tracks,
+        tracks: remapped,
       });
+      return p.masterVolume !== undefined ? { ...base, masterVolume: p.masterVolume } : base;
     }
 
     default:
@@ -424,7 +481,36 @@ export function computeEffectiveMutes(tabs: OscillatorTab[]): Map<string, boolea
   return result;
 }
 
+const LS_KEY = 'osc-app-state';
+
 export function useAppReducer(): StoreCtx {
-  const [state, dispatch] = useReducer(reducer, INITIAL_APP_STATE);
+  const [state, dispatch] = useReducer(reducer, INITIAL_APP_STATE, (init) => {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as AppState;
+        // Reset all transient runtime state; keep composition data
+        return {
+          ...parsed,
+          isRecording: false,
+          tabs: parsed.tabs.map((t) => ({ ...t, isPlaying: false })),
+          sequencer: {
+            ...makeDefaultSequencerState(),
+            ...parsed.sequencer,
+            isPlaying: false,
+            undoStack: [],
+            redoStack: [],
+            copiedNotes: null,
+          },
+        };
+      }
+    } catch (_) { /* corrupt or missing */ }
+    return init;
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota exceeded */ }
+  }, [state]);
+
   return { state, dispatch };
 }

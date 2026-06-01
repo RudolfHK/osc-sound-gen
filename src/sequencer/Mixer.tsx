@@ -66,6 +66,9 @@ function ChannelStrip({ tabId }: { tabId: string }) {
   // Use state (not ref) so VUMeter re-renders when analyser becomes available
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
 
+  // Re-run when any tab starts playing so we catch the moment AudioContext is created
+  const anyPlaying = state.tabs.some((t) => t.isPlaying);
+
   useEffect(() => {
     const audioEngine = getAudioEngine();
     const audioCtx = audioEngine.getAudioContext();
@@ -85,7 +88,7 @@ function ChannelStrip({ tabId }: { tabId: string }) {
       try { master.disconnect(node); } catch (_) { /* ignore */ }
       setAnalyser(null);
     };
-  }, [tabId]); // re-run if tab changes (AudioContext might have been created since last render)
+  }, [tabId, anyPlaying]); // anyPlaying triggers re-run when AudioContext is first created
 
   if (!tab || !track) return null;
   const color = tab.color;

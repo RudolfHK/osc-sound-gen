@@ -35,6 +35,7 @@ export interface SequencerState {
   bpm: number;
   beatsPerBar: number;
   snapValue: SnapValue;
+  defaultNoteLength: SnapValue;  // duration of newly drawn notes
   loopEnabled: boolean;
   loopStartBeat: number;
   loopEndBeat: number;
@@ -44,6 +45,8 @@ export interface SequencerState {
   editMode: 'draw' | 'select';
   tracks: SequencerTrack[];
   selectedNoteIds: string[];
+  copiedNotes: SequencerNote[] | null;  // note clipboard
+  showVelocityLane: boolean;            // show velocity editing lane
   viewStartBeat: number;
   viewLowNote: number;   // lowest visible MIDI note
   viewHighNote: number;  // highest visible MIDI note
@@ -68,6 +71,7 @@ export function makeDefaultSequencerState(): SequencerState {
     bpm: 120,
     beatsPerBar: 4,
     snapValue: '1/16',
+    defaultNoteLength: '1/8',
     loopEnabled: true,
     loopStartBeat: 0,
     loopEndBeat: 16,
@@ -77,6 +81,8 @@ export function makeDefaultSequencerState(): SequencerState {
     editMode: 'draw',
     tracks: [],
     selectedNoteIds: [],
+    copiedNotes: null,
+    showVelocityLane: false,
     viewStartBeat: 0,
     viewLowNote: 48,   // C3
     viewHighNote: 84,  // C6
