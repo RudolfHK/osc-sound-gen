@@ -1,12 +1,16 @@
-import type { Waveform, ColorTheme } from '../utils/math';
+import type { ColorTheme } from '../utils/math';
+import type { Waveform } from '../utils/math';
+import type { SequencerState } from '../utils/music';
+
+// ─── Existing types (unchanged) ──────────────────────────────────────────────
 
 export interface OscillatorState {
   waveform: Waveform;
-  frequency: number;   // Hz, 20–20000
-  amplitude: number;   // 0.0–1.0
-  phase: number;       // radians, 0–2π
-  pulseWidth: number;  // 0.01–0.99 (square only)
-  masterVolume: number; // 0.0–1.0
+  frequency: number;    // Hz, 20–20000
+  amplitude: number;    // 0.0–1.0
+  phase: number;        // radians, 0–2π
+  pulseWidth: number;   // 0.01–0.99 (square only)
+  masterVolume: number; // 0.0–1.0 — repurposed as per-tab level in multi-tab mode
   isPlaying: boolean;
 }
 
@@ -35,3 +39,25 @@ export const DEFAULT_ADVANCED: AdvancedSettings = {
   colorTheme: 'green',
   showGrid: true,
 };
+
+// ─── Multi-tab types (new) ────────────────────────────────────────────────────
+
+export interface OscillatorTab {
+  id: string;
+  label: string;
+  color: string;          // accent color for tab indicator + oscilloscope waveform
+  oscillator: OscillatorState;
+  advanced: AdvancedSettings;
+  isPlaying: boolean;
+  isMuted: boolean;
+  solo: boolean;
+}
+
+export interface AppState {
+  tabs: OscillatorTab[];
+  activeTabId: string;
+  masterVolume: number;   // global master gain applied after all tab gains mix
+  isRecording: boolean;
+  overlayMode: boolean;   // false = single active tab, true = all tabs on same canvas
+  sequencer: SequencerState;
+}

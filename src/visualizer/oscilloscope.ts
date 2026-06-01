@@ -1,22 +1,43 @@
-import { computeSample, THEME_COLORS, applyDetune } from '../utils/math';
+import { computeSample, applyDetune } from '../utils/math';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
 
 const SAMPLES = 2048; // pre-allocated, reused every frame
+
+// Data needed to render a single tab waveform in overlay mode
+export interface TabRenderInfo {
+  id: string;
+  label: string;
+  color: string;
+  oscillator: OscillatorState;
+  advanced: AdvancedSettings;
+  isMuted: boolean;
+  isActive: boolean;
+}
 
 export class Oscilloscope {
   private canvas: HTMLCanvasElement;
   private ctx2d: CanvasRenderingContext2D;
   private rafId = 0;
-  private sampleBuffer = new Float32Array(SAMPLES);
 
-  // Current render parameters (updated by setState)
+  // Pre-allocated buffers — never allocate inside the render loop
+  private sampleBuffer = new Float32Array(SAMPLES);
+  private sumBuffer = new Float32Array(SAMPLES);
+  private perTabBuffer = new Float32Array(SAMPLES);
+
+  // Single-mode state
   private state: OscillatorState;
   private advanced: AdvancedSettings;
+  private singleColor: string;
+
+  // Overlay-mode state
+  private overlayMode = false;
+  private tabs: TabRenderInfo[] = [];
 
   constructor(
     canvas: HTMLCanvasElement,
     state: OscillatorState,
     advanced: AdvancedSettings,
+    color = '#00ff88',
   ) {
     this.canvas = canvas;
     const ctx = canvas.getContext('2d');
@@ -24,11 +45,24 @@ export class Oscilloscope {
     this.ctx2d = ctx;
     this.state = state;
     this.advanced = advanced;
+    this.singleColor = color;
   }
 
-  setState(state: OscillatorState, advanced: AdvancedSettings): void {
+  // ─── Public API ──────────────────────────────────────────────────────────────
+
+  /** Update single-mode parameters each frame (or whenever state changes). */
+  setState(state: OscillatorState, advanced: AdvancedSettings, color?: string): void {
     this.state = state;
     this.advanced = advanced;
+    if (color !== undefined) this.singleColor = color;
+  }
+
+  setOverlayMode(overlay: boolean): void {
+    this.overlayMode = overlay;
+  }
+
+  setTabs(tabs: TabRenderInfo[]): void {
+    this.tabs = tabs;
   }
 
   start(): void {
@@ -47,71 +81,114 @@ export class Oscilloscope {
     }
   }
 
+  resize(width: number, height: number): void {
+    this.canvas.width = width;
+    this.canvas.height = height;
+  }
+
+  // ─── Render dispatch ─────────────────────────────────────────────────────────
+
   private render(): void {
+    if (this.overlayMode && this.tabs.length > 0) {
+      this.renderOverlay();
+    } else {
+      this.renderSingle();
+    }
+  }
+
+  // ─── Single-mode render (original behavior) ───────────────────────────────────
+
+  private renderSingle(): void {
     const { canvas, ctx2d, sampleBuffer, state, advanced } = this;
     const W = canvas.width;
     const H = canvas.height;
+    const color = this.singleColor;
 
-    const themeColor = THEME_COLORS[advanced.colorTheme];
-
-    // Background
     ctx2d.fillStyle = '#0a0a0a';
     ctx2d.fillRect(0, 0, W, H);
 
-    // Grid
-    if (advanced.showGrid) {
-      this.drawGrid(W, H, themeColor);
-    }
+    if (advanced.showGrid) this.drawGrid(W, H, color, advanced.zoomFactor);
 
-    // Generate waveform samples
     const effectiveFreq = applyDetune(state.frequency, advanced.centsOffset);
-    const numCycles = advanced.zoomFactor;
-    const duration = numCycles / effectiveFreq; // seconds to show
+    const duration = advanced.zoomFactor / effectiveFreq;
     const dt = duration / SAMPLES;
 
     for (let i = 0; i < SAMPLES; i++) {
       sampleBuffer[i] = computeSample(
-        state.waveform,
-        i * dt,
-        effectiveFreq,
-        state.amplitude,
-        state.phase,
-        state.pulseWidth,
+        state.waveform, i * dt, effectiveFreq, state.amplitude, state.phase, state.pulseWidth,
       );
     }
 
-    // Draw waveform
-    ctx2d.save();
-    ctx2d.strokeStyle = themeColor;
-    ctx2d.lineWidth = advanced.lineThickness;
-    ctx2d.lineCap = 'round';
-    ctx2d.lineJoin = 'round';
-
-    // Glow effect
-    ctx2d.shadowColor = themeColor;
-    ctx2d.shadowBlur = 8;
-
-    ctx2d.beginPath();
-    const padX = 40;
-    const padY = 20;
-    const drawW = W - 2 * padX;
-    const drawH = H - 2 * padY;
-    const midY = padY + drawH / 2;
-
-    for (let i = 0; i < SAMPLES; i++) {
-      const x = padX + (i / (SAMPLES - 1)) * drawW;
-      const y = midY - (sampleBuffer[i] / 1.0) * (drawH / 2) * 0.9;
-      if (i === 0) ctx2d.moveTo(x, y);
-      else ctx2d.lineTo(x, y);
-    }
-    ctx2d.stroke();
-    ctx2d.restore();
-
-    // Axis labels
-    this.drawLabels(W, H, duration, themeColor);
+    this.drawWaveformPath(sampleBuffer, W, H, color, advanced.lineThickness, 1.0);
+    this.drawLabels(W, H, duration, color, advanced.zoomFactor, effectiveFreq);
   }
 
-  private drawGrid(W: number, H: number, themeColor: string): void {
+  // ─── Overlay-mode render ──────────────────────────────────────────────────────
+
+  private renderOverlay(): void {
+    const { canvas, ctx2d, sumBuffer, perTabBuffer } = this;
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Use active tab's advanced settings for grid/zoom
+    const activeTab = this.tabs.find((t) => t.isActive) ?? this.tabs[0];
+    const adv = activeTab.advanced;
+
+    ctx2d.fillStyle = '#0a0a0a';
+    ctx2d.fillRect(0, 0, W, H);
+
+    if (adv.showGrid) this.drawGrid(W, H, '#ffffff', adv.zoomFactor);
+
+    // Reset sum buffer
+    sumBuffer.fill(0);
+
+    // Reference frequency from active tab (governs the time window)
+    const refFreq = applyDetune(activeTab.oscillator.frequency, adv.centsOffset);
+    const duration = adv.zoomFactor / refFreq;
+    const dt = duration / SAMPLES;
+
+    // Draw each tab waveform, accumulate sum for non-muted tabs
+    for (const tab of this.tabs) {
+      const freq = applyDetune(tab.oscillator.frequency, tab.advanced.centsOffset);
+      for (let i = 0; i < SAMPLES; i++) {
+        perTabBuffer[i] = computeSample(
+          tab.oscillator.waveform,
+          i * dt,
+          freq,
+          tab.oscillator.amplitude,
+          tab.oscillator.phase,
+          tab.oscillator.pulseWidth,
+        );
+        if (!tab.isMuted) {
+          sumBuffer[i] += perTabBuffer[i];
+        }
+      }
+
+      const opacity = tab.isMuted ? 0.18 : (tab.isActive ? 1.0 : 0.6);
+      const thickness = tab.isActive ? adv.lineThickness : Math.max(1, adv.lineThickness - 0.5);
+      this.drawWaveformPath(perTabBuffer, W, H, tab.color, thickness, opacity);
+    }
+
+    // Clamp sum to [-1, 1] and draw in white on top
+    for (let i = 0; i < SAMPLES; i++) {
+      sumBuffer[i] = Math.max(-1, Math.min(1, sumBuffer[i]));
+    }
+    this.drawWaveformPath(sumBuffer, W, H, 'rgba(255,255,255,0.85)', adv.lineThickness, 1.0);
+
+    this.drawLabels(W, H, duration, '#ffffff', adv.zoomFactor, refFreq);
+    this.drawOverlayLegend(W);
+  }
+
+  // ─── Drawing helpers ─────────────────────────────────────────────────────────
+
+  private drawWaveformPath(
+    buffer: Float32Array,
+    W: number,
+    H: number,
+    color: string,
+    lineWidth: number,
+    opacity: number,
+  ): void {
     const ctx = this.ctx2d;
     const padX = 40;
     const padY = 20;
@@ -120,55 +197,66 @@ export class Oscilloscope {
     const midY = padY + drawH / 2;
 
     ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-    ctx.lineWidth = 1;
+    ctx.globalAlpha = opacity;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
 
-    // Horizontal grid lines at 0, ±0.5, ±1.0
-    const amplitudeLevels = [1.0, 0.5, 0.0, -0.5, -1.0];
-    for (const level of amplitudeLevels) {
-      const y = midY - level * (drawH / 2) * 0.9;
-      ctx.beginPath();
-      ctx.moveTo(padX, y);
-      ctx.lineTo(padX + drawW, y);
-      // Center line slightly brighter
-      ctx.strokeStyle = level === 0
-        ? 'rgba(255,255,255,0.15)'
-        : 'rgba(255,255,255,0.07)';
-      ctx.stroke();
+    ctx.beginPath();
+    for (let i = 0; i < SAMPLES; i++) {
+      const x = padX + (i / (SAMPLES - 1)) * drawW;
+      const y = midY - buffer[i] * (drawH / 2) * 0.9;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
-
-    // Vertical grid lines (cycle divisions)
-    const numCycles = this.advanced.zoomFactor;
-    for (let c = 0; c <= numCycles; c++) {
-      const x = padX + (c / numCycles) * drawW;
-      ctx.strokeStyle = c % 1 === 0
-        ? 'rgba(255,255,255,0.12)'
-        : 'rgba(255,255,255,0.05)';
-      ctx.beginPath();
-      ctx.moveTo(x, padY);
-      ctx.lineTo(x, padY + drawH);
-      ctx.stroke();
-    }
-
-    // Minor vertical divisions (half-cycle)
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    for (let c = 0; c < numCycles; c++) {
-      const x = padX + ((c + 0.5) / numCycles) * drawW;
-      ctx.beginPath();
-      ctx.moveTo(x, padY);
-      ctx.lineTo(x, padY + drawH);
-      ctx.stroke();
-    }
-
-    // Border
-    ctx.strokeStyle = themeColor + '33';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(padX, padY, drawW, drawH);
-
+    ctx.stroke();
     ctx.restore();
   }
 
-  private drawLabels(W: number, H: number, duration: number, themeColor: string): void {
+  private drawGrid(W: number, H: number, accentColor: string, numCycles: number): void {
+    const ctx = this.ctx2d;
+    const padX = 40;
+    const padY = 20;
+    const drawW = W - 2 * padX;
+    const drawH = H - 2 * padY;
+    const midY = padY + drawH / 2;
+
+    ctx.save();
+    ctx.lineWidth = 1;
+
+    const levels = [1.0, 0.5, 0.0, -0.5, -1.0];
+    for (const level of levels) {
+      const y = midY - level * (drawH / 2) * 0.9;
+      ctx.strokeStyle = level === 0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.07)';
+      ctx.beginPath();
+      ctx.moveTo(padX, y);
+      ctx.lineTo(padX + drawW, y);
+      ctx.stroke();
+    }
+
+    for (let c = 0; c <= numCycles; c++) {
+      const x = padX + (c / numCycles) * drawW;
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.beginPath(); ctx.moveTo(x, padY); ctx.lineTo(x, padY + drawH); ctx.stroke();
+    }
+    for (let c = 0; c < numCycles; c++) {
+      const x = padX + ((c + 0.5) / numCycles) * drawW;
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.beginPath(); ctx.moveTo(x, padY); ctx.lineTo(x, padY + drawH); ctx.stroke();
+    }
+
+    ctx.strokeStyle = accentColor + '33';
+    ctx.strokeRect(padX, padY, drawW, drawH);
+    ctx.restore();
+  }
+
+  private drawLabels(
+    W: number, H: number, duration: number,
+    accentColor: string, numCycles: number, effectiveFreq: number,
+  ): void {
     const ctx = this.ctx2d;
     const padX = 40;
     const padY = 20;
@@ -182,42 +270,68 @@ export class Oscilloscope {
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
 
-    // Y axis amplitude labels
     const amplitudeLevels: [number, string][] = [
-      [1.0, '+1.0'], [0.5, '+0.5'], [0.0, '0'],
-      [-0.5, '−0.5'], [-1.0, '−1.0'],
+      [1.0, '+1.0'], [0.5, '+0.5'], [0.0, '0'], [-0.5, '−0.5'], [-1.0, '−1.0'],
     ];
     for (const [level, label] of amplitudeLevels) {
       const y = midY - level * (drawH / 2) * 0.9;
       ctx.fillText(label, padX - 4, y);
     }
 
-    // X axis time labels
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    const numCycles = this.advanced.zoomFactor;
     for (let c = 0; c <= numCycles; c++) {
       const x = padX + (c / numCycles) * drawW;
-      const timeMs = (duration * c / numCycles * 1000);
+      const timeMs = (duration * c / numCycles) * 1000;
       const label = timeMs < 1
         ? `${(timeMs * 1000).toFixed(0)}μs`
         : `${timeMs.toFixed(2)}ms`;
       ctx.fillText(label, x, padY + drawH + 3);
     }
 
-    // Frequency watermark
-    const effectiveFreq = applyDetune(this.state.frequency, this.advanced.centsOffset);
     ctx.textAlign = 'right';
     ctx.textBaseline = 'top';
-    ctx.fillStyle = themeColor + '44';
+    ctx.fillStyle = accentColor + '44';
     ctx.font = '11px "Courier New", monospace';
     ctx.fillText(`${effectiveFreq.toFixed(1)} Hz`, W - 6, padY + 4);
-
     ctx.restore();
   }
 
-  resize(width: number, height: number): void {
-    this.canvas.width = width;
-    this.canvas.height = height;
+  private drawOverlayLegend(W: number): void {
+    const ctx = this.ctx2d;
+    const padY = 24;
+    const lineH = 16;
+    const boxPad = 6;
+    const count = this.tabs.length + 1; // +1 for SUM
+    const boxH = count * lineH + boxPad * 2;
+    const boxW = 100;
+    const bx = W - 44 - boxW;
+    const by = padY + 20;
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(bx, by, boxW, boxH);
+
+    ctx.font = '9px "Courier New", monospace';
+    ctx.textBaseline = 'middle';
+
+    let row = 0;
+    for (const tab of this.tabs) {
+      const y = by + boxPad + row * lineH + lineH / 2;
+      ctx.fillStyle = tab.isMuted ? tab.color + '44' : tab.color;
+      ctx.fillRect(bx + 6, y - 4, 8, 8);
+      ctx.fillStyle = tab.isMuted ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.8)';
+      ctx.fillText(tab.label, bx + 20, y);
+      row++;
+    }
+
+    // SUM row
+    const sumY = by + boxPad + row * lineH + lineH / 2;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillRect(bx + 6, sumY - 4, 8, 8);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText('SUM', bx + 20, sumY);
+
+    ctx.restore();
   }
 }

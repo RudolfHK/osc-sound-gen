@@ -1,168 +1,209 @@
 import { squareWaveCoefficients, applyDetune } from '../utils/math';
 import type { OscillatorState, AdvancedSettings } from './oscillator';
 
-const TRANSITION_TIME = 0.01; // 10ms smooth transitions
+const TC = 0.01; // 10ms exponential time constant for smooth UI-driven changes
 
-export class AudioEngine {
+// ─── Per-tab audio node bundle ────────────────────────────────────────────────
+
+interface TabNodes {
+  osc: OscillatorNode;
+  ampGain: GainNode;      // controlled by osc.amplitude
+  muteGain: GainNode;     // 0 = muted, 1 = active
+  levelGain: GainNode;    // controlled by osc.masterVolume (per-tab level)
+  panner: StereoPannerNode;
+}
+
+// ─── Multi-oscillator engine ──────────────────────────────────────────────────
+
+export class MultiOscillatorEngine {
   private ctx: AudioContext | null = null;
-  private oscillator: OscillatorNode | null = null;
-  private gainNode: GainNode | null = null;       // amplitude
-  private masterGain: GainNode | null = null;     // master volume
-  private currentState: OscillatorState | null = null;
-  private currentAdvanced: AdvancedSettings | null = null;
+  private masterGain: GainNode | null = null;
+  private mediaStreamDest: MediaStreamAudioDestinationNode | null = null;
+  private tabs = new Map<string, TabNodes>();
+
+  // ─── Context ─────────────────────────────────────────────────────────────────
 
   private ensureContext(): AudioContext {
     if (!this.ctx) {
       this.ctx = new AudioContext();
+      this.masterGain = this.ctx.createGain();
+      this.mediaStreamDest = this.ctx.createMediaStreamDestination();
+      this.masterGain.connect(this.ctx.destination);
+      this.masterGain.connect(this.mediaStreamDest);
     }
     return this.ctx;
   }
 
-  async play(state: OscillatorState, advanced: AdvancedSettings): Promise<void> {
+  // ─── Tab lifecycle ────────────────────────────────────────────────────────────
+
+  async startTab(id: string, state: OscillatorState, advanced: AdvancedSettings): Promise<void> {
     const ctx = this.ensureContext();
+    if (ctx.state === 'suspended') await ctx.resume();
 
-    if (ctx.state === 'suspended') {
-      await ctx.resume();
-    }
+    this.teardownTabNodes(id);
 
-    // Tear down any existing oscillator cleanly
-    this.stopOscillator();
-
-    this.masterGain = ctx.createGain();
-    this.masterGain.gain.value = state.masterVolume;
-    this.masterGain.connect(ctx.destination);
-
-    this.gainNode = ctx.createGain();
-    this.gainNode.gain.value = 0; // ramp in
-    this.gainNode.connect(this.masterGain);
-
-    this.oscillator = ctx.createOscillator();
-    this.applyWaveform(this.oscillator, state);
-    const effectiveFreq = applyDetune(state.frequency, advanced.centsOffset);
-    this.oscillator.frequency.setValueAtTime(effectiveFreq, ctx.currentTime);
-    this.oscillator.connect(this.gainNode);
-    this.oscillator.start();
-
-    // Smooth fade-in to prevent click on start
-    this.gainNode.gain.setTargetAtTime(state.amplitude, ctx.currentTime, TRANSITION_TIME);
-
-    this.currentState = { ...state };
-    this.currentAdvanced = { ...advanced };
-  }
-
-  stop(): void {
-    if (!this.ctx) return;
-    const ctx = this.ctx;
-
-    if (this.gainNode) {
-      // Smooth fade-out before stopping
-      this.gainNode.gain.setTargetAtTime(0, ctx.currentTime, TRANSITION_TIME);
-      const osc = this.oscillator;
-      const gain = this.gainNode;
-      const master = this.masterGain;
-      setTimeout(() => {
-        try { osc?.stop(); } catch (_) { /* already stopped */ }
-        osc?.disconnect();
-        gain?.disconnect();
-        master?.disconnect();
-      }, 100);
-    }
-
-    this.oscillator = null;
-    this.gainNode = null;
-    this.masterGain = null;
-    this.currentState = null;
-  }
-
-  updateParams(state: OscillatorState, advanced: AdvancedSettings): void {
-    if (!this.ctx || !this.oscillator || !this.gainNode || !this.masterGain) return;
-
-    const ctx = this.ctx;
+    const master = this.masterGain!;
     const now = ctx.currentTime;
-    const prev = this.currentState;
-    const prevAdv = this.currentAdvanced;
 
-    // Frequency change (includes cents offset)
-    const effectiveFreq = applyDetune(state.frequency, advanced.centsOffset);
-    const prevEffectiveFreq = prev
-      ? applyDetune(prev.frequency, prevAdv?.centsOffset ?? 0)
-      : effectiveFreq;
+    const osc = ctx.createOscillator();
+    const ampGain = ctx.createGain();
+    const muteGain = ctx.createGain();
+    const levelGain = ctx.createGain();
+    const panner = ctx.createStereoPanner();
 
-    if (effectiveFreq !== prevEffectiveFreq) {
-      this.oscillator.frequency.setTargetAtTime(effectiveFreq, now, TRANSITION_TIME);
-    }
+    applyWaveformToNode(ctx, osc, state);
+    osc.frequency.setValueAtTime(applyDetune(state.frequency, advanced.centsOffset), now);
 
-    // Amplitude change
-    if (state.amplitude !== prev?.amplitude) {
-      this.gainNode.gain.setTargetAtTime(state.amplitude, now, TRANSITION_TIME);
-    }
+    ampGain.gain.value = 0; // start silent, ramp in
+    muteGain.gain.value = 1;
+    levelGain.gain.value = state.masterVolume;
+    panner.pan.value = 0;
 
-    // Master volume change
-    if (state.masterVolume !== prev?.masterVolume) {
-      this.masterGain.gain.setTargetAtTime(state.masterVolume, now, TRANSITION_TIME);
-    }
+    osc.connect(ampGain);
+    ampGain.connect(muteGain);
+    muteGain.connect(levelGain);
+    levelGain.connect(panner);
+    panner.connect(master);
 
-    // Waveform or pulse width change — must rebuild PeriodicWave or switch type
-    const waveformChanged = state.waveform !== prev?.waveform;
-    const pwChanged = state.waveform === 'square' && state.pulseWidth !== prev?.pulseWidth;
-    if (waveformChanged || pwChanged) {
-      this.applyWaveform(this.oscillator, state);
-    }
+    osc.start();
+    ampGain.gain.setTargetAtTime(state.amplitude, now, TC);
 
-    this.currentState = { ...state };
-    this.currentAdvanced = { ...advanced };
+    this.tabs.set(id, { osc, ampGain, muteGain, levelGain, panner });
   }
 
-  get isRunning(): boolean {
-    return this.oscillator !== null;
+  stopTab(id: string): void {
+    this.teardownTabNodes(id);
+    this.tabs.delete(id);
   }
 
-  get contextState(): AudioContextState | 'closed' {
-    return this.ctx?.state ?? 'closed';
+  removeTab(id: string): void {
+    this.stopTab(id);
   }
 
-  private stopOscillator(): void {
-    try { this.oscillator?.stop(); } catch (_) { /* already stopped */ }
-    this.oscillator?.disconnect();
-    this.gainNode?.disconnect();
-    this.masterGain?.disconnect();
-    this.oscillator = null;
-    this.gainNode = null;
-    this.masterGain = null;
+  // ─── Live UI parameter updates ────────────────────────────────────────────────
+
+  updateTab(id: string, state: OscillatorState, advanced: AdvancedSettings): void {
+    const nodes = this.tabs.get(id);
+    if (!this.ctx || !nodes) return;
+
+    const now = this.ctx.currentTime;
+    nodes.osc.frequency.setTargetAtTime(applyDetune(state.frequency, advanced.centsOffset), now, TC);
+    nodes.ampGain.gain.setTargetAtTime(state.amplitude, now, TC);
+    nodes.levelGain.gain.setTargetAtTime(state.masterVolume, now, TC);
+    applyWaveformToNode(this.ctx, nodes.osc, state);
   }
 
-  private applyWaveform(osc: OscillatorNode, state: OscillatorState): void {
-    const ctx = this.ensureContext();
-    switch (state.waveform) {
-      case 'sine':
-        osc.type = 'sine';
-        break;
-      case 'sawtooth':
-        osc.type = 'sawtooth';
-        break;
-      case 'triangle':
-        osc.type = 'triangle';
-        break;
-      case 'square': {
-        const [real, imag] = squareWaveCoefficients(state.pulseWidth, 256);
-        const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
-        osc.setPeriodicWave(wave);
-        break;
-      }
-    }
+  setTabMute(id: string, muted: boolean): void {
+    const nodes = this.tabs.get(id);
+    if (!this.ctx || !nodes) return;
+    nodes.muteGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, TC);
+  }
+
+  setTabPan(id: string, pan: number): void {
+    const nodes = this.tabs.get(id);
+    if (!this.ctx || !nodes) return;
+    nodes.panner.pan.setTargetAtTime(pan, this.ctx.currentTime, TC);
+  }
+
+  setMasterVolume(volume: number): void {
+    if (!this.ctx || !this.masterGain) return;
+    this.masterGain.gain.setTargetAtTime(volume, this.ctx.currentTime, TC);
+  }
+
+  // ─── Sequencer note scheduling ────────────────────────────────────────────────
+  // Called by SequencerEngine to schedule note events at precise AudioContext times.
+
+  scheduleNoteOn(tabId: string, freq: number, gainValue: number, time: number): void {
+    const nodes = this.tabs.get(tabId);
+    if (!nodes) return;
+    nodes.osc.frequency.cancelScheduledValues(time);
+    nodes.osc.frequency.setValueAtTime(freq, time);
+    nodes.ampGain.gain.cancelScheduledValues(time);
+    nodes.ampGain.gain.setValueAtTime(0, time);
+    nodes.ampGain.gain.linearRampToValueAtTime(gainValue, time + 0.005);
+  }
+
+  scheduleNoteOff(tabId: string, restoreFreq: number, restoreGain: number, time: number): void {
+    const nodes = this.tabs.get(tabId);
+    if (!nodes) return;
+    nodes.ampGain.gain.cancelScheduledValues(time - 0.001);
+    nodes.ampGain.gain.setValueAtTime(restoreGain, time - 0.001);
+    nodes.ampGain.gain.linearRampToValueAtTime(0, time);
+    nodes.osc.frequency.setValueAtTime(restoreFreq, time + 0.001);
+  }
+
+  // ─── Accessors ────────────────────────────────────────────────────────────────
+
+  isTabPlaying(id: string): boolean {
+    return this.tabs.has(id);
+  }
+
+  getMediaStreamDest(): MediaStreamAudioDestinationNode | null {
+    return this.mediaStreamDest;
+  }
+
+  getAudioContext(): AudioContext | null {
+    return this.ctx;
+  }
+
+  getMasterGain(): GainNode | null {
+    return this.masterGain;
+  }
+
+  // ─── Cleanup ──────────────────────────────────────────────────────────────────
+
+  private teardownTabNodes(id: string): void {
+    const nodes = this.tabs.get(id);
+    if (!nodes || !this.ctx) return;
+
+    const { osc, ampGain, muteGain, levelGain, panner } = nodes;
+    ampGain.gain.setTargetAtTime(0, this.ctx.currentTime, TC);
+    setTimeout(() => {
+      try { osc.stop(); } catch (_) { /* already stopped */ }
+      osc.disconnect();
+      ampGain.disconnect();
+      muteGain.disconnect();
+      levelGain.disconnect();
+      panner.disconnect();
+    }, 100);
   }
 
   destroy(): void {
-    this.stop();
-    this.ctx?.close();
+    for (const id of [...this.tabs.keys()]) {
+      this.teardownTabNodes(id);
+      this.tabs.delete(id);
+    }
+    void this.ctx?.close();
     this.ctx = null;
+    this.masterGain = null;
+    this.mediaStreamDest = null;
   }
 }
 
-// Singleton instance
-let _engine: AudioEngine | null = null;
+// ─── Waveform helper (exported for use by SequencerEngine) ────────────────────
 
-export function getAudioEngine(): AudioEngine {
-  if (!_engine) _engine = new AudioEngine();
+export function applyWaveformToNode(
+  ctx: AudioContext,
+  osc: OscillatorNode,
+  state: OscillatorState,
+): void {
+  switch (state.waveform) {
+    case 'sine':      osc.type = 'sine';     break;
+    case 'sawtooth':  osc.type = 'sawtooth'; break;
+    case 'triangle':  osc.type = 'triangle'; break;
+    case 'square': {
+      const [real, imag] = squareWaveCoefficients(state.pulseWidth, 256);
+      osc.setPeriodicWave(ctx.createPeriodicWave(real, imag, { disableNormalization: false }));
+      break;
+    }
+  }
+}
+
+// ─── Singleton ────────────────────────────────────────────────────────────────
+
+let _engine: MultiOscillatorEngine | null = null;
+
+export function getAudioEngine(): MultiOscillatorEngine {
+  if (!_engine) _engine = new MultiOscillatorEngine();
   return _engine;
 }
