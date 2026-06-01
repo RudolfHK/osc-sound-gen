@@ -1,20 +1,29 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../store/appStore';
 import { getAudioEngine } from '../engine/audio';
 import { THEME_COLORS } from '../utils/math';
+
+// Pre-allocated buffer for VU meter reads — never allocate inside the draw loop
+const VU_BUF_SIZE = 256;
 
 // ─── VU Meter canvas ──────────────────────────────────────────────────────────
 
 function VUMeter({ analyser, color }: { analyser: AnalyserNode | null; color: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
+  const bufRef = useRef(new Float32Array(VU_BUF_SIZE));
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !analyser) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const buf = new Float32Array(analyser.fftSize);
+
+    // Update buffer size if analyser fftSize differs
+    if (bufRef.current.length !== analyser.fftSize) {
+      bufRef.current = new Float32Array(analyser.fftSize);
+    }
+    const buf = bufRef.current;
 
     const draw = () => {
       analyser.getFloatTimeDomainData(buf);
@@ -22,7 +31,7 @@ function VUMeter({ analyser, color }: { analyser: AnalyserNode | null; color: st
       for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
       rms = Math.sqrt(rms / buf.length);
       const db = 20 * Math.log10(Math.max(rms, 1e-6));
-      const level = Math.max(0, Math.min(1, (db + 60) / 60)); // -60dB to 0dB
+      const level = Math.max(0, Math.min(1, (db + 60) / 60)); // -60 dB → 0 dB
 
       const W = canvas.width;
       const H = canvas.height;
@@ -53,17 +62,30 @@ function ChannelStrip({ tabId }: { tabId: string }) {
   const { state, dispatch } = useAppStore();
   const tab = state.tabs.find((t) => t.id === tabId);
   const track = state.sequencer.tracks.find((t) => t.tabId === tabId);
-  const analyserRef = useRef<AnalyserNode | null>(null);
+
+  // Use state (not ref) so VUMeter re-renders when analyser becomes available
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
 
   useEffect(() => {
-    const ctx = getAudioEngine().getAudioContext();
-    if (!ctx) return;
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    analyserRef.current = analyser;
-    // In a full impl, connect after the tab's gain node. Here we approximate by connecting master.
-    return () => { try { analyser.disconnect(); } catch (_) { /* ignore */ } };
-  }, [tabId]);
+    const audioEngine = getAudioEngine();
+    const audioCtx = audioEngine.getAudioContext();
+    const master = audioEngine.getMasterGain();
+    if (!audioCtx || !master) {
+      setAnalyser(null);
+      return;
+    }
+
+    const node = audioCtx.createAnalyser();
+    node.fftSize = VU_BUF_SIZE;
+    // Tap off the master output — all channels are mixed here
+    master.connect(node);
+    setAnalyser(node);
+
+    return () => {
+      try { master.disconnect(node); } catch (_) { /* ignore */ }
+      setAnalyser(null);
+    };
+  }, [tabId]); // re-run if tab changes (AudioContext might have been created since last render)
 
   if (!tab || !track) return null;
   const color = tab.color;
@@ -74,10 +96,10 @@ function ChannelStrip({ tabId }: { tabId: string }) {
       <span className="text-xs font-mono text-neutral-400 truncate max-w-[50px] text-center">{tab.label}</span>
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
 
-      {/* VU meters */}
+      {/* VU meters — tap from master (both L/R show same signal for now) */}
       <div className="flex gap-0.5">
-        <VUMeter analyser={analyserRef.current} color={color} />
-        <VUMeter analyser={analyserRef.current} color={color} />
+        <VUMeter analyser={analyser} color={color} />
+        <VUMeter analyser={analyser} color={color} />
       </div>
 
       {/* Volume fader */}

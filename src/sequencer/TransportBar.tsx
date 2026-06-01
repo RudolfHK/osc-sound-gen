@@ -16,13 +16,18 @@ export function TransportBar() {
       getSequencerEngine().stop();
       dispatch({ type: 'SEQ_SET_PLAYING', playing: false });
     } else {
-      dispatch({ type: 'SEQ_SET_PLAYING', playing: true });
-      await getSequencerEngine().play(
-        seq.playheadBeat,
-        seq,
-        state.tabs,
-        (beat) => dispatch({ type: 'SEQ_SET_PLAYHEAD', beat }),
-      );
+      try {
+        dispatch({ type: 'SEQ_SET_PLAYING', playing: true });
+        await getSequencerEngine().play(
+          seq.playheadBeat,
+          seq,
+          state.tabs,
+          (beat) => dispatch({ type: 'SEQ_SET_PLAYHEAD', beat }),
+        );
+      } catch (err) {
+        console.error('Sequencer failed to start:', err);
+        dispatch({ type: 'SEQ_SET_PLAYING', playing: false });
+      }
     }
   }, [seq, state.tabs, dispatch]);
 

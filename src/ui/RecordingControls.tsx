@@ -14,6 +14,7 @@ export function RecordingControls({ isRecording, onSetRecording }: RecordingCont
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [lastBlob, setLastBlob] = useState<{ blob: Blob; timestamp: string; mimeType: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isRecording) {
@@ -27,6 +28,7 @@ export function RecordingControls({ isRecording, onSetRecording }: RecordingCont
 
   const handleToggle = async () => {
     const audioEngine = getAudioEngine();
+    setError(null);
     if (isRecording) {
       const eng = engineRef.current;
       if (!eng) return;
@@ -34,14 +36,21 @@ export function RecordingControls({ isRecording, onSetRecording }: RecordingCont
       try {
         const track = await eng.stop();
         setLastBlob({ blob: track.blob, timestamp: track.timestamp, mimeType: track.mimeType });
+      } catch (err) {
+        setError('Recording failed to stop cleanly.');
+        console.error(err);
       } finally {
         setBusy(false);
+        engineRef.current = null;
+        onSetRecording(false);  // always clear recording state
       }
-      engineRef.current = null;
-      onSetRecording(false);
     } else {
       const dest = audioEngine.getMediaStreamDest();
-      if (!dest) return;
+      if (!dest) {
+        // AudioContext doesn't exist yet — user must play audio first
+        setError('Play at least one oscillator before recording.');
+        return;
+      }
       const eng = new RecordingEngine(dest);
       eng.start();
       engineRef.current = eng;
@@ -88,6 +97,10 @@ export function RecordingControls({ isRecording, onSetRecording }: RecordingCont
         <span className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500' : 'bg-neutral-600'}`} />
         {isRecording ? `REC ${fmt(elapsed)}` : 'REC'}
       </button>
+
+      {error && (
+        <span className="text-xs text-red-400 font-mono">{error}</span>
+      )}
 
       {lastBlob && !isRecording && (
         <>

@@ -29,7 +29,7 @@ function yToNote(y: number, vp: ViewParams): number {
   return Math.round(vp.viewHighNote - (y - RULER_H) / SEMITONE_H);
 }
 
-const DEFAULT_DURATION = 0.5; // quarter beat default note length
+const DEFAULT_DURATION = 0.5;
 const PX_PER_BEAT_DEFAULT = 80;
 
 // ─── Canvas renderer ──────────────────────────────────────────────────────────
@@ -39,7 +39,12 @@ function drawPianoRoll(
   track: SequencerTrack,
   tab: OscillatorTab,
   vp: ViewParams,
-  seq: { bpm: number; beatsPerBar: number; songLengthBars: number; playheadBeat: number; isPlaying: boolean; loopEnabled: boolean; loopStartBeat: number; loopEndBeat: number; selectedNoteIds: string[] },
+  selectedSet: Set<string>,  // pre-allocated by caller, avoids allocation in draw loop
+  seq: {
+    bpm: number; beatsPerBar: number; songLengthBars: number;
+    playheadBeat: number; isPlaying: boolean;
+    loopEnabled: boolean; loopStartBeat: number; loopEndBeat: number;
+  },
   accent: string,
 ) {
   const ctx = canvas.getContext('2d');
@@ -51,7 +56,6 @@ function drawPianoRoll(
   const totalNotes = vp.viewHighNote - vp.viewLowNote + 1;
   const gridH = totalNotes * SEMITONE_H;
 
-  // Background
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, W, H);
 
@@ -70,7 +74,6 @@ function drawPianoRoll(
     }
   }
 
-  // Key border
   ctx.strokeStyle = '#333';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -82,8 +85,10 @@ function drawPianoRoll(
   for (let midi = vp.viewLowNote; midi <= vp.viewHighNote + 1; midi++) {
     const y = noteToY(midi - 1, vp) + SEMITONE_H;
     const isBlack = isBlackKey(midi);
-    ctx.fillStyle = isBlack ? 'rgba(0,0,0,0.3)' : 'transparent';
-    if (isBlack) ctx.fillRect(KEY_W, noteToY(midi, vp), W - KEY_W, SEMITONE_H);
+    if (isBlack) {
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(KEY_W, noteToY(midi, vp), W - KEY_W, SEMITONE_H);
+    }
     ctx.strokeStyle = midi % 12 === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(KEY_W, y); ctx.lineTo(W, y); ctx.stroke();
@@ -135,17 +140,16 @@ function drawPianoRoll(
   }
 
   // ── Notes ─────────────────────────────────────────────────────────────────
-  const selectedSet = new Set(seq.selectedNoteIds);
   for (const note of track.notes) {
     const nx = beatToX(note.startBeat, vp);
     const ny = noteToY(note.midiNote, vp);
     const nw = Math.max(MIN_NOTE_W, note.durationBeats * vp.pxPerBeat - 1);
     const nh = SEMITONE_H - 1;
     const selected = selectedSet.has(note.id);
-    const alpha = (note.velocity / 127).toFixed(2);
+    const velAlpha = (note.velocity / 127) * 0.7 + 0.3;
 
     ctx.fillStyle = selected ? '#fff' : tab.color;
-    ctx.globalAlpha = selected ? 0.9 : parseFloat(alpha) * 0.7 + 0.3;
+    ctx.globalAlpha = selected ? 0.9 : velAlpha;
     ctx.fillRect(nx, ny + 1, nw, nh);
     ctx.globalAlpha = 1;
 
@@ -187,14 +191,27 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pxPerBeat, setPxPerBeat] = useState(PX_PER_BEAT_DEFAULT);
 
-  const vp: ViewParams = {
+  // Pre-allocated Set — updated when selectedNoteIds changes, never inside the draw loop
+  const selectedSetRef = useRef(new Set<string>());
+  useEffect(() => {
+    selectedSetRef.current = new Set(seq.selectedNoteIds);
+  }, [seq.selectedNoteIds]);
+
+  // Keep latest values in refs for use inside the native wheel handler closure
+  const vpRef = useRef<ViewParams>({
     pxPerBeat,
     viewStartBeat: seq.viewStartBeat,
     viewLowNote: seq.viewLowNote,
     viewHighNote: seq.viewHighNote,
-  };
+  });
+  const seqRef = useRef(seq);
+  vpRef.current = { pxPerBeat, viewStartBeat: seq.viewStartBeat, viewLowNote: seq.viewLowNote, viewHighNote: seq.viewHighNote };
+  seqRef.current = seq;
 
-  // Resize canvas to container
+  const vp = vpRef.current;
+
+  // ─── Canvas resize ─────────────────────────────────────────────────────────
+
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -209,11 +226,12 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
     return () => observer.disconnect();
   }, [height]);
 
-  // Draw every frame (RAF-driven via state changes)
+  // ─── Draw every render (playhead moves at 60fps) ──────────────────────────
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    drawPianoRoll(canvas, track, tab, vp, seq, accent);
+    drawPianoRoll(canvas, track, tab, vp, selectedSetRef.current, seq, accent);
   });
 
   // ─── Interaction ──────────────────────────────────────────────────────────
@@ -225,7 +243,6 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
     startY: number;
     origStart?: number;
     origMidi?: number;
-    origEnd?: number;
     rect?: { x: number; y: number; w: number; h: number };
   } | null>(null);
 
@@ -238,18 +255,15 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
     const midi = yToNote(y, vp);
     const beat = xToBeat(x, vp);
     for (const note of [...track.notes].reverse()) {
-      if (
-        note.midiNote === midi &&
-        beat >= note.startBeat &&
-        beat <= note.startBeat + note.durationBeats
-      ) return note;
+      if (note.midiNote === midi && beat >= note.startBeat && beat <= note.startBeat + note.durationBeats) {
+        return note;
+      }
     }
     return null;
   }, [track.notes, vp]);
 
   const isNearRightEdge = (note: SequencerNote, x: number) => {
-    const noteEndX = beatToX(note.startBeat + note.durationBeats, vp);
-    return Math.abs(x - noteEndX) < 8;
+    return Math.abs(x - beatToX(note.startBeat + note.durationBeats, vp)) < 8;
   };
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -260,50 +274,45 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
 
     if (seq.editMode === 'draw') {
       if (e.button === 2 && existing) {
-        // Right-click = delete
         dispatch({ type: 'SEQ_PUSH_UNDO' });
         dispatch({ type: 'SEQ_REMOVE_NOTE', tabId: tab.id, noteId: existing.id });
         return;
       }
       if (existing) {
+        dispatch({ type: 'SEQ_PUSH_UNDO' });
         if (isNearRightEdge(existing, x)) {
-          dragRef.current = { type: 'resize', noteId: existing.id, startX: x, startY: y, origEnd: existing.startBeat + existing.durationBeats };
+          dragRef.current = { type: 'resize', noteId: existing.id, startX: x, startY: y };
         } else {
           dragRef.current = { type: 'move', noteId: existing.id, startX: x, startY: y, origStart: existing.startBeat, origMidi: existing.midiNote };
         }
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
       } else {
-        // Draw new note
         const beat = snapBeat(xToBeat(x, vp), seq.snapValue);
         const midi = yToNote(y, vp);
         if (midi < 0 || midi > 127) return;
-        const note: SequencerNote = {
-          id: makeNoteId(), midiNote: midi, startBeat: beat,
-          durationBeats: DEFAULT_DURATION, velocity: 100,
-        };
+        const note: SequencerNote = { id: makeNoteId(), midiNote: midi, startBeat: Math.max(0, beat), durationBeats: DEFAULT_DURATION, velocity: 100 };
         dispatch({ type: 'SEQ_PUSH_UNDO' });
         dispatch({ type: 'SEQ_ADD_NOTE', tabId: tab.id, note });
-        dragRef.current = { type: 'resize', noteId: note.id, startX: x, startY: y, origEnd: beat + DEFAULT_DURATION };
+        dragRef.current = { type: 'resize', noteId: note.id, startX: x, startY: y };
       }
     } else {
-      // Select mode
       if (existing) {
-        if (!e.shiftKey) dispatch({ type: 'SEQ_SELECT_NOTES', ids: [existing.id] });
-        else {
+        if (!e.shiftKey) {
+          dispatch({ type: 'SEQ_SELECT_NOTES', ids: [existing.id] });
+        } else {
           const sel = seq.selectedNoteIds.includes(existing.id)
             ? seq.selectedNoteIds.filter((id) => id !== existing.id)
             : [...seq.selectedNoteIds, existing.id];
           dispatch({ type: 'SEQ_SELECT_NOTES', ids: sel });
         }
+        dispatch({ type: 'SEQ_PUSH_UNDO' });
         if (isNearRightEdge(existing, x)) {
-          dragRef.current = { type: 'resize', noteId: existing.id, startX: x, startY: y, origEnd: existing.startBeat + existing.durationBeats };
+          dragRef.current = { type: 'resize', noteId: existing.id, startX: x, startY: y };
         } else {
           dragRef.current = { type: 'move', noteId: existing.id, startX: x, startY: y, origStart: existing.startBeat, origMidi: existing.midiNote };
         }
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
       } else {
         dispatch({ type: 'SEQ_SELECT_NOTES', ids: [] });
-        dragRef.current = { type: 'select', startX: x, startY: y, rect: { x, y, w: 0, h: 0 } };
+        dragRef.current = { type: 'select', startX: x, startY: y };
       }
     }
   }, [seq, tab.id, vp, findNote, dispatch]);
@@ -333,7 +342,6 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const drag = dragRef.current;
     if (drag?.type === 'select') {
-      // Box select
       const { x, y } = getCanvasPos(e);
       const bx1 = Math.min(drag.startX, x);
       const bx2 = Math.max(drag.startX, x);
@@ -351,7 +359,8 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
     dragRef.current = null;
   }, [track.notes, vp, dispatch]);
 
-  // Keyboard shortcuts
+  // ─── Keyboard shortcuts ────────────────────────────────────────────────────
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -368,23 +377,38 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [seq.selectedNoteIds, dispatch]);
 
-  // Scroll to pan view
-  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      // Zoom
-      const factor = e.deltaY > 0 ? 0.85 : 1.18;
-      setPxPerBeat((prev) => Math.max(20, Math.min(400, prev * factor)));
-    } else if (e.shiftKey) {
-      // Vertical scroll (note range)
-      const delta = Math.round(e.deltaY / SEMITONE_H);
-      dispatch({ type: 'SEQ_SET_VIEW', lowNote: seq.viewLowNote + delta, highNote: seq.viewHighNote + delta });
-    } else {
-      // Horizontal scroll
-      const delta = e.deltaY / vp.pxPerBeat;
-      dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, seq.viewStartBeat + delta) });
-    }
-  }, [seq.viewStartBeat, seq.viewLowNote, seq.viewHighNote, vp.pxPerBeat, dispatch]);
+  // ─── Wheel handler: must be non-passive to allow preventDefault ────────────
+  // React's synthetic onWheel is passive in React 17+ and cannot preventDefault.
+  // We attach the native listener with { passive: false } instead.
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const currentVp = vpRef.current;
+      const currentSeq = seqRef.current;
+
+      if (e.ctrlKey || e.metaKey) {
+        const factor = e.deltaY > 0 ? 0.85 : 1.18;
+        setPxPerBeat((prev) => Math.max(20, Math.min(400, prev * factor)));
+      } else if (e.shiftKey) {
+        const delta = Math.round(e.deltaY / SEMITONE_H);
+        dispatch({
+          type: 'SEQ_SET_VIEW',
+          lowNote: Math.max(0, Math.min(115, currentSeq.viewLowNote + delta)),
+          highNote: Math.max(12, Math.min(127, currentSeq.viewHighNote + delta)),
+        });
+      } else {
+        const delta = e.deltaY / currentVp.pxPerBeat;
+        dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, currentSeq.viewStartBeat + delta) });
+      }
+    };
+
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', onWheel);
+  }, [dispatch]); // stable: dispatch never changes, vpRef/seqRef are always current
 
   return (
     <div ref={containerRef} className="relative overflow-hidden" style={{ height }}>
@@ -396,7 +420,6 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onContextMenu={(e) => e.preventDefault()}
-        onWheel={handleWheel}
         style={{ cursor: seq.editMode === 'draw' ? 'crosshair' : 'default' }}
       />
     </div>

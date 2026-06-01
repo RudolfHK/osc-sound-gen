@@ -38,6 +38,8 @@ export function SequencerPanel() {
     downloadBlob(blob, `osc-project-${Date.now()}.oscproject`);
   }, [seq, state.masterVolume]);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const loadProject = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -45,12 +47,21 @@ export function SequencerPanel() {
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
+      setLoadError(null);
       try {
         const text = await file.text();
-        const project: SequencerProject = JSON.parse(text);
-        dispatch({ type: 'LOAD_PROJECT', project });
+        const project = JSON.parse(text) as Partial<SequencerProject>;
+        if (project.version !== '1.0') {
+          setLoadError(`Unknown project version "${project.version ?? 'none'}". Some data may not load correctly.`);
+        }
+        if (!project.bpm || !project.tracks) {
+          setLoadError('Invalid project file: missing required fields.');
+          return;
+        }
+        dispatch({ type: 'LOAD_PROJECT', project: project as SequencerProject });
       } catch (err) {
-        console.error('Failed to load project:', err);
+        setLoadError('Failed to parse project file. Is it a valid .oscproject?');
+        console.error(err);
       }
     };
     input.click();
@@ -87,6 +98,11 @@ export function SequencerPanel() {
         ))}
 
         <div className="ml-auto flex items-center gap-1.5">
+          {loadError && (
+            <span className="text-xs text-red-400 font-mono max-w-[220px] truncate" title={loadError}>
+              ⚠ {loadError}
+            </span>
+          )}
           <button
             onClick={() => setShowMixer((s) => !s)}
             style={showMixer ? { borderColor: accent, color: accent, backgroundColor: accent + '18' } : {}}
