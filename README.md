@@ -79,6 +79,18 @@ All audio parameter changes use `AudioParam.setTargetAtTime(newValue, ctx.curren
 - **Canvas 2D API** — 60 fps oscilloscope rendering  
 - **Tailwind CSS** — utility-first dark-theme styling
 
+## Free and Open Source
+
+All 130+ dependencies are free and open-source software (MIT, Apache-2.0, BSD-3-Clause, ISC, or CC-BY-4.0). No proprietary SDKs, analytics, or external API calls are included.
+
+See [LICENSES.md](LICENSES.md) for the full dependency inventory.
+
+To verify the current dependency tree against the approved license list:
+
+```bash
+npm run audit:licenses
+```
+
 ## Architecture
 
 ```
