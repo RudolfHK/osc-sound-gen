@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #0a0a0a;
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  .knob-label {
+    @apply text-xs uppercase tracking-widest text-neutral-500;
+  }
+
+  .control-value {
+    @apply text-xs font-mono text-neutral-300;
+  }
+
+  .slider-track {
+    @apply appearance-none w-full h-1 rounded-full bg-neutral-700 outline-none cursor-pointer;
+  }
+
+  .slider-track::-webkit-slider-thumb {
+    @apply appearance-none w-3 h-3 rounded-full cursor-pointer;
+    background: currentColor;
+    margin-top: -4px;
+  }
+
+  .slider-track::-moz-range-thumb {
+    @apply w-3 h-3 rounded-full border-0 cursor-pointer;
+    background: currentColor;
+  }
+}
