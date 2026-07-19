@@ -1,109 +1,206 @@
 # OSC — Digital Oscillator Synthesizer
 
-A browser-based digital oscilloscope and synthesizer. Set oscillator parameters, see the waveform update live at 60 fps, and hear the corresponding audio — all in sync.
+A browser-based (and optionally desktop) digital oscilloscope and multi-track synthesizer. Set oscillator parameters, compose note sequences in a piano roll, mix tracks, and record the output — all rendered in real time at 60 fps.
 
-## Quick Start
+---
+
+## Quick Start (Web)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. Click **▶ PLAY** to start audio (required by browser autoplay policy — audio context activates on first user gesture).
-
-### Other commands
+Open **http://localhost:5173**. Click **▶ PLAY** on any oscillator tab to activate audio (required once by browser autoplay policy).
 
 ```bash
-npm run build    # Production build → dist/
+npm run build    # Production bundle → dist/
 npm run preview  # Serve the production build locally
-npm run lint     # Type-check only (no emit)
+npm run lint     # TypeScript type-check (no emit)
 ```
+
+For a detailed setup walkthrough see [QUICKSTART.md](QUICKSTART.md). For full feature documentation see [GUIDE.md](GUIDE.md).
+
+---
+
+## Quick Start (Desktop — Electron)
+
+The repo ships with an Electron main process at `electron/main.cjs`. To run the app as a native desktop window:
+
+### 1. Install Electron (one-time)
+
+```bash
+npm install --save-dev electron electron-builder
+```
+
+### 2. Run in dev mode (hot-reload)
+
+Open two terminals:
+
+```bash
+# Terminal 1 — start Vite dev server
+npm run dev
+
+# Terminal 2 — launch Electron (connects to http://localhost:5173)
+npm run electron:dev
+```
+
+### 3. Build a distributable installer
+
+```bash
+npm run electron:build
+```
+
+Output is placed in `release/`:
+
+| Platform | File |
+|----------|------|
+| Windows  | `OSC Synthesizer Setup 1.0.0.exe` (NSIS installer, ~150 MB) |
+| macOS    | `OSC Synthesizer-1.0.0.dmg` |
+| Linux    | `OSC Synthesizer-1.0.0.AppImage` |
+
+> **Icon files**: electron-builder needs `assets/icon.ico` (Windows), `assets/icon.icns` (macOS), `assets/icon.png` (Linux) before building. See [assets/ICONS.md](assets/ICONS.md) for conversion instructions.
+
+For the complete Electron packaging guide including code signing and auto-updater, see [SHIPPING_PLAN.md](SHIPPING_PLAN.md).
+
+---
 
 ## Features
 
-- **4 waveforms**: Sine, Square (with variable pulse width), Sawtooth, Triangle
-- **Real-time oscilloscope**: 60 fps canvas rendering, 2048-sample buffer, antialiased phosphor-glow waveform
-- **Live audio**: Web Audio API with smooth parameter transitions (no clicks on frequency/amplitude changes)
-- **Logarithmic frequency slider**: 20 Hz – 20 kHz with type-in numeric input
-- **Advanced panel**: detune (cents), zoom (cycles shown), line thickness, colour theme, grid toggle
+### Oscillator engine
+- **4 waveforms**: Sine, Square (variable pulse width via Fourier series), Sawtooth, Triangle
+- **Logarithmic frequency slider**: 20 Hz – 20 kHz with precision type-in input
+- **Smooth parameter transitions**: `setTargetAtTime` with 10 ms time constant — no clicks or zipper noise
+- **Multi-oscillator**: unlimited tabs, each independent Play/Stop, Mute/Solo, rename, drag-reorder
 
-## Controls
+### Oscilloscope
+- 60 fps Canvas 2D rendering, 2048-sample buffer, antialiased phosphor-glow line
+- **Single mode**: active oscillator with amplitude grid and timing ruler
+- **Overlay mode**: all oscillators rendered simultaneously with a white SUM waveform
 
-| Control | Range | Notes |
-|---------|-------|-------|
-| Waveform | Sine / Square / Saw / Triangle | Segmented selector |
-| Frequency | 20 – 20 000 Hz | Log scale slider; click value to type exact Hz |
-| Amplitude | 0.0 – 1.0 | Maps to waveform height and audio level |
-| Phase | 0° – 360° | Phase offset in radians |
-| Pulse Width | 1% – 99% | Square wave only |
-| Master Volume | 0% – 100% | Independent of amplitude |
+### Sequencer / Piano Roll
+- Piano roll editor with **Draw** and **Select** edit modes
+- **Configurable note length** — set default duration before drawing
+- **Velocity lane** — toggle a 50 px lane below the roll; drag bars to set per-note velocity
+- **Loop region** — colored overlay; sequencer loops the marked region
+- **Snap grid**: 1/1 → 1/32 note resolution; Shift+drag for free movement
+- **Undo/Redo** — 50 levels; Ctrl+Z / Ctrl+Shift+Z (⌘ on Mac)
+- **Copy/Paste** — Ctrl+C copies selected notes; Ctrl+V pastes at playhead position
+- **Select-all / deselect** — Ctrl+A / Escape
+- **Quantize** — Q key or Q button snaps selected notes to snap grid
+- **Computer keyboard piano** — A/W/S/E/D/F/T/G/Y/H/U/J/K preview notes in the tab's waveform
+
+### Mixer
+- Per-track VU meters (activate once any oscillator starts playing)
+- Volume fader and stereo pan per track
+- Master volume strip
+- Mute/Solo per track
+
+### Recording
+- Captures master output to **WebM** (Opus) or **WAV** (16-bit PCM)
+- No time limit; WAV conversion handled in-browser via AudioBuffer decoding
+
+### Persistence
+- **Auto-save** — full app state (oscillators, sequencer, settings) persists in `localStorage`
+- **Project files** — save/load `.oscproject` (JSON) for sharing compositions
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| **Ctrl+Z** | Undo (piano roll) |
+| **Ctrl+Shift+Z** | Redo |
+| **Delete / Backspace** | Delete selected notes |
+| **Right-click note** | Delete note (Draw mode) |
+| **Ctrl+C** | Copy selected notes |
+| **Ctrl+V** | Paste notes at playhead |
+| **Ctrl+A** | Select all notes in track |
+| **Escape** | Deselect all |
+| **Q** | Quantize selected notes to snap grid |
+| **Shift+click** | Toggle note in/out of selection |
+| **A W S E D F T G Y H U J K** | Preview MIDI notes via current oscillator (piano keyboard) |
+| **Ctrl+scroll** | Zoom piano roll horizontally |
+| **Shift+scroll** | Scroll piano roll vertically (pitch) |
+| **Scroll** | Scroll piano roll horizontally (time) |
+| **Double-click tab label** | Rename tab |
+| **Drag tab** | Reorder tabs |
+
+---
 
 ## Oscillator Mathematics
 
-All waveforms are computed analytically from first principles — no lookup tables.
+All waveforms are computed analytically — no lookup tables.
 
 ```
 sine(t)      = A · sin(2π·f·t + φ)
-
-square(t)    = A · (pos(t) < PW ? +1 : −1)
-               where pos(t) = frac(f·t + φ/2π)
-
+square(t)    = A · (pos(t) < PW ? +1 : −1)   where pos(t) = frac(f·t + φ/2π)
 sawtooth(t)  = A · (2 · frac(f·t + φ/2π) − 1)
-
 triangle(t)  = A · (2/π) · arcsin(sin(2π·f·t + φ))
 ```
 
-Where `t` = time in seconds, `f` = frequency in Hz, `φ` = phase offset in radians, `A` = amplitude, `PW` = pulse width, `frac()` = fractional part.
+The square wave audio engine uses a 256-harmonic Fourier series (`PeriodicWave`) to support variable pulse width while avoiding aliasing artifacts.
 
-### Square Wave with Variable Pulse Width (Audio)
-
-The Web Audio API's native `OscillatorNode` is fixed at 50% duty cycle. To support arbitrary pulse widths, the audio engine computes a `PeriodicWave` from the Fourier series of a rectangular pulse:
-
-```
-DC:         real[0] = 2D − 1
-Cosine[n]:  real[n] = 2·sin(2πnD) / (πn)
-Sine[n]:    imag[n] = 2·(1 − cos(2πnD)) / (πn)
-```
-
-where `D` is the duty cycle (pulse width). 256 harmonics are used, giving excellent fidelity. The wave is updated via `OscillatorNode.setPeriodicWave()` whenever pulse width changes.
-
-### Smooth Parameter Transitions
-
-All audio parameter changes use `AudioParam.setTargetAtTime(newValue, ctx.currentTime, 0.01)` instead of direct assignment, giving a 10 ms exponential approach that eliminates clicks and zipper noise when sweeping frequency or amplitude.
+---
 
 ## Technology
 
-- **React 18** + **TypeScript** — UI and state management  
-- **Vite** — dev server and production bundler  
-- **Web Audio API** — oscillator engine, GainNodes, PeriodicWave  
-- **Canvas 2D API** — 60 fps oscilloscope rendering  
-- **Tailwind CSS** — utility-first dark-theme styling
+| Layer | Technology |
+|-------|-----------|
+| UI & state | React 18 + TypeScript, `useReducer` + Context |
+| Bundler | Vite 6 |
+| Styling | Tailwind CSS 3 (utility-first, dark theme) |
+| Audio | Web Audio API — `OscillatorNode`, `GainNode`, `StereoPannerNode`, `AnalyserNode`, `MediaRecorder` |
+| Oscilloscope | Canvas 2D API, 60 fps `requestAnimationFrame` loop |
+| Piano roll | Canvas 2D API, lookahead scheduler (120 ms / 25 ms interval) |
+| Desktop | Electron (optional, see above) |
 
-## Free and Open Source
-
-All 130+ dependencies are free and open-source software (MIT, Apache-2.0, BSD-3-Clause, ISC, or CC-BY-4.0). No proprietary SDKs, analytics, or external API calls are included.
-
-See [LICENSES.md](LICENSES.md) for the full dependency inventory.
-
-To verify the current dependency tree against the approved license list:
-
-```bash
-npm run audit:licenses
-```
+---
 
 ## Architecture
 
 ```
 src/
 ├── engine/
-│   ├── oscillator.ts   state types and defaults
-│   └── audio.ts        Web Audio API engine (singleton)
-├── visualizer/
-│   └── oscilloscope.ts canvas renderer, 60 fps RAF loop
+│   ├── oscillator.ts      state types and defaults
+│   ├── audio.ts           Web Audio API engine (singleton MultiOscillatorEngine)
+│   └── sequencer.ts       lookahead scheduler + per-track audio nodes
+├── sequencer/
+│   ├── PianoRoll.tsx      canvas piano roll, all note interaction
+│   ├── SequencerPanel.tsx panel layout, project save/load, resize handle
+│   ├── TransportBar.tsx   BPM, loop, snap, NOTE, VEL, Q, undo/redo
+│   ├── TrackHeader.tsx    per-track sidebar (mute/solo/pan)
+│   └── Mixer.tsx          per-track VU meters + faders
+├── store/
+│   └── appStore.ts        useReducer + Context, localStorage persistence
 ├── ui/
-│   ├── controls.tsx    all parameter controls
-│   └── layout.tsx      top-level layout + ResizeObserver
+│   ├── controls.tsx       oscillator parameter controls
+│   ├── layout.tsx         top-level layout, oscilloscope bridge
+│   ├── TabBar.tsx         tab add/remove/rename/reorder
+│   └── RecordingControls.tsx recording bar
+├── visualizer/
+│   └── oscilloscope.ts    canvas renderer, single + overlay modes
 ├── utils/
-│   └── math.ts         waveform math, log↔freq mapping, Fourier coefficients
-└── main.tsx            React entry point
+│   ├── math.ts            waveform math, log↔freq mapping, Fourier coefficients
+│   ├── music.ts           MIDI utils, snap grid, sequencer types
+│   ├── colors.ts          tab color palette
+│   └── wav.ts             WAV encoding utilities
+└── main.tsx               React entry point
+electron/
+└── main.cjs               Electron main process (CommonJS)
+assets/
+└── ICONS.md               Icon conversion instructions for electron-builder
 ```
+
+---
+
+## Free and Open Source
+
+All dependencies are MIT, Apache-2.0, BSD-3-Clause, ISC, or CC-BY-4.0. No proprietary SDKs, analytics, or external API calls.
+
+```bash
+npm run audit:licenses   # verify the full dependency tree
+```
+
+See [LICENSES.md](LICENSES.md) for the complete inventory.

@@ -191,7 +191,9 @@ Drag the **right edge** of a note (within 8 pixels of the right side) to resize 
 
 ### Note velocity
 
-Notes are created with velocity 100 (of 127 maximum). Velocity controls how loudly each note plays in the sequencer. Higher velocity = brighter, louder note. Velocity is shown as opacity — darker notes are quieter. Direct velocity editing is not yet implemented; notes use the default 100.
+Notes are created at the default velocity (100/127). Velocity controls how loudly each note plays. It is shown as note opacity — darker notes are quieter.
+
+**Editing velocity:** click **VEL** in the transport bar to reveal the velocity lane below the piano roll. Each note appears as a vertical bar; drag a bar up or down to raise or lower velocity. Selected notes are shown in white. Click **VEL** again to hide the lane.
 
 ### Snap-to-grid
 
@@ -257,6 +259,18 @@ When enabled, playback loops between **loopStartBeat** (0 by default) and **loop
 
 Sets the total song length in bars (1–128). Used for display and for determining the loop end when no custom loop region is set. Actual scheduling is not capped — notes beyond the song length will still play.
 
+### NOTE length
+
+Sets the duration of **newly drawn notes**. Same grid options as SNAP (1/1 – 1/32). Changing NOTE length does not affect existing notes.
+
+### VEL (velocity lane)
+
+Toggles the 50 px velocity lane below the piano roll. See [Note velocity](#note-velocity).
+
+### Q (quantize)
+
+Snaps all **selected** notes to the nearest SNAP grid line. Equivalent to pressing the **Q** key. Disabled when nothing is selected.
+
 ---
 
 ## The Mixer
@@ -312,7 +326,9 @@ WAV export decodes the compressed recording and re-encodes to PCM — this takes
 
 ## Saving and Loading Projects
 
-Project files save the sequencer state — note data, BPM, time signature, track pan settings, and master volume. They do **not** save oscillator waveform/frequency settings (these are session-only).
+The app automatically saves your full session (oscillators, sequencer, settings) to `localStorage` in the browser — your work persists across page reloads without any manual action.
+
+Project files (`.oscproject`) let you share or archive specific compositions. They save the sequencer state but not oscillator tone settings (waveform, frequency, etc.).
 
 ### Saving
 
@@ -337,16 +353,46 @@ Click **↑ LOAD** and select an `.oscproject` or `.json` file. The sequencer tr
 
 ## Keyboard Shortcuts
 
+### Piano roll editing
+
 | Shortcut | Action |
 |----------|--------|
-| **Ctrl+Z** | Undo (piano roll) |
-| **Ctrl+Shift+Z** | Redo (piano roll) |
+| **Ctrl+Z** | Undo |
+| **Ctrl+Shift+Z** | Redo |
 | **Delete** / **Backspace** | Delete selected notes |
 | **Right-click** on note | Delete note (Draw mode) |
-| **Shift+click** | Add/remove note from selection |
-| **Ctrl+scroll** | Zoom piano roll in/out |
-| **Shift+scroll** | Scroll piano roll vertically (pitch) |
-| **Scroll** | Scroll piano roll horizontally (time) |
+| **Ctrl+C** | Copy selected notes to clipboard |
+| **Ctrl+V** | Paste notes at playhead position |
+| **Ctrl+A** | Select all notes in the current track |
+| **Escape** | Deselect all notes |
+| **Q** | Quantize selected notes to the current snap grid |
+| **Shift+click** | Toggle note in/out of selection |
+
+### Piano roll navigation
+
+| Shortcut | Action |
+|----------|--------|
+| **Ctrl+scroll** | Zoom in/out horizontally |
+| **Shift+scroll** | Scroll vertically (pitch range) |
+| **Scroll** | Scroll horizontally (time) |
+
+### Computer keyboard piano
+
+When the piano roll is visible, letter keys preview notes through the current tab's oscillator:
+
+```
+Key layout (home row = C4):
+W  E     T  Y  U     O  P
+A  S  D  F  G  H  J  K  L  ;
+C4 D4 E4 F4 G4 A4 B4 C5 D5 E5
+```
+
+Hold multiple keys to play chords. The notes use the tab's waveform and amplitude settings.
+
+### General
+
+| Shortcut | Action |
+|----------|--------|
 | **Double-click tab label** | Rename tab |
 | **Drag tab** | Reorder tabs |
 
