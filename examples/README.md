@@ -21,7 +21,7 @@ Gentle arpeggiated melody over slow bass and an ambient pad. The calmest of the 
 
 | Track | Role | Suggested instrument |
 |-------|------|----------------------|
-| 1 | Melody | *Keys → Music Box* or *Electric Piano* |
+| 1 | Melody | *Keys → Music Box* or *Piano → Felt Piano* |
 | 2 | Bass | *Synth Bass → Sub Bass* |
 | 3 | Pad | *Synth Pad → Warm Pad* |
 
@@ -32,8 +32,8 @@ Continuous eighth-note piano figure over sustained thirds and a walking bass. Th
 
 | Track | Role | Suggested instrument |
 |-------|------|----------------------|
-| 1 | Piano figure | *Keys → Electric Piano* |
-| 2 | Chord bed | *Synth Pad → Glass Pad* |
+| 1 | Piano figure | *Piano → Grand Piano* |
+| 2 | Chord bed | *Synth Pad → Glass Pad* or *Strings → Chamber Strings* |
 | 3 | Bass | *Bass Guitar → Finger Bass* |
 
 ### minecraft-subwoofer-lullaby.oscproject
@@ -43,7 +43,7 @@ Bass-forward, as the name suggests: a prominent octave-jumping bass line under a
 
 | Track | Role | Suggested instrument |
 |-------|------|----------------------|
-| 1 | Melody | *Keys → Celesta* or *Plucked → Kalimba* |
+| 1 | Melody | *Mallets → Vibraphone* or *Plucked → Kalimba* |
 | 2 | Lead bass | *Synth Bass → Sub Bass* |
 | 3 | Pad | *Synth Pad → Dark Pad* |
 
@@ -54,7 +54,7 @@ Brighter and more rhythmic — a rising melody over a constant sixteenth-ish arp
 
 | Track | Role | Suggested instrument |
 |-------|------|----------------------|
-| 1 | Melody | *Keys → Electric Piano* |
+| 1 | Melody | *Piano → Felt Piano* |
 | 2 | Arpeggio | *Plucked → Harp* or *Acoustic Guitar → Nylon Classical* |
 | 3 | Bass | *Synth Bass → Sub Bass* |
 
@@ -71,7 +71,7 @@ multi-oscillator mix and long release tails.
 | Track | Role | Suggested instrument |
 |-------|------|----------------------|
 | 1 | Lead | *Synth Pad → Vapor Pad* |
-| 2 | Mid pad | *Synth Pad → Choir Pad* |
+| 2 | Mid pad | *Vocal → Choir Oohs* |
 | 3 | Sub bass | *Synth Bass → Sub Bass* |
 
 ### arp-sequence.oscproject

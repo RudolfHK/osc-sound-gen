@@ -1,4 +1,5 @@
 import { getAudioEngine } from './audio';
+import { getEffectsBus } from './effects';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -89,6 +90,19 @@ export class DrumSynth {
     panner.pan.value = Math.max(-1, Math.min(1, p.pan));
     chanGain.connect(panner);
     panner.connect(out);
+
+    // Ambience — a kit with no room around it is the giveaway that it is synthetic.
+    // Cymbals and snares get the send; kicks and subs stay dry to keep the low end tight.
+    const bus = getEffectsBus();
+    const drumSends = bus.getDrumSends();
+    const dry = voice === 'kick' || voice === 'kick-808' || voice === 'kick-tight' || voice === 'sub-drop';
+    if (!dry && (drumSends.reverb > 0.005 || drumSends.delay > 0.005)) {
+      bus.connectSends(panner, {
+        reverb: drumSends.reverb,
+        delay: drumSends.delay,
+        chorus: 0,
+      });
+    }
 
     switch (voice) {
       // Kicks

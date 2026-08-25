@@ -294,7 +294,8 @@ The **MASTER** strip controls the global output volume (same as the Master slide
 
 ## The Drum Machine
 
-Click **DRUMS** in the header to open the drum panel. Every sound is synthesized live by the
+Click **DRUMS** in the header to open the drum panel. (Drum voices feed the master FX rack —
+see **Master Effects** below for the room they sit in.) Every sound is synthesized live by the
 Web Audio API — there are no sample files, so nothing to download and nothing to go missing.
 
 ### Playing a pattern
@@ -376,8 +377,20 @@ future version adds new voices or presets, your patterns are migrated rather tha
 
 ## The Instrument Library
 
-Click **INSTRUMENTS** in the header. This is a library of 76 synthesized instruments — synths,
-electric and acoustic guitars, bass guitars, keys, plucked and orchestral instruments, and FX.
+Click **INSTRUMENTS** in the header. This is a library of 161 synthesized instruments across
+eighteen categories:
+
+| Group | Categories |
+|-------|-----------|
+| Keyboards | Piano, Keys, Organ |
+| Synths | Synth Lead, Synth Pad, Synth Bass, Synth Pluck |
+| Guitars | Electric Guitar, Acoustic Guitar, Bass Guitar |
+| Orchestral | Strings, Brass, Woodwind |
+| Tuned percussion | Mallets, Plucked |
+| Other | Vocal, World, FX |
+
+Everything is synthesized live — there are no sample files, so the whole library costs nothing
+to load and works offline.
 
 ### Browsing and auditioning
 
@@ -419,10 +432,24 @@ Click the **×** next to an assignment to return that track to its plain oscilla
 | **DETUNE** | Extra cents spread across the oscillator stack — adds width and chorus |
 | **OCTAVE** | Transposes ±2 octaves |
 | **GLIDE** | Portamento time between notes |
+| **WIDTH** | Spreads the oscillator stack across the stereo field |
+| **REVERB / DELAY / CHORUS** | How much of this instrument is sent to each master effect |
 
-Changes apply immediately and persist across reloads. **RESET** restores the factory settings
-for that preset. **▶ AUDITION** at the bottom of the editor replays the preview so you can
-hear your edits.
+Parameters are grouped into **TONE**, **ENVELOPE** and **MIX**. Changes apply immediately and
+persist across reloads. **RESET** restores the factory settings for that preset.
+**▶ AUDITION** at the bottom of the editor replays the preview so you can hear your edits.
+
+### Why the instruments respond to how hard you play
+
+Two things happen automatically and are worth knowing about when you write velocities in the
+piano roll:
+
+- **Velocity opens the filter.** A note at velocity 120 is not just louder than one at 60 —
+  it is brighter, and its pick attack bites harder. This is why writing dynamics into a part
+  makes it sound played rather than programmed.
+- **Acoustic presets are humanized.** Pianos, guitars, strings and winds get a small random
+  tuning and level variation per note, so a repeated note never comes out bit-identical.
+  Synth presets have this at zero, because a synth *should* be exact.
 
 ### Layering
 
@@ -430,6 +457,61 @@ To stack sounds, put the same notes on two tracks and assign a different instrum
 for example *Acoustic Guitar → Steel String* on one and *Synth Pad → Warm Pad* on another,
 then use the mixer to balance and pan them apart. Add the drum machine on top and you have a
 full arrangement.
+
+---
+
+## Master Effects
+
+Click **FX** in the header. These are **send** effects: instead of each sound carrying its own
+reverb, every instrument and drum voice feeds one shared rack. That is how records are mixed,
+and it is why a piano and a guitar sitting in the same reverb sound like they are in the same
+room rather than two different ones.
+
+Each rack's **name** is a power button — click it to bypass that effect entirely.
+
+### Reverb
+
+| Control | Effect |
+|---------|--------|
+| **SIZE** | Tail length, 0.2–8 seconds. Small values read as a room, large ones as a hall |
+| **DAMP** | How quickly high frequencies die away. Low = bright and glassy, high = dark and soft |
+| **RETURN** | Overall level of the reverb coming back into the mix |
+
+The impulse response is generated from scratch whenever SIZE or DAMP changes, so there is a
+brief moment of computation when you move those two — the rest are instant.
+
+### Delay
+
+| Control | Effect |
+|---------|--------|
+| **TIME** | Click **SYNC** / **FREE** to toggle. Synced picks a note division (1/4 down to 1/16, plus dotted `1/8.` and triplet `1/8T`) and follows the sequencer BPM; free is 20–1200 ms |
+| **FEEDBACK** | How much each repeat feeds the next. Above about 70% it starts to build |
+| **RETURN** | Level of the repeats |
+| **PING-PONG** | Repeats alternate left and right instead of staying centred |
+
+Repeats run through a low-pass filter, so each one is darker than the last and they sit behind
+the dry signal rather than competing with it.
+
+### Chorus
+
+Two short modulated delay lines panned hard apart. **RATE** sets the drift speed, **DEPTH** how
+far it drifts, **RETURN** the level. Small amounts widen a sound; large amounts detune it
+audibly. Rhodes, organs and pads have chorus sends set by default.
+
+### Drum sends
+
+Two levels controlling how much of the drum kit goes to reverb and delay. Kicks, the 808 kick,
+the tight kick and the sub drop are **always dry** regardless of these — putting reverb on the
+low end is the fastest way to make a mix muddy.
+
+### Limiter
+
+A compressor at a high ratio sitting on the master output, after the master volume and before
+both the speakers and the recording tap. **CEILING** sets the threshold.
+
+Leave this on. Once you have several instrument tracks, a drum pattern and three effect returns
+summing together, peaks will exceed full scale and clip; the limiter catches them. Turn it off
+only if you want to hear the raw sum.
 
 ---
 

@@ -34,13 +34,13 @@ function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: Param
   }, [onClose]);
 
   // Keep the panel on screen
-  const top = Math.min(y, Math.max(8, window.innerHeight - 430));
+  const top = Math.min(y, Math.max(8, window.innerHeight - 470));
   const left = Math.min(x, Math.max(8, window.innerWidth - 240));
 
   return (
     <div
       ref={ref}
-      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded shadow-2xl p-3 w-56 max-h-[420px] overflow-y-auto"
+      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded shadow-2xl p-3 w-56 max-h-[460px] overflow-y-auto"
       style={{ left, top }}
     >
       <div className="flex items-center justify-between mb-2">
@@ -54,25 +54,32 @@ function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: Param
         >RESET</button>
       </div>
 
-      {OVERRIDE_FIELDS.map((f) => {
-        const value = override[f.key] ?? f.from(preset);
-        return (
-          <div key={f.key} className="mb-1.5">
-            <div className="flex justify-between text-xs text-neutral-500 mb-0.5">
-              <span>{f.label}</span>
-              <span className="font-mono text-neutral-400">{f.format(value)}</span>
-            </div>
-            <input
-              type="range"
-              min={f.min} max={f.max} step={f.step}
-              value={value}
-              className="w-full"
-              style={{ accentColor: preset.color }}
-              onChange={(e) => onChange({ [f.key]: parseFloat(e.target.value) })}
-            />
+      {(['TONE', 'ENVELOPE', 'MIX'] as const).map((group) => (
+        <div key={group} className="mb-2">
+          <div className="text-neutral-600 tracking-widest border-b border-neutral-800 mb-1 pb-0.5" style={{ fontSize: 9 }}>
+            {group}
           </div>
-        );
-      })}
+          {OVERRIDE_FIELDS.filter((f) => f.group === group).map((f) => {
+            const value = override[f.key] ?? f.from(preset);
+            return (
+              <div key={f.key} className="mb-1.5">
+                <div className="flex justify-between text-xs text-neutral-500 mb-0.5">
+                  <span>{f.label}</span>
+                  <span className="font-mono text-neutral-400">{f.format(value)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={f.min} max={f.max} step={f.step}
+                  value={value}
+                  className="w-full"
+                  style={{ accentColor: preset.color }}
+                  onChange={(e) => onChange({ [f.key]: parseFloat(e.target.value) })}
+                />
+              </div>
+            );
+          })}
+        </div>
+      ))}
 
       <button
         onClick={() => void getInstrumentEngine().preview(preset.id)}

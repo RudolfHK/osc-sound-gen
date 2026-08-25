@@ -10,12 +10,14 @@ import { getSequencerEngine } from '../engine/sequencer';
 import { useAppStore, computeEffectiveMutes } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
 import { useInstrumentStore } from '../store/instrumentStore';
+import { useEffectsStore } from '../store/effectsStore';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
 
 export function Layout() {
   const { state, dispatch } = useAppStore();
   const { state: drumState, dispatch: drumDispatch } = useDrumStore();
   const { state: instState, dispatch: instDispatch } = useInstrumentStore();
+  const { state: fxState, dispatch: fxDispatch } = useEffectsStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scopeRef = useRef<Oscilloscope | null>(null);
 
@@ -216,6 +218,16 @@ export function Layout() {
           >
             INSTRUMENTS
           </button>
+          {/* Master effects toggle */}
+          <button
+            onClick={() => fxDispatch({ type: 'FX_OPEN', open: !fxState.isOpen })}
+            style={fxState.isOpen ? { borderColor: themeColor, color: themeColor, backgroundColor: themeColor + '18' } : {}}
+            className={`px-2 py-1 text-xs border transition-colors tracking-widest ${
+              !fxState.isOpen ? 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-300' : ''
+            }`}
+          >
+            FX
+          </button>
           {/* Status */}
           <div className="flex items-center gap-2 text-xs text-neutral-600">
             <span
@@ -246,6 +258,9 @@ export function Layout() {
 
       {/* Instrument library (lazy import when first opened) */}
       {instState.isOpen && <InstrumentLibraryLazy />}
+
+      {/* Master effects rack (lazy import when first opened) */}
+      {fxState.isOpen && <EffectsPanelLazy />}
 
       {/* Oscilloscope */}
       <div className="flex-1 relative min-h-0">
@@ -322,6 +337,21 @@ function InstrumentLibraryLazy() {
       </div>
     }>
       <InstrumentLibraryLazyComp />
+    </Suspense>
+  );
+}
+
+const EffectsPanelLazyComp = lazy(() =>
+  import('../sampler/EffectsPanel').then((m) => ({ default: m.EffectsPanel }))
+);
+function EffectsPanelLazy() {
+  return (
+    <Suspense fallback={
+      <div className="h-20 flex items-center justify-center text-xs text-neutral-600 tracking-widest">
+        LOADING FX…
+      </div>
+    }>
+      <EffectsPanelLazyComp />
     </Suspense>
   );
 }

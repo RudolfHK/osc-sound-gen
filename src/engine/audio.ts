@@ -18,6 +18,7 @@ interface TabNodes {
 export class MultiOscillatorEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private limiter: DynamicsCompressorNode | null = null;
   private mediaStreamDest: MediaStreamAudioDestinationNode | null = null;
   private tabs = new Map<string, TabNodes>();
 
@@ -28,10 +29,30 @@ export class MultiOscillatorEngine {
       this.ctx = new AudioContext();
       this.masterGain = this.ctx.createGain();
       this.mediaStreamDest = this.ctx.createMediaStreamDestination();
-      this.masterGain.connect(this.ctx.destination);
-      this.masterGain.connect(this.mediaStreamDest);
+
+      // Master limiter catches the peaks that appear once several instruments,
+      // drum voices and effect returns are summed. Both the speakers and the
+      // recording tap sit after it, so what you hear is what you capture.
+      this.limiter = this.ctx.createDynamicsCompressor();
+      this.limiter.threshold.value = -6;
+      this.limiter.knee.value = 6;
+      this.limiter.ratio.value = 12;
+      this.limiter.attack.value = 0.003;
+      this.limiter.release.value = 0.15;
+
+      this.masterGain.connect(this.limiter);
+      this.limiter.connect(this.ctx.destination);
+      this.limiter.connect(this.mediaStreamDest);
     }
     return this.ctx;
+  }
+
+  /** Master limiter control. Disabled = transparent (threshold at 0, ratio 1). */
+  configureLimiter(enabled: boolean, thresholdDb: number): void {
+    if (!this.ctx || !this.limiter) return;
+    const now = this.ctx.currentTime;
+    this.limiter.threshold.setTargetAtTime(enabled ? thresholdDb : 0, now, TC);
+    this.limiter.ratio.setTargetAtTime(enabled ? 12 : 1, now, TC);
   }
 
   // ─── Tab lifecycle ────────────────────────────────────────────────────────────
@@ -182,6 +203,7 @@ export class MultiOscillatorEngine {
     void this.ctx?.close();
     this.ctx = null;
     this.masterGain = null;
+    this.limiter = null;
     this.mediaStreamDest = null;
   }
 }

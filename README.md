@@ -112,17 +112,45 @@ For the complete Electron packaging guide including code signing and auto-update
 - Per-voice mute/solo; BPM syncs to the sequencer
 
 ### Instrument Library (`INSTRUMENTS`)
-- **76 subtractive-synthesis presets** across ten categories: Synth Lead, Synth Pad,
-  Synth Bass, Keys, Electric Guitar, Acoustic Guitar, Bass Guitar, Plucked, Orchestral, FX
-- Guitars include clean, jazz, crunch, overdrive, heavy distortion, palm mute, funk wah,
-  harmonics and power chord (electric); steel string, nylon, 12-string, folk, picked and
-  resonator (acoustic); finger, pick, slap, fretless and muted (bass)
-- Each preset stacks multiple oscillators with independent detune/octave/gain, then runs
+- **161 subtractive-synthesis presets** across eighteen categories:
+
+  | Group | Categories |
+  |-------|-----------|
+  | Keyboards | Piano (6), Keys (9), Organ (6) |
+  | Synths | Synth Lead (14), Synth Pad (14), Synth Bass (13), Synth Pluck (8) |
+  | Guitars | Electric (14), Acoustic (9), Bass Guitar (8) |
+  | Orchestral | Strings (9), Brass (8), Woodwind (8) |
+  | Tuned percussion | Mallets (7), Plucked (8) |
+  | Other | Vocal (5), World (7), FX (8) |
+
+- Acoustic pianos, Rhodes/Wurlitzer, church and drawbar organs; trumpet, trombone, tuba,
+  flugelhorn; clarinet, oboe, bassoon, piccolo, pan flute, alto and tenor sax; cello, viola,
+  double bass, tremolo and staccato strings; vibraphone, glockenspiel, tubular bells, timpani,
+  steel drum; choirs; erhu, oud, shamisen, hang drum, didgeridoo, bagpipe
+- Guitars span clean, jazz, jangle, crunch, overdrive, distortion, shoegaze, palm mute, funk
+  wah, surf tremolo, slide, e-bow, harmonics and power chord (electric); steel, nylon,
+  12-string, folk, bright, picked, parlor, muted and resonator (acoustic)
+- Each preset stacks up to five oscillators with independent detune/octave/gain, then runs
   through a body-resonance peaking filter, a filter envelope, an optional waveshaper drive
-  stage, an amp ADSR, and a panner
-- Click a card to **audition** it; **right-click** to edit 12 parameters live
+  stage, an amp ADSR, a stereo-width spread and a panner
+- **Velocity shapes brightness, not just level** — hard hits open the filter, so dynamics
+  read as playing rather than a volume knob
+- **Per-note humanization** applies small random tuning and level variation to acoustic
+  presets, so repeated notes are never bit-identical
+- Click a card to **audition** it; **right-click** to edit 16 parameters live, grouped into
+  Tone / Envelope / Mix
 - **Assign a preset to a track** — the sequencer then plays that track's notes through the
   instrument instead of its raw oscillator, so you can layer synths, guitars and drums
+
+### Master Effects (`FX`)
+- **Convolution reverb** with a procedurally generated impulse response — adjustable tail
+  length (0.2–8 s) and high-frequency damping
+- **Ping-pong delay**, tempo-synced to the sequencer (1/4 through 1/16, including dotted and
+  triplet) or free-running in milliseconds, with feedback and a damped repeat path
+- **Chorus** — two counter-phase modulated delay lines panned hard apart
+- **Master limiter** on the output chain, before both the speakers and the recording tap
+- Send-based: each preset carries its own reverb/delay/chorus levels, and drums have their
+  own sends (kicks and sub drops stay dry to keep the low end tight)
 
 ### Recording
 - Captures master output to **WebM** (Opus) or **WAV** (16-bit PCM)
