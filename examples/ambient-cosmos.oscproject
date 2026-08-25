@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "name": "Ambient Cosmos",
+  "savedAt": "2024-01-01T00:00:00.000Z",
+  "bpm": 60,
+  "beatsPerBar": 4,
+  "songLengthBars": 8,
+  "masterVolume": 0.72,
+  "tracks": [
+    {
+      "tabId": "0",
+      "pan": -0.15,
+      "notes": [
+        {"id":"ac-1","midiNote":69,"startBeat":0.0,"durationBeats":6.0,"velocity":55},
+        {"id":"ac-2","midiNote":72,"startBeat":4.0,"durationBeats":5.0,"velocity":48},
+        {"id":"ac-3","midiNote":76,"startBeat":8.0,"durationBeats":4.0,"velocity":52},
+        {"id":"ac-4","midiNote":74,"startBeat":10.0,"durationBeats":4.0,"velocity":45},
+        {"id":"ac-5","midiNote":72,"startBeat":13.0,"durationBeats":5.0,"velocity":50},
+        {"id":"ac-6","midiNote":69,"startBeat":16.0,"durationBeats":4.0,"velocity":55},
+        {"id":"ac-7","midiNote":67,"startBeat":18.0,"durationBeats":3.0,"velocity":50},
+        {"id":"ac-8","midiNote":64,"startBeat":20.0,"durationBeats":4.0,"velocity":48},
+        {"id":"ac-9","midiNote":67,"startBeat":22.0,"durationBeats":4.0,"velocity":45},
+        {"id":"ac-10","midiNote":69,"startBeat":24.0,"durationBeats":3.0,"velocity":52},
+        {"id":"ac-11","midiNote":72,"startBeat":26.0,"durationBeats":3.0,"velocity":55},
+        {"id":"ac-12","midiNote":76,"startBeat":28.0,"durationBeats":4.0,"velocity":58}
+      ]
+    },
+    {
+      "tabId": "1",
+      "pan": 0.15,
+      "notes": [
+        {"id":"acm-1","midiNote":60,"startBeat":2.0,"durationBeats":4.0,"velocity":42},
+        {"id":"acm-2","midiNote":64,"startBeat":4.0,"durationBeats":3.0,"velocity":38},
+        {"id":"acm-3","midiNote":67,"startBeat":6.0,"durationBeats":4.0,"velocity":40},
+        {"id":"acm-4","midiNote":64,"startBeat":9.0,"durationBeats":3.0,"velocity":38},
+        {"id":"acm-5","midiNote":60,"startBeat":11.0,"durationBeats":4.0,"velocity":40},
+        {"id":"acm-6","midiNote":57,"startBeat":14.0,"durationBeats":4.0,"velocity":38},
+        {"id":"acm-7","midiNote":60,"startBeat":17.0,"durationBeats":3.0,"velocity":42},
+        {"id":"acm-8","midiNote":64,"startBeat":19.0,"durationBeats":4.0,"velocity":40},
+        {"id":"acm-9","midiNote":67,"startBeat":21.5,"durationBeats":3.0,"velocity":38},
+        {"id":"acm-10","midiNote":72,"startBeat":24.0,"durationBeats":4.0,"velocity":44},
+        {"id":"acm-11","midiNote":69,"startBeat":26.5,"durationBeats":3.0,"velocity":40},
+        {"id":"acm-12","midiNote":64,"startBeat":29.0,"durationBeats":3.0,"velocity":42}
+      ]
+    },
+    {
+      "tabId": "2",
+      "pan": 0,
+      "notes": [
+        {"id":"acb-1","midiNote":45,"startBeat":0.0,"durationBeats":8.0,"velocity":45},
+        {"id":"acb-2","midiNote":43,"startBeat":8.0,"durationBeats":8.0,"velocity":42},
+        {"id":"acb-3","midiNote":45,"startBeat":16.0,"durationBeats":8.0,"velocity":45},
+        {"id":"acb-4","midiNote":40,"startBeat":24.0,"durationBeats":8.0,"velocity":42}
+      ]
+    }
+  ]
+}

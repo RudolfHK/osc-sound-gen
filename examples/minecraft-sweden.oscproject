@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "name": "Minecraft — Sweden (C418 style)",
+  "savedAt": "2024-01-01T00:00:00.000Z",
+  "bpm": 72,
+  "beatsPerBar": 4,
+  "songLengthBars": 8,
+  "masterVolume": 0.75,
+  "tracks": [
+    {
+      "tabId": "0",
+      "pan": 0,
+      "notes": [
+        {"id":"sw-1","midiNote":64,"startBeat":0.0,"durationBeats":1.0,"velocity":85},
+        {"id":"sw-2","midiNote":62,"startBeat":1.0,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-3","midiNote":60,"startBeat":1.5,"durationBeats":0.5,"velocity":80},
+        {"id":"sw-4","midiNote":57,"startBeat":2.0,"durationBeats":1.0,"velocity":70},
+        {"id":"sw-5","midiNote":55,"startBeat":3.0,"durationBeats":1.0,"velocity":70},
+        {"id":"sw-6","midiNote":53,"startBeat":4.0,"durationBeats":0.5,"velocity":65},
+        {"id":"sw-7","midiNote":55,"startBeat":4.5,"durationBeats":0.5,"velocity":70},
+        {"id":"sw-8","midiNote":57,"startBeat":5.0,"durationBeats":2.0,"velocity":75},
+        {"id":"sw-9","midiNote":55,"startBeat":7.0,"durationBeats":1.0,"velocity":65},
+        {"id":"sw-10","midiNote":67,"startBeat":8.0,"durationBeats":1.0,"velocity":80},
+        {"id":"sw-11","midiNote":64,"startBeat":9.0,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-12","midiNote":62,"startBeat":9.5,"durationBeats":0.5,"velocity":70},
+        {"id":"sw-13","midiNote":60,"startBeat":10.0,"durationBeats":1.5,"velocity":75},
+        {"id":"sw-14","midiNote":57,"startBeat":11.5,"durationBeats":0.5,"velocity":65},
+        {"id":"sw-15","midiNote":55,"startBeat":12.0,"durationBeats":0.5,"velocity":70},
+        {"id":"sw-16","midiNote":57,"startBeat":12.5,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-17","midiNote":59,"startBeat":13.0,"durationBeats":0.5,"velocity":80},
+        {"id":"sw-18","midiNote":60,"startBeat":13.5,"durationBeats":2.5,"velocity":85},
+        {"id":"sw-19","midiNote":64,"startBeat":16.0,"durationBeats":1.5,"velocity":80},
+        {"id":"sw-20","midiNote":62,"startBeat":17.5,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-21","midiNote":60,"startBeat":18.0,"durationBeats":1.0,"velocity":75},
+        {"id":"sw-22","midiNote":59,"startBeat":19.0,"durationBeats":1.0,"velocity":70},
+        {"id":"sw-23","midiNote":57,"startBeat":20.0,"durationBeats":1.5,"velocity":75},
+        {"id":"sw-24","midiNote":55,"startBeat":21.5,"durationBeats":0.5,"velocity":68},
+        {"id":"sw-25","midiNote":53,"startBeat":22.0,"durationBeats":0.5,"velocity":63},
+        {"id":"sw-26","midiNote":52,"startBeat":22.5,"durationBeats":1.0,"velocity":58},
+        {"id":"sw-27","midiNote":57,"startBeat":23.5,"durationBeats":0.5,"velocity":70},
+        {"id":"sw-28","midiNote":59,"startBeat":24.0,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-29","midiNote":60,"startBeat":24.5,"durationBeats":0.5,"velocity":78},
+        {"id":"sw-30","midiNote":62,"startBeat":25.0,"durationBeats":0.5,"velocity":80},
+        {"id":"sw-31","midiNote":64,"startBeat":25.5,"durationBeats":0.5,"velocity":85},
+        {"id":"sw-32","midiNote":65,"startBeat":26.0,"durationBeats":0.5,"velocity":80},
+        {"id":"sw-33","midiNote":64,"startBeat":26.5,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-34","midiNote":62,"startBeat":27.0,"durationBeats":1.0,"velocity":72},
+        {"id":"sw-35","midiNote":60,"startBeat":28.0,"durationBeats":1.0,"velocity":85},
+        {"id":"sw-36","midiNote":64,"startBeat":29.0,"durationBeats":0.5,"velocity":80},
+        {"id":"sw-37","midiNote":62,"startBeat":29.5,"durationBeats":0.5,"velocity":75},
+        {"id":"sw-38","midiNote":60,"startBeat":30.0,"durationBeats":2.0,"velocity":70}
+      ]
+    },
+    {
+      "tabId": "1",
+      "pan": 0,
+      "notes": [
+        {"id":"sb-1","midiNote":45,"startBeat":0.0,"durationBeats":4.0,"velocity":55},
+        {"id":"sb-2","midiNote":41,"startBeat":4.0,"durationBeats":4.0,"velocity":52},
+        {"id":"sb-3","midiNote":48,"startBeat":8.0,"durationBeats":4.0,"velocity":55},
+        {"id":"sb-4","midiNote":43,"startBeat":12.0,"durationBeats":4.0,"velocity":52},
+        {"id":"sb-5","midiNote":45,"startBeat":16.0,"durationBeats":4.0,"velocity":55},
+        {"id":"sb-6","midiNote":41,"startBeat":20.0,"durationBeats":4.0,"velocity":52},
+        {"id":"sb-7","midiNote":48,"startBeat":24.0,"durationBeats":4.0,"velocity":55},
+        {"id":"sb-8","midiNote":45,"startBeat":28.0,"durationBeats":4.0,"velocity":52}
+      ]
+    },
+    {
+      "tabId": "2",
+      "pan": 0,
+      "notes": [
+        {"id":"sp-1","midiNote":45,"startBeat":0.0,"durationBeats":4.0,"velocity":38},
+        {"id":"sp-2","midiNote":52,"startBeat":0.0,"durationBeats":4.0,"velocity":35},
+        {"id":"sp-3","midiNote":41,"startBeat":4.0,"durationBeats":4.0,"velocity":38},
+        {"id":"sp-4","midiNote":48,"startBeat":4.0,"durationBeats":4.0,"velocity":35},
+        {"id":"sp-5","midiNote":48,"startBeat":8.0,"durationBeats":4.0,"velocity":38},
+        {"id":"sp-6","midiNote":55,"startBeat":8.0,"durationBeats":4.0,"velocity":35},
+        {"id":"sp-7","midiNote":43,"startBeat":12.0,"durationBeats":4.0,"velocity":38},
+        {"id":"sp-8","midiNote":50,"startBeat":12.0,"durationBeats":4.0,"velocity":35},
+        {"id":"sp-9","midiNote":45,"startBeat":16.0,"durationBeats":4.0,"velocity":40},
+        {"id":"sp-10","midiNote":52,"startBeat":16.0,"durationBeats":4.0,"velocity":37},
+        {"id":"sp-11","midiNote":41,"startBeat":20.0,"durationBeats":4.0,"velocity":38},
+        {"id":"sp-12","midiNote":48,"startBeat":20.0,"durationBeats":4.0,"velocity":35},
+        {"id":"sp-13","midiNote":48,"startBeat":24.0,"durationBeats":4.0,"velocity":40},
+        {"id":"sp-14","midiNote":55,"startBeat":24.0,"durationBeats":4.0,"velocity":37},
+        {"id":"sp-15","midiNote":45,"startBeat":28.0,"durationBeats":4.0,"velocity":42},
+        {"id":"sp-16","midiNote":52,"startBeat":28.0,"durationBeats":4.0,"velocity":38}
+      ]
+    }
+  ]
+}

@@ -8,10 +8,12 @@ import { THEME_COLORS } from '../utils/math';
 import { getAudioEngine } from '../engine/audio';
 import { getSequencerEngine } from '../engine/sequencer';
 import { useAppStore, computeEffectiveMutes } from '../store/appStore';
+import { useDrumStore } from '../store/drumStore';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
 
 export function Layout() {
   const { state, dispatch } = useAppStore();
+  const { state: drumState, dispatch: drumDispatch } = useDrumStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scopeRef = useRef<Oscilloscope | null>(null);
 
@@ -192,6 +194,16 @@ export function Layout() {
           >
             SEQUENCER
           </button>
+          {/* Drum machine toggle */}
+          <button
+            onClick={() => drumDispatch({ type: 'DRUM_OPEN', open: !drumState.isOpen })}
+            style={drumState.isOpen ? { borderColor: themeColor, color: themeColor, backgroundColor: themeColor + '18' } : {}}
+            className={`px-2 py-1 text-xs border transition-colors tracking-widest ${
+              !drumState.isOpen ? 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-300' : ''
+            }`}
+          >
+            DRUMS
+          </button>
           {/* Status */}
           <div className="flex items-center gap-2 text-xs text-neutral-600">
             <span
@@ -216,6 +228,9 @@ export function Layout() {
 
       {/* Sequencer panel (lazy import when first opened) */}
       {state.sequencer.isOpen && <SequencerLazy />}
+
+      {/* Drum machine (lazy import when first opened) */}
+      {drumState.isOpen && <DrumMachineLazy />}
 
       {/* Oscilloscope */}
       <div className="flex-1 relative min-h-0">
@@ -247,13 +262,13 @@ export function Layout() {
   );
 }
 
-// ─── Lazy sequencer wrapper ──────────────────────────────────────────────────
+// ─── Lazy wrappers ────────────────────────────────────────────────────────────
 
 import { lazy, Suspense } from 'react';
+
 const SequencerPanelLazy = lazy(() =>
   import('../sequencer/SequencerPanel').then((m) => ({ default: m.SequencerPanel }))
 );
-
 function SequencerLazy() {
   return (
     <Suspense fallback={
@@ -262,6 +277,21 @@ function SequencerLazy() {
       </div>
     }>
       <SequencerPanelLazy />
+    </Suspense>
+  );
+}
+
+const DrumMachineLazyComp = lazy(() =>
+  import('../sampler/DrumMachine').then((m) => ({ default: m.DrumMachine }))
+);
+function DrumMachineLazy() {
+  return (
+    <Suspense fallback={
+      <div className="h-20 flex items-center justify-center text-xs text-neutral-600 tracking-widest">
+        LOADING DRUMS…
+      </div>
+    }>
+      <DrumMachineLazyComp />
     </Suspense>
   );
 }
