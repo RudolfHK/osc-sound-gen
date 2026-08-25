@@ -292,6 +292,147 @@ The **MASTER** strip controls the global output volume (same as the Master slide
 
 ---
 
+## The Drum Machine
+
+Click **DRUMS** in the header to open the drum panel. Every sound is synthesized live by the
+Web Audio API — there are no sample files, so nothing to download and nothing to go missing.
+
+### Playing a pattern
+
+1. Pick a pattern from the dropdown — patterns are grouped by genre (Rock, Hip-Hop,
+   Electronic, Funk, Jazz, Latin, World)
+2. Press **▶ PLAY**
+3. Leave **SYNC** lit to follow the sequencer's BPM, or turn it off and set an independent tempo
+
+The drum machine loops its pattern independently of the sequencer's transport, so you can
+audition a beat while writing notes in the piano roll.
+
+### The step grid
+
+Each row is one drum voice; each square is one 16th note. Squares are grouped in fours with a
+small gap so downbeats are easy to find. Click a square to switch that hit on or off. During
+playback the current step is highlighted in white.
+
+Dimmer active squares are *ghost notes* — hits with a low velocity, used in Funk, Boom Bap
+and Amen Break patterns to imply a shuffle without adding accents.
+
+### Voice groups
+
+With 33 voices the full list is long, so the **VOICES** row filters it:
+
+| Filter | Shows |
+|--------|-------|
+| **ALL** | every voice |
+| **KIT** | kicks, snares, hi-hats, clap, rim, snap, toms |
+| **CYMBAL** | crash, splash, ride, ride bell, reverse cymbal |
+| **PERC** | cowbell, shaker, cabasa, tambourine, congas, bongo, timbale, woodblock, clave, triangle |
+| **FX** | zap, sub drop |
+
+Filtering only hides rows — hidden voices still play.
+
+### Editing individual hits
+
+**Right-click an active step** to open its parameter popup:
+
+| Parameter | Range | Effect |
+|-----------|-------|--------|
+| **VEL** | 1–127 | Loudness of this one hit |
+| **PITCH** | −12 to +12 | Transposes this hit in semitones |
+| **DECAY** | 0.2–2.0 | Multiplies this hit's tail length |
+
+These stack on top of the voice-level settings, so a step at pitch +3 on a voice already
+tuned to −2 sounds one semitone up.
+
+### Editing a whole voice
+
+**Right-click a voice name** for the row's settings:
+
+| Parameter | Effect |
+|-----------|--------|
+| **VOL** | Level of every hit in the row |
+| **PAN** | Stereo position |
+| **TONE** | Brightness — moves the filter cutoff on noise-based voices, adds bite on tonal ones |
+| **PITCH** | Base tuning in semitones |
+| **DECAY** | Base tail length |
+| **CLEAR ROW** | Removes every hit in the row |
+
+**Left-click a voice name** to audition it with its current settings.
+
+### Pattern management
+
+| Button | Action |
+|--------|--------|
+| **16 / 32** | Switch step count; existing steps are preserved, new steps start empty |
+| **SWING** | Delays every off-beat 16th, 0–50% |
+| **+** | New empty pattern |
+| **⧉** | Duplicate the current pattern |
+| **🗑** | Delete the current pattern (the last one can't be deleted) |
+| **CLR** | Clear all steps in the current pattern |
+
+Patterns are saved to `localStorage` automatically. Factory patterns you edit stay edited; if a
+future version adds new voices or presets, your patterns are migrated rather than reset.
+
+---
+
+## The Instrument Library
+
+Click **INSTRUMENTS** in the header. This is a library of 76 synthesized instruments — synths,
+electric and acoustic guitars, bass guitars, keys, plucked and orchestral instruments, and FX.
+
+### Browsing and auditioning
+
+Filter with the **category dropdown** or type into the **search** box (matches name and
+category). **Click any card** to hear a short phrase appropriate to its type — a chord for
+pads, a strum for guitars, a riff for leads, a bass line for basses.
+
+A small dot on a card means you've customized that preset's parameters.
+
+### Assigning an instrument to a track
+
+1. Choose the target track in the **ASSIGN TO** dropdown (top-right)
+2. Hover a preset card and click **SET**
+
+The track appears in the **ACTIVE** bar. From that point, when the sequencer plays that track's
+notes it builds a fresh instrument voice per note instead of using the track's raw oscillator —
+so you get real envelopes, filters, and polyphony rather than a single sliding tone.
+
+Click the **×** next to an assignment to return that track to its plain oscillator.
+
+> The track's own **Amplitude** still scales the instrument, and the mixer's **Pan** still
+> applies, so the mixer keeps working exactly as before.
+
+### Editing instrument parameters
+
+**Right-click a preset card** to open its editor:
+
+| Parameter | Effect |
+|-----------|--------|
+| **VOLUME** | Output level |
+| **PAN** | Stereo position (overridden by track pan when assigned) |
+| **ATTACK** | Time to reach full volume — near zero for plucks, up to seconds for pads |
+| **DECAY** | Time to fall from peak to the sustain level |
+| **SUSTAIN** | Level held while the note lasts; 0 makes any preset behave like a pluck |
+| **RELEASE** | Tail length after the note ends |
+| **CUTOFF** | Filter frequency — the single biggest tone control |
+| **RESO** | Filter resonance; high values give the whistling acid character |
+| **DRIVE** | Waveshaper distortion, 0 = clean through to hard clipping |
+| **DETUNE** | Extra cents spread across the oscillator stack — adds width and chorus |
+| **OCTAVE** | Transposes ±2 octaves |
+| **GLIDE** | Portamento time between notes |
+
+Changes apply immediately and persist across reloads. **RESET** restores the factory settings
+for that preset. **▶ AUDITION** at the bottom of the editor replays the preview so you can
+hear your edits.
+
+### Layering
+
+To stack sounds, put the same notes on two tracks and assign a different instrument to each —
+for example *Acoustic Guitar → Steel String* on one and *Synth Pad → Warm Pad* on another,
+then use the mixer to balance and pan them apart. Add the drum machine on top and you have a
+full arrangement.
+
+---
+
 ## Recording Audio
 
 ### Starting a recording

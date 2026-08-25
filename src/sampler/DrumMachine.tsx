@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDrumStore } from '../store/drumStore';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDrumStore, voiceGroupOf, patternsByGenre, VOICE_GROUPS } from '../store/drumStore';
 import { useAppStore } from '../store/appStore';
 import { getDrumSynth } from '../engine/sampler';
 import { getAudioEngine } from '../engine/audio';
@@ -144,10 +144,11 @@ interface VoiceMenuProps {
   voice: DrumVoiceConfig;
   x: number; y: number;
   onUpdate: (p: Partial<Omit<DrumVoiceConfig, 'id' | 'name' | 'steps' | 'color'>>) => void;
+  onClearRow: () => void;
   onClose: () => void;
 }
 
-function VoiceContextMenu({ voice, x, y, onUpdate, onClose }: VoiceMenuProps) {
+function VoiceContextMenu({ voice, x, y, onUpdate, onClearRow, onClose }: VoiceMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
@@ -187,6 +188,12 @@ function VoiceContextMenu({ voice, x, y, onUpdate, onClose }: VoiceMenuProps) {
           className="w-full" style={{ accentColor: voice.color }}
           onChange={(e) => onUpdate({ decay: +e.target.value })} />
       </Label>
+      <button
+        onClick={onClearRow}
+        className="w-full mt-1 py-1 text-xs border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-800 tracking-widest"
+      >
+        CLEAR ROW
+      </button>
     </div>
   );
 }
@@ -212,26 +219,27 @@ interface VoiceRowProps {
   onToggleStep: (idx: number) => void;
   onStepRightClick: (idx: number, step: DrumStep, x: number, y: number) => void;
   onVoiceRightClick: (voice: DrumVoiceConfig, x: number, y: number) => void;
+  onAudition: () => void;
   onMute: () => void;
   onSolo: () => void;
 }
 
 function VoiceRow({
   voice, pattern, currentStep, isPlaying,
-  onToggleStep, onStepRightClick, onVoiceRightClick, onMute, onSolo,
+  onToggleStep, onStepRightClick, onVoiceRightClick, onAudition, onMute, onSolo,
 }: VoiceRowProps) {
   const anySolo = pattern.voices.some((v) => v.solo);
   const audible = !voice.muted && (!anySolo || voice.solo);
 
   return (
     <div className="flex items-center border-b border-neutral-800/60 min-h-[36px]">
-      {/* Voice label + mute/solo */}
+      {/* Voice label — click auditions, right-click opens parameters */}
       <button
         onContextMenu={(e) => { e.preventDefault(); onVoiceRightClick(voice, e.clientX, e.clientY); }}
-        className="w-[52px] text-right pr-1 text-xs font-mono truncate shrink-0 cursor-context-menu"
+        onClick={onAudition}
+        className="w-[56px] text-right pr-1 text-xs font-mono truncate shrink-0 hover:underline"
         style={{ color: audible ? voice.color : '#444' }}
-        title="Right-click for parameters"
-        onClick={(e) => { if (e.button === 0) onVoiceRightClick(voice, e.clientX, e.clientY); }}
+        title="Click to audition · Right-click for parameters"
       >
         {voice.name}
       </button>
@@ -329,6 +337,23 @@ export function DrumMachine() {
     dispatch({ type: 'DRUM_SET_PLAYING', playing: !state.isPlaying });
   }, [state.isPlaying, dispatch]);
 
+  /** Audition a single voice with its current parameters. */
+  const auditionVoice = useCallback(async (voice: DrumVoiceConfig) => {
+    const ctx = await getAudioEngine().getOrCreateAudioContext();
+    getDrumSynth().trigger(voice.id as DrumVoiceType, {
+      volume: voice.volume, pan: voice.pan, pitch: voice.pitch,
+      decay: voice.decay, tone: voice.tone, velocity: 110,
+    }, ctx.currentTime + 0.02);
+  }, []);
+
+  const genreGroups = useMemo(() => patternsByGenre(state.patterns), [state.patterns]);
+
+  const visibleVoices = useMemo(() => (
+    state.voiceFilter === 'ALL'
+      ? pattern?.voices ?? []
+      : (pattern?.voices ?? []).filter((v) => voiceGroupOf(v.id) === state.voiceFilter)
+  ), [pattern, state.voiceFilter]);
+
   if (!pattern) return null;
 
   return (
@@ -337,16 +362,20 @@ export function DrumMachine() {
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40">
         <span className="text-xs text-neutral-600 tracking-widest">DRUMS</span>
 
-        {/* Pattern selector */}
+        {/* Pattern selector, grouped by genre */}
         <select
           value={state.activePatternId}
           onChange={(e) => dispatch({ type: 'DRUM_SET_ACTIVE_PATTERN', id: e.target.value })}
-          className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5"
+          className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5 max-w-[150px]"
         >
-          {state.patterns.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
+          {genreGroups.map(([genre, list]) => (
+            <optgroup key={genre} label={genre}>
+              {list.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </optgroup>
           ))}
         </select>
+
+        <span className="text-xs text-neutral-700 font-mono">{state.patterns.length}</span>
 
         <button
           onClick={() => dispatch({ type: 'DRUM_ADD_PATTERN' })}
@@ -358,6 +387,11 @@ export function DrumMachine() {
           className="px-1.5 py-0.5 text-xs border border-neutral-700 text-neutral-500 hover:text-neutral-300 hover:border-neutral-500"
           title="Duplicate pattern"
         >⧉</button>
+        <button
+          onClick={() => { if (window.confirm(`Delete pattern "${pattern.name}"?`)) dispatch({ type: 'DRUM_DELETE_PATTERN', patternId: pattern.id }); }}
+          className="px-1.5 py-0.5 text-xs border border-neutral-700 text-neutral-600 hover:text-red-400 hover:border-red-800"
+          title="Delete pattern"
+        >🗑</button>
 
         {/* Step count */}
         <div className="flex border border-neutral-700 overflow-hidden">
@@ -426,15 +460,33 @@ export function DrumMachine() {
         </div>
       </div>
 
+      {/* Voice group filter */}
+      <div className="flex items-center gap-1 px-3 py-1 border-b border-neutral-800/60 bg-neutral-900/20">
+        <span className="text-xs text-neutral-600 tracking-widest mr-1">VOICES</span>
+        {VOICE_GROUPS.map((g) => (
+          <button
+            key={g}
+            onClick={() => dispatch({ type: 'DRUM_SET_VOICE_FILTER', filter: g })}
+            className={`px-2 py-0.5 text-xs border transition-colors ${
+              state.voiceFilter === g
+                ? 'border-neutral-500 text-neutral-200 bg-neutral-800'
+                : 'border-neutral-800 text-neutral-600 hover:text-neutral-400 hover:border-neutral-600'
+            }`}
+          >{g}</button>
+        ))}
+        <span className="text-xs text-neutral-700 font-mono ml-1">{visibleVoices.length}</span>
+      </div>
+
       {/* Voice grid */}
-      <div className="overflow-x-auto overflow-y-auto px-2 py-1" style={{ maxHeight: '280px' }}>
-        {pattern.voices.map((voice) => (
+      <div className="overflow-x-auto overflow-y-auto px-2 py-1" style={{ maxHeight: '300px' }}>
+        {visibleVoices.map((voice) => (
           <VoiceRow
             key={voice.id}
             voice={voice}
             pattern={pattern}
             currentStep={state.currentStep}
             isPlaying={state.isPlaying}
+            onAudition={() => void auditionVoice(voice)}
             onToggleStep={(idx) => dispatch({
               type: 'DRUM_TOGGLE_STEP',
               patternId: pattern.id, voiceId: voice.id, stepIndex: idx,
@@ -494,6 +546,14 @@ export function DrumMachine() {
             setVoiceMenu((prev) => prev
               ? { ...prev, voice: { ...prev.voice, ...params } }
               : null);
+          }}
+          onClearRow={() => {
+            dispatch({
+              type: 'DRUM_CLEAR_VOICE',
+              patternId: pattern.id,
+              voiceId: voiceMenu.voice.id as DrumVoiceType,
+            });
+            closeMenus();
           }}
           onClose={closeMenus}
         />

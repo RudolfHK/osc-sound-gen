@@ -9,11 +9,13 @@ import { getAudioEngine } from '../engine/audio';
 import { getSequencerEngine } from '../engine/sequencer';
 import { useAppStore, computeEffectiveMutes } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
+import { useInstrumentStore } from '../store/instrumentStore';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
 
 export function Layout() {
   const { state, dispatch } = useAppStore();
   const { state: drumState, dispatch: drumDispatch } = useDrumStore();
+  const { state: instState, dispatch: instDispatch } = useInstrumentStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scopeRef = useRef<Oscilloscope | null>(null);
 
@@ -204,6 +206,16 @@ export function Layout() {
           >
             DRUMS
           </button>
+          {/* Instrument library toggle */}
+          <button
+            onClick={() => instDispatch({ type: 'INST_OPEN', open: !instState.isOpen })}
+            style={instState.isOpen ? { borderColor: themeColor, color: themeColor, backgroundColor: themeColor + '18' } : {}}
+            className={`px-2 py-1 text-xs border transition-colors tracking-widest ${
+              !instState.isOpen ? 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-300' : ''
+            }`}
+          >
+            INSTRUMENTS
+          </button>
           {/* Status */}
           <div className="flex items-center gap-2 text-xs text-neutral-600">
             <span
@@ -231,6 +243,9 @@ export function Layout() {
 
       {/* Drum machine (lazy import when first opened) */}
       {drumState.isOpen && <DrumMachineLazy />}
+
+      {/* Instrument library (lazy import when first opened) */}
+      {instState.isOpen && <InstrumentLibraryLazy />}
 
       {/* Oscilloscope */}
       <div className="flex-1 relative min-h-0">
@@ -292,6 +307,21 @@ function DrumMachineLazy() {
       </div>
     }>
       <DrumMachineLazyComp />
+    </Suspense>
+  );
+}
+
+const InstrumentLibraryLazyComp = lazy(() =>
+  import('../sampler/InstrumentLibrary').then((m) => ({ default: m.InstrumentLibrary }))
+);
+function InstrumentLibraryLazy() {
+  return (
+    <Suspense fallback={
+      <div className="h-20 flex items-center justify-center text-xs text-neutral-600 tracking-widest">
+        LOADING INSTRUMENTS…
+      </div>
+    }>
+      <InstrumentLibraryLazyComp />
     </Suspense>
   );
 }

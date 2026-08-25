@@ -1,4 +1,5 @@
 import { getAudioEngine, applyWaveformToNode } from './audio';
+import { getInstrumentEngine } from './instruments';
 import { midiToFreq, beatsToSeconds, SNAP_BEATS } from '../utils/music';
 import type { SequencerState, SequencerTrack, SnapValue } from '../utils/music';
 import type { OscillatorState, OscillatorTab } from './oscillator';
@@ -123,7 +124,11 @@ export class SequencerEngine {
     for (const track of this.tracks) {
       const nodes = this.seqNodes.get(track.tabId);
       const tab = this.tabMap.get(track.tabId);
-      if (!nodes || !tab) continue;
+      if (!tab) continue;
+      // A track either plays through an assigned instrument preset or its own
+      // oscillator node — one of the two must be available.
+      const presetId = getInstrumentEngine().getTrackInstrument(track.tabId);
+      if (!nodes && !presetId) continue;
 
       const restoreFreq = tab.oscillator.frequency;
       const restoreGain = tab.oscillator.amplitude * tab.oscillator.masterVolume;
@@ -151,8 +156,8 @@ export class SequencerEngine {
               const noteOnTime = this.startAudioTime + (monotonicStart - this.startBeat) / bps;
               const noteOffTime = noteOnTime + beatsToSeconds(note.durationBeats, this.bpm);
 
-              this.scheduleNote(nodes, note, tab.oscillator, noteOnTime, noteOffTime,
-                restoreFreq, restoreGain);
+              this.emitNote(presetId, track.pan, nodes, note, tab.oscillator,
+                noteOnTime, noteOffTime, restoreFreq, restoreGain);
               this.scheduledKeys.add(key);
             }
           }
@@ -166,8 +171,8 @@ export class SequencerEngine {
             const noteOnTime = this.startAudioTime + (note.startBeat - this.startBeat) / bps;
             const noteOffTime = noteOnTime + beatsToSeconds(note.durationBeats, this.bpm);
 
-            this.scheduleNote(nodes, note, tab.oscillator, noteOnTime, noteOffTime,
-              restoreFreq, restoreGain);
+            this.emitNote(presetId, track.pan, nodes, note, tab.oscillator,
+              noteOnTime, noteOffTime, restoreFreq, restoreGain);
             this.scheduledKeys.add(key);
           }
         }
@@ -176,6 +181,35 @@ export class SequencerEngine {
 
     this.scheduleUpToBeat = scheduleToMonotonic;
     this.schedulerTimer = setTimeout(() => this.schedulerLoop(), SCHEDULER_MS);
+  }
+
+  /**
+   * Route one note either to the track's assigned instrument preset or to its
+   * raw oscillator node.
+   */
+  private emitNote(
+    presetId: string | null,
+    pan: number,
+    nodes: SeqNodes | undefined,
+    note: { midiNote: number; velocity: number },
+    oscState: OscillatorState,
+    noteOnTime: number,
+    noteOffTime: number,
+    restoreFreq: number,
+    restoreGain: number,
+  ): void {
+    if (presetId) {
+      getInstrumentEngine().playNote(
+        presetId, note.midiNote,
+        // Scale note velocity by the track's own amplitude so the mixer still applies
+        note.velocity * oscState.amplitude,
+        noteOnTime, noteOffTime - noteOnTime, pan,
+      );
+      return;
+    }
+    if (nodes) {
+      this.scheduleNote(nodes, note, oscState, noteOnTime, noteOffTime, restoreFreq, restoreGain);
+    }
   }
 
   private scheduleNote(
@@ -239,6 +273,8 @@ export class SequencerEngine {
     for (const track of state.tracks) {
       const tab = tabs.find((t) => t.id === track.tabId);
       if (!tab) continue;
+      // Instrument-driven tracks build a fresh voice per note — no persistent node
+      if (getInstrumentEngine().getTrackInstrument(track.tabId)) continue;
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();

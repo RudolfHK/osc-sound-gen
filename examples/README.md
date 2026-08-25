@@ -2,54 +2,112 @@
 
 These `.oscproject` files demonstrate what the sequencer can do. Load them via **↑ LOAD** in the sequencer toolbar.
 
-> **Tip:** For best results, open the right number of OSC tabs before loading:
-> use **+ ADD OSC** in the tab bar to match the track count below.
+> **Tip:** Open the right number of OSC tabs before loading — use **+ ADD OSC** in the tab bar
+> to match the track count below. Tracks are matched to tabs by position, so a project with
+> three tracks needs three tabs.
+
+> **Note on the Minecraft pieces:** these are original arrangements written *in the style of*
+> C418's Minecraft soundtrack — same mood, key centres, and phrasing ideas — not transcriptions
+> of the copyrighted recordings.
 
 ---
 
-## minecraft-sweden.oscproject
+## Minecraft-style
 
-**3 OSCs — 72 BPM — 8 bars — A minor**
+### minecraft-sweden.oscproject
+**3 tracks — 72 BPM — A minor**
 
-Inspired by C418's "Sweden" from Minecraft. Gentle arpeggios over a slow bass and ambient pad.
+Gentle arpeggiated melody over slow bass and an ambient pad. The calmest of the set.
 
-| Tab | Role | Suggested waveform |
-|-----|------|--------------------|
-| OSC 1 | Melody | Sine or Triangle |
-| OSC 2 | Bass | Sine, amplitude ~0.6 |
-| OSC 3 | Pad | Sine, amplitude ~0.3, centsOffset ±5 for warmth |
+| Track | Role | Suggested instrument |
+|-------|------|----------------------|
+| 1 | Melody | *Keys → Music Box* or *Electric Piano* |
+| 2 | Bass | *Synth Bass → Sub Bass* |
+| 3 | Pad | *Synth Pad → Warm Pad* |
+
+### minecraft-wet-hands.oscproject
+**3 tracks — 84 BPM — C major**
+
+Continuous eighth-note piano figure over sustained thirds and a walking bass. The busiest melody line of the three.
+
+| Track | Role | Suggested instrument |
+|-------|------|----------------------|
+| 1 | Piano figure | *Keys → Electric Piano* |
+| 2 | Chord bed | *Synth Pad → Glass Pad* |
+| 3 | Bass | *Bass Guitar → Finger Bass* |
+
+### minecraft-subwoofer-lullaby.oscproject
+**3 tracks — 76 BPM — C minor**
+
+Bass-forward, as the name suggests: a prominent octave-jumping bass line under a sparse melody and quiet pad.
+
+| Track | Role | Suggested instrument |
+|-------|------|----------------------|
+| 1 | Melody | *Keys → Celesta* or *Plucked → Kalimba* |
+| 2 | Lead bass | *Synth Bass → Sub Bass* |
+| 3 | Pad | *Synth Pad → Dark Pad* |
+
+### minecraft-haggstrom.oscproject
+**3 tracks — 96 BPM — A minor**
+
+Brighter and more rhythmic — a rising melody over a constant sixteenth-ish arpeggio.
+
+| Track | Role | Suggested instrument |
+|-------|------|----------------------|
+| 1 | Melody | *Keys → Electric Piano* |
+| 2 | Arpeggio | *Plucked → Harp* or *Acoustic Guitar → Nylon Classical* |
+| 3 | Bass | *Synth Bass → Sub Bass* |
 
 ---
 
-## ambient-cosmos.oscproject
+## Other styles
 
-**3 OSCs — 60 BPM — 8 bars — A major**
+### ambient-cosmos.oscproject
+**3 tracks — 60 BPM — A major**
 
-Slow evolving pad textures with long, overlapping notes.
+Slow evolving pad textures with long, deliberately overlapping notes. Good for testing the
+multi-oscillator mix and long release tails.
 
-| Tab | Role | Suggested waveform |
-|-----|------|--------------------|
-| OSC 1 | Lead | Sine, amplitude 0.5 |
-| OSC 2 | Mid pad | Triangle, amplitude 0.4 |
-| OSC 3 | Sub bass | Sine, amplitude 0.45 |
+| Track | Role | Suggested instrument |
+|-------|------|----------------------|
+| 1 | Lead | *Synth Pad → Vapor Pad* |
+| 2 | Mid pad | *Synth Pad → Choir Pad* |
+| 3 | Sub bass | *Synth Bass → Sub Bass* |
+
+### arp-sequence.oscproject
+**2 tracks — 134 BPM — C major**
+
+Fast 16th-note arpeggio demonstrating the piano roll at high note density.
+
+| Track | Role | Suggested instrument |
+|-------|------|----------------------|
+| 1 | Arp lead | *Synth Lead → Supersaw* |
+| 2 | Bass hits | *Synth Bass → Acid Bass* |
+
+Pair this one with the **Techno** or **House** drum pattern at the same BPM.
 
 ---
 
-## arp-sequence.oscproject
+## Adding drums
 
-**2 OSCs — 134 BPM — 4 bars — C major**
+Open the **DRUMS** panel and pick a pattern that fits the tempo:
 
-Fast 16th-note arpeggio pattern demonstrating the piano roll at high note density.
+| Project | Suggested pattern |
+|---------|-------------------|
+| minecraft-* | none, or *Jazz Brush* very quietly |
+| ambient-cosmos | none |
+| arp-sequence | *Techno* or *House* |
 
-| Tab | Role | Suggested waveform |
-|-----|------|--------------------|
-| OSC 1 | Arp lead | Sawtooth or Triangle, amplitude 0.5 |
-| OSC 2 | Bass hits | Square, amplitude 0.65 |
+Leave **SYNC** enabled so the drum machine follows the sequencer's BPM.
 
 ---
 
 ## Creating your own
 
 1. Build a composition in the sequencer
-2. Click **↓ SAVE** to export as `.oscproject`
-3. Share the file — it contains all note data and BPM settings
+2. Assign instruments from the **INSTRUMENTS** panel if you want more than a raw oscillator
+3. Click **↓ SAVE** to export as `.oscproject`
+4. Share the file — it contains all note data, BPM, and track pan settings
+
+Instrument assignments and drum patterns are stored separately in your browser (they persist
+across reloads but do not travel inside the `.oscproject` file).

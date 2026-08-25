@@ -96,6 +96,34 @@ For the complete Electron packaging guide including code signing and auto-update
 - Master volume strip
 - Mute/Solo per track
 
+### Drum Machine (`DRUMS`)
+- **33 synthesized voices** — three kick variants (acoustic, 808, tight), three snares
+  (acoustic, 808, brush), closed/open/pedal hi-hats, clap, rim, snap, three toms,
+  crash, splash, ride, ride bell, reverse cymbal, cowbell, shaker, cabasa, tambourine,
+  congas, bongo, timbale, woodblock, clave, triangle, and two FX voices
+- All voices are synthesized at runtime via the Web Audio API — no sample files to download
+- **34 genre patterns** — Rock, Punk, Metal, Ballad, Shuffle, Hip-Hop, Boom Bap, Lo-Fi,
+  Trap, House, Deep House, Techno, Electro, Synthwave, Dubstep, UK Garage, Drum & Bass,
+  Amen Break, Breakbeat, Funk, Motown, Disco, Jazz, Bossa Nova, Salsa, Samba, Reggaeton,
+  Cumbia, Afrobeat, Marching, and more
+- 16- or 32-step grid, per-pattern swing, group filtering (KIT / CYMBAL / PERC / FX)
+- **Right-click a step** → velocity, pitch, decay for that single hit
+- **Right-click a voice name** → volume, pan, tone, pitch, decay for the whole row
+- Per-voice mute/solo; BPM syncs to the sequencer
+
+### Instrument Library (`INSTRUMENTS`)
+- **76 subtractive-synthesis presets** across ten categories: Synth Lead, Synth Pad,
+  Synth Bass, Keys, Electric Guitar, Acoustic Guitar, Bass Guitar, Plucked, Orchestral, FX
+- Guitars include clean, jazz, crunch, overdrive, heavy distortion, palm mute, funk wah,
+  harmonics and power chord (electric); steel string, nylon, 12-string, folk, picked and
+  resonator (acoustic); finger, pick, slap, fretless and muted (bass)
+- Each preset stacks multiple oscillators with independent detune/octave/gain, then runs
+  through a body-resonance peaking filter, a filter envelope, an optional waveshaper drive
+  stage, an amp ADSR, and a panner
+- Click a card to **audition** it; **right-click** to edit 12 parameters live
+- **Assign a preset to a track** — the sequencer then plays that track's notes through the
+  instrument instead of its raw oscillator, so you can layer synths, guitars and drums
+
 ### Recording
 - Captures master output to **WebM** (Opus) or **WAV** (16-bit PCM)
 - No time limit; WAV conversion handled in-browser via AudioBuffer decoding
@@ -103,6 +131,11 @@ For the complete Electron packaging guide including code signing and auto-update
 ### Persistence
 - **Auto-save** — full app state (oscillators, sequencer, settings) persists in `localStorage`
 - **Project files** — save/load `.oscproject` (JSON) for sharing compositions
+- Drum patterns and instrument assignments persist separately in `localStorage`
+
+### Example projects
+Six ready-to-load compositions live in [`examples/`](examples/README.md) — four
+Minecraft/C418-style pieces, an ambient pad study, and a fast arpeggio demo.
 
 ---
 
