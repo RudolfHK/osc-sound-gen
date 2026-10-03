@@ -47,6 +47,60 @@ export class MultiOscillatorEngine {
     return this.ctx;
   }
 
+  // ─── Offline rendering ───────────────────────────────────────────────────────
+  //
+  // Export swaps an OfflineAudioContext in place of the live one, so every
+  // engine that asks for "the" context — instruments, drums, channel strips,
+  // effects — builds the same graph inside it. Each of those already rebuilds
+  // its nodes when it sees a different context, which is what makes the swap
+  // safe in both directions.
+
+  private saved: {
+    ctx: AudioContext | null;
+    master: GainNode | null;
+    limiter: DynamicsCompressorNode | null;
+    dest: MediaStreamAudioDestinationNode | null;
+  } | null = null;
+
+  get isRenderingOffline(): boolean {
+    return this.saved !== null;
+  }
+
+  beginOffline(ctx: OfflineAudioContext, masterVolume: number): void {
+    if (this.saved) throw new Error('An offline render is already in progress');
+    this.saved = { ctx: this.ctx, master: this.masterGain, limiter: this.limiter, dest: this.mediaStreamDest };
+
+    // OfflineAudioContext implements every factory method the engines use;
+    // the live-only APIs (resume, media streams) are never reached while rendering.
+    this.ctx = ctx as unknown as AudioContext;
+    this.masterGain = ctx.createGain();
+    this.masterGain.gain.value = masterVolume;
+    this.limiter = ctx.createDynamicsCompressor();
+    this.limiter.threshold.value = -6;
+    this.limiter.knee.value = 6;
+    this.limiter.ratio.value = 12;
+    this.limiter.attack.value = 0.003;
+    this.limiter.release.value = 0.15;
+    this.masterGain.connect(this.limiter);
+    this.limiter.connect(ctx.destination);
+    this.mediaStreamDest = null;
+  }
+
+  endOffline(): void {
+    if (!this.saved) return;
+    try { this.masterGain?.disconnect(); this.limiter?.disconnect(); } catch { /* ignore */ }
+    this.ctx = this.saved.ctx;
+    this.masterGain = this.saved.master;
+    this.limiter = this.saved.limiter;
+    this.mediaStreamDest = this.saved.dest;
+    this.saved = null;
+  }
+
+  /** The node feeding the speakers — recording taps here. */
+  getOutputNode(): AudioNode | null {
+    return this.limiter;
+  }
+
   /** Master limiter control. Disabled = transparent (threshold at 0, ratio 1). */
   configureLimiter(enabled: boolean, thresholdDb: number): void {
     if (!this.ctx || !this.limiter) return;
@@ -168,6 +222,8 @@ export class MultiOscillatorEngine {
   }
 
   async getOrCreateAudioContext(): Promise<AudioContext> {
+    // Previews and playback must not land in an export that's being rendered
+    if (this.saved) throw new Error('Audio is busy rendering an export');
     const ctx = this.ensureContext();
     if (ctx.state === 'suspended') await ctx.resume();
     return ctx;

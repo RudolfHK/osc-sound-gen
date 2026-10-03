@@ -16,6 +16,38 @@ All listed licenses are OSI-approved (or CC-BY-4.0 for data assets) and permit f
 
 ---
 
+## One LGPL component: the MP3 encoder
+
+MP3 export uses **[@breezystack/lamejs](https://www.npmjs.com/package/@breezystack/lamejs) 1.2.7**, a
+JavaScript port of the LAME encoder, licensed under the **GNU LGPL v3.0**. Every practical MP3 encoder
+that runs in a browser is derived from LAME, so there is no permissively licensed alternative.
+
+The LGPL permits use in an MIT-licensed application provided the library stays replaceable and its
+license travels with it. OSC meets both:
+
+- **Separate file.** The encoder is bundled only into its own Web Worker (`dist/assets/mp3.worker-*.js`)
+  and loaded on demand; it is not merged into the application bundle. Anyone can replace that file with
+  their own build of the library.
+- **Notice shipped.** The build writes `dist/licenses/lamejs-LGPL-3.0.txt` from the installed package,
+  so the notice always matches the bundled version.
+- **Audited by name.** `npm run audit:licenses` excludes exactly `@breezystack/lamejs@1.2.7` rather than
+  allowing LGPL in general, so any other copyleft dependency would still fail the audit.
+
+If MP3 export isn't needed, removing `src/export/mp3.worker.ts` and the dependency returns the project to
+permissive-only licenses.
+
+### Dependencies added with export and testing
+
+| Package | License | Used for |
+|---------|---------|----------|
+| @breezystack/lamejs | LGPL-3.0 (see above) | MP3 encoding, in a worker |
+| fflate | ✅ MIT | Packing stem exports into a ZIP |
+| vitest | ✅ MIT | Unit tests (development only) |
+| playwright | ✅ Apache-2.0 | Browser tests (development only) |
+| @types/node | ✅ MIT | Type definitions for tests (development only) |
+
+---
+
 ## Full Inventory
 
 | Package | Version | License | Source |

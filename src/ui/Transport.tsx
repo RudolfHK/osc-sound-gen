@@ -2,11 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppStore, useAccent } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
 import { getSequencerEngine } from '../engine/sequencer';
-import { getAudioEngine } from '../engine/audio';
-import { RecordingEngine } from '../engine/recording';
+import { getRecorder } from '../engine/pcmRecorder';
 import { getPlayhead, setPlayhead, usePlayhead } from '../engine/playhead';
 import { beatsToSeconds } from '../utils/music';
-import { downloadBlob, blobToWAV } from '../utils/wav';
+import { openExport, setLastTake, useExportState } from './exportState';
 import { notify } from './notices';
 
 // ─── Transport control hook (shared by the bar and keyboard shortcuts) ────────
@@ -89,11 +88,15 @@ function Position({ bpm, beatsPerBar }: { bpm: number; beatsPerBar: number }) {
 
 // ─── Recording ────────────────────────────────────────────────────────────────
 
+/**
+ * Live recording of the master output, captured as raw PCM so the take is
+ * lossless. Stopping opens the export dialog with the take, where it can be
+ * saved as WAV (16/24/32-bit) or MP3 — and saved again in another format.
+ */
 function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () => void; isPlaying: boolean }) {
   const { state, dispatch } = useAppStore();
-  const engineRef = useRef<RecordingEngine | null>(null);
+  const { take } = useExportState();
   const [elapsed, setElapsed] = useState(0);
-  const [last, setLast] = useState<{ blob: Blob; timestamp: string; mimeType: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -104,19 +107,17 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
   }, [state.isRecording]);
 
   const stopRecording = useCallback(async () => {
-    const eng = engineRef.current;
-    if (!eng) return;
+    if (!getRecorder().isRecording) return;
     setBusy(true);
     try {
-      const rec = await eng.stop();
-      setLast({ blob: rec.blob, timestamp: rec.timestamp, mimeType: rec.mimeType });
-      notify('Recording ready — download it from the REC menu.');
+      const pcm = await getRecorder().stop();
+      setLastTake(pcm);
+      openExport('take');
     } catch (err) {
       notify('Recording failed to stop cleanly.', 'error');
       console.error(err);
     } finally {
       setBusy(false);
-      engineRef.current = null;
       dispatch({ type: 'SET_RECORDING', recording: false });
     }
   }, [dispatch]);
@@ -130,40 +131,15 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
 
   const toggle = async () => {
     if (state.isRecording) { await stopRecording(); return; }
-    if (typeof MediaRecorder === 'undefined') {
-      notify('This browser can’t record audio.', 'error');
+    try {
+      await getRecorder().start();
+    } catch (err) {
+      console.error(err);
+      notify('This browser can’t record audio here.', 'error');
       return;
     }
-    // Create the audio graph on demand rather than asking the user to play first
-    await getAudioEngine().getOrCreateAudioContext();
-    const dest = getAudioEngine().getMediaStreamDest();
-    if (!dest) { notify('Audio output is unavailable.', 'error'); return; }
-    const eng = new RecordingEngine(dest);
-    eng.start();
-    engineRef.current = eng;
-    setLast(null);
     dispatch({ type: 'SET_RECORDING', recording: true });
     if (!isPlaying) onStartTransport();
-  };
-
-  const download = async (kind: 'webm' | 'wav') => {
-    if (!last) return;
-    if (kind === 'webm') {
-      const ext = last.mimeType.includes('ogg') ? 'ogg' : last.mimeType.includes('mp4') ? 'mp4' : 'webm';
-      downloadBlob(last.blob, `${state.projectName}-${last.timestamp}.${ext}`);
-      return;
-    }
-    const ctx = getAudioEngine().getAudioContext();
-    if (!ctx) return;
-    setBusy(true);
-    try {
-      downloadBlob(await blobToWAV(last.blob, ctx), `${state.projectName}-${last.timestamp}.wav`);
-    } catch (err) {
-      notify('WAV conversion failed — the WebM download still works.', 'error');
-      console.error(err);
-    } finally {
-      setBusy(false);
-    }
   };
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -173,7 +149,7 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
       <button
         onClick={toggle}
         disabled={busy}
-        title="Record the master output (starts playback if stopped)"
+        title="Record the master output live, losslessly (starts playback if stopped)"
         className={`flex items-center gap-1.5 px-2 py-1 text-xs font-bold border tracking-widest transition-colors disabled:opacity-40 ${
           state.isRecording
             ? 'border-red-500 text-red-300 bg-red-900/30 animate-pulse'
@@ -183,17 +159,12 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
         <span className={`w-2 h-2 rounded-full ${state.isRecording ? 'bg-red-500' : 'bg-red-900'}`} />
         {state.isRecording ? fmt(elapsed) : 'REC'}
       </button>
-      {last && !state.isRecording && (
-        <>
-          <button onClick={() => download('wav')} disabled={busy}
-            className="px-1.5 py-1 text-xs border border-neutral-700 text-neutral-400 hover:text-neutral-100 disabled:opacity-40">
-            ↓ WAV
-          </button>
-          <button onClick={() => download('webm')} disabled={busy}
-            className="px-1.5 py-1 text-xs border border-neutral-700 text-neutral-500 hover:text-neutral-100 disabled:opacity-40">
-            ↓ WebM
-          </button>
-        </>
+      {take && !state.isRecording && (
+        <button
+          onClick={() => openExport('take')}
+          className="px-1.5 py-1 text-xs border border-neutral-700 text-neutral-400 hover:text-neutral-100"
+          title="Export the last recording"
+        >↓ TAKE</button>
       )}
     </div>
   );
@@ -240,6 +211,11 @@ export function Transport() {
       </div>
 
       <RecordButton onStartTransport={() => void play()} isPlaying={seq.isPlaying} />
+      <button
+        onClick={() => openExport('song')}
+        className={`${btn} ${off} tracking-widest`}
+        title="Export the arrangement — WAV, MP3, stems or MIDI (Ctrl+Shift+E)"
+      >⤓ EXPORT</button>
 
       <Position bpm={seq.bpm} beatsPerBar={seq.beatsPerBar} />
 

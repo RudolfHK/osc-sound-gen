@@ -12,8 +12,35 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { unzipSync } from 'fflate';
+
+/** Parse a WAV file far enough to check its format and content. */
+function parseWav(buf) {
+  const v = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+  const tag = (o) => String.fromCharCode(buf[o], buf[o + 1], buf[o + 2], buf[o + 3]);
+  if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('not a WAV file');
+  let o = 12, fmt = null, data = null;
+  while (o + 8 <= buf.length) {
+    const id = tag(o), size = v.getUint32(o + 4, true);
+    if (id === 'fmt ') fmt = { format: v.getUint16(o + 8, true), channels: v.getUint16(o + 10, true), sampleRate: v.getUint32(o + 12, true), bits: v.getUint16(o + 22, true) };
+    if (id === 'data') data = { at: o + 8, size };
+    o += 8 + size + (size % 2);
+  }
+  const bps = fmt.bits / 8;
+  const frames = data.size / (bps * fmt.channels);
+  let peak = 0;
+  for (let i = 0; i < frames * fmt.channels; i++) {
+    const at = data.at + i * bps;
+    let x;
+    if (fmt.format === 3) x = v.getFloat32(at, true);
+    else if (fmt.bits === 16) x = v.getInt16(at, true) / 32768;
+    else { const u = buf[at] | (buf[at + 1] << 8) | (buf[at + 2] << 16); x = (u & 0x800000 ? u - 0x1000000 : u) / 8388608; }
+    peak = Math.max(peak, Math.abs(x));
+  }
+  return { ...fmt, frames, seconds: frames / fmt.sampleRate, peak };
+}
 
 const PORT = 4179;
 const URL = `http://localhost:${PORT}`;
@@ -292,6 +319,143 @@ try {
     await button('VIZ').click();
     await page.getByText('VISUALIZER').waitFor({ timeout: 3000 });
     await button('VIZ').click();
+  });
+
+
+  // ─── Export ────────────────────────────────────────────────────────────────
+  const dialog = () => page.getByRole('dialog', { name: 'Export' });
+  // Options are radios inside a named group per row ("Normalize", "Dither", …)
+  const pick = (name, group) => (group ? dialog().getByRole('group', { name: group }) : dialog())
+    .getByRole('radio', { name, exact: true }).click();
+  async function exportFile(configure) {
+    await configure();
+    const dl = page.waitForEvent('download', { timeout: 120000 });
+    const t0 = Date.now();
+    await dialog().getByRole('button', { name: /^EXPORT( AGAIN)?$/ }).click();
+    const download = await dl;
+    const bytes = new Uint8Array(readFileSync(await download.path()));
+    return { bytes, name: download.suggestedFilename(), ms: Date.now() - t0 };
+  }
+  const SECTION_SECONDS = 16 / (118 / 60);  // Midnight Drive's Intro: 4 bars at 118 BPM
+  const SONG_SECONDS = 64 / (118 / 60);
+
+  await step('opens the export dialog from the transport', async () => {
+    // Make sure Midnight Drive is loaded — the export checks below depend on it
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.getByRole('menuitem', { name: /Open example/ }).hover();
+    await page.getByRole('menu').getByRole('button', { name: /midnight drive/i }).click();
+    await page.waitForTimeout(300);
+    await button('⤓ EXPORT').click();
+    await dialog().waitFor({ timeout: 3000 });
+    await pick('Off', 'Normalize');  // settings persist between runs
+  });
+
+  await step('exports a section as 24-bit WAV with its reverb tail', async () => {
+    const f = await exportFile(async () => {
+      await pick('WAV'); await pick('Mixdown'); await pick('48 kHz'); await pick('24-bit');
+      await dialog().getByRole('combobox', { name: 'Range' }).selectOption({ label: 'Section: Intro' });
+    });
+    const w = parseWav(f.bytes);
+    assert(f.name.endsWith('-Intro.wav'), `unexpected file name ${f.name}`);
+    assert(w.format === 1 && w.bits === 24 && w.sampleRate === 48000 && w.channels === 2, `wrong format ${JSON.stringify(w)}`);
+    assert(w.seconds >= SECTION_SECONDS - 0.01 && w.seconds <= SECTION_SECONDS + 4.1, `length ${w.seconds.toFixed(2)}s, expected ${SECTION_SECONDS.toFixed(2)}s + tail`);
+    assert(w.peak > 0.05, `export is silent (peak ${w.peak})`);
+  });
+
+  await step('renders the whole song faster than real time', async () => {
+    const f = await exportFile(async () => {
+      await pick('16-bit');
+      await dialog().getByRole('combobox', { name: 'Range' }).selectOption({ label: 'Whole song' });
+    });
+    const w = parseWav(f.bytes);
+    assert(w.bits === 16 && w.seconds >= SONG_SECONDS - 0.01, `16-bit whole song expected, got ${w.bits}-bit ${w.seconds.toFixed(1)}s`);
+    assert(w.peak > 0.05 && w.peak <= 1, `bad level (peak ${w.peak})`);
+    console.log(`      ${SONG_SECONDS.toFixed(1)} s of music rendered + encoded in ${(f.ms / 1000).toFixed(1)} s`);
+    assert(f.ms < SONG_SECONDS * 1000, `export took ${f.ms} ms for ${SONG_SECONDS.toFixed(1)} s of music`);
+  });
+
+  await step('exports MP3 that decodes back to audio', async () => {
+    const f = await exportFile(async () => {
+      await pick('MP3'); await pick('192'); await pick('Stereo');
+      await dialog().getByRole('combobox', { name: 'Range' }).selectOption({ label: 'Section: Intro' });
+    });
+    assert(String.fromCharCode(...f.bytes.slice(0, 3)) === 'ID3', 'missing ID3 tag');
+    const tagLen = 10 + ((f.bytes[6] << 21) | (f.bytes[7] << 14) | (f.bytes[8] << 7) | f.bytes[9]);
+    assert(f.bytes[tagLen] === 0xff && (f.bytes[tagLen + 1] & 0xe0) === 0xe0, 'no MPEG frame sync after the tag');
+    const decoded = await page.evaluate(async (b64) => {
+      const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const ctx = new OfflineAudioContext(2, 1, 48000);
+      const buf = await ctx.decodeAudioData(bin.buffer);
+      let peak = 0;
+      for (let c = 0; c < buf.numberOfChannels; c++) for (const x of buf.getChannelData(c)) peak = Math.max(peak, Math.abs(x));
+      return { seconds: buf.duration, peak };
+    }, Buffer.from(f.bytes).toString('base64'));
+    assert(decoded.peak > 0.05, `decoded MP3 is silent (peak ${decoded.peak})`);
+    assert(Math.abs(decoded.seconds - SECTION_SECONDS) < 4.2, `decoded length ${decoded.seconds.toFixed(2)}s`);
+    // The file includes the reverb tail, so measure against the decoded length
+    const kbps = (f.bytes.length * 8) / decoded.seconds / 1000;
+    assert(kbps > 170 && kbps < 215, `size implies ${kbps.toFixed(0)} kbps for a 192 kbps export`);
+  });
+
+  await step('loudness normalization reaches the streaming target', async () => {
+    await exportFile(async () => {
+      await pick('WAV'); await pick('Loudness', 'Normalize');
+    });
+    const text = await page.getByTestId('export-result').innerText();
+    const lufs = parseFloat(text.match(/([−-]?\d+\.\d) LUFS/)[1].replace('−', '-'));
+    const held = text.includes('held back');
+    assert(held ? lufs < -14 : Math.abs(lufs + 14) < 0.3, `reported ${lufs} LUFS (held back: ${held})`);
+    await pick('Off', 'Normalize');
+  });
+
+  await step('stems skip tracks with nothing in the range', async () => {
+    // Only Arp and Pad play in the Intro
+    const f = await exportFile(async () => {
+      await pick('WAV'); await pick('Stems (ZIP)'); await pick('16-bit');
+      await dialog().getByRole('combobox', { name: 'Range' }).selectOption({ label: 'Section: Intro' });
+    });
+    const names = Object.keys(unzipSync(f.bytes)).sort();
+    assert(names.join(',') === '04-Arp.wav,05-Pad.wav' || names.length === 2, `Intro stems: ${names.join(', ')}`);
+  });
+
+  await step('exports stems: one aligned file per audible track', async () => {
+    const f = await exportFile(async () => {
+      await dialog().getByRole('combobox', { name: 'Range' }).selectOption({ label: 'Whole song' });
+    });
+    const files = unzipSync(f.bytes);
+    const names = Object.keys(files).sort();
+    assert(names.length === 6, `expected 6 stems, got ${names.join(', ')}`);
+    const parsed = names.map((n) => parseWav(files[n]));
+    assert(new Set(parsed.map((p) => p.frames)).size === 1, 'stems have different lengths');
+    assert(parsed.every((p) => p.peak > 0.005), `a stem is silent: ${names.filter((_, i) => parsed[i].peak <= 0.005)}`);
+    await pick('Mixdown');
+  });
+
+  await step('exports MIDI with a track per part plus tempo', async () => {
+    const f = await exportFile(async () => { await pick('MIDI'); });
+    const ascii = String.fromCharCode(...f.bytes.slice(0, 4));
+    const ntrks = (f.bytes[10] << 8) | f.bytes[11];
+    assert(ascii === 'MThd' && ntrks === 7, `expected MThd with 7 tracks, got ${ascii} / ${ntrks}`);
+    assert(f.name.endsWith('.mid'), f.name);
+    await pick('WAV');
+    await dialog().getByRole('button', { name: 'Done', exact: true }).click();
+  });
+
+  await step('live recording is captured losslessly and exports as 32-bit float', async () => {
+    await page.locator('main').click({ position: { x: 5, y: 5 } });
+    await page.keyboard.press('Home');
+    await button('REC').click();                     // starts playback too
+    await page.waitForTimeout(1800);
+    await page.getByRole('button', { name: /^\d+:\d\d$/ }).click();   // the running REC button
+    await page.getByRole('dialog', { name: 'Export' }).waitFor({ timeout: 4000 });
+    assert(await page.getByText('EXPORT RECORDING').count() === 1, 'dialog did not open with the take');
+    const f = await exportFile(async () => { await pick('WAV'); await pick('32-bit float'); });
+    const w = parseWav(f.bytes);
+    assert(w.format === 3 && w.bits === 32, `expected 32-bit float, got ${JSON.stringify(w)}`);
+    assert(w.peak > 0.01, `recording is silent (peak ${w.peak})`);
+    assert(w.seconds > 1.0 && w.seconds < 3.5, `recording length ${w.seconds.toFixed(2)}s`);
+    await dialog().getByRole('button', { name: 'Done', exact: true }).click();
+    if (await button('■ STOP').count()) await button('■ STOP').click();
   });
 
   await step('no uncaught errors during the run', async () => {

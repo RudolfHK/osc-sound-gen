@@ -12,6 +12,8 @@ import { Dock, type DockTab } from './Dock';
 import { OscLab } from './OscLab';
 import { ContextMenu, type MenuItem } from './ContextMenu';
 import { Notices } from './notices';
+import { ExportDialog } from './ExportDialog';
+import { openExport } from './exportState';
 import { getFocusZone, isTypingTarget } from './focus';
 import { useProjectActions, EXAMPLES } from './useProjectActions';
 
@@ -79,6 +81,7 @@ export function AppShell() {
       if (mod && key === 'y') { e.preventDefault(); dispatch({ type: 'SEQ_REDO' }); return; }
       if (mod && key === 's') { e.preventDefault(); p.saveProject(); return; }
       if (mod && key === 'o') { e.preventDefault(); p.openProject(); return; }
+      if (mod && e.shiftKey && key === 'e') { e.preventDefault(); openExport('song'); return; }
       if (e.altKey && !mod) {
         const map: Record<string, DockTab> = { e: 'editor', x: 'mixer', i: 'instruments', f: 'fx' };
         if (map[key]) { e.preventDefault(); openDock(map[key]); return; }
@@ -128,6 +131,7 @@ export function AppShell() {
       { label: 'New project', onSelect: project.newProject },
       { label: 'Open…', shortcut: 'Ctrl+O', onSelect: project.openProject },
       { label: 'Save', shortcut: 'Ctrl+S', onSelect: project.saveProject },
+      { label: 'Export audio / MIDI…', shortcut: 'Ctrl+Shift+E', onSelect: () => openExport('song') },
       { divider: true, label: '' },
       {
         label: 'Open example',
@@ -234,6 +238,7 @@ export function AppShell() {
       )}
 
       {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
+      <ExportDialog />
       <Notices />
     </div>
   );

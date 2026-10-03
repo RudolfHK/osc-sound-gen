@@ -1,7 +1,6 @@
 import { getAudioEngine } from './audio';
-import { getInstrumentEngine } from './instruments';
 import { getChannelRack } from './channelStrip';
-import { getDrumSynth } from './sampler';
+import { emitEvent } from './emit';
 import { expandArpCached } from './arpeggiator';
 import { AUTOMATION_TARGETS, CHANNEL_TARGETS, laneValueAt } from './automation';
 import { setPlayhead } from './playhead';
@@ -24,9 +23,6 @@ export interface EngineInput {
   tabs: OscillatorTab[];
   drumPatterns: DrumPattern[];
 }
-
-/** Drum voices that trigger sidechain ducking. */
-const KICKS = new Set(['kick', 'kick-808', 'kick-tight']);
 
 // ─── Sequencer engine ─────────────────────────────────────────────────────────
 
@@ -193,61 +189,7 @@ export class SequencerEngine {
 
   private emit(e: TimelineEvent, ctx: AudioContext): void {
     // Never schedule into the past — late events play immediately
-    const at = Math.max(ctx.currentTime, this.timeAt(e.monoBeat));
-
-    if (e.kind === 'click') {
-      this.click(ctx, at, e.accent);
-      return;
-    }
-
-    const track = e.track;
-    const stripInput = getChannelRack().getInput(track.id) ?? undefined;
-
-    if (e.kind === 'drum') {
-      const time = at + e.swingBeats / (this.bpm / 60);
-      if (KICKS.has(e.voice.id)) getChannelRack().duckAll(time);
-      getDrumSynth().trigger(e.voice.id, {
-        volume: e.voice.volume,
-        pan: e.voice.pan,
-        pitch: e.voice.pitch + e.step.pitch,
-        decay: e.voice.decay * e.step.decay,
-        tone: e.voice.tone,
-        velocity: e.step.velocity,
-      }, time, stripInput);
-      return;
-    }
-
-    const durationS = e.durationBeats / (this.bpm / 60);
-    const noteCtx = { trackId: track.id, lanes: track.lanes, startBeat: e.songBeat, bpm: this.bpm };
-
-    if (track.source.type === 'preset') {
-      getInstrumentEngine().playNote(track.source.presetId, e.midiNote, e.velocity, at, durationS, noteCtx);
-    } else if (track.source.type === 'oscillator') {
-      const tab = this.tabs.get(track.source.tabId);
-      if (tab) {
-        getInstrumentEngine().playOscillatorNote(
-          tab.oscillator, tab.advanced, e.midiNote, e.velocity, at, durationS, noteCtx,
-        );
-      }
-    }
-  }
-
-  /** Metronome blip — straight to the master, bypassing every track. */
-  private click(ctx: AudioContext, time: number, accent: boolean): void {
-    const master = getAudioEngine().getMasterGain();
-    if (!master) return;
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = accent ? 1760 : 1175;
-    g.gain.setValueAtTime(0.0001, time);
-    g.gain.exponentialRampToValueAtTime(accent ? 0.35 : 0.22, time + 0.002);
-    g.gain.exponentialRampToValueAtTime(0.0001, time + 0.045);
-    osc.connect(g);
-    g.connect(master);
-    osc.start(time);
-    osc.stop(time + 0.06);
-    osc.onended = () => { osc.disconnect(); g.disconnect(); };
+    emitEvent(e, Math.max(ctx.currentTime, this.timeAt(e.monoBeat)), ctx, this.bpm, this.tabs);
   }
 
   /**

@@ -19,7 +19,7 @@ Everything is synthesized in real time by the Web Audio API — there are no sam
 11. [The Arpeggiator](#the-arpeggiator)
 12. [The Oscillator Lab](#the-oscillator-lab)
 13. [The Visualizer](#the-visualizer)
-14. [Recording](#recording)
+14. [Exporting and Recording](#exporting-and-recording)
 15. [Projects and Saving](#projects-and-saving)
 16. [Keyboard Shortcuts](#keyboard-shortcuts)
 17. [Troubleshooting](#troubleshooting)
@@ -240,7 +240,8 @@ Click the arrangement to give keyboard focus back to it.
 | **⏮** (Home) | Back to the loop start, press again for bar 1 |
 | **▶ PLAY / ■ STOP** (Space) | Play from the playhead; stopping leaves the playhead where it stopped |
 | **⏹** | Stop; when already stopped, return to the start |
-| **● REC** | Record the master output — see *Recording* |
+| **● REC** | Record the master output live, losslessly — see *Exporting and Recording* |
+| **⤓ EXPORT** | Export the song as WAV, MP3, stems or MIDI |
 | Position | Bar.beat.sixteenth and elapsed time |
 | **BPM** | Type a tempo and press Enter; **↑/↓** nudge by 1 (Shift: 10). Changing it while playing doesn't jump the playhead |
 | **4/4** | Beats per bar |
@@ -703,31 +704,76 @@ thing here — then drop to 30 FPS.
 
 ---
 
-## Recording
+## Exporting and Recording
 
-### Making a recording
+### Exporting the song
 
-Click **● REC** in the transport. If the song is stopped, playback starts from the playhead. The button
-shows elapsed time while recording.
+Click **⤓ EXPORT** in the transport (or **OSC ▾ → Export audio / MIDI…**, Ctrl+Shift+E).
 
-Click **● REC** again to finish — or just stop the transport, which ends the take so a recording never
-trails off into silence.
+Exports are **rendered offline**: the song is played into an off-screen audio graph by the same
+instruments, drums, mixer and effects you hear, but as fast as the computer allows rather than in real
+time. The result is sample-accurate, identical to playback, and unaffected by CPU hiccups — and a
+three-minute song takes well under three minutes.
 
-### Downloading
+| Option | Choices |
+|--------|---------|
+| **Format** | **WAV** (uncompressed), **MP3** (compressed), **MIDI** (the notes, not the audio) |
+| **What** | **Mixdown** (one file) or **Stems** (one file per track, zipped) |
+| **Range** | Whole song, the loop, or any section |
+| **Sample rate** | 44.1 kHz (CD, most streaming), 48 kHz (video), 96 kHz (WAV only) |
+| **Bit depth** | 16-bit, 24-bit (the usual choice for mastering) or 32-bit float (can't clip) |
+| **Dither** | For 16-bit: adds inaudible noise so quiet fades don't turn grainy. Leave on for final masters |
+| **Bitrate** | MP3: 128, 160, 192, 256 or 320 kbps; stereo or mono |
+| **Normalize** | Off, Peak (−1 dBFS), or Loudness to a target |
 
-**↓ WAV** and **↓ WebM** appear next to the REC button:
+Reverb and release tails after the range are included (up to four seconds), then trailing silence is
+trimmed. When it's done the file downloads and the dialog shows its **peak** level and **integrated
+loudness**. **Download again** saves another copy; **EXPORT AGAIN** re-renders with new settings.
 
-| Button | Format | When to use |
-|--------|--------|-------------|
-| **↓ WAV** | Uncompressed 16-bit PCM | Lossless — for any audio editor or DAW |
-| **↓ WebM** | Compressed (Opus) | Smallest file |
+#### Loudness normalization
 
-The recording is taken after the master limiter, so it's exactly what you heard.
+Streaming services turn every song to roughly the same loudness, measured in **LUFS** (ITU-R BS.1770).
+A track mastered louder than the target is simply turned down; one mastered quieter may be turned up.
+**Loudness** normalization sets your export to a target:
 
-### Practical limits
+| Target | Where |
+|--------|-------|
+| −14 LUFS | Spotify, YouTube, Tidal, Amazon |
+| −16 LUFS | Apple Music, podcasts |
+| −11 LUFS | Loud club masters |
+| −23 LUFS | Broadcast (EBU R128) |
 
-- Length is limited by memory: compressed audio is roughly 6–12 KB per second
-- WAV conversion decodes the whole take at once; for recordings over ~30 minutes use WebM
+It never pushes peaks above −1 dBFS. If reaching the target would, it stops at the ceiling and the
+report says *held back by the −1 dBFS ceiling* — usually a sign the mix is very dynamic or has one
+loud transient; the limiter in **FX** is the tool for that.
+
+#### Stems
+
+Stems are for finishing a song elsewhere — mixing in another DAW or sending to a mastering engineer.
+You get one file per track that plays in the chosen range (silent tracks are skipped), each with its
+own reverb, delay and chorus sends, all exactly the same length so they line up at zero. They come
+as a ZIP named after the project. Stems are never normalized, so their balance is preserved.
+
+#### MIDI
+
+MIDI exports the composition rather than the sound: notes, tempo, time signature and section names as
+markers. Looping clips are written out in full and trimmed clips are respected. Choose whether to
+write the **arpeggio** as played or the **held chords** you drew. Drum tracks go to MIDI channel 10
+using General MIDI drum notes, and each instrument track gets a General MIDI program matching its
+preset's family, so the file opens sensibly in Ableton, Logic, FL Studio, Reaper or MuseScore.
+
+### Recording live
+
+**● REC** records whatever the master output plays — useful for capturing live changes, like riding
+faders or tweaking an instrument while the song runs. If the song is stopped, REC starts it.
+
+Recording is **lossless**: the raw samples are captured after the limiter, exactly as you heard them.
+Click **● REC** again, or stop the transport, to finish. The export dialog opens with the take, where
+you can save it as WAV (16/24/32-bit) or MP3 with the same options. **↓ TAKE** in the transport
+reopens it to save another format.
+
+Long takes use memory — about 23 MB per minute of stereo audio. For anything that doesn't need
+live interaction, exporting the song is faster and exact.
 
 ---
 
@@ -748,6 +794,7 @@ so it costs nothing while you work.
 | **New project** | Starts a fresh arrangement (asks first if this one has clips) |
 | **Open…** (Ctrl+O) | Loads a `.oscproject` file |
 | **Save** (Ctrl+S) | Downloads the project as `<project name>.oscproject` |
+| **Export audio / MIDI…** (Ctrl+Shift+E) | Opens the export dialog |
 | **Open example** | Loads one of the bundled examples |
 
 Click the project name next to the logo to rename it.
@@ -781,6 +828,7 @@ Shortcuts never fire while you're typing in a text field.
 | **Home** | Return to start |
 | **Ctrl+Z** / **Ctrl+Shift+Z** (or **Ctrl+Y**) | Undo / redo |
 | **Ctrl+S** / **Ctrl+O** | Save / open project |
+| **Ctrl+Shift+E** | Export |
 | **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
 
 ### Arrangement (after clicking in it)
@@ -822,5 +870,7 @@ Shortcuts never fire while you're typing in a text field.
 | Letter keys play notes instead of shortcuts | The editor has keyboard focus | Click the arrangement |
 | A mixer control does nothing | An automation lane is driving it (its label is dim) | Turn the lane OFF, or edit the lane |
 | Crackling with many tracks | CPU load | Close the visualizer, or turn its GLOW off and drop it to 30 FPS |
-| WAV download fails | Very long take | Use WebM for recordings over ~30 minutes |
+| Export says “Audio is busy rendering” | Something tried to play during an export | Wait for the export to finish |
+| A long live take runs out of memory | Takes are kept uncompressed | Export the song instead — it doesn't need live recording |
+| MP3 option is disabled for a take | The recording's sample rate isn't one MP3 supports | Save the take as WAV |
 | An old project loads with odd instruments | Format 1.0 files don't record instruments | Pick the right ones from each track header — a notice explains this on load |

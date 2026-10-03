@@ -1840,6 +1840,16 @@ export class InstrumentEngine {
   private overrides = new Map<string, InstrumentOverride>();
   private lastFreq = new Map<string, number>();      // presetId → last note freq (glide)
   private activeVoices = 0;
+  /** Lifted during offline export, where every note is scheduled ahead of time. */
+  private voiceLimit = MAX_VOICES;
+
+  /** Remove the polyphony cap (offline render) and return a function that restores it. */
+  unlimitVoices(): () => void {
+    const prev = { limit: this.voiceLimit, active: this.activeVoices };
+    this.voiceLimit = Number.POSITIVE_INFINITY;
+    this.activeVoices = 0;
+    return () => { this.voiceLimit = prev.limit; this.activeVoices = prev.active; };
+  }
 
   // ─── Configuration ──────────────────────────────────────────────────────────
 
@@ -1928,7 +1938,7 @@ export class InstrumentEngine {
     if (!ctx) return;
     const preset = this.resolve(presetId);
     if (!preset) return;
-    if (this.activeVoices >= MAX_VOICES) return;
+    if (this.activeVoices >= this.voiceLimit) return;
 
     const opts = ctxOpts ?? {};
     const lanes = opts.lanes;
@@ -2165,7 +2175,7 @@ export class InstrumentEngine {
   ): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
-    if (this.activeVoices >= MAX_VOICES) return;
+    if (this.activeVoices >= this.voiceLimit) return;
 
     // Headroom: unlike the single lab voice, several of these stack up
     const peak = (Math.max(0, Math.min(127, velocity)) / 127) * oscState.amplitude * 0.5;

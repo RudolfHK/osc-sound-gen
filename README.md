@@ -178,10 +178,27 @@ For the complete Electron packaging guide including code signing and auto-update
 - Customizable sensitivity, smoothing, detail, motion trail, colour mode
   (theme / spectrum / mono), mirror, glow, and a 30/60 FPS cap
 
-### Recording
-- **● REC** in the transport records the master output after the limiter; it starts playback if stopped,
-  and stopping the transport ends the take
-- Download as **WAV** (16-bit PCM) or **WebM** (Opus)
+### Export
+- **Offline render** — the arrangement is played into an `OfflineAudioContext` by the same instruments,
+  drums, channel strips, effects and limiter that play it live, so an export sounds exactly like playback.
+  It's sample-accurate and faster than real time (about 2.4× in testing)
+- **WAV** — 16-bit (with optional TPDF dither), 24-bit or 32-bit float; 44.1, 48 or 96 kHz
+- **MP3** — 128–320 kbps CBR, stereo or mono, with ID3 title tags; encoded in a Web Worker
+- **Stems** — one file per track that plays in the range, all the same length, each with its own
+  effects, delivered as a ZIP
+- **MIDI** — Standard MIDI File with a track per part, tempo, time signature and section markers; loops
+  unrolled, arpeggios optionally baked, drums on channel 10 with General MIDI notes
+- **Range** — whole song, the loop, or any section; reverb and release tails included, silence trimmed
+- **Normalize** — off, peak (−1 dBFS), or **loudness** to a streaming target (−14 LUFS Spotify/YouTube,
+  −16 Apple Music, −23 broadcast) measured per ITU-R BS.1770, never exceeding a −1 dBFS ceiling
+- The dialog reports the export's peak and integrated loudness
+
+### Live recording
+- **● REC** captures the master output as raw PCM through an AudioWorklet — lossless, unlike the previous
+  version, whose "WAV" was a decoded Opus stream
+- Starts playback if stopped; stopping the transport ends the take
+- The take opens in the export dialog, so it can be saved as WAV or MP3 with the same options (and
+  saved again in another format)
 
 ### Oscillator Lab (optional)
 - The original synth: **4 waveforms** (square with variable pulse width via a 256-harmonic Fourier series),
@@ -212,6 +229,7 @@ compositions.
 | **Home** | Return to start |
 | **Ctrl+Z** / **Ctrl+Shift+Z** | Undo / redo |
 | **Ctrl+S** / **Ctrl+O** | Save / open project |
+| **Ctrl+Shift+E** | Export audio or MIDI |
 | **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
 | **Delete**, **Ctrl+D**, **Ctrl+E** | Delete / duplicate / split the selected clip *(arrangement)* |
 | **M** / **S** | Mute / solo the selected track *(arrangement)* |
@@ -250,7 +268,8 @@ The square wave audio engine uses a 256-harmonic Fourier series (`PeriodicWave`)
 | Oscilloscope | Canvas 2D API, 60 fps `requestAnimationFrame` loop |
 | Arrangement & editors | Canvas 2D; playhead drawn as a transformed overlay, so lanes never redraw during playback |
 | Scheduler | Lookahead (120 ms ahead, 25 ms tick) over half-open time windows — each event is scheduled exactly once |
-| Tests | Vitest (model, scheduler, migrations, examples) + Playwright (end-to-end, including audio output) |
+| Export | `OfflineAudioContext` render, own WAV/MIDI/ID3 writers, LAME (LGPL, in a worker) for MP3, fflate for ZIP, BS.1770 loudness |
+| Tests | Vitest (model, scheduler, migrations, encoders, loudness) + Playwright (end-to-end, including audio output and parsed exports) |
 | Desktop | Electron (optional, see above) |
 
 ---
@@ -268,13 +287,21 @@ src/
 │   ├── timeline.ts          pure event collection over loop-aware windows (unit-tested)
 │   ├── sequencer.ts         scheduler: turns timeline events into Web Audio calls
 │   ├── playhead.ts          live position outside React state
+│   ├── emit.ts              timeline events → sound, shared by playback and export
+│   ├── pcmRecorder.ts       lossless live recording (with pcm-tap.worklet.js)
 │   ├── instruments.ts       161 presets, polyphonic preset + oscillator voices
 │   ├── sampler.ts           33 synthesized drum voices
 │   ├── channelStrip.ts      per-track EQ, fader, pan, sends, mute, sidechain, meters
 │   ├── effects.ts           master reverb, delay, chorus
 │   ├── automation.ts        lane maths and AudioParam scheduling
 │   ├── arpeggiator.ts       chord → arpeggio expansion
-│   └── audio.ts             AudioContext, master bus + limiter, lab oscillators
+│   └── audio.ts             AudioContext, master bus + limiter, lab oscillators, offline swap
+├── export/
+│   ├── render.ts            offline render of the arrangement and stems
+│   ├── exporter.ts          render → normalize → encode → zip
+│   ├── wav.ts · midi.ts     WAV (16/24/32f) and Standard MIDI File writers
+│   ├── mp3.ts · mp3.worker.ts  MP3 via LAME in a Web Worker, with ID3 tags (id3.ts)
+│   └── loudness.ts          sample peak, BS.1770 integrated loudness, normalization
 ├── sequencer/
 │   ├── PianoRoll.tsx        note editor for the selected clip
 │   ├── TrackHeader.tsx      editor's pattern column + arpeggiator
@@ -287,6 +314,7 @@ src/
 ├── ui/
 │   ├── AppShell.tsx         header, view switch, global shortcuts, engine sync
 │   ├── Transport.tsx        play/stop/record, position, tempo, loop, metronome
+│   ├── ExportDialog.tsx     export options, progress and level report
 │   ├── Dock.tsx             editor / mixer / instruments / FX tabs
 │   ├── OscLab.tsx           optional oscillator lab
 │   └── …                    context menus, notices, focus scoping, project actions
@@ -304,13 +332,15 @@ electron/main.cjs            Electron main process
 ## Testing
 
 ```bash
-npm test                          # 41 unit tests: model, reducer, scheduler, migrations, examples
-npm run build && npm run test:e2e # 18 browser tests
+npm test                          # 54 unit tests: model, reducer, scheduler, migrations, examples, encoders, loudness
+npm run build && npm run test:e2e # 27 browser tests
 ```
 
 The browser suite drives the built app in Chromium and taps its audio output, so it checks that
 playback actually produces sound, that mute actually silences it, that a tempo change doesn't jump the
-playhead, and that playback doesn't write to storage every frame — not just that nothing threw. It also
+playhead, and that playback doesn't write to storage every frame — not just that nothing threw. Every
+export format is downloaded and parsed: WAV headers and sample peaks, MP3 frame sync and a decode back
+to audio, ZIP contents and stem alignment, MIDI chunks, and the live take's float format. It also
 verifies that a session saved by an older version migrates instead of crashing. Set `CHROMIUM_PATH` to
 choose the browser binary.
 
