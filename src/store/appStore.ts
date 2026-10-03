@@ -3,42 +3,51 @@
  * Chosen because the project has no third-party state library — zero extra deps.
  */
 
-import { createContext, useContext, useEffect, useReducer, type Dispatch } from 'react';
-import type { OscillatorState, AdvancedSettings, OscillatorTab, AppState } from '../engine/oscillator';
+import { createContext, useContext, useEffect, useReducer, useRef, type Dispatch } from 'react';
+import type { OscillatorState, AdvancedSettings, OscillatorTab, AppState, MainView } from '../engine/oscillator';
 import { DEFAULT_STATE, DEFAULT_ADVANCED } from '../engine/oscillator';
 import { getTabColor } from '../utils/colors';
-import { THEME_COLORS } from '../utils/math';
+import { THEME_COLORS, type ColorTheme } from '../utils/math';
 import {
   makeDefaultSequencerState,
-  makeNoteId,
   makeTrack,
+  makePattern,
+  makeClip,
   normalizeTrack,
+  uid,
   SNAP_BEATS,
+  SECTION_COLORS,
+  sectionsFromMarkers,
   type SequencerNote,
-  type SequencerTrack,
   type SequencerState,
   type SnapValue,
-  type SequencerProject,
   type ArpSettings,
   type ChannelSettings,
   type AutomationTarget,
   type AutomationPoint,
+  type AutomationLane,
+  type Track,
+  type TrackSource,
+  type Clip,
+  type Pattern,
+  type Marker,
+  type DocSnapshot,
 } from '../utils/music';
 import { makeLaneId, makePointId, withPoint } from '../engine/automation';
+import {
+  isLegacyTrackList, makeStarterDoc, migrateLegacySequencer,
+  type LoadedProject, type LegacyTrack,
+} from '../utils/project';
 
-// ─── ID generator ─────────────────────────────────────────────────────────────
-
-let _counter = 1;
-function makeId(): string {
-  return `tab-${Date.now()}-${_counter++}`;
-}
-
-const MAX_UNDO = 50;
+const MAX_UNDO = 60;
 
 // ─── Action types ─────────────────────────────────────────────────────────────
 
+type TrackPatch = Partial<Pick<Track,
+  'name' | 'color' | 'muted' | 'solo' | 'pan' | 'showAutomation' | 'activeLaneId'>>;
+
 export type Action =
-  // ── Tab actions ──────────────────────────────────────────────────────────────
+  // ── App / oscillator lab ─────────────────────────────────────────────────────
   | { type: 'ADD_TAB' }
   | { type: 'REMOVE_TAB'; id: string }
   | { type: 'SET_ACTIVE_TAB'; id: string }
@@ -49,58 +58,86 @@ export type Action =
   | { type: 'SOLO_TAB'; id: string; solo: boolean }
   | { type: 'SET_TAB_LABEL'; id: string; label: string }
   | { type: 'SET_TAB_COLOR'; id: string; color: string }
+  | { type: 'REORDER_TABS'; tabs: OscillatorTab[] }
   | { type: 'SET_MASTER_VOLUME'; volume: number }
   | { type: 'SET_RECORDING'; recording: boolean }
   | { type: 'SET_OVERLAY_MODE'; overlay: boolean }
-  | { type: 'REORDER_TABS'; tabs: OscillatorTab[] }
-  | { type: 'LOAD_SESSION'; appState: AppState }
-  // ── Sequencer global ─────────────────────────────────────────────────────────
-  | { type: 'SEQ_OPEN'; open: boolean }
+  | { type: 'SET_VIEW'; view: MainView }
+  | { type: 'SET_UI_THEME'; theme: ColorTheme }
+  | { type: 'SET_PROJECT_NAME'; name: string }
+  // ── Transport / global sequencer settings ────────────────────────────────────
   | { type: 'SEQ_SET_BPM'; bpm: number }
   | { type: 'SEQ_SET_BEATS_PER_BAR'; bpb: number }
   | { type: 'SEQ_SET_SNAP'; snap: SnapValue }
+  | { type: 'SEQ_SET_ARRANGE_SNAP'; snap: SnapValue }
   | { type: 'SEQ_SET_LOOP'; enabled?: boolean; startBeat?: number; endBeat?: number }
   | { type: 'SEQ_SET_SONG_LENGTH'; bars: number }
   | { type: 'SEQ_SET_PLAYING'; playing: boolean }
   | { type: 'SEQ_SET_PLAYHEAD'; beat: number }
+  | { type: 'SEQ_TOGGLE_METRONOME' }
   | { type: 'SEQ_SET_EDIT_MODE'; mode: 'draw' | 'select' }
   | { type: 'SEQ_SET_VIEW'; startBeat?: number; lowNote?: number; highNote?: number }
-  // ── Sequencer tracks ─────────────────────────────────────────────────────────
-  | { type: 'SEQ_SYNC_TRACKS'; tabIds: string[] }
-  | { type: 'SEQ_SET_TRACK_PAN'; tabId: string; pan: number }
-  // ── Notes ────────────────────────────────────────────────────────────────────
-  | { type: 'SEQ_ADD_NOTE'; tabId: string; note: SequencerNote }
-  | { type: 'SEQ_REMOVE_NOTE'; tabId: string; noteId: string }
-  | { type: 'SEQ_MOVE_NOTE'; tabId: string; noteId: string; startBeat: number; midiNote: number }
-  | { type: 'SEQ_RESIZE_NOTE'; tabId: string; noteId: string; durationBeats: number }
-  | { type: 'SEQ_SET_VELOCITY'; tabId: string; noteId: string; velocity: number }
-  | { type: 'SEQ_CLEAR_TRACK'; tabId: string }
+  | { type: 'SEQ_SET_ZOOM'; pxPerBeat: number }
+  | { type: 'SEQ_SET_ARR_VIEW'; startBeat?: number; pxPerBeat?: number }
+  | { type: 'SEQ_SET_DEFAULT_NOTE_LEN'; len: SnapValue }
+  | { type: 'SEQ_TOGGLE_VELOCITY_LANE' }
+  // ── Tracks ───────────────────────────────────────────────────────────────────
+  | { type: 'TRACK_ADD'; source: TrackSource; name?: string }
+  | { type: 'TRACK_REMOVE'; trackId: string }
+  | { type: 'TRACK_DUPLICATE'; trackId: string }
+  | { type: 'TRACK_MOVE'; trackId: string; toIndex: number }
+  | { type: 'TRACK_UPDATE'; trackId: string; patch: TrackPatch }
+  | { type: 'TRACK_SET_SOURCE'; trackId: string; source: TrackSource }
+  | { type: 'TRACK_SELECT'; trackId: string | null }
+  | { type: 'SEQ_SET_ARP'; trackId: string; arp: Partial<ArpSettings> }
+  | { type: 'SEQ_SET_CHANNEL'; trackId: string; channel: Partial<ChannelSettings> }
+  // ── Clips & patterns ─────────────────────────────────────────────────────────
+  | { type: 'CLIP_ADD'; trackId: string; startBeat: number; lengthBeats: number; patternId?: string }
+  | { type: 'CLIP_MOVE'; clipId: string; trackId: string; startBeat: number }
+  | { type: 'CLIP_RESIZE'; clipId: string; startBeat: number; lengthBeats: number; offsetBeats: number }
+  | { type: 'CLIP_DELETE'; clipId: string }
+  /** `newId` lets a drag-to-copy gesture keep hold of the copy it creates. */
+  | { type: 'CLIP_DUPLICATE'; clipId: string; linked?: boolean; newId?: string }
+  | { type: 'CLIP_MAKE_UNIQUE'; clipId: string }
+  | { type: 'CLIP_TOGGLE_MUTE'; clipId: string }
+  | { type: 'CLIP_SPLIT'; clipId: string; atBeat: number }
+  | { type: 'CLIP_SET_PATTERN'; clipId: string; patternId: string }
+  | { type: 'CLIP_SELECT'; clipId: string | null }
+  | { type: 'PATTERN_RENAME'; patternId: string; name: string }
+  | { type: 'PATTERN_SET_LENGTH'; patternId: string; lengthBeats: number }
+  // ── Notes (within a pattern) ─────────────────────────────────────────────────
+  | { type: 'SEQ_ADD_NOTE'; patternId: string; note: SequencerNote }
+  | { type: 'SEQ_REMOVE_NOTE'; patternId: string; noteId: string }
+  | { type: 'SEQ_MOVE_NOTE'; patternId: string; noteId: string; startBeat: number; midiNote: number }
+  | { type: 'SEQ_RESIZE_NOTE'; patternId: string; noteId: string; durationBeats: number }
+  | { type: 'SEQ_SET_VELOCITY'; patternId: string; noteId: string; velocity: number }
+  | { type: 'SEQ_CLEAR_PATTERN'; patternId: string }
   | { type: 'SEQ_SELECT_NOTES'; ids: string[] }
-  | { type: 'SEQ_DELETE_SELECTED' }
+  | { type: 'SEQ_DELETE_SELECTED'; patternId: string }
+  | { type: 'SEQ_COPY'; notes: SequencerNote[] }
+  | { type: 'SEQ_PASTE'; patternId: string; atBeat: number }
+  | { type: 'SEQ_QUANTIZE'; patternId: string }
+  // ── Automation ───────────────────────────────────────────────────────────────
+  | { type: 'SEQ_ADD_LANE'; trackId: string; target: AutomationTarget }
+  | { type: 'SEQ_REMOVE_LANE'; trackId: string; laneId: string }
+  | { type: 'SEQ_TOGGLE_LANE'; trackId: string; laneId: string }
+  | { type: 'SEQ_ADD_POINT'; trackId: string; laneId: string; beat: number; value: number }
+  | { type: 'SEQ_MOVE_POINT'; trackId: string; laneId: string; pointId: string; beat: number; value: number }
+  | { type: 'SEQ_REMOVE_POINT'; trackId: string; laneId: string; pointId: string }
+  | { type: 'SEQ_CLEAR_LANE'; trackId: string; laneId: string }
+  // ── Sections (markers) ───────────────────────────────────────────────────────
+  | { type: 'MARKER_ADD'; beat: number; name?: string }
+  | { type: 'MARKER_UPDATE'; id: string; patch: Partial<Omit<Marker, 'id'>> }
+  | { type: 'MARKER_REMOVE'; id: string }
+  | { type: 'SECTION_DUPLICATE'; markerId: string }
+  | { type: 'SECTION_DELETE'; markerId: string }
   // ── Undo/Redo ────────────────────────────────────────────────────────────────
   | { type: 'SEQ_PUSH_UNDO' }
   | { type: 'SEQ_UNDO' }
   | { type: 'SEQ_REDO' }
-  // ── New features ─────────────────────────────────────────────────────────────
-  | { type: 'SEQ_SET_DEFAULT_NOTE_LEN'; len: SnapValue }
-  | { type: 'SEQ_COPY'; notes: SequencerNote[] }
-  | { type: 'SEQ_PASTE'; tabId: string }
-  | { type: 'SEQ_QUANTIZE' }
-  | { type: 'SEQ_TOGGLE_VELOCITY_LANE' }
-  // ── Arpeggiator / channel strip / automation ─────────────────────────────────
-  | { type: 'SEQ_SET_ARP'; tabId: string; arp: Partial<ArpSettings> }
-  | { type: 'SEQ_SET_CHANNEL'; tabId: string; channel: Partial<ChannelSettings> }
-  | { type: 'SEQ_ADD_LANE'; tabId: string; target: AutomationTarget }
-  | { type: 'SEQ_REMOVE_LANE'; tabId: string; laneId: string }
-  | { type: 'SEQ_TOGGLE_LANE'; tabId: string; laneId: string }
-  | { type: 'SEQ_ADD_POINT'; tabId: string; laneId: string; beat: number; value: number }
-  | { type: 'SEQ_MOVE_POINT'; tabId: string; laneId: string; pointId: string; beat: number; value: number }
-  | { type: 'SEQ_REMOVE_POINT'; tabId: string; laneId: string; pointId: string }
-  | { type: 'SEQ_CLEAR_LANE'; tabId: string; laneId: string }
-  | { type: 'SEQ_SET_ACTIVE_LANE'; laneId: string | null }
-  | { type: 'SEQ_SET_ZOOM'; pxPerBeat: number }
   // ── Project ──────────────────────────────────────────────────────────────────
-  | { type: 'LOAD_PROJECT'; project: SequencerProject };
+  | { type: 'LOAD_PROJECT'; project: LoadedProject }
+  | { type: 'NEW_PROJECT' };
 
 // ─── Initial state ────────────────────────────────────────────────────────────
 
@@ -115,29 +152,136 @@ const FIRST_TAB: OscillatorTab = {
   solo: false,
 };
 
-export const INITIAL_APP_STATE: AppState = {
-  tabs: [FIRST_TAB],
-  activeTabId: FIRST_TAB.id,
-  masterVolume: 0.8,
-  isRecording: false,
-  overlayMode: false,
-  sequencer: {
-    ...makeDefaultSequencerState(),
-    tracks: [makeTrack(FIRST_TAB.id)],
-  },
-};
+export function makeInitialAppState(): AppState {
+  const doc = makeStarterDoc();
+  return {
+    tabs: [FIRST_TAB],
+    activeTabId: FIRST_TAB.id,
+    masterVolume: 0.8,
+    isRecording: false,
+    overlayMode: false,
+    view: 'arrange',
+    uiTheme: 'green',
+    projectName: 'Untitled',
+    sequencer: {
+      ...makeDefaultSequencerState(),
+      ...doc,
+      selectedTrackId: doc.tracks[0]?.id ?? null,
+    },
+  };
+}
+
+// ─── Small helpers ────────────────────────────────────────────────────────────
+
+function seqUpdate(state: AppState, patch: Partial<SequencerState>): AppState {
+  return { ...state, sequencer: { ...state.sequencer, ...patch } };
+}
+
+function updateTab(state: AppState, id: string, updater: (t: OscillatorTab) => OscillatorTab): AppState {
+  return { ...state, tabs: state.tabs.map((t) => (t.id === id ? updater(t) : t)) };
+}
+
+function patchTrack(state: AppState, trackId: string, fn: (t: Track) => Track): AppState {
+  return seqUpdate(state, {
+    tracks: state.sequencer.tracks.map((t) => (t.id === trackId ? fn(t) : t)),
+  });
+}
+
+function patchLane(
+  state: AppState, trackId: string, laneId: string,
+  fn: (l: AutomationLane) => AutomationLane,
+): AppState {
+  return patchTrack(state, trackId, (t) => ({
+    ...t, lanes: t.lanes.map((l) => (l.id === laneId ? fn(l) : l)),
+  }));
+}
+
+function patchPattern(state: AppState, patternId: string, fn: (p: Pattern) => Pattern): AppState {
+  const pat = state.sequencer.patterns[patternId];
+  if (!pat) return state;
+  return seqUpdate(state, { patterns: { ...state.sequencer.patterns, [patternId]: fn(pat) } });
+}
+
+function patchNotes(
+  state: AppState, patternId: string,
+  fn: (notes: SequencerNote[]) => SequencerNote[],
+): AppState {
+  return patchPattern(state, patternId, (p) => ({ ...p, notes: fn(p.notes) }));
+}
+
+export function findClip(seq: SequencerState, clipId: string | null): { track: Track; clip: Clip } | null {
+  if (!clipId) return null;
+  for (const track of seq.tracks) {
+    const clip = track.clips.find((c) => c.id === clipId);
+    if (clip) return { track, clip };
+  }
+  return null;
+}
+
+function patchClip(state: AppState, clipId: string, fn: (c: Clip, t: Track) => Clip): AppState {
+  return seqUpdate(state, {
+    tracks: state.sequencer.tracks.map((t) =>
+      t.clips.some((c) => c.id === clipId)
+        ? { ...t, clips: t.clips.map((c) => (c.id === clipId ? fn(c, t) : c)) }
+        : t),
+  });
+}
+
+const isDrumTrack = (t: Track) => t.source.type === 'drums';
+
+function docOf(seq: SequencerState): DocSnapshot {
+  return { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers };
+}
+
+/** After undo/redo or deletes, drop selections that point at nothing. */
+function sanitizeSelection(seq: SequencerState): Partial<SequencerState> {
+  const trackOk = seq.tracks.some((t) => t.id === seq.selectedTrackId);
+  const clipOk = !!findClip(seq, seq.selectedClipId);
+  return {
+    selectedTrackId: trackOk ? seq.selectedTrackId : (seq.tracks[0]?.id ?? null),
+    selectedClipId: clipOk ? seq.selectedClipId : null,
+    selectedNoteIds: clipOk ? seq.selectedNoteIds : [],
+  };
+}
+
+/** Grow the song so it always contains its content. */
+function fitSongLength(state: AppState): AppState {
+  const seq = state.sequencer;
+  let end = 0;
+  for (const t of seq.tracks) for (const c of t.clips) end = Math.max(end, c.startBeat + c.lengthBeats);
+  for (const m of seq.markers) end = Math.max(end, m.beat + seq.beatsPerBar);
+  const bars = Math.ceil(end / seq.beatsPerBar);
+  return bars > seq.songLengthBars ? seqUpdate(state, { songLengthBars: bars }) : state;
+}
+
+/** Shift every clip, automation point and marker at/after `fromBeat` by `delta`. */
+function shiftTimeline(seq: SequencerState, fromBeat: number, delta: number): Pick<SequencerState, 'tracks' | 'markers'> {
+  return {
+    tracks: seq.tracks.map((t) => ({
+      ...t,
+      clips: t.clips.map((c) => (c.startBeat >= fromBeat ? { ...c, startBeat: c.startBeat + delta } : c)),
+      lanes: t.lanes.map((l) => ({
+        ...l,
+        points: l.points.map((p) => (p.beat >= fromBeat ? { ...p, beat: p.beat + delta } : p)),
+      })),
+    })),
+    markers: seq.markers.map((m) => (m.beat >= fromBeat ? { ...m, beat: m.beat + delta } : m)),
+  };
+}
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 
 export function reducer(state: AppState, action: Action): AppState {
+  const seq = state.sequencer;
+
   switch (action.type) {
 
-    // ── Tab management ───────────────────────────────────────────────────────────
+    // ── Oscillator lab ──────────────────────────────────────────────────────────
 
     case 'ADD_TAB': {
       const idx = state.tabs.length;
       const newTab: OscillatorTab = {
-        id: makeId(),
+        id: uid('tab'),
         label: `OSC ${idx + 1}`,
         color: getTabColor(idx),
         oscillator: { ...DEFAULT_STATE, isPlaying: false },
@@ -146,35 +290,22 @@ export function reducer(state: AppState, action: Action): AppState {
         isMuted: false,
         solo: false,
       };
-      const newTrack: SequencerTrack = makeTrack(newTab.id);
-      return {
-        ...state,
-        tabs: [...state.tabs, newTab],
-        activeTabId: newTab.id,
-        sequencer: {
-          ...state.sequencer,
-          tracks: [...state.sequencer.tracks, newTrack],
-        },
-      };
+      return { ...state, tabs: [...state.tabs, newTab], activeTabId: newTab.id };
     }
 
     case 'REMOVE_TAB': {
       if (state.tabs.length <= 1) return state;
       const idx = state.tabs.findIndex((t) => t.id === action.id);
       const newTabs = state.tabs.filter((t) => t.id !== action.id);
-      const newActiveId =
-        state.activeTabId === action.id
-          ? (newTabs[Math.max(0, idx - 1)]?.id ?? newTabs[0].id)
-          : state.activeTabId;
-      return {
-        ...state,
-        tabs: newTabs,
-        activeTabId: newActiveId,
-        sequencer: {
-          ...state.sequencer,
-          tracks: state.sequencer.tracks.filter((t) => t.tabId !== action.id),
-        },
-      };
+      const newActiveId = state.activeTabId === action.id
+        ? (newTabs[Math.max(0, idx - 1)]?.id ?? newTabs[0].id)
+        : state.activeTabId;
+      // Tracks that used this oscillator fall back to a preset rather than going silent
+      const tracks = seq.tracks.map((t) =>
+        t.source.type === 'oscillator' && t.source.tabId === action.id
+          ? { ...t, source: { type: 'preset', presetId: 'keys-epiano' } as TrackSource }
+          : t);
+      return { ...state, tabs: newTabs, activeTabId: newActiveId, sequencer: { ...seq, tracks } };
     }
 
     case 'SET_ACTIVE_TAB':
@@ -199,10 +330,7 @@ export function reducer(state: AppState, action: Action): AppState {
       return updateTab(state, action.id, (t) => ({ ...t, isMuted: action.muted }));
 
     case 'SOLO_TAB':
-      return {
-        ...state,
-        tabs: state.tabs.map((t) => ({ ...t, solo: t.id === action.id ? action.solo : false })),
-      };
+      return { ...state, tabs: state.tabs.map((t) => ({ ...t, solo: t.id === action.id ? action.solo : false })) };
 
     case 'SET_TAB_LABEL':
       return updateTab(state, action.id, (t) => ({ ...t, label: action.label }));
@@ -210,8 +338,11 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SET_TAB_COLOR':
       return updateTab(state, action.id, (t) => ({ ...t, color: action.color }));
 
+    case 'REORDER_TABS':
+      return { ...state, tabs: action.tabs };
+
     case 'SET_MASTER_VOLUME':
-      return { ...state, masterVolume: action.volume };
+      return { ...state, masterVolume: Math.max(0, Math.min(1, action.volume)) };
 
     case 'SET_RECORDING':
       return { ...state, isRecording: action.recording };
@@ -219,258 +350,398 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SET_OVERLAY_MODE':
       return { ...state, overlayMode: action.overlay };
 
-    case 'REORDER_TABS':
-      return { ...state, tabs: action.tabs };
+    case 'SET_VIEW':
+      return { ...state, view: action.view };
 
-    case 'LOAD_SESSION':
-      return action.appState;
+    case 'SET_UI_THEME':
+      return { ...state, uiTheme: action.theme };
 
-    // ── Sequencer global ─────────────────────────────────────────────────────────
+    case 'SET_PROJECT_NAME':
+      return { ...state, projectName: action.name.trim() || 'Untitled' };
 
-    case 'SEQ_OPEN':
-      return seqUpdate(state, { isOpen: action.open });
+    // ── Transport ───────────────────────────────────────────────────────────────
 
     case 'SEQ_SET_BPM':
-      return seqUpdate(state, { bpm: Math.max(20, Math.min(300, action.bpm)) });
+      return seqUpdate(state, { bpm: Math.max(20, Math.min(300, Math.round(action.bpm))) });
 
     case 'SEQ_SET_BEATS_PER_BAR':
-      return seqUpdate(state, { beatsPerBar: action.bpb });
+      return seqUpdate(state, { beatsPerBar: Math.max(1, Math.min(16, action.bpb)) });
 
     case 'SEQ_SET_SNAP':
       return seqUpdate(state, { snapValue: action.snap });
 
-    case 'SEQ_SET_LOOP':
+    case 'SEQ_SET_ARRANGE_SNAP':
+      return seqUpdate(state, { arrangeSnap: action.snap });
+
+    case 'SEQ_SET_LOOP': {
+      let start = Math.max(0, action.startBeat ?? seq.loopStartBeat);
+      let end = Math.max(0, action.endBeat ?? seq.loopEndBeat);
+      // A loop has to have length; swap if dragged backwards
+      if (end < start) [start, end] = [end, start];
+      if (end - start < 0.25) end = start + 0.25;
       return seqUpdate(state, {
-        loopEnabled: action.enabled ?? state.sequencer.loopEnabled,
-        loopStartBeat: action.startBeat ?? state.sequencer.loopStartBeat,
-        loopEndBeat: action.endBeat ?? state.sequencer.loopEndBeat,
+        loopEnabled: action.enabled ?? seq.loopEnabled,
+        loopStartBeat: start,
+        loopEndBeat: end,
       });
+    }
 
     case 'SEQ_SET_SONG_LENGTH':
-      return seqUpdate(state, { songLengthBars: action.bars });
+      return seqUpdate(state, { songLengthBars: Math.max(1, Math.min(999, Math.round(action.bars))) });
 
     case 'SEQ_SET_PLAYING':
       return seqUpdate(state, { isPlaying: action.playing });
 
     case 'SEQ_SET_PLAYHEAD':
-      return seqUpdate(state, { playheadBeat: action.beat });
+      return seqUpdate(state, { playheadBeat: Math.max(0, action.beat) });
+
+    case 'SEQ_TOGGLE_METRONOME':
+      return seqUpdate(state, { metronome: !seq.metronome });
 
     case 'SEQ_SET_EDIT_MODE':
       return seqUpdate(state, { editMode: action.mode });
 
     case 'SEQ_SET_VIEW':
       return seqUpdate(state, {
-        viewStartBeat: action.startBeat ?? state.sequencer.viewStartBeat,
-        viewLowNote: action.lowNote ?? state.sequencer.viewLowNote,
-        viewHighNote: action.highNote ?? state.sequencer.viewHighNote,
+        viewStartBeat: Math.max(0, action.startBeat ?? seq.viewStartBeat),
+        viewLowNote: action.lowNote ?? seq.viewLowNote,
+        viewHighNote: action.highNote ?? seq.viewHighNote,
       });
 
-    // ── Tracks ────────────────────────────────────────────────────────────────────
+    case 'SEQ_SET_ZOOM':
+      return seqUpdate(state, { pxPerBeat: Math.max(20, Math.min(400, action.pxPerBeat)) });
 
-    case 'SEQ_SYNC_TRACKS': {
-      const existing = new Map(state.sequencer.tracks.map((t) => [t.tabId, t]));
-      const synced = action.tabIds.map(
-        (id) => existing.get(id) ?? makeTrack(id),
-      );
-      return seqUpdate(state, { tracks: synced });
+    case 'SEQ_SET_ARR_VIEW':
+      return seqUpdate(state, {
+        arrStartBeat: Math.max(0, action.startBeat ?? seq.arrStartBeat),
+        arrPxPerBeat: Math.max(3, Math.min(160, action.pxPerBeat ?? seq.arrPxPerBeat)),
+      });
+
+    case 'SEQ_SET_DEFAULT_NOTE_LEN':
+      return seqUpdate(state, { defaultNoteLength: action.len });
+
+    case 'SEQ_TOGGLE_VELOCITY_LANE':
+      return seqUpdate(state, { showVelocityLane: !seq.showVelocityLane });
+
+    // ── Tracks ──────────────────────────────────────────────────────────────────
+
+    case 'TRACK_ADD': {
+      const kindCount = seq.tracks.filter((t) => t.source.type === action.source.type).length;
+      const defaultName = action.source.type === 'drums'
+        ? (kindCount ? `Drums ${kindCount + 1}` : 'Drums')
+        : action.source.type === 'oscillator'
+          ? (state.tabs.find((t) => action.source.type === 'oscillator' && t.id === action.source.tabId)?.label ?? 'Oscillator')
+          : `Track ${seq.tracks.length + 1}`;
+      const track = makeTrack({ name: action.name ?? defaultName, source: action.source, index: seq.tracks.length });
+      return seqUpdate(state, {
+        tracks: [...seq.tracks, track],
+        selectedTrackId: track.id,
+        selectedClipId: null,
+      });
     }
 
-    case 'SEQ_SET_TRACK_PAN':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId ? { ...t, pan: action.pan } : t,
-        ),
+    case 'TRACK_REMOVE': {
+      const idx = seq.tracks.findIndex((t) => t.id === action.trackId);
+      if (idx < 0) return state;
+      const tracks = seq.tracks.filter((t) => t.id !== action.trackId);
+      const next = seqUpdate(state, { tracks });
+      return seqUpdate(next, {
+        ...sanitizeSelection(next.sequencer),
+        selectedTrackId: tracks[Math.max(0, idx - 1)]?.id ?? null,
+      });
+    }
+
+    case 'TRACK_DUPLICATE': {
+      const idx = seq.tracks.findIndex((t) => t.id === action.trackId);
+      if (idx < 0) return state;
+      const src = seq.tracks[idx];
+      // Duplicate patterns too, so editing the copy doesn't change the original
+      const patterns = { ...seq.patterns };
+      const clips = src.clips.map((c) => {
+        if (isDrumTrack(src)) return { ...c, id: uid('clip') };
+        const pat = seq.patterns[c.patternId];
+        if (!pat) return { ...c, id: uid('clip') };
+        const copy = { ...pat, id: uid('pat'), name: `${pat.name} copy`, notes: pat.notes.map((n) => ({ ...n })) };
+        patterns[copy.id] = copy;
+        return { ...c, id: uid('clip'), patternId: copy.id };
+      });
+      const dup: Track = {
+        ...src, id: uid('trk'), name: `${src.name} copy`, clips, solo: false,
+        lanes: src.lanes.map((l) => ({ ...l, id: makeLaneId(), points: l.points.map((p) => ({ ...p, id: makePointId() })) })),
+        activeLaneId: null,
+      };
+      const tracks = [...seq.tracks];
+      tracks.splice(idx + 1, 0, dup);
+      return seqUpdate(state, { tracks, patterns, selectedTrackId: dup.id });
+    }
+
+    case 'TRACK_MOVE': {
+      const from = seq.tracks.findIndex((t) => t.id === action.trackId);
+      if (from < 0) return state;
+      const tracks = [...seq.tracks];
+      const [moved] = tracks.splice(from, 1);
+      tracks.splice(Math.max(0, Math.min(tracks.length, action.toIndex)), 0, moved);
+      return seqUpdate(state, { tracks });
+    }
+
+    case 'TRACK_UPDATE':
+      return patchTrack(state, action.trackId, (t) => ({ ...t, ...action.patch }));
+
+    case 'TRACK_SET_SOURCE':
+      return patchTrack(state, action.trackId, (t) => {
+        // Drum clips point at drum patterns and note clips at note patterns, so a
+        // track can't keep its clips across that boundary.
+        const crossesKind = isDrumTrack(t) !== (action.source.type === 'drums');
+        return { ...t, source: action.source, clips: crossesKind ? [] : t.clips };
       });
 
-    // ── Notes ─────────────────────────────────────────────────────────────────────
+    case 'TRACK_SELECT':
+      return seqUpdate(state, { selectedTrackId: action.trackId });
 
-    case 'SEQ_ADD_NOTE':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId ? { ...t, notes: [...t.notes, action.note] } : t,
-        ),
+    case 'SEQ_SET_ARP':
+      return patchTrack(state, action.trackId, (t) => ({ ...t, arp: { ...t.arp, ...action.arp } }));
+
+    case 'SEQ_SET_CHANNEL':
+      return patchTrack(state, action.trackId, (t) => ({ ...t, channel: { ...t.channel, ...action.channel } }));
+
+    // ── Clips ───────────────────────────────────────────────────────────────────
+
+    case 'CLIP_ADD': {
+      const track = seq.tracks.find((t) => t.id === action.trackId);
+      if (!track) return state;
+      const length = Math.max(0.25, action.lengthBeats);
+      let patternId = action.patternId;
+      let patterns = seq.patterns;
+      if (!patternId) {
+        if (isDrumTrack(track)) return state; // drum clips must name a drum pattern
+        const n = Object.values(seq.patterns).filter((p) => p.name.startsWith(track.name)).length;
+        const pat = makePattern(`${track.name} ${n + 1}`, length);
+        patterns = { ...seq.patterns, [pat.id]: pat };
+        patternId = pat.id;
+      }
+      const clip = makeClip(patternId, Math.max(0, action.startBeat), length);
+      const next = seqUpdate(state, {
+        patterns,
+        tracks: seq.tracks.map((t) => (t.id === track.id ? { ...t, clips: [...t.clips, clip] } : t)),
+        selectedTrackId: track.id,
+        selectedClipId: clip.id,
+        selectedNoteIds: [],
       });
+      return fitSongLength(next);
+    }
+
+    case 'CLIP_MOVE': {
+      const found = findClip(seq, action.clipId);
+      const dest = seq.tracks.find((t) => t.id === action.trackId);
+      if (!found || !dest) return state;
+      // Clips only move between tracks of the same kind
+      const destId = isDrumTrack(dest) === isDrumTrack(found.track) ? dest.id : found.track.id;
+      const moved = { ...found.clip, startBeat: Math.max(0, action.startBeat) };
+      const next = seqUpdate(state, {
+        tracks: seq.tracks.map((t) => {
+          let clips = t.clips;
+          if (t.id === found.track.id) clips = clips.filter((c) => c.id !== moved.id);
+          if (t.id === destId) clips = [...clips, moved];
+          return clips === t.clips ? t : { ...t, clips };
+        }),
+        selectedTrackId: destId,
+      });
+      return fitSongLength(next);
+    }
+
+    case 'CLIP_RESIZE':
+      return fitSongLength(patchClip(state, action.clipId, (c) => ({
+        ...c,
+        startBeat: Math.max(0, action.startBeat),
+        lengthBeats: Math.max(0.25, action.lengthBeats),
+        offsetBeats: Math.max(0, action.offsetBeats),
+      })));
+
+    case 'CLIP_DELETE': {
+      const next = seqUpdate(state, {
+        tracks: seq.tracks.map((t) => ({ ...t, clips: t.clips.filter((c) => c.id !== action.clipId) })),
+      });
+      return seqUpdate(next, sanitizeSelection(next.sequencer));
+    }
+
+    case 'CLIP_DUPLICATE': {
+      const found = findClip(seq, action.clipId);
+      if (!found) return state;
+      const { track, clip } = found;
+      let patternId = clip.patternId;
+      let patterns = seq.patterns;
+      if (!action.linked && !isDrumTrack(track)) {
+        const pat = seq.patterns[clip.patternId];
+        if (pat) {
+          const copy = { ...pat, id: uid('pat'), name: nextName(pat.name, seq.patterns), notes: pat.notes.map((n) => ({ ...n })) };
+          patterns = { ...patterns, [copy.id]: copy };
+          patternId = copy.id;
+        }
+      }
+      const dup: Clip = { ...clip, id: action.newId ?? uid('clip'), patternId, startBeat: clip.startBeat + clip.lengthBeats };
+      const next = seqUpdate(state, {
+        patterns,
+        tracks: seq.tracks.map((t) => (t.id === track.id ? { ...t, clips: [...t.clips, dup] } : t)),
+        selectedClipId: dup.id,
+        selectedNoteIds: [],
+      });
+      return fitSongLength(next);
+    }
+
+    case 'CLIP_MAKE_UNIQUE': {
+      const found = findClip(seq, action.clipId);
+      if (!found || isDrumTrack(found.track)) return state;
+      const pat = seq.patterns[found.clip.patternId];
+      if (!pat) return state;
+      const copy = { ...pat, id: uid('pat'), name: nextName(pat.name, seq.patterns), notes: pat.notes.map((n) => ({ ...n })) };
+      const next = seqUpdate(state, { patterns: { ...seq.patterns, [copy.id]: copy } });
+      return patchClip(next, action.clipId, (c) => ({ ...c, patternId: copy.id }));
+    }
+
+    case 'CLIP_TOGGLE_MUTE':
+      return patchClip(state, action.clipId, (c) => ({ ...c, muted: !c.muted }));
+
+    case 'CLIP_SPLIT': {
+      const found = findClip(seq, action.clipId);
+      if (!found) return state;
+      const { track, clip } = found;
+      const cut = action.atBeat - clip.startBeat;
+      if (cut <= 0.0625 || cut >= clip.lengthBeats - 0.0625) return state;
+      const left: Clip = { ...clip, lengthBeats: cut };
+      const right: Clip = {
+        ...clip, id: uid('clip'),
+        startBeat: action.atBeat,
+        lengthBeats: clip.lengthBeats - cut,
+        offsetBeats: clip.offsetBeats + cut,
+      };
+      return seqUpdate(state, {
+        tracks: seq.tracks.map((t) => (t.id === track.id
+          ? { ...t, clips: t.clips.flatMap((c) => (c.id === clip.id ? [left, right] : [c])) }
+          : t)),
+        selectedClipId: right.id,
+      });
+    }
+
+    case 'CLIP_SET_PATTERN':
+      return patchClip(state, action.clipId, (c) => ({ ...c, patternId: action.patternId }));
+
+    case 'CLIP_SELECT': {
+      const found = findClip(seq, action.clipId);
+      return seqUpdate(state, {
+        selectedClipId: action.clipId,
+        selectedTrackId: found?.track.id ?? seq.selectedTrackId,
+        selectedNoteIds: [],
+        // Jump the piano roll to the start of the pattern
+        viewStartBeat: action.clipId !== seq.selectedClipId ? 0 : seq.viewStartBeat,
+      });
+    }
+
+    case 'PATTERN_RENAME':
+      return patchPattern(state, action.patternId, (p) => ({ ...p, name: action.name.trim() || p.name }));
+
+    case 'PATTERN_SET_LENGTH':
+      return patchPattern(state, action.patternId, (p) => ({
+        ...p, lengthBeats: Math.max(0.25, Math.min(512, action.lengthBeats)),
+      }));
+
+    // ── Notes ───────────────────────────────────────────────────────────────────
+
+    case 'SEQ_ADD_NOTE': {
+      const next = patchNotes(state, action.patternId, (ns) => [...ns, action.note]);
+      // Drawing past the loop end grows the pattern to the next bar
+      return patchPattern(next, action.patternId, (p) => {
+        const end = action.note.startBeat + action.note.durationBeats;
+        if (end <= p.lengthBeats) return p;
+        const bar = seq.beatsPerBar;
+        return { ...p, lengthBeats: Math.ceil(end / bar) * bar };
+      });
+    }
 
     case 'SEQ_REMOVE_NOTE':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId
-            ? { ...t, notes: t.notes.filter((n) => n.id !== action.noteId) }
-            : t,
-        ),
-      });
+      return patchNotes(state, action.patternId, (ns) => ns.filter((n) => n.id !== action.noteId));
 
     case 'SEQ_MOVE_NOTE':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId
-            ? {
-                ...t,
-                notes: t.notes.map((n) =>
-                  n.id === action.noteId
-                    ? { ...n, startBeat: action.startBeat, midiNote: action.midiNote }
-                    : n,
-                ),
-              }
-            : t,
-        ),
-      });
+      return patchNotes(state, action.patternId, (ns) => ns.map((n) => (n.id === action.noteId
+        ? { ...n, startBeat: Math.max(0, action.startBeat), midiNote: Math.max(0, Math.min(127, action.midiNote)) }
+        : n)));
 
     case 'SEQ_RESIZE_NOTE':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId
-            ? {
-                ...t,
-                notes: t.notes.map((n) =>
-                  n.id === action.noteId ? { ...n, durationBeats: action.durationBeats } : n,
-                ),
-              }
-            : t,
-        ),
-      });
+      return patchNotes(state, action.patternId, (ns) => ns.map((n) => (n.id === action.noteId
+        ? { ...n, durationBeats: Math.max(0.0625, action.durationBeats) }
+        : n)));
 
     case 'SEQ_SET_VELOCITY':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId
-            ? {
-                ...t,
-                notes: t.notes.map((n) =>
-                  n.id === action.noteId ? { ...n, velocity: action.velocity } : n,
-                ),
-              }
-            : t,
-        ),
-      });
+      return patchNotes(state, action.patternId, (ns) => ns.map((n) => (n.id === action.noteId
+        ? { ...n, velocity: Math.max(1, Math.min(127, Math.round(action.velocity))) }
+        : n)));
 
-    case 'SEQ_CLEAR_TRACK':
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId ? { ...t, notes: [] } : t,
-        ),
-      });
+    case 'SEQ_CLEAR_PATTERN':
+      return seqUpdate(patchNotes(state, action.patternId, () => []), { selectedNoteIds: [] });
 
     case 'SEQ_SELECT_NOTES':
       return seqUpdate(state, { selectedNoteIds: action.ids });
 
     case 'SEQ_DELETE_SELECTED': {
-      const sel = new Set(state.sequencer.selectedNoteIds);
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) => ({
-          ...t,
-          notes: t.notes.filter((n) => !sel.has(n.id)),
-        })),
-        selectedNoteIds: [],
-      });
+      const sel = new Set(seq.selectedNoteIds);
+      return seqUpdate(
+        patchNotes(state, action.patternId, (ns) => ns.filter((n) => !sel.has(n.id))),
+        { selectedNoteIds: [] },
+      );
     }
-
-    // ── Undo / Redo ──────────────────────────────────────────────────────────────
-
-    case 'SEQ_PUSH_UNDO': {
-      const stack = [...state.sequencer.undoStack, state.sequencer.tracks].slice(-MAX_UNDO);
-      return seqUpdate(state, { undoStack: stack, redoStack: [] });
-    }
-
-    case 'SEQ_UNDO': {
-      if (state.sequencer.undoStack.length === 0) return state;
-      const newStack = [...state.sequencer.undoStack];
-      const prev = newStack.pop()!;
-      return seqUpdate(state, {
-        tracks: prev,
-        undoStack: newStack,
-        redoStack: [state.sequencer.tracks, ...state.sequencer.redoStack].slice(0, MAX_UNDO),
-      });
-    }
-
-    case 'SEQ_REDO': {
-      if (state.sequencer.redoStack.length === 0) return state;
-      const [next, ...rest] = state.sequencer.redoStack;
-      return seqUpdate(state, {
-        tracks: next,
-        undoStack: [...state.sequencer.undoStack, state.sequencer.tracks].slice(-MAX_UNDO),
-        redoStack: rest,
-      });
-    }
-
-    // ── New feature cases ─────────────────────────────────────────────────────────
-
-    case 'SEQ_SET_DEFAULT_NOTE_LEN':
-      return seqUpdate(state, { defaultNoteLength: action.len });
 
     case 'SEQ_COPY':
       return seqUpdate(state, { copiedNotes: action.notes });
 
     case 'SEQ_PASTE': {
-      const { copiedNotes, playheadBeat } = state.sequencer;
-      if (!copiedNotes?.length) return state;
-      const minBeat = Math.min(...copiedNotes.map((n) => n.startBeat));
-      const offset = playheadBeat - minBeat;
-      const newNotes = copiedNotes.map((n) => ({
-        ...n,
-        id: makeNoteId(),
-        startBeat: Math.max(0, n.startBeat + offset),
+      const copied = seq.copiedNotes;
+      if (!copied?.length) return state;
+      const minBeat = Math.min(...copied.map((n) => n.startBeat));
+      const offset = action.atBeat - minBeat;
+      const newNotes = copied.map((n) => ({
+        ...n, id: uid('n'), startBeat: Math.max(0, n.startBeat + offset),
       }));
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) =>
-          t.tabId === action.tabId ? { ...t, notes: [...t.notes, ...newNotes] } : t,
-        ),
-        selectedNoteIds: newNotes.map((n) => n.id),
-      });
+      return seqUpdate(
+        patchNotes(state, action.patternId, (ns) => [...ns, ...newNotes]),
+        { selectedNoteIds: newNotes.map((n) => n.id) },
+      );
     }
 
     case 'SEQ_QUANTIZE': {
-      if (state.sequencer.selectedNoteIds.length === 0) return state;
-      const grid = SNAP_BEATS[state.sequencer.snapValue];
-      const sel = new Set(state.sequencer.selectedNoteIds);
-      return seqUpdate(state, {
-        tracks: state.sequencer.tracks.map((t) => ({
-          ...t,
-          notes: t.notes.map((n) =>
-            sel.has(n.id) ? { ...n, startBeat: Math.round(n.startBeat / grid) * grid } : n,
-          ),
-        })),
-      });
+      if (seq.selectedNoteIds.length === 0) return state;
+      const grid = SNAP_BEATS[seq.snapValue];
+      const sel = new Set(seq.selectedNoteIds);
+      return patchNotes(state, action.patternId, (ns) => ns.map((n) => (sel.has(n.id)
+        ? { ...n, startBeat: Math.round(n.startBeat / grid) * grid }
+        : n)));
     }
 
-    case 'SEQ_TOGGLE_VELOCITY_LANE':
-      return seqUpdate(state, { showVelocityLane: !state.sequencer.showVelocityLane });
-
-    // ── Arpeggiator / channel strip ──────────────────────────────────────────────
-
-    case 'SEQ_SET_ARP':
-      return patchTrack(state, action.tabId, (t) => ({ ...t, arp: { ...t.arp, ...action.arp } }));
-
-    case 'SEQ_SET_CHANNEL':
-      return patchTrack(state, action.tabId, (t) => ({
-        ...t, channel: { ...t.channel, ...action.channel },
-      }));
-
-    // ── Automation ───────────────────────────────────────────────────────────────
+    // ── Automation ──────────────────────────────────────────────────────────────
 
     case 'SEQ_ADD_LANE': {
-      const existing = state.sequencer.tracks
-        .find((t) => t.tabId === action.tabId)?.lanes
-        .find((l) => l.target === action.target);
+      const track = seq.tracks.find((t) => t.id === action.trackId);
+      if (!track) return state;
+      const existing = track.lanes.find((l) => l.target === action.target);
       // One lane per parameter — adding an existing target just selects it
-      if (existing) return seqUpdate(state, { activeLaneId: existing.id });
-
-      const lane = { id: makeLaneId(), target: action.target, enabled: true, points: [] };
-      const next = patchTrack(state, action.tabId, (t) => ({ ...t, lanes: [...t.lanes, lane] }));
-      return seqUpdate(next, { activeLaneId: lane.id });
-    }
-
-    case 'SEQ_REMOVE_LANE': {
-      const next = patchTrack(state, action.tabId, (t) => ({
-        ...t, lanes: t.lanes.filter((l) => l.id !== action.laneId),
+      if (existing) {
+        return patchTrack(state, track.id, (t) => ({ ...t, activeLaneId: existing.id, showAutomation: true }));
+      }
+      const lane: AutomationLane = { id: makeLaneId(), target: action.target, enabled: true, points: [] };
+      return patchTrack(state, track.id, (t) => ({
+        ...t, lanes: [...t.lanes, lane], activeLaneId: lane.id, showAutomation: true,
       }));
-      return state.sequencer.activeLaneId === action.laneId
-        ? seqUpdate(next, { activeLaneId: null })
-        : next;
     }
+
+    case 'SEQ_REMOVE_LANE':
+      return patchTrack(state, action.trackId, (t) => {
+        const lanes = t.lanes.filter((l) => l.id !== action.laneId);
+        return {
+          ...t, lanes,
+          activeLaneId: t.activeLaneId === action.laneId ? (lanes[0]?.id ?? null) : t.activeLaneId,
+        };
+      });
 
     case 'SEQ_TOGGLE_LANE':
-      return patchLane(state, action.tabId, action.laneId, (l) => ({ ...l, enabled: !l.enabled }));
+      return patchLane(state, action.trackId, action.laneId, (l) => ({ ...l, enabled: !l.enabled }));
 
     case 'SEQ_ADD_POINT': {
       const point: AutomationPoint = {
@@ -478,53 +749,209 @@ export function reducer(state: AppState, action: Action): AppState {
         beat: Math.max(0, action.beat),
         value: Math.max(0, Math.min(1, action.value)),
       };
-      return patchLane(state, action.tabId, action.laneId, (l) => ({
-        ...l, points: withPoint(l.points, point),
-      }));
+      return patchLane(state, action.trackId, action.laneId, (l) => ({ ...l, points: withPoint(l.points, point) }));
     }
 
     case 'SEQ_MOVE_POINT':
-      return patchLane(state, action.tabId, action.laneId, (l) => ({
+      return patchLane(state, action.trackId, action.laneId, (l) => ({
         ...l,
         points: l.points
-          .map((p) => p.id === action.pointId
+          .map((p) => (p.id === action.pointId
             ? { ...p, beat: Math.max(0, action.beat), value: Math.max(0, Math.min(1, action.value)) }
-            : p)
+            : p))
           .sort((a, b) => a.beat - b.beat),
       }));
 
     case 'SEQ_REMOVE_POINT':
-      return patchLane(state, action.tabId, action.laneId, (l) => ({
+      return patchLane(state, action.trackId, action.laneId, (l) => ({
         ...l, points: l.points.filter((p) => p.id !== action.pointId),
       }));
 
     case 'SEQ_CLEAR_LANE':
-      return patchLane(state, action.tabId, action.laneId, (l) => ({ ...l, points: [] }));
+      return patchLane(state, action.trackId, action.laneId, (l) => ({ ...l, points: [] }));
 
-    case 'SEQ_SET_ACTIVE_LANE':
-      return seqUpdate(state, { activeLaneId: action.laneId });
+    // ── Sections ────────────────────────────────────────────────────────────────
 
-    case 'SEQ_SET_ZOOM':
-      return seqUpdate(state, { pxPerBeat: Math.max(20, Math.min(400, action.pxPerBeat)) });
+    case 'MARKER_ADD': {
+      const beat = Math.max(0, action.beat);
+      // One marker per position
+      if (seq.markers.some((m) => Math.abs(m.beat - beat) < 1e-6)) return state;
+      const marker: Marker = {
+        id: uid('mk'),
+        beat,
+        name: action.name ?? defaultSectionName(seq.markers.length),
+        color: SECTION_COLORS[seq.markers.length % SECTION_COLORS.length],
+      };
+      return fitSongLength(seqUpdate(state, {
+        markers: [...seq.markers, marker].sort((a, b) => a.beat - b.beat),
+      }));
+    }
 
-    // ── Project ──────────────────────────────────────────────────────────────────
+    case 'MARKER_UPDATE':
+      return seqUpdate(state, {
+        markers: seq.markers
+          .map((m) => (m.id === action.id
+            ? { ...m, ...action.patch, beat: Math.max(0, action.patch.beat ?? m.beat) }
+            : m))
+          .sort((a, b) => a.beat - b.beat),
+      });
+
+    case 'MARKER_REMOVE':
+      return seqUpdate(state, { markers: seq.markers.filter((m) => m.id !== action.id) });
+
+    case 'SECTION_DUPLICATE': {
+      const sections = sectionsFromMarkers(seq.markers, seq.songLengthBars * seq.beatsPerBar);
+      const sec = sections.find((s) => s.id === action.markerId);
+      if (!sec) return state;
+      const len = sec.endBeat - sec.beat;
+      if (len <= 0) return state;
+
+      // Open a gap the length of the section right after it…
+      const shifted = shiftTimeline(seq, sec.endBeat, len);
+      // …then copy the section's clips and automation into that gap.
+      const patterns = { ...seq.patterns };
+      const tracks = shifted.tracks.map((t, ti) => {
+        const orig = seq.tracks[ti];
+        const copies = orig.clips
+          .filter((c) => c.startBeat >= sec.beat && c.startBeat < sec.endBeat)
+          .map((c) => {
+            let patternId = c.patternId;
+            if (!isDrumTrack(orig)) {
+              const pat = seq.patterns[c.patternId];
+              if (pat) {
+                const copy = { ...pat, id: uid('pat'), name: nextName(pat.name, patterns), notes: pat.notes.map((n) => ({ ...n })) };
+                patterns[copy.id] = copy;
+                patternId = copy.id;
+              }
+            }
+            return { ...c, id: uid('clip'), patternId, startBeat: c.startBeat + len };
+          });
+        const lanes = t.lanes.map((l, li) => {
+          const src = orig.lanes[li];
+          const pts = src.points
+            .filter((p) => p.beat >= sec.beat && p.beat < sec.endBeat)
+            .map((p) => ({ ...p, id: makePointId(), beat: p.beat + len }));
+          return pts.length ? { ...l, points: [...l.points, ...pts].sort((a, b) => a.beat - b.beat) } : l;
+        });
+        return { ...t, clips: [...t.clips, ...copies], lanes };
+      });
+      const copyMarker: Marker = { ...sec, id: uid('mk'), beat: sec.endBeat, name: nextName(sec.name, {}) };
+      const next = seqUpdate(state, {
+        tracks,
+        patterns,
+        markers: [...shifted.markers, { id: copyMarker.id, beat: copyMarker.beat, name: copyMarker.name, color: copyMarker.color }]
+          .sort((a, b) => a.beat - b.beat),
+        songLengthBars: seq.songLengthBars + Math.ceil(len / seq.beatsPerBar),
+      });
+      return next;
+    }
+
+    case 'SECTION_DELETE': {
+      const sections = sectionsFromMarkers(seq.markers, seq.songLengthBars * seq.beatsPerBar);
+      const sec = sections.find((s) => s.id === action.markerId);
+      if (!sec) return state;
+      const len = sec.endBeat - sec.beat;
+      // Remove content that starts inside the section, then close the gap
+      const pruned: SequencerState = {
+        ...seq,
+        tracks: seq.tracks.map((t) => ({
+          ...t,
+          clips: t.clips.filter((c) => !(c.startBeat >= sec.beat && c.startBeat < sec.endBeat)),
+          lanes: t.lanes.map((l) => ({
+            ...l, points: l.points.filter((p) => !(p.beat >= sec.beat && p.beat < sec.endBeat)),
+          })),
+        })),
+        markers: seq.markers.filter((m) => m.id !== sec.id),
+      };
+      const shifted = len > 0 ? shiftTimeline(pruned, sec.endBeat, -len) : pruned;
+      const next = seqUpdate(state, {
+        tracks: shifted.tracks,
+        markers: shifted.markers,
+        songLengthBars: Math.max(1, seq.songLengthBars - Math.floor(len / seq.beatsPerBar)),
+      });
+      return seqUpdate(next, sanitizeSelection(next.sequencer));
+    }
+
+    // ── Undo / Redo ─────────────────────────────────────────────────────────────
+
+    case 'SEQ_PUSH_UNDO': {
+      const doc = docOf(seq);
+      const top = seq.undoStack[seq.undoStack.length - 1];
+      // A click that changed nothing shouldn't cost an undo step
+      if (top && top.tracks === doc.tracks && top.patterns === doc.patterns && top.markers === doc.markers) {
+        return state;
+      }
+      return seqUpdate(state, { undoStack: [...seq.undoStack, doc].slice(-MAX_UNDO), redoStack: [] });
+    }
+
+    case 'SEQ_UNDO': {
+      if (seq.undoStack.length === 0) return state;
+      const stack = [...seq.undoStack];
+      const prev = stack.pop()!;
+      const next = seqUpdate(state, {
+        ...prev,
+        undoStack: stack,
+        redoStack: [docOf(seq), ...seq.redoStack].slice(0, MAX_UNDO),
+      });
+      return seqUpdate(next, sanitizeSelection(next.sequencer));
+    }
+
+    case 'SEQ_REDO': {
+      if (seq.redoStack.length === 0) return state;
+      const [nextDoc, ...rest] = seq.redoStack;
+      const next = seqUpdate(state, {
+        ...nextDoc,
+        undoStack: [...seq.undoStack, docOf(seq)].slice(-MAX_UNDO),
+        redoStack: rest,
+      });
+      return seqUpdate(next, sanitizeSelection(next.sequencer));
+    }
+
+    // ── Project ─────────────────────────────────────────────────────────────────
 
     case 'LOAD_PROJECT': {
       const p = action.project;
-      // Remap stable index-based tabIds → current session tabIds, filling in any
-      // fields the project predates.
-      const remapped = p.tracks.map((t, i) => normalizeTrack({
-        ...t,
-        tabId: state.tabs[i]?.id ?? state.tabs[0].id,
-      }));
-      const base = seqUpdate(state, {
-        bpm: p.bpm,
-        beatsPerBar: p.beatsPerBar,
-        songLengthBars: p.songLengthBars,
-        tracks: remapped,
-        activeLaneId: null,
-      });
-      return p.masterVolume !== undefined ? { ...base, masterVolume: p.masterVolume } : base;
+      // Oscillator tabs carried by the project join the lab
+      const known = new Set(state.tabs.map((t) => t.id));
+      const tabs = [...state.tabs, ...p.oscillators.filter((t) => !known.has(t.id)).map((t) => ({ ...t, isPlaying: false }))];
+      return {
+        ...state,
+        tabs,
+        projectName: p.name,
+        masterVolume: p.masterVolume,
+        sequencer: {
+          ...seq,
+          ...p.doc,
+          bpm: p.bpm,
+          beatsPerBar: p.beatsPerBar,
+          songLengthBars: p.songLengthBars,
+          loopEnabled: p.loop.enabled,
+          loopStartBeat: p.loop.startBeat,
+          loopEndBeat: p.loop.endBeat,
+          isPlaying: false,
+          playheadBeat: 0,
+          selectedTrackId: p.doc.tracks[0]?.id ?? null,
+          selectedClipId: null,
+          selectedNoteIds: [],
+          arrStartBeat: 0,
+          undoStack: [],
+          redoStack: [],
+        },
+      };
+    }
+
+    case 'NEW_PROJECT': {
+      const fresh = makeInitialAppState();
+      return {
+        ...state,
+        projectName: 'Untitled',
+        sequencer: {
+          ...fresh.sequencer,
+          bpm: seq.bpm,
+          arrPxPerBeat: seq.arrPxPerBeat,
+          pxPerBeat: seq.pxPerBeat,
+        },
+      };
     }
 
     default:
@@ -532,40 +959,18 @@ export function reducer(state: AppState, action: Action): AppState {
   }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function updateTab(
-  state: AppState,
-  id: string,
-  updater: (t: OscillatorTab) => OscillatorTab,
-): AppState {
-  return { ...state, tabs: state.tabs.map((t) => (t.id === id ? updater(t) : t)) };
+function defaultSectionName(i: number): string {
+  return ['Intro', 'Verse', 'Build', 'Drop', 'Break', 'Chorus', 'Bridge', 'Outro'][i % 8];
 }
 
-function seqUpdate(state: AppState, patch: Partial<SequencerState>): AppState {
-  return { ...state, sequencer: { ...state.sequencer, ...patch } };
-}
-
-function patchTrack(
-  state: AppState,
-  tabId: string,
-  patcher: (t: SequencerTrack) => SequencerTrack,
-): AppState {
-  return seqUpdate(state, {
-    tracks: state.sequencer.tracks.map((t) => (t.tabId === tabId ? patcher(t) : t)),
-  });
-}
-
-function patchLane(
-  state: AppState,
-  tabId: string,
-  laneId: string,
-  patcher: (l: SequencerTrack['lanes'][number]) => SequencerTrack['lanes'][number],
-): AppState {
-  return patchTrack(state, tabId, (t) => ({
-    ...t,
-    lanes: t.lanes.map((l) => (l.id === laneId ? patcher(l) : l)),
-  }));
+/** "Bass 1" → "Bass 2", picking the next unused number. */
+function nextName(name: string, patterns: Record<string, Pattern>): string {
+  const m = name.match(/^(.*?)(\s*)(\d+)$/);
+  const base = m ? m[1] : name;
+  const taken = new Set(Object.values(patterns).map((p) => p.name));
+  let n = m ? parseInt(m[3], 10) + 1 : 2;
+  while (taken.has(`${base} ${n}`)) n++;
+  return `${base} ${n}`;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -583,9 +988,10 @@ export function useAppStore(): StoreCtx {
   return ctx;
 }
 
-export function useActiveTab() {
+/** The UI accent colour. */
+export function useAccent(): string {
   const { state } = useAppStore();
-  return state.tabs.find((t) => t.id === state.activeTabId) ?? state.tabs[0];
+  return THEME_COLORS[state.uiTheme] ?? THEME_COLORS.green;
 }
 
 export function computeEffectiveMutes(tabs: OscillatorTab[]): Map<string, boolean> {
@@ -595,36 +1001,120 @@ export function computeEffectiveMutes(tabs: OscillatorTab[]): Map<string, boolea
   return result;
 }
 
+// ─── Persistence ──────────────────────────────────────────────────────────────
+
 const LS_KEY = 'osc-app-state';
+const LS_INSTRUMENTS = 'osc-instrument-state';
+const SCHEMA = 2;
+/** Writes are coalesced: one JSON.stringify per burst of edits, not per action. */
+const PERSIST_DEBOUNCE_MS = 400;
+
+/** Strip runtime-only and bulky fields before writing. */
+function persistable(state: AppState) {
+  const { undoStack: _u, redoStack: _r, copiedNotes: _c, isPlaying: _p, ...seq } = state.sequencer;
+  return {
+    schema: SCHEMA,
+    ...state,
+    isRecording: false,
+    tabs: state.tabs.map((t) => ({ ...t, isPlaying: false })),
+    sequencer: seq,
+  };
+}
+
+/**
+ * Rebuild app state from whatever is in localStorage — current schema, or a
+ * session saved by an older release. Exported for tests.
+ */
+export function restoreState(raw: string | null, legacyAssignmentsRaw: string | null): AppState {
+  const init = makeInitialAppState();
+  if (!raw) return init;
+
+  const parsed = JSON.parse(raw) as Partial<AppState> & { schema?: number };
+  const tabs = (parsed.tabs?.length ? parsed.tabs : init.tabs).map((t) => ({ ...t, isPlaying: false }));
+  const savedSeq = (parsed.sequencer ?? {}) as Partial<SequencerState> & { tracks?: unknown };
+  const base = makeDefaultSequencerState();
+
+  let doc: DocSnapshot;
+  if (isLegacyTrackList(savedSeq.tracks)) {
+    // Pre-v2 session: tracks were bound to oscillator tabs, and instrument
+    // choices lived in the instrument library's own storage.
+    let assignments: Record<string, string> = {};
+    try {
+      assignments = (JSON.parse(legacyAssignmentsRaw ?? '{}') as { assignments?: Record<string, string> }).assignments ?? {};
+    } catch { /* ignore */ }
+    const bpb = savedSeq.beatsPerBar ?? 4;
+    doc = migrateLegacySequencer(
+      savedSeq.tracks as LegacyTrack[], tabs, assignments,
+      (savedSeq.songLengthBars ?? 8) * bpb, bpb,
+    );
+  } else if (Array.isArray(savedSeq.tracks)) {
+    const patterns = (savedSeq.patterns ?? {}) as Record<string, Pattern>;
+    doc = {
+      tracks: (savedSeq.tracks as Track[]).map((t, i) => {
+        const track = normalizeTrack(t, i);
+        // Note clips must point at a pattern that exists
+        track.clips = track.clips.filter((c) => track.source.type === 'drums' || !!patterns[c.patternId]);
+        return track;
+      }),
+      patterns,
+      markers: (savedSeq.markers ?? []) as Marker[],
+    };
+  } else {
+    return init;
+  }
+
+  const restoredSeq: SequencerState = {
+    ...base,
+    ...(savedSeq as Partial<SequencerState>),
+    ...doc,
+    isPlaying: false,
+    undoStack: [],
+    redoStack: [],
+    copiedNotes: null,
+  };
+
+  return {
+    ...init,
+    ...parsed,
+    tabs,
+    activeTabId: tabs.some((t) => t.id === parsed.activeTabId) ? parsed.activeTabId! : tabs[0].id,
+    isRecording: false,
+    view: parsed.view === 'lab' ? 'lab' : 'arrange',
+    uiTheme: parsed.uiTheme ?? 'green',
+    projectName: parsed.projectName ?? 'Untitled',
+    sequencer: { ...restoredSeq, ...sanitizeSelection(restoredSeq) },
+  };
+}
 
 export function useAppReducer(): StoreCtx {
-  const [state, dispatch] = useReducer(reducer, INITIAL_APP_STATE, (init) => {
+  const [state, dispatch] = useReducer(reducer, undefined, () => {
     try {
-      const saved = localStorage.getItem(LS_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as AppState;
-        // Reset all transient runtime state; keep composition data
-        return {
-          ...parsed,
-          isRecording: false,
-          tabs: parsed.tabs.map((t) => ({ ...t, isPlaying: false })),
-          sequencer: {
-            ...makeDefaultSequencerState(),
-            ...parsed.sequencer,
-            isPlaying: false,
-            undoStack: [],
-            redoStack: [],
-            copiedNotes: null,
-          },
-        };
-      }
-    } catch (_) { /* corrupt or missing */ }
-    return init;
+      return restoreState(localStorage.getItem(LS_KEY), localStorage.getItem(LS_INSTRUMENTS));
+    } catch (err) {
+      // A corrupt save must never stop the app from opening
+      console.warn('Saved session could not be restored; starting fresh.', err);
+      return makeInitialAppState();
+    }
   });
 
+  const latest = useRef(state);
+  latest.current = state;
+
   useEffect(() => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota exceeded */ }
+    const id = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(persistable(state))); } catch { /* quota exceeded */ }
+    }, PERSIST_DEBOUNCE_MS);
+    return () => clearTimeout(id);
   }, [state]);
+
+  // Don't lose the last few hundred milliseconds of edits on close
+  useEffect(() => {
+    const flush = () => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(persistable(latest.current))); } catch { /* ignore */ }
+    };
+    window.addEventListener('beforeunload', flush);
+    return () => window.removeEventListener('beforeunload', flush);
+  }, []);
 
   return { state, dispatch };
 }

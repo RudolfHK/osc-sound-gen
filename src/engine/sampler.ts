@@ -74,7 +74,11 @@ export class DrumSynth {
     return this.output;
   }
 
-  trigger(voice: DrumVoiceType, p: DrumHitParams, time: number): void {
+  /**
+   * Schedule one hit. `dest` routes it through a track's channel strip; without
+   * it (the pattern editor auditioning) it goes straight to the drum bus.
+   */
+  trigger(voice: DrumVoiceType, p: DrumHitParams, time: number, dest?: AudioNode): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
 
@@ -82,7 +86,7 @@ export class DrumSynth {
     const velGain = (vel / 127) * Math.max(0, Math.min(1, p.volume));
     if (velGain < 0.001) return;
 
-    const out = this.getOutput(ctx);
+    const out: AudioNode = dest ?? this.getOutput(ctx);
 
     // A kick ducks every track that asked for sidechain. This is what makes
     // four-to-the-floor material breathe instead of the bass and kick masking

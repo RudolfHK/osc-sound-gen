@@ -1,312 +1,274 @@
-# OSC — Digital Oscillator Synthesizer · User Guide
+# OSC · User Guide
 
-OSC is a browser-based synthesizer and sequencer. You can play multiple oscillators simultaneously, visualize their waveforms in real time, compose note sequences in a piano roll editor, mix tracks, and record the output to a file.
+OSC is a browser-based music production app: an arrangement of tracks and clips, a piano roll and
+drum step sequencer, 161 synthesized instruments, a mixer with per-track EQ, sends and sidechain,
+master effects, automation, and an optional oscillator lab for hands-on waveform synthesis.
+
+Everything is synthesized in real time by the Web Audio API — there are no sample files.
+
+1. [Interface Overview](#interface-overview)
+2. [Your First Song](#your-first-song)
+3. [The Arrangement](#the-arrangement)
+4. [The Editor](#the-editor)
+5. [Transport](#transport)
+6. [The Drum Machine](#the-drum-machine)
+7. [The Instrument Library](#the-instrument-library)
+8. [The Mixer](#the-mixer)
+9. [Master Effects](#master-effects)
+10. [Automation](#automation)
+11. [The Arpeggiator](#the-arpeggiator)
+12. [The Oscillator Lab](#the-oscillator-lab)
+13. [The Visualizer](#the-visualizer)
+14. [Recording](#recording)
+15. [Projects and Saving](#projects-and-saving)
+16. [Keyboard Shortcuts](#keyboard-shortcuts)
+17. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Interface Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│ ≋ OSC   DIGITAL OSCILLATOR SYNTHESIZER      MASTER ▓▓░░  OVERLAY  SEQUENCER  ● PLAYING │
-├─────────────────────────────────────────────────────────────────────┤
-│ ● OSC 1  ● OSC 2  ● OSC 3                    + OSC                 │  ← Tab bar
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│                      OSCILLOSCOPE DISPLAY                           │  ← Waveform canvas
-│                                                                     │
-├─────────────────────────────────────────────────────────────────────┤
-│ [sine][sqr][saw][tri]  Frequency ──────●──── 440.0 Hz              │
-│                        Amplitude ────●──────  0.80                 │  ← Controls
-│  Phase ──●──  PW ──●──  Tab level ──●──   [▶ PLAY]                 │
-│  ▾ Advanced                                                         │
-├─────────────────────────────────────────────────────────────────────┤
-│  ● REC 00:12   ↓ WebM   ↓ WAV                                       │  ← Recording bar
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ OSC ▾  Project name   ⏮ ▶PLAY ⏹ ●REC  1.1.1 0:00.0  BPM 120  4/4  ↻LOOP  ♩CLICK │
+│                                     MASTER ▓▓░  [ARRANGE|OSC LAB]  VIZ  ●       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ ARRANGE  + Instrument  + Drums  + Oscillator   GRID Bar  − + FIT  LENGTH 16      │
+├────────────────┬─────────────────────────────────────────────────────────────┤
+│ SECTIONS       │ Intro ▕ Verse ▕ Drop ▕ …                       ← sections    │
+│ BARS · LOOP    │ 1    2    3    4    5    6   ════loop════        ← ruler       │
+├────────────────┼─────────────────────────────────────────────────────────────┤
+│ Drums   M S    │ ▕House▕▕House▕                                  ← clips       │
+│ Bass    M S A  │      ▕Bass 1      ▕                                           │
+│  └ automation  │ ───╱──────╲─────                                ← lane (A)    │
+│ Keys    M S A  │ ▕Keys 1▕                                                       │
+├────────────────┴─────────────────────────────────────────────────────────────┤
+│ EDITOR │ MIXER │ INSTRUMENTS │ FX                               ← dock tabs   │
+│ ┌ pattern / arp ┬ piano roll (or drum step sequencer) ──────────────────────┐ │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-When the **Sequencer** is open, a panel is inserted between the tab bar and the oscilloscope:
+The layout follows the arrange-above / editor-below split used by Ableton Live, Logic and Bitwig:
 
-```
-├─────────────────────────────────────────────────────────────────────┤
-│ ⏮ [▶ PLAY] ⏹  1:1 · 0:00.0  BPM [120]  /BAR [4]  SNAP [1/16]  ↻ LOOP │
-│ TRACK  ● OSC 1  ● OSC 2          MIXER  ↓ SAVE  ↑ LOAD           │
-│ ┌──────────┬───────────────────────────────────────────────────┐   │
-│ │ OSC 1    │  Piano roll canvas (draw notes here)              │   │
-│ │ M S pan  │                                                   │   │
-│ └──────────┴───────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┤
-```
+- **Header** — file menu (**OSC ▾**), project name, transport, master volume, view switch, visualizer
+- **Arrangement** — tracks down the left, the song left to right, sections and loop on the ruler
+- **Dock** — the editor for whatever clip is selected, plus the mixer, instrument library and effects.
+  Drag its top edge to resize it; click the open tab to collapse it
+
+**OSC LAB** swaps the arrangement for the oscillator lab. It's optional: nothing in a song depends on it.
 
 ---
 
-## Oscillator Controls
+## Your First Song
 
-### Waveform
-
-Four buttons select the oscillator waveform:
-
-| Button | Waveform | Sound character |
-|--------|----------|-----------------|
-| `sine` | Sine | Pure, smooth, flute-like |
-| `sqr`  | Square | Hollow, nasal, clarinet-like |
-| `saw`  | Sawtooth | Bright, buzzy, string/brass-like |
-| `tri`  | Triangle | Soft, mellow, between sine and square |
-
-### Frequency
-
-- Range: **20 Hz – 20 000 Hz**
-- The slider is **logarithmic** so equal slider distances correspond to equal musical intervals (octaves)
-- Type a frequency directly into the numeric input on the right and press Enter or Tab to commit; press Escape to cancel
-
-### Amplitude
-
-Controls how loud this oscillator is. Range **0.0 – 1.0**.
-
-### Phase
-
-Shifts the starting point of the waveform. Audible only when two oscillators play the same frequency — shifting one by 180° (π radians) causes them to partially cancel. Range **0° – 360°**.
-
-### Pulse Width
-
-Only active when the **square** waveform is selected. Controls the duty cycle — the fraction of each cycle that is high vs. low. At **50%** you get a standard square wave. At **10%** or **90%** the wave becomes thin and nasal. Range **1% – 99%**.
-
-### Tab Level
-
-Per-oscillator volume, independent of Master Volume. Use this to balance oscillators relative to each other. Range **0 – 100%**.
-
-### Play / Stop
-
-Starts or stops audio output for the **active tab** only. Each tab has its own independent play state.
-
-### Advanced Panel
-
-Click **▾ Advanced** to expand:
-
-| Control | What it does |
-|---------|--------------|
-| **Detune** | Shifts pitch up or down in cents (1/100 of a semitone). Range ±100¢. Useful for chorus/thickening effects when layering two oscillators |
-| **Zoom (cycles)** | How many waveform cycles are visible in the oscilloscope. Higher = zoomed out, useful for seeing periodic structure at high frequencies |
-| **Line thickness** | Oscilloscope waveform line width in pixels (1–4) |
-| **Color theme** | Changes the accent color for this tab's oscilloscope and controls: Green, Amber, Blue, or White |
-| **Show grid** | Toggle the amplitude grid lines and timing ruler in the oscilloscope |
+1. **Open an example** — **OSC ▾ → Open example → midnight drive** — and press **Space** to hear what
+   the app can do. Or keep the starter project: Drums, Bass, Keys and Pad tracks.
+2. **Make a beat** — double-click the Drums lane at bar 1. A drum clip appears and the dock shows the
+   step sequencer. Pick a pattern from the dropdown, or click steps to write your own.
+3. **Write a bass line** — double-click the Bass lane. Draw notes in the piano roll below.
+4. **Extend it** — drag the right edge of a clip; its pattern repeats to fill it.
+5. **Add sections** — double-click the SECTIONS row at bar 9 to start a "Verse". Right-click a section
+   to loop it, duplicate it (with everything in it), or delete it.
+6. **Mix** — open the **MIXER** tab. Turn up **SC** (sidechain) on the bass so it ducks under the kick.
+7. **Save** — Ctrl+S downloads a `.oscproject` file. Your session is also kept automatically.
 
 ---
 
-## The Oscilloscope
+## The Arrangement
 
-The large canvas in the middle of the screen renders a real-time waveform display at 60 fps. The horizontal axis is time (labeled in milliseconds or microseconds); the vertical axis is amplitude (−1.0 to +1.0).
+### Tracks
 
-### Single mode (default)
+Each track has a **sound source**, shown under its name:
 
-Shows only the active tab's waveform, rendered in the tab's accent color. Amplitude grid lines and timing labels are drawn when **Show grid** is on.
+| Source | Plays | Add with |
+|--------|-------|----------|
+| **Instrument** | One of the 161 presets in the instrument library | **+ Instrument** |
+| **Drum kit** | Drum patterns from the step sequencer | **+ Drums** |
+| **Oscillator** | A waveform from the OSC LAB (optional) | **+ Oscillator**, or ⋯ → *Use an oscillator* |
 
-### Overlay mode
+Track header controls:
 
-Click **OVERLAY** in the header to switch. All oscillators are drawn simultaneously:
+| Control | Action |
+|---------|--------|
+| Name | Double-click to rename |
+| Sound name | Click to choose a different instrument (or open the drum editor) |
+| Slider | Track volume (same as the mixer fader) |
+| **M** / **S** | Mute / solo. Solos add up — solo two tracks to hear both |
+| **A** | Show the track's automation row |
+| **⋯** or right-click | Change sound, colour, duplicate, move up/down, delete |
 
-- Each oscillator renders in its tab color at 60% opacity (100% if it is the active tab)
-- Muted oscillators render at 18% opacity
-- A **white SUM** waveform is drawn on top, showing the mixed output clipped to ±1.0
-- A legend in the top-right corner identifies each tab by color and label
+Mute works like a hardware mute: it silences notes that are already ringing, and un-muting brings a
+held pad straight back.
 
-To return to single mode, click **OVERLAY** again.
+### Clips
 
----
+Clips are regions on a track's lane. Each one plays a **pattern** of notes (or a drum pattern).
 
-## Working with Multiple Oscillators
+| To… | Do this |
+|-----|---------|
+| Create a clip | Double-click an empty spot on a lane |
+| Edit it | Click it — the dock's EDITOR shows its pattern. Double-click opens the editor if it's closed |
+| Move it | Drag it — also onto another track of the same kind |
+| Copy it | **Alt**-drag, or **Ctrl+D** to duplicate it right after itself |
+| Loop it | Drag the right edge past the pattern's length — the pattern repeats (dashed lines mark each repeat) |
+| Trim the start | Drag the left edge — the clip starts later in its pattern |
+| Split it | **Ctrl+E** splits at the playhead; or right-click → Split |
+| Mute it | Right-click → Mute clip |
+| Delete it | **Delete**, or right-click → Delete |
 
-### Adding an oscillator
+Edges and positions snap to the **GRID** (bar, beat, 1/8 or 1/16). Hold **Shift** while dragging to
+ignore it.
 
-Click **+ OSC** at the right end of the tab bar. A new tab appears with default settings (sine wave, 440 Hz). The sequencer automatically gains a matching track.
+### Linked clips
 
-### Renaming a tab
+**Duplicate** makes an independent copy, as in Ableton and Logic — edit it without touching the
+original. **Duplicate as linked** (right-click) shares the pattern instead: both clips change when you
+edit either one. Linked clips show **⧉** before their name; **Make unique** splits one off.
 
-**Double-click** the tab label to edit it inline. Press Enter or click elsewhere to confirm; press Escape to cancel.
+### Sections
 
-### Reordering tabs
+The top row of the ruler holds the song's **sections** — Intro, Verse, Build, Drop and so on. Each
+section runs from its marker to the next one.
 
-**Drag** a tab left or right to reorder it.
+| To… | Do this |
+|-----|---------|
+| Add a section | Double-click the sections row where it should start |
+| Rename | Double-click the section's name |
+| Move its start | Drag it |
+| Jump there | Click it |
 
-### Removing a tab
+Right-click a section for:
 
-Click the **×** button on a tab. The tab must not be the last one (minimum one oscillator). Its sequencer track and all notes are removed.
+- **Loop this section** — sets the loop to exactly that section, for working on one part
+- **Duplicate section** — copies every clip and automation point in it to straight after it and
+  pushes the rest of the song along. This is how you go from one chorus to two
+- **Delete section and its content** — removes the clips that start in it and closes the gap
+- **Remove marker only** — merges it into the previous section without touching any clips
+- **Split section at this bar**, **Colour**, **Rename**
 
-### Mute and Solo
+### The bar ruler and loop
 
-Each tab has **M** (mute) and **S** (solo) indicators visible in the tab bar:
+- **Click** the bar ruler to move the playhead (it restarts from there if playing)
+- **Drag** across it to set the loop range and turn looping on
+- **Drag** the loop's edges to adjust it; **L** toggles looping
+- If you start playback *after* the loop's end, it plays straight through — the loop only engages
+  when the playhead reaches it
 
-- **Mute (M)**: silences this oscillator. Shown in yellow when active. Other oscillators are unaffected.
-- **Solo (S)**: silences all *other* oscillators. Only one tab can be soloed at a time. Shown in the tab's accent color when active.
-
-Mute and Solo can also be toggled from the Waveform/Controls panel and from the Mixer.
-
-### Balancing levels
-
-Use **Tab level** (in the Controls panel) or the **volume fader** in the Mixer to set each oscillator's relative level. The **Master Volume** slider in the header applies to the combined output of all oscillators.
-
----
-
-## The Sequencer
-
-Click **SEQUENCER** in the header to open the sequencer panel. Click again to close it. The sequencer panel shrinks the oscilloscope but does not stop audio playback.
-
-The sequencer contains:
-- **Transport bar** — play/stop/BPM/loop controls
-- **Track toolbar** — switch between tracks, open Mixer, save/load project
-- **Piano Roll** — canvas-based note editor for the selected track
-
----
-
-## Piano Roll Editor
-
-### Drawing your first note
-
-1. Open the sequencer and click **▶ PLAY** — or keep it stopped while you compose
-2. Make sure **✎ DRAW** mode is selected in the transport bar
-3. Click anywhere on the piano roll grid (right of the piano keys, below the ruler) to place a note
-4. The note is created at the pitch corresponding to the row you clicked and snapped to the current grid
-5. Drag left/right while holding the mouse button to resize the note before releasing
-
-### Selecting notes
-
-Switch to **⊹ SELECT** mode in the transport bar.
-
-- Click a note to select it
-- Shift-click to add/remove from the selection
-- Click-drag on empty space to draw a **selection box** — all notes touched by the box are selected
-
-### Moving notes
-
-In either mode, **click and drag** the body of an existing note to move it. The note snaps to the grid while dragging.
-
-### Resizing notes
-
-Drag the **right edge** of a note (within 8 pixels of the right side) to resize it. The minimum duration is 1/16 beat.
-
-### Deleting notes
-
-- **Draw mode**: right-click a note to delete it immediately
-- **Select mode**: select notes and press **Delete** or **Backspace**
-
-### Note velocity
-
-Notes are created at the default velocity (100/127). Velocity controls how loudly each note plays. It is shown as note opacity — darker notes are quieter.
-
-**Editing velocity:** click **VEL** in the transport bar to reveal the velocity lane below the piano roll. Each note appears as a vertical bar; drag a bar up or down to raise or lower velocity. Selected notes are shown in white. Click **VEL** again to hide the lane.
-
-### Snap-to-grid
-
-The **SNAP** selector in the transport bar controls the grid resolution:
-
-| Value | Duration |
-|-------|----------|
-| 1/1   | Whole note (4 beats) |
-| 1/2   | Half note (2 beats) |
-| 1/4   | Quarter note (1 beat) |
-| 1/8   | Eighth note (½ beat) |
-| 1/16  | Sixteenth note (¼ beat) — default |
-| 1/32  | Thirty-second note (⅛ beat) |
-
-Snap applies to note placement and movement. Hold **Shift** during drag to move freely without snapping (fine adjustment).
-
-### Undo / Redo
-
-- **Ctrl+Z** (or **⌘Z** on Mac): undo last note operation
-- **Ctrl+Shift+Z** (or **⌘Shift+Z**): redo
-- The ↩ and ↪ buttons in the transport bar do the same
-- Up to 50 undo levels are kept
-
-### Scrolling and zooming
-
-On the piano roll canvas:
+### Navigating
 
 | Gesture | Action |
 |---------|--------|
-| Scroll wheel (up/down) | Scroll horizontally through time |
-| Shift + scroll | Scroll vertically through pitch range |
-| Ctrl + scroll (or ⌘ + scroll) | Zoom in/out horizontally |
+| Wheel | Scroll tracks up and down |
+| Shift+wheel, or the scrollbar | Scroll through time |
+| Ctrl+wheel | Zoom around the mouse |
+| **FIT** | Show the whole song |
+| **LENGTH** | Song length in bars (grows automatically when you place clips further out) |
 
 ---
 
-## Transport Controls
+## The Editor
 
-### Play / Stop
+Select a clip and the **EDITOR** tab shows it: the piano roll for instrument tracks, the drum step
+sequencer for drum tracks.
 
-The **▶ PLAY** / **■ STOP** button starts and stops sequencer playback. This is separate from the per-tab Play buttons in the oscillator controls — the sequencer plays its own scheduled notes through its own audio nodes.
+### The pattern column
 
-### Stop and Reset (⏹)
+On the left: the track, the **pattern name**, its **LOOP** length, how many notes it has, whether
+it's linked to other clips, **CLEAR NOTES**, and the track's **arpeggiator**.
 
-Stops playback and returns the playhead to the loop start (if looping is on) or beat 0.
+The pattern's loop length is also the bright bar along the piano roll's ruler — drag its handle to
+change it. Notes beyond it are dimmed and don't play. Drawing a note past the end extends the loop
+to the next bar.
 
-### Rewind (⏮)
+### Drawing notes
 
-Returns the playhead to beat 0 and stops if playing.
+In **✎ DRAW** mode (the default):
 
-### BPM
+- **Click** an empty cell to add a note of the **NOTE** length; drag right while still holding to
+  stretch it
+- **Drag** a note to move it in time and pitch; drag its right edge to resize it
+- **Right-click** a note to delete it
+- Hold **Alt** while clicking to place a note off the grid
 
-Type a value between 20 and 300. Changes take effect immediately, even during playback.
+Every note you draw or drag plays through the track's actual instrument, so you hear what you're
+writing. Click the piano keys on the left to audition a pitch.
 
-### Time signature (/BAR)
+### Selecting
 
-Sets how many beats are in one bar (affects the ruler and bar-line display). Options: 2, 3, 4, 6, 8.
+In **⬚ SELECT** mode, drag a box to select notes; **Shift+click** adds or removes one. In either
+mode, **Ctrl+A** selects all. Dragging a selected note moves the whole selection.
 
-### Loop (↻ LOOP)
+With notes selected:
 
-When enabled, playback loops between **loopStartBeat** (0 by default) and **loopEndBeat** (16 beats by default). The loop region is shown as a colored overlay in the piano roll.
+| Key | Action |
+|-----|--------|
+| **↑** / **↓** | Transpose a semitone (Shift: an octave) |
+| **Q** | Quantize to the grid |
+| **Ctrl+C** / **Ctrl+V** | Copy, then paste right after the selection |
+| **Delete** | Delete |
+| **Escape** | Deselect |
 
-### Song Length (BARS)
+### Velocity
 
-Sets the total song length in bars (1–128). Used for display and for determining the loop end when no custom loop region is set. Actual scheduling is not capped — notes beyond the song length will still play.
+Toggle **VEL** for a velocity lane under the notes and drag a bar up or down. Velocity changes tone as
+well as level — see *Why the instruments respond to how hard you play* below.
 
-### NOTE length
+### Grid and zoom
 
-Sets the duration of **newly drawn notes**. Same grid options as SNAP (1/1 – 1/32). Changing NOTE length does not affect existing notes.
+**GRID** sets the snap; hold **Shift** while dragging to ignore it. **Ctrl+wheel** zooms around the
+mouse, **wheel** scrolls in time, **Shift+wheel** scrolls in pitch.
 
-### VEL (velocity lane)
+### Computer keyboard piano
 
-Toggles the 50 px velocity lane below the piano roll. See [Note velocity](#note-velocity).
+While the editor has focus (you clicked in it last), letter keys play notes through the track's
+instrument:
 
-### Q (quantize)
+```
+ W  E     T  Y  U     O  P
+A  S  D  F  G  H  J  K  L  ;
+C4 D4 E4 F4 G4 A4 B4 C5 D5 E5
+```
 
-Snaps all **selected** notes to the nearest SNAP grid line. Equivalent to pressing the **Q** key. Disabled when nothing is selected.
+Click the arrangement to give keyboard focus back to it.
 
 ---
 
-## The Mixer
+## Transport
 
-Click **MIXER** in the sequencer toolbar to reveal the mixer panel below the piano roll.
-
-The mixer has one column per oscillator tab plus a **MASTER** strip on the left.
-
-Each channel strip contains:
-- **Label** and **color dot** identifying the oscillator
-- **VU meters** (two bars) showing the current output level from green through amber to red
-- **Volume fader** — drag vertically to set this tab's level (same as Tab Level in the controls panel)
-- **Pan slider** — drag left/right, shows `L50`, `C`, `R50`, etc.
-- **M** / **S** — mute and solo buttons
-
-The **MASTER** strip controls the global output volume (same as the Master slider in the header).
-
-> Note: VU meters tap the master output and show the blended signal — all channels show the same level reading, reflecting the overall mix.
+| Control | Action |
+|---------|--------|
+| **⏮** (Home) | Back to the loop start, press again for bar 1 |
+| **▶ PLAY / ■ STOP** (Space) | Play from the playhead; stopping leaves the playhead where it stopped |
+| **⏹** | Stop; when already stopped, return to the start |
+| **● REC** | Record the master output — see *Recording* |
+| Position | Bar.beat.sixteenth and elapsed time |
+| **BPM** | Type a tempo and press Enter; **↑/↓** nudge by 1 (Shift: 10). Changing it while playing doesn't jump the playhead |
+| **4/4** | Beats per bar |
+| **↻ LOOP** (L) | Loop the range shown on the ruler |
+| **♩ CLICK** (K) | Metronome, accented on the downbeat |
 
 ---
 
 ## The Drum Machine
 
-Click **DRUMS** in the header to open the drum panel. (Drum voices feed the master FX rack —
-see **Master Effects** below for the room they sit in.) Every sound is synthesized live by the
-Web Audio API — there are no sample files, so nothing to download and nothing to go missing.
+Drums live on **drum tracks** in the arrangement. Select a drum clip — or a drum track — and the
+**EDITOR** tab of the dock shows this step sequencer. Every sound is synthesized live by the Web
+Audio API — there are no sample files, so nothing to download and nothing to go missing. Drum
+voices feed the master FX rack; see **Master Effects** for the room they sit in.
 
 ### Playing a pattern
 
-1. Pick a pattern from the dropdown — patterns are grouped by genre (Rock, Hip-Hop,
-   Electronic, Funk, Jazz, Latin, World)
-2. Press **▶ PLAY**
-3. Leave **SYNC** lit to follow the sequencer's BPM, or turn it off and set an independent tempo
+Drum clips play **drum patterns** from a shared library of 34 genre presets plus anything you make.
 
-The drum machine loops its pattern independently of the sequencer's transport, so you can
-audition a beat while writing notes in the piano roll.
+1. Double-click a drum track's lane — a clip appears using the pattern currently selected in the editor
+2. Pick a different pattern from the dropdown (grouped by genre) and it swaps into the selected clip
+3. Stretch the clip and the pattern repeats to fill it, like any other clip
+
+Several clips can play the same pattern; the editor says so (“Used by 3 clips”) because editing it
+changes all of them. Use **⧉** (duplicate) first if you want a variation for one section.
+
+**▶ AUDITION** loops the pattern on its own, which is handy while building a beat. The song's
+transport plays the arrangement.
 
 ### The step grid
 
@@ -377,7 +339,7 @@ future version adds new voices or presets, your patterns are migrated rather tha
 
 ## The Instrument Library
 
-Click **INSTRUMENTS** in the header. This is a library of 161 synthesized instruments across
+Open the **INSTRUMENTS** tab of the dock (Alt+I). This is a library of 161 synthesized instruments across
 eighteen categories:
 
 | Group | Categories |
@@ -402,17 +364,16 @@ A small dot on a card means you've customized that preset's parameters.
 
 ### Assigning an instrument to a track
 
-1. Choose the target track in the **ASSIGN TO** dropdown (top-right)
+1. Select an instrument track in the arrangement (click its header)
 2. Hover a preset card and click **SET**
 
-The track appears in the **ACTIVE** bar. From that point, when the sequencer plays that track's
-notes it builds a fresh instrument voice per note instead of using the track's raw oscillator —
-so you get real envelopes, filters, and polyphony rather than a single sliding tone.
+The card shows **ON TRACK** for the selected track's current sound, and every card lists which
+tracks use it. Changing a track's sound is undoable (Ctrl+Z).
 
-Click the **×** next to an assignment to return that track to its plain oscillator.
+You can also open this tab from a track: click the sound name under the track's name, or use the
+track's ⋯ menu → **Choose instrument…**.
 
-> The track's own **Amplitude** still scales the instrument, and the mixer's **Pan** still
-> applies, so the mixer keeps working exactly as before.
+> The track's channel strip still applies on top — its fader, pan, EQ and sends.
 
 ### Editing instrument parameters
 
@@ -460,9 +421,41 @@ full arrangement.
 
 ---
 
+## The Mixer
+
+Open the **MIXER** tab (Alt+X). Every track has a channel strip; the master strip is on the right.
+
+| Section | Controls |
+|---------|----------|
+| **EQ** | HI (high shelf, 4 kHz), MID (peak, 1.2 kHz), LO (low shelf, 200 Hz), ±18 dB. Double-click to reset |
+| **SENDS** | REV / DLY / CHO — this track's level into the master reverb, delay and chorus |
+| **SC** | Sidechain: how far this track ducks under the kick |
+| Meter + fader | Post-fader peak level for *this track*, and its level up to 150% (double-click: 100%) |
+| **PAN** | Stereo position (double-click: centre) |
+| **M** / **S** | Mute and solo — the same as the track header |
+
+A label shown dim is being driven by an automation lane; the control is ignored while the lane is on.
+
+### Sidechain ducking
+
+Turn **SC** up on a bass or pad and every kick on a drum track pulls it down briefly. This is what
+makes four-to-the-floor music breathe: the kick and bass stop masking each other on every downbeat.
+Start around 50–70% on sub and bass, 20–30% on pads, and leave leads alone.
+
+Any of the three kick voices on any drum track triggers it. Kicks are never ducked themselves unless
+you turn SC up on the drum track.
+
+### Two layers of sends
+
+A preset carries its own send levels (the instrument's character, set in the **INSTRUMENTS**
+right-click editor) and the channel adds its own on top (the mix engineer's choice). Preset sends
+default low and channel sends default to zero, so nothing doubles up until you ask for it.
+
+---
+
 ## Master Effects
 
-Click **FX** in the header. These are **send** effects: instead of each sound carrying its own
+Open the **FX** tab of the dock (Alt+F). These are **send** effects: instead of each sound carrying its own
 reverb, every instrument and drum voice feeds one shared rack. That is how records are mixed,
 and it is why a piano and a guitar sitting in the same reverb sound like they are in the same
 room rather than two different ones.
@@ -517,21 +510,20 @@ only if you want to hear the raw sum.
 
 ## Automation
 
-Click **AUTO** in the sequencer toolbar. This is the feature that separates a loop
-from an arrangement: instead of one fixed value per parameter, you draw how it moves
-across the song.
+Automation draws how a parameter moves across the song instead of leaving it at one value — the
+filter sweep under a build, a reverb throw on the last beat, a pad swelling in.
 
 ### Drawing a lane
 
-1. Pick a parameter from the **+ add…** dropdown — Filter Cutoff, Resonance, Drive,
-   Volume, Pan, the three EQ bands, or the three effect sends
-2. **Click** anywhere in the lane to add a point
-3. **Drag** a point to move it; hold **Shift** while dragging to ignore the snap grid
-4. **Right-click** a point to delete it
+1. Click **A** on a track header. An automation row opens directly underneath the track, lined up
+   with its clips and sharing the arrangement's zoom and scroll
+2. Pick a parameter from **+ parameter…** — Filter Cutoff, Resonance, Drive, Volume, Pan, the three
+   EQ bands, or the three effect sends
+3. **Click** in the row to add a point, **drag** to move one, **right-click** to delete; hold
+   **Shift** to place off the grid
 
-Points are joined by straight lines. Before the first point and after the last, the
-lane holds that point's value. The number at the left edge reads out the lane's value
-at the playhead.
+A track can have one lane per parameter; switch between them with the dropdown. **ON/OFF**
+bypasses a lane without losing its points.
 
 ### What each lane does
 
@@ -555,22 +547,15 @@ back to the fader.
 
 ### Lanes loop with the loop
 
-Lane positions are read in looped time, so an eight-bar sweep repeats with an eight-bar
-loop rather than running off the end.
-
-### Using volume lanes as an arrangement
-
-There is no separate arranger view. Instead, give each track a volume lane that starts
-at zero and steps up where that part should enter. That is how `midnight-drive.oscproject`
-builds from a pad to a full five-track mix, and it means intro/build/drop are just
-shapes you draw.
+Automation is written in song time, so it follows the arrangement: a sweep drawn under the
+Drop plays wherever the Drop is. With **LOOP** on, the lane repeats with the loop.
 
 ---
 
 ## The Arpeggiator
 
-Each track has one, in the track header to the left of the piano roll. Click **ARP** to
-turn it on.
+Each instrument track has one, in the left column of the note editor. Click **ARP** to turn it on;
+it applies to every clip on the track, and the track header shows an **ARP** badge.
 
 Hold a chord — draw three or four long overlapping notes — and the arpeggiator expands
 it into a running pattern at playback. Notes whose spans overlap are treated as one
@@ -587,49 +572,115 @@ chord; a new chord starts wherever the overlap breaks.
 rather than stuttering at each end.
 
 The piano roll still shows your long chords — the expansion happens on the way to the
-audio engine. Editing four held notes is a great deal less work than editing sixty-four
+audio engine, once per pattern. Editing four held notes is a great deal less work than editing sixty-four
 sixteenths, and transposing the harmony is a three-note move.
 
 ---
 
-## Channel Strips and Sidechain
+## The Oscillator Lab
 
-Every track now has a full channel strip in the **MIXER**, not just a fader.
+The oscillator lab is the original heart of OSC: raw waveforms, a live oscilloscope, and controls for
+frequency, phase and pulse width. Switch to it with **OSC LAB** at the top right.
 
-| Section | Controls |
-|---------|----------|
-| **EQ** | HI (high shelf, 4 kHz), MD (peaking, 1.2 kHz), LO (low shelf, 200 Hz), ±18 dB each |
-| **SEND** | RV / DL / CH — this track's level into the master reverb, delay and chorus |
-| **SIDECHAIN** | Duck depth under the drum machine's kick |
-| **Fader / PAN / M / S** | Level (up to 150%), position, mute, solo |
+It's **optional**. Tracks play instrument presets by default and nothing in a song depends on the
+lab. But any lab oscillator can be a track's sound — **+ Oscillator** in the arrangement, or a track's
+⋯ menu → **Use an oscillator** — and then:
 
-Raw-oscillator tracks and instrument-assigned tracks both run through the same strip,
-so EQ and sends work either way.
+- the track plays its notes with that oscillator's waveform, pulse width and detune
+- it's polyphonic, so chords work
+- cutoff and resonance automation still apply (a low-pass filter sits after the oscillator)
+- editing the oscillator in the lab changes how the track sounds; the lab tells you which tracks use it
 
-### Sidechain ducking
+Removing a lab oscillator that a track uses switches that track to Electric Piano rather than leaving
+it silent. You'll be asked first.
 
-Turn **SC** up on a bass or pad track, then play a pattern with a kick in it. Every kick
-pulls that track down and releases it over about a quarter of a second.
+### Lab tabs
 
-This is what makes four-to-the-floor material breathe: without it the kick and the bass
-occupy the same moment and mask each other on every downbeat. Start around 50–70% on sub
-and bass, 20–30% on pads, and leave leads alone.
+| To… | Do this |
+|-----|---------|
+| Add an oscillator | **+ OSC** at the end of the tab bar |
+| Rename | Double-click its tab |
+| Reorder | Drag its tab |
+| Remove | **×** on its tab (one always remains) |
+| Hear it on its own | **▶ PLAY** in the controls — a continuous tone for sound design |
 
-The duck is triggered by the drum machine's three kick voices. It needs the drum machine
-to be playing — it does not follow kicks you draw in the piano roll.
+The lab's own mute and solo apply to these continuous tones only, not to arrangement tracks.
 
-### Two layers of sends
+### Oscillator controls
 
-A preset carries its own send levels (the instrument's character, set in the
-**INSTRUMENTS** right-click editor) and the channel adds its own on top (the mix
-engineer's choice). Preset sends default low and channel sends default to zero, so
-nothing doubles up until you ask for it.
+#### Waveform
+
+Four buttons select the oscillator waveform:
+
+| Button | Waveform | Sound character |
+|--------|----------|-----------------|
+| `sine` | Sine | Pure, smooth, flute-like |
+| `sqr`  | Square | Hollow, nasal, clarinet-like |
+| `saw`  | Sawtooth | Bright, buzzy, string/brass-like |
+| `tri`  | Triangle | Soft, mellow, between sine and square |
+
+#### Frequency
+
+- Range: **20 Hz – 20 000 Hz**
+- The slider is **logarithmic** so equal slider distances correspond to equal musical intervals (octaves)
+- Type a frequency directly into the numeric input on the right and press Enter or Tab to commit; press Escape to cancel
+
+#### Amplitude
+
+Controls how loud this oscillator is. Range **0.0 – 1.0**.
+
+#### Phase
+
+Shifts the starting point of the waveform. Audible only when two oscillators play the same frequency — shifting one by 180° (π radians) causes them to partially cancel. Range **0° – 360°**.
+
+#### Pulse Width
+
+Only active when the **square** waveform is selected. Controls the duty cycle — the fraction of each cycle that is high vs. low. At **50%** you get a standard square wave. At **10%** or **90%** the wave becomes thin and nasal. Range **1% – 99%**.
+
+#### Tab Level
+
+Per-oscillator volume, independent of Master Volume. Use this to balance oscillators relative to each other. Range **0 – 100%**.
+
+#### Play / Stop
+
+Starts or stops audio output for the **active tab** only. Each tab has its own independent play state.
+
+#### Advanced Panel
+
+Click **▾ Advanced** to expand:
+
+| Control | What it does |
+|---------|--------------|
+| **Detune** | Shifts pitch up or down in cents (1/100 of a semitone). Range ±100¢. Useful for chorus/thickening effects when layering two oscillators |
+| **Zoom (cycles)** | How many waveform cycles are visible in the oscilloscope. Higher = zoomed out, useful for seeing periodic structure at high frequencies |
+| **Line thickness** | Oscilloscope waveform line width in pixels (1–4) |
+| **Color theme** | Changes the accent color for this tab's oscilloscope and controls: Green, Amber, Blue, or White |
+| **Show grid** | Toggle the amplitude grid lines and timing ruler in the oscilloscope |
+
+### The oscilloscope
+
+The large canvas in the middle of the screen renders a real-time waveform display at 60 fps. The horizontal axis is time (labeled in milliseconds or microseconds); the vertical axis is amplitude (−1.0 to +1.0).
+
+#### Single mode (default)
+
+Shows only the active tab's waveform, rendered in the tab's accent color. Amplitude grid lines and timing labels are drawn when **Show grid** is on.
+
+#### Overlay mode
+
+Click **OVERLAY** at the end of the lab tab bar. All oscillators are drawn simultaneously:
+
+- Each oscillator renders in its tab color at 60% opacity (100% if it is the active tab)
+- Muted oscillators render at 18% opacity
+- A **white SUM** waveform is drawn on top, showing the mixed output clipped to ±1.0
+- A legend in the top-right corner identifies each tab by color and label
+
+To return to single mode, click **OVERLAY** again.
 
 ---
 
 ## The Visualizer
 
-Click **VIZ** in the header. It is **off by default and does not survive a reload** on
+Click **VIZ** at the top right. It is **off by default and does not survive a reload** on
 purpose — it taps the master bus with an FFT analyser and runs a redraw loop, which is
 real CPU you shouldn't pay for unless you're looking at it.
 
@@ -652,109 +703,111 @@ thing here — then drop to 30 FPS.
 
 ---
 
-## Recording Audio
+## Recording
 
-### Starting a recording
+### Making a recording
 
-1. **Play** at least one oscillator first (this creates the AudioContext)
-2. Click the **● REC** button at the bottom of the window
-3. The button turns red and pulses, showing elapsed time (MM:SS)
+Click **● REC** in the transport. If the song is stopped, playback starts from the playhead. The button
+shows elapsed time while recording.
 
-### Stopping and downloading
+Click **● REC** again to finish — or just stop the transport, which ends the take so a recording never
+trails off into silence.
 
-Click **● REC** again to stop. Two download buttons appear:
+### Downloading
+
+**↓ WAV** and **↓ WebM** appear next to the REC button:
 
 | Button | Format | When to use |
 |--------|--------|-------------|
-| **↓ WebM** | Compressed audio (Opus codec) | Smallest file, works in all modern browsers |
-| **↓ WAV** | Uncompressed 16-bit PCM | Lossless, compatible with any audio editor |
+| **↓ WAV** | Uncompressed 16-bit PCM | Lossless — for any audio editor or DAW |
+| **↓ WebM** | Compressed (Opus) | Smallest file |
 
-WAV export decodes the compressed recording and re-encodes to PCM — this takes a moment for long recordings.
+The recording is taken after the master limiter, so it's exactly what you heard.
 
 ### Practical limits
 
-- Recording length is limited only by available RAM. Each second at 48 kHz stereo in the compressed format is approximately 6–12 KB
-- Very long recordings (> 30 minutes) may cause the WAV export to fail due to the large ArrayBuffer required for decoding — use WebM for archiving long sessions
-- The recording captures the mixed output of all playing oscillators through the master gain
-
-### Troubleshooting silence
-
-- Recording captures whatever is playing through the Web Audio API. If no oscillator tab is active (playing), the recording will contain silence
-- Start at least one oscillator before beginning the recording
+- Length is limited by memory: compressed audio is roughly 6–12 KB per second
+- WAV conversion decodes the whole take at once; for recordings over ~30 minutes use WebM
 
 ---
 
-## Saving and Loading Projects
+## Projects and Saving
 
-The app automatically saves your full session (oscillators, sequencer, settings) to `localStorage` in the browser — your work persists across page reloads without any manual action.
+### Your session is saved automatically
 
-Project files (`.oscproject`) let you share or archive specific compositions. They save the sequencer state but not oscillator tone settings (waveform, frequency, etc.).
+Everything — tracks, clips, patterns, sections, mixer, lab oscillators, drum patterns, effects — is
+kept in the browser and restored when you come back. Saving is batched and skipped during playback,
+so it costs nothing while you work.
 
-### Saving
+### Project files
 
-Click **↓ SAVE** in the sequencer toolbar. A file named `osc-project-<timestamp>.oscproject` is downloaded. This is a JSON file you can open in a text editor.
+**OSC ▾** (the logo) is the file menu:
 
-### Loading
+| Item | Action |
+|------|--------|
+| **New project** | Starts a fresh arrangement (asks first if this one has clips) |
+| **Open…** (Ctrl+O) | Loads a `.oscproject` file |
+| **Save** (Ctrl+S) | Downloads the project as `<project name>.oscproject` |
+| **Open example** | Loads one of the bundled examples |
 
-Click **↑ LOAD** and select an `.oscproject` or `.json` file. The sequencer tracks are replaced with the loaded data. A warning is shown if the file version doesn't match or required fields are missing.
+Click the project name next to the logo to rename it.
 
-### What is saved
+A project file contains the complete song: tracks and their sounds, clips, patterns, sections,
+automation, mixer settings, tempo and loop — plus the drum patterns and lab oscillators it uses, so it
+opens the same way on another computer. Patterns no clip uses are left out.
 
-| Saved | Not saved |
-|-------|-----------|
-| BPM | Waveform type per oscillator |
-| Time signature | Frequency, amplitude, phase |
-| Song length | Pulse width |
-| Notes per track | Advanced settings (detune, zoom, color) |
-| Track pan | Mute/solo state |
-| Master volume | Whether oscillators are currently playing |
+### Older project files
+
+Files from before the arrangement view (format 1.0) still open. Each old track becomes a track with a
+single clip holding its notes, at exactly the same positions. Those files didn't record which
+instrument each track used, so one is picked from the part's range — a low part gets a bass, long
+held notes a pad — and a notice says so. Change any of them from the track header.
+
+Sessions saved in the browser by earlier versions migrate automatically, and keep their sound: a
+track that had an instrument assigned keeps it, and one that played an oscillator keeps playing it
+through the lab.
 
 ---
 
 ## Keyboard Shortcuts
 
-### Piano roll editing
+Shortcuts never fire while you're typing in a text field.
+
+### Everywhere
 
 | Shortcut | Action |
 |----------|--------|
-| **Ctrl+Z** | Undo |
-| **Ctrl+Shift+Z** | Redo |
-| **Delete** / **Backspace** | Delete selected notes |
-| **Right-click** on note | Delete note (Draw mode) |
-| **Ctrl+C** | Copy selected notes to clipboard |
-| **Ctrl+V** | Paste notes at playhead position |
-| **Ctrl+A** | Select all notes in the current track |
-| **Escape** | Deselect all notes |
-| **Q** | Quantize selected notes to the current snap grid |
-| **Shift+click** | Toggle note in/out of selection |
+| **Space** | Play / stop |
+| **Home** | Return to start |
+| **Ctrl+Z** / **Ctrl+Shift+Z** (or **Ctrl+Y**) | Undo / redo |
+| **Ctrl+S** / **Ctrl+O** | Save / open project |
+| **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
 
-### Piano roll navigation
+### Arrangement (after clicking in it)
 
 | Shortcut | Action |
 |----------|--------|
-| **Ctrl+scroll** | Zoom in/out horizontally |
-| **Shift+scroll** | Scroll vertically (pitch range) |
-| **Scroll** | Scroll horizontally (time) |
+| **Delete** | Delete the selected clip |
+| **Ctrl+D** | Duplicate the selected clip |
+| **Ctrl+E** | Split the selected clip at the playhead |
+| **M** / **S** | Mute / solo the selected track |
+| **↑** / **↓** | Select the track above / below |
+| **L** / **K** | Toggle loop / metronome |
+| **Escape** | Deselect the clip |
+| **Alt**-drag | Copy a clip |
+| **Shift**-drag | Move or trim off the grid |
 
-### Computer keyboard piano
-
-When the piano roll is visible, letter keys preview notes through the current tab's oscillator:
-
-```
-Key layout (home row = C4):
-W  E     T  Y  U     O  P
-A  S  D  F  G  H  J  K  L  ;
-C4 D4 E4 F4 G4 A4 B4 C5 D5 E5
-```
-
-Hold multiple keys to play chords. The notes use the tab's waveform and amplitude settings.
-
-### General
+### Editor (after clicking in it)
 
 | Shortcut | Action |
 |----------|--------|
-| **Double-click tab label** | Rename tab |
-| **Drag tab** | Reorder tabs |
+| **A W S E D F T G Y H U J K O L P ;** | Play notes (C4 on A) |
+| **Delete** | Delete selected notes |
+| **Ctrl+A / C / V** | Select all / copy / paste |
+| **↑ / ↓** (Shift: octave) | Transpose selected notes |
+| **Q** | Quantize selected notes |
+| **Escape** | Deselect notes |
+| **Right-click** | Delete a note |
 
 ---
 
@@ -762,13 +815,12 @@ Hold multiple keys to play chords. The notes use the tab's waveform and amplitud
 
 | Problem | Likely cause | Solution |
 |---------|-------------|----------|
-| No sound when clicking Play | Browser autoplay policy requires a user gesture | Click anywhere on the page first, then press Play |
-| No sound from sequencer | No oscillator tab is playing | The sequencer uses its own audio nodes — sound plays regardless of tab play state. If still silent, check Master Volume |
-| REC button does nothing | AudioContext not created yet | Click **▶ PLAY** on any oscillator tab first, then use REC |
-| "Play at least one oscillator before recording" | Same as above | Same solution |
-| Audio clicks on parameter change | Should not happen — all changes use smooth transitions | If you hear clicks, report the specific parameter being changed |
-| Playhead drifts | Should not happen — scheduler uses AudioContext.currentTime | If drifting, stop and restart playback |
-| Project file won't load | Version mismatch or corrupt file | Check the error message shown in the toolbar. Re-export from the version that created it |
-| WAV download fails or is silent | Recording was empty, or file too large to decode | Ensure oscillators were playing during recording; use WebM for recordings longer than ~10 minutes |
-| VU meters are dark | No audio playing | Start at least one oscillator; meters activate once audio flows |
-| Browser zoom happens with Ctrl+scroll | Old browser without non-passive wheel support | Update browser to Chrome 98+ / Firefox 96+ / Edge 98+ |
+| Nothing plays | The browser hasn't allowed audio yet | Click anywhere on the page, then press Play |
+| A track is silent | Muted, another track is soloed, its clip is muted, or the fader is down | Check M/S on the track headers and the mixer |
+| A drum clip shows “pattern missing” | Its pattern was deleted in the drum editor | Right-click the clip → *Drum pattern* and pick another |
+| Notes past a point don't play | They're beyond the pattern's loop length | Drag the loop handle on the piano roll's ruler, or use the LOOP menu in the pattern column |
+| Letter keys play notes instead of shortcuts | The editor has keyboard focus | Click the arrangement |
+| A mixer control does nothing | An automation lane is driving it (its label is dim) | Turn the lane OFF, or edit the lane |
+| Crackling with many tracks | CPU load | Close the visualizer, or turn its GLOW off and drop it to 30 FPS |
+| WAV download fails | Very long take | Use WebM for recordings over ~30 minutes |
+| An old project loads with odd instruments | Format 1.0 files don't record instruments | Pick the right ones from each track header — a notice explains this on load |

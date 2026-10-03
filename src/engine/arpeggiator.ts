@@ -1,4 +1,4 @@
-import { SNAP_BEATS, makeNoteId } from '../utils/music';
+import { SNAP_BEATS } from '../utils/music';
 import type { ArpSettings, SequencerNote } from '../utils/music';
 
 /**
@@ -98,7 +98,8 @@ export function expandArp(notes: SequencerNote[], arp: ArpSettings): SequencerNo
       if (pitch === undefined) continue;
 
       out.push({
-        id: `${makeNoteId()}-a${i}`,
+        // Derived from the chord, so re-expanding yields the same ids
+        id: `${chord.notes[0].id}-a${i}`,
         midiNote: Math.max(0, Math.min(127, pitch)),
         startBeat: chord.startBeat + i * stepBeats,
         durationBeats: stepBeats * gate,
@@ -117,6 +118,7 @@ export function expandArp(notes: SequencerNote[], arp: ArpSettings): SequencerNo
 const cache = new Map<string, { key: string; notes: SequencerNote[] }>();
 
 export function expandArpCached(
+  /** Cache slot — one per track and pattern. */
   trackId: string,
   notes: SequencerNote[],
   arp: ArpSettings,

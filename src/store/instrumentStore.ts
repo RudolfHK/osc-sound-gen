@@ -7,8 +7,6 @@ export interface InstrumentLibraryState {
   isOpen: boolean;
   category: InstrumentCategory | 'ALL';
   search: string;
-  /** tabId → presetId. A track with an assignment plays through the instrument engine. */
-  assignments: Record<string, string>;
   /** presetId → user parameter tweaks */
   overrides: Record<string, InstrumentOverride>;
 }
@@ -17,8 +15,6 @@ export type InstrumentAction =
   | { type: 'INST_OPEN'; open: boolean }
   | { type: 'INST_SET_CATEGORY'; category: InstrumentCategory | 'ALL' }
   | { type: 'INST_SET_SEARCH'; search: string }
-  | { type: 'INST_ASSIGN'; tabId: string; presetId: string }
-  | { type: 'INST_UNASSIGN'; tabId: string }
   | { type: 'INST_SET_OVERRIDE'; presetId: string; patch: InstrumentOverride }
   | { type: 'INST_RESET_OVERRIDE'; presetId: string };
 
@@ -26,7 +22,6 @@ const INITIAL: InstrumentLibraryState = {
   isOpen: false,
   category: 'ALL',
   search: '',
-  assignments: {},
   overrides: {},
 };
 
@@ -45,18 +40,6 @@ export function instrumentReducer(
 
     case 'INST_SET_SEARCH':
       return { ...state, search: action.search };
-
-    case 'INST_ASSIGN':
-      return {
-        ...state,
-        assignments: { ...state.assignments, [action.tabId]: action.presetId },
-      };
-
-    case 'INST_UNASSIGN': {
-      const next = { ...state.assignments };
-      delete next[action.tabId];
-      return { ...state, assignments: next };
-    }
 
     case 'INST_SET_OVERRIDE':
       return {
@@ -100,8 +83,10 @@ export function useInstrumentReducer(): InstrumentCtx {
     try {
       const saved = localStorage.getItem(LS_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as InstrumentLibraryState;
-        return { ...init, ...parsed, search: '' };
+        const parsed = JSON.parse(saved) as InstrumentLibraryState & { assignments?: unknown };
+        // `assignments` belonged to the pre-v2 model; the app store migrates it
+        const { assignments: _legacy, ...rest } = parsed;
+        return { ...init, ...rest, search: '' };
       }
     } catch (_) { /* corrupt or missing */ }
     return init;
@@ -111,12 +96,9 @@ export function useInstrumentReducer(): InstrumentCtx {
     try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota */ }
   }, [state]);
 
-  // Push assignments/overrides into the audio engine so the sequencer sees them
-  // whether or not the library panel is mounted.
-  useEffect(() => {
-    getInstrumentEngine().setAssignments(state.assignments);
-  }, [state.assignments]);
-
+  // Push overrides into the audio engine so the sequencer sees them whether or
+  // not the library panel is mounted. (Which preset a track plays now lives on
+  // the track itself.)
   useEffect(() => {
     getInstrumentEngine().setOverrides(state.overrides);
   }, [state.overrides]);

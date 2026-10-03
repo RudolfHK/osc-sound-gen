@@ -95,13 +95,15 @@ Leave this window open — closing it stops the server.
 
 1. Open **Chrome** or **Edge**
 2. Navigate to: **http://localhost:5173**
-3. You should see the dark oscillator interface
+3. You should see the arrangement: Drums, Bass, Keys and Pad tracks with a ruler across the top
 
 **Verify audio works:**
 
-1. Click **▶ PLAY** in the Controls area
-2. You should hear a 440 Hz sine tone
+1. Click the **OSC ▾** logo at the top left → **Open example** → **midnight drive**
+2. Press **Space** (or **▶ PLAY**) — you should hear drums, bass and synths
 3. If silent, check the speaker icon in the browser address bar — click it and allow audio
+
+For a tour of the interface, see [GUIDE.md](GUIDE.md#your-first-song).
 
 ---
 

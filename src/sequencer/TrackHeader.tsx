@@ -1,139 +1,140 @@
+import { useEffect, useState } from 'react';
 import { useAppStore } from '../store/appStore';
-import { KEY_W, SNAP_OPTIONS, ARP_MODES } from '../utils/music';
-import type { OscillatorTab } from '../engine/oscillator';
-import type { SequencerTrack, SnapValue, ArpMode } from '../utils/music';
+import { SNAP_OPTIONS, ARP_MODES } from '../utils/music';
+import type { Track, Pattern, Clip, SnapValue, ArpMode } from '../utils/music';
 
-interface TrackHeaderProps {
-  tab: OscillatorTab;
-  track: SequencerTrack;
-  height: number;
+interface Props {
+  track: Track;
+  clip: Clip;
+  pattern: Pattern;
+  /** How many clips play this pattern. */
+  uses: number;
 }
 
-export function TrackHeader({ tab, track, height }: TrackHeaderProps) {
-  const { dispatch } = useAppStore();
+const SIDEBAR_W = 196;
+
+/** Left column of the note editor: the pattern being edited and the track's arpeggiator. */
+export function ClipSidebar({ track, clip, pattern, uses }: Props) {
+  const { state, dispatch } = useAppStore();
+  const seq = state.sequencer;
   const arp = track.arp;
+  const [name, setName] = useState(pattern.name);
+  useEffect(() => setName(pattern.name), [pattern.name]);
+
+  const bars = pattern.lengthBeats / seq.beatsPerBar;
+  const label = 'text-neutral-600 tracking-widest';
 
   return (
     <div
-      className="flex flex-col border-b border-neutral-800 border-r border-r-neutral-700 shrink-0 overflow-hidden"
-      style={{ width: KEY_W + 52, minHeight: height, backgroundColor: '#111' }}
+      className="shrink-0 flex flex-col gap-2 px-2.5 py-2 border-r border-neutral-800 bg-[#101010] overflow-y-auto"
+      style={{ width: SIDEBAR_W }}
     >
-      {/* ── Identity row ── */}
-      <div className="flex items-center gap-1.5 px-2 pt-1.5 pb-1">
-        <div className="w-1 self-stretch rounded-full shrink-0" style={{ backgroundColor: tab.color }} />
-
-        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-          <span className="text-xs font-mono text-neutral-300 truncate" title={tab.label}>{tab.label}</span>
-          <span className="text-neutral-600 truncate" style={{ fontSize: 9 }}>
-            {tab.oscillator.waveform} {tab.oscillator.frequency.toFixed(0)}Hz
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-0.5 shrink-0">
-          <button
-            onClick={() => dispatch({ type: 'MUTE_TAB', id: tab.id, muted: !tab.isMuted })}
-            title={tab.isMuted ? 'Unmute' : 'Mute'}
-            className={`w-5 h-4 text-xs font-bold border leading-none transition-colors ${
-              tab.isMuted
-                ? 'border-yellow-500 text-yellow-400 bg-yellow-900/30'
-                : 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-400'
-            }`}
-          >M</button>
-          <button
-            onClick={() => dispatch({ type: 'SOLO_TAB', id: tab.id, solo: !tab.solo })}
-            title={tab.solo ? 'Unsolo' : 'Solo'}
-            style={tab.solo ? { borderColor: tab.color, color: tab.color, backgroundColor: tab.color + '22' } : {}}
-            className={`w-5 h-4 text-xs font-bold border leading-none transition-colors ${
-              !tab.solo ? 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-400' : ''
-            }`}
-          >S</button>
-        </div>
-
-        <button
-          onClick={() => {
-            dispatch({ type: 'SEQ_PUSH_UNDO' });
-            dispatch({ type: 'SEQ_CLEAR_TRACK', tabId: tab.id });
-          }}
-          title="Clear all notes on this track"
-          className="text-neutral-700 hover:text-red-400 transition-colors text-xs self-start"
-        >✕</button>
+      <div className="flex items-center gap-1.5">
+        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: track.color }} />
+        <span className="text-xs text-neutral-300 truncate">{track.name}</span>
       </div>
 
-      {/* ── Pan ── */}
-      <div className="flex items-center gap-1.5 px-2 pb-1">
-        <span className="text-neutral-600 shrink-0" style={{ fontSize: 9 }}>PAN</span>
+      <label className="flex flex-col gap-0.5">
+        <span className={label} style={{ fontSize: 9 }}>PATTERN</span>
         <input
-          type="range" min={-1} max={1} step={0.01} value={track.pan}
-          className="flex-1 h-1"
-          style={{ accentColor: tab.color }}
-          title={`Pan: ${track.pan >= 0 ? '+' : ''}${track.pan.toFixed(2)}`}
-          onChange={(e) => dispatch({ type: 'SEQ_SET_TRACK_PAN', tabId: tab.id, pan: parseFloat(e.target.value) })}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={() => dispatch({ type: 'PATTERN_RENAME', patternId: pattern.id, name })}
+          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+          className="bg-neutral-950 border border-neutral-700 text-xs text-neutral-200 px-1.5 py-0.5 focus:outline-none focus:border-neutral-500"
         />
-        <span className="font-mono text-neutral-600 shrink-0 w-6 text-right" style={{ fontSize: 9 }}>
-          {track.pan === 0 ? 'C' : track.pan > 0 ? `R${Math.round(track.pan * 100)}` : `L${Math.round(-track.pan * 100)}`}
-        </span>
+      </label>
+
+      <label className="flex items-center justify-between gap-1" title="Pattern loop length — a longer clip repeats it">
+        <span className={label} style={{ fontSize: 9 }}>LOOP</span>
+        <select
+          value={Number.isInteger(bars) ? String(bars) : 'custom'}
+          onChange={(e) => {
+            if (e.target.value === 'custom') return;
+            dispatch({ type: 'SEQ_PUSH_UNDO' });
+            dispatch({ type: 'PATTERN_SET_LENGTH', patternId: pattern.id, lengthBeats: parseFloat(e.target.value) * seq.beatsPerBar });
+          }}
+          className="bg-neutral-950 border border-neutral-700 text-xs text-neutral-200 px-1 py-0.5"
+        >
+          {!Number.isInteger(bars) && <option value="custom">{pattern.lengthBeats} beats</option>}
+          {[1, 2, 4, 8, 16, 32].map((b) => <option key={b} value={b}>{b} bar{b > 1 ? 's' : ''}</option>)}
+        </select>
+      </label>
+
+      <div className="text-neutral-600 leading-snug" style={{ fontSize: 10 }}>
+        {pattern.notes.length} note{pattern.notes.length === 1 ? '' : 's'}
+        {uses > 1 && (
+          <>
+            {' · '}
+            <span className="text-amber-400" title="Edits here change every linked clip">linked to {uses} clips</span>
+            <button
+              onClick={() => { dispatch({ type: 'SEQ_PUSH_UNDO' }); dispatch({ type: 'CLIP_MAKE_UNIQUE', clipId: clip.id }); }}
+              className="ml-1 underline hover:text-neutral-300"
+            >make unique</button>
+          </>
+        )}
       </div>
 
-      {/* ── Arpeggiator ──
-          Held chords become running patterns, which is how driving electronic
-          parts get written without drawing every sixteenth by hand. */}
+      <button
+        onClick={() => {
+          if (!pattern.notes.length) return;
+          dispatch({ type: 'SEQ_PUSH_UNDO' });
+          dispatch({ type: 'SEQ_CLEAR_PATTERN', patternId: pattern.id });
+        }}
+        disabled={!pattern.notes.length}
+        className="self-start px-1.5 py-0.5 text-[10px] border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-900 disabled:opacity-30"
+      >CLEAR NOTES</button>
+
+      {/* Arpeggiator — a track setting, so it applies to every clip on the track */}
       <div
-        className="mt-auto px-2 py-1 border-t border-neutral-800/60"
-        style={{ backgroundColor: arp.enabled ? tab.color + '0e' : 'transparent' }}
+        className="mt-1 pt-2 border-t border-neutral-800 flex flex-col gap-1.5"
+        style={{ backgroundColor: arp.enabled ? track.color + '0c' : undefined }}
       >
-        <div className="flex items-center gap-1 mb-1">
+        <div className="flex items-center gap-1.5">
           <button
-            onClick={() => dispatch({ type: 'SEQ_SET_ARP', tabId: tab.id, arp: { enabled: !arp.enabled } })}
-            className="px-1.5 py-0.5 text-xs border tracking-widest transition-colors"
+            onClick={() => dispatch({ type: 'SEQ_SET_ARP', trackId: track.id, arp: { enabled: !arp.enabled } })}
+            className="px-1.5 py-0.5 text-xs border tracking-widest"
             style={arp.enabled
-              ? { borderColor: tab.color, color: tab.color, backgroundColor: tab.color + '22' }
+              ? { borderColor: track.color, color: track.color, backgroundColor: track.color + '22' }
               : { borderColor: '#404040', color: '#737373' }}
-            title="Expand held chords into an arpeggio"
-          >
-            ARP
-          </button>
-          {arp.enabled && (
-            <>
+            title="Turn held chords into an arpeggio (applies to the whole track)"
+            aria-pressed={arp.enabled}
+          >ARP</button>
+          <span className="text-neutral-600" style={{ fontSize: 9 }}>track-wide</span>
+        </div>
+        {arp.enabled && (
+          <>
+            <div className="flex gap-1">
               <select
                 value={arp.rate}
-                onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', tabId: tab.id, arp: { rate: e.target.value as SnapValue } })}
-                className="bg-neutral-900 border border-neutral-700 text-neutral-300 px-0.5"
-                style={{ fontSize: 9 }}
+                onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', trackId: track.id, arp: { rate: e.target.value as SnapValue } })}
+                className="bg-neutral-950 border border-neutral-700 text-xs text-neutral-300 px-0.5"
                 title="Step length"
               >
                 {SNAP_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
               <select
                 value={arp.mode}
-                onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', tabId: tab.id, arp: { mode: e.target.value as ArpMode } })}
-                className="bg-neutral-900 border border-neutral-700 text-neutral-300 px-0.5 flex-1 min-w-0"
-                style={{ fontSize: 9 }}
+                onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', trackId: track.id, arp: { mode: e.target.value as ArpMode } })}
+                className="flex-1 min-w-0 bg-neutral-950 border border-neutral-700 text-xs text-neutral-300 px-0.5"
                 title="Direction"
               >
                 {ARP_MODES.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
-            </>
-          )}
-        </div>
-
-        {arp.enabled && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-neutral-600 shrink-0" style={{ fontSize: 9 }}>OCT</span>
-            <input
-              type="range" min={1} max={4} step={1} value={arp.octaves}
-              className="w-9 h-1" style={{ accentColor: tab.color }}
-              title={`Octave range: ${arp.octaves}`}
-              onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', tabId: tab.id, arp: { octaves: +e.target.value } })}
-            />
-            <span className="font-mono text-neutral-600 shrink-0" style={{ fontSize: 9 }}>{arp.octaves}</span>
-            <span className="text-neutral-600 shrink-0 ml-0.5" style={{ fontSize: 9 }}>GATE</span>
-            <input
-              type="range" min={0.05} max={1} step={0.05} value={arp.gate}
-              className="w-9 h-1" style={{ accentColor: tab.color }}
-              title={`Gate: ${Math.round(arp.gate * 100)}% of each step`}
-              onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', tabId: tab.id, arp: { gate: +e.target.value } })}
-            />
-          </div>
+            </div>
+            <label className="flex items-center gap-1.5 text-neutral-500" style={{ fontSize: 10 }}>
+              <span className="w-9">OCT {arp.octaves}</span>
+              <input type="range" min={1} max={4} step={1} value={arp.octaves} className="flex-1 h-1"
+                style={{ accentColor: track.color }}
+                onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', trackId: track.id, arp: { octaves: +e.target.value } })} />
+            </label>
+            <label className="flex items-center gap-1.5 text-neutral-500" style={{ fontSize: 10 }}>
+              <span className="w-9">GATE</span>
+              <input type="range" min={0.05} max={1} step={0.05} value={arp.gate} className="flex-1 h-1"
+                style={{ accentColor: track.color }}
+                onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', trackId: track.id, arp: { gate: +e.target.value } })} />
+            </label>
+          </>
         )}
       </div>
     </div>

@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAppStore } from '../store/appStore';
 import {
-  SEMITONE_H, KEY_W, RULER_H, MIN_NOTE_W,
-  SNAP_BEATS, midiToFreq,
-  isBlackKey, noteNameFromMidi, makeNoteId, snapBeat,
-  type SequencerNote, type SequencerTrack,
+  SEMITONE_H, KEY_W, RULER_H, MIN_NOTE_W, SNAP_BEATS,
+  isBlackKey, noteNameFromMidi, snapBeat, uid,
+  type SequencerNote, type Track, type Pattern, type Clip,
 } from '../utils/music';
-import type { OscillatorTab } from '../engine/oscillator';
+import { getInstrumentEngine } from '../engine/instruments';
 import { getAudioEngine } from '../engine/audio';
+import type { OscillatorTab } from '../engine/oscillator';
+import { getPlayhead, subscribePlayhead } from '../engine/playhead';
+import { getFocusZone, isTypingTarget, setFocusZone } from '../ui/focus';
 
 // ─── Coordinate helpers ───────────────────────────────────────────────────────
 
@@ -18,308 +20,270 @@ interface ViewParams {
   viewHighNote: number;
 }
 
-function beatToX(beat: number, vp: ViewParams): number {
-  return KEY_W + (beat - vp.viewStartBeat) * vp.pxPerBeat;
-}
-function xToBeat(x: number, vp: ViewParams): number {
-  return vp.viewStartBeat + (x - KEY_W) / vp.pxPerBeat;
-}
-function noteToY(midiNote: number, vp: ViewParams): number {
-  return RULER_H + (vp.viewHighNote - midiNote) * SEMITONE_H;
-}
-function yToNote(y: number, vp: ViewParams): number {
-  return Math.round(vp.viewHighNote - (y - RULER_H) / SEMITONE_H);
-}
+const beatToX = (beat: number, vp: ViewParams) => KEY_W + (beat - vp.viewStartBeat) * vp.pxPerBeat;
+const xToBeat = (x: number, vp: ViewParams) => vp.viewStartBeat + (x - KEY_W) / vp.pxPerBeat;
+const noteToY = (midi: number, vp: ViewParams) => RULER_H + (vp.viewHighNote - midi) * SEMITONE_H;
+const yToNote = (y: number, vp: ViewParams) => Math.round(vp.viewHighNote - (y - RULER_H) / SEMITONE_H - 0.5);
 
 const VEL_LANE_H = 50;
-const PX_PER_BEAT_DEFAULT = 80;
 
-// Piano key → MIDI (C4 = 60 home row)
+/** Computer-keyboard piano, C4 on A — the layout most DAWs use. */
 const KEY_MIDI: Record<string, number> = {
-  'a': 60, 'w': 61, 's': 62, 'e': 63, 'd': 64, 'f': 65, 't': 66,
-  'g': 67, 'y': 68, 'h': 69, 'u': 70, 'j': 71, 'k': 72, 'o': 73,
-  'l': 74, 'p': 75, ';': 76,
+  a: 60, w: 61, s: 62, e: 63, d: 64, f: 65, t: 66,
+  g: 67, y: 68, h: 69, u: 70, j: 71, k: 72, o: 73,
+  l: 74, p: 75, ';': 76,
 };
+
+// ─── Preview through the track's own sound ────────────────────────────────────
+
+/** Audition a note through the track's own sound source. */
+export function previewNote(track: Track, tabs: OscillatorTab[], midi: number, velocity = 100): void {
+  void getAudioEngine().getOrCreateAudioContext().then((ctx) => {
+    const t = ctx.currentTime + 0.01;
+    const opts = { trackId: track.id };
+    const src = track.source;
+    if (src.type === 'preset') {
+      getInstrumentEngine().playNote(src.presetId, midi, velocity, t, 0.45, opts);
+    } else if (src.type === 'oscillator') {
+      const tab = tabs.find((x) => x.id === src.tabId);
+      if (tab) getInstrumentEngine().playOscillatorNote(tab.oscillator, tab.advanced, midi, velocity, t, 0.4, opts);
+    }
+  });
+}
 
 // ─── Canvas renderer ──────────────────────────────────────────────────────────
 
 function drawPianoRoll(
-  canvas: HTMLCanvasElement,
-  track: SequencerTrack,
-  tab: OscillatorTab,
+  ctx: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  pattern: Pattern,
+  color: string,
   vp: ViewParams,
-  selectedSet: Set<string>,
-  seq: {
-    bpm: number; beatsPerBar: number; songLengthBars: number;
-    playheadBeat: number; isPlaying: boolean;
-    loopEnabled: boolean; loopStartBeat: number; loopEndBeat: number;
-    showVelocityLane: boolean;
-  },
-  accent: string,
+  selected: Set<string>,
+  opts: { beatsPerBar: number; showVelocityLane: boolean },
   selectionRect: { x1: number; y1: number; x2: number; y2: number } | null,
 ) {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  const W = canvas.width;
-
   const visibleBeats = (W - KEY_W) / vp.pxPerBeat;
   const totalNotes = vp.viewHighNote - vp.viewLowNote + 1;
   const gridH = totalNotes * SEMITONE_H;
 
   ctx.fillStyle = '#111';
-  ctx.fillRect(0, 0, W, canvas.height);
+  ctx.fillRect(0, 0, W, H);
 
-  // ── Piano keys (left sidebar) ─────────────────────────────────────────────
+  // Keys
   for (let midi = vp.viewLowNote; midi <= vp.viewHighNote; midi++) {
     const y = noteToY(midi, vp);
-    const isBlack = isBlackKey(midi);
-    ctx.fillStyle = isBlack ? '#1a1a1a' : '#252525';
+    const black = isBlackKey(midi);
+    ctx.fillStyle = black ? '#1a1a1a' : '#262626';
     ctx.fillRect(0, y, KEY_W - 1, SEMITONE_H);
-    if (!isBlack) {
-      ctx.fillStyle = '#555';
-      ctx.font = '8px monospace';
+    if (!black || midi % 12 === 0) {
+      ctx.fillStyle = midi % 12 === 0 ? '#999' : '#555';
+      ctx.font = '8px ui-monospace, monospace';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.fillText(noteNameFromMidi(midi), KEY_W - 4, y + SEMITONE_H / 2);
     }
-  }
-
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(KEY_W, RULER_H);
-  ctx.lineTo(KEY_W, RULER_H + gridH);
-  ctx.stroke();
-
-  // ── Horizontal grid lines ─────────────────────────────────────────────────
-  for (let midi = vp.viewLowNote; midi <= vp.viewHighNote + 1; midi++) {
-    const y = noteToY(midi - 1, vp) + SEMITONE_H;
-    const isBlack = isBlackKey(midi);
-    if (isBlack) {
+    if (black) {
       ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fillRect(KEY_W, noteToY(midi, vp), W - KEY_W, SEMITONE_H);
+      ctx.fillRect(KEY_W, y, W - KEY_W, SEMITONE_H);
     }
-    ctx.strokeStyle = midi % 12 === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(KEY_W, y); ctx.lineTo(W, y); ctx.stroke();
+    ctx.strokeStyle = midi % 12 === 0 ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.035)';
+    ctx.beginPath();
+    ctx.moveTo(KEY_W, y + SEMITONE_H + 0.5);
+    ctx.lineTo(W, y + SEMITONE_H + 0.5);
+    ctx.stroke();
   }
 
-  // ── Vertical beat/bar grid ────────────────────────────────────────────────
-  const firstBeat = Math.ceil(vp.viewStartBeat);
-  const lastBeat = Math.floor(vp.viewStartBeat + visibleBeats) + 1;
+  // Beat / bar grid
+  const firstBeat = Math.max(0, Math.floor(vp.viewStartBeat));
+  const lastBeat = Math.ceil(vp.viewStartBeat + visibleBeats);
   for (let b = firstBeat; b <= lastBeat; b++) {
-    const x = beatToX(b, vp);
-    const isBar = b % seq.beatsPerBar === 0;
-    ctx.strokeStyle = isBar ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.05)';
-    ctx.lineWidth = isBar ? 1.5 : 1;
+    const x = Math.round(beatToX(b, vp)) + 0.5;
+    const isBar = b % opts.beatsPerBar === 0;
+    ctx.strokeStyle = isBar ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)';
     ctx.beginPath(); ctx.moveTo(x, RULER_H); ctx.lineTo(x, RULER_H + gridH); ctx.stroke();
   }
 
-  // ── Loop region ───────────────────────────────────────────────────────────
-  if (seq.loopEnabled) {
-    const lx = beatToX(seq.loopStartBeat, vp);
-    const lw = (seq.loopEndBeat - seq.loopStartBeat) * vp.pxPerBeat;
-    ctx.fillStyle = accent + '18';
-    ctx.fillRect(lx, RULER_H, lw, gridH);
-    ctx.strokeStyle = accent + '55';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(lx, RULER_H, lw, gridH);
+  // Outside the pattern's loop: dimmed, because notes there don't play
+  const loopX = beatToX(pattern.lengthBeats, vp);
+  if (loopX < W) {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(Math.max(KEY_W, loopX), RULER_H, W - Math.max(KEY_W, loopX), gridH);
   }
 
-  // ── Timeline ruler ────────────────────────────────────────────────────────
+  // Ruler
   ctx.fillStyle = '#0d0d0d';
   ctx.fillRect(KEY_W, 0, W - KEY_W, RULER_H);
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, KEY_W, RULER_H);
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, RULER_H); ctx.lineTo(W, RULER_H); ctx.stroke();
-
-  ctx.font = '9px monospace';
-  ctx.textAlign = 'center';
+  // Loop range bar along the ruler, with a handle at the end
+  const lx0 = beatToX(0, vp);
+  ctx.fillStyle = color + '55';
+  ctx.fillRect(Math.max(KEY_W, lx0), RULER_H - 5, Math.max(0, loopX - Math.max(KEY_W, lx0)), 4);
+  if (loopX >= KEY_W && loopX <= W) {
+    ctx.fillStyle = color;
+    ctx.fillRect(loopX - 3, 2, 6, RULER_H - 3);
+  }
+  ctx.font = '9px ui-monospace, monospace';
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   for (let b = firstBeat; b <= lastBeat; b++) {
-    if (b % seq.beatsPerBar !== 0) continue;
+    if (b % opts.beatsPerBar !== 0) continue;
     const x = beatToX(b, vp);
-    const bar = Math.floor(b / seq.beatsPerBar) + 1;
-    ctx.fillStyle = '#666';
-    ctx.fillText(`${bar}`, x, RULER_H / 2);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, RULER_H); ctx.stroke();
+    ctx.fillStyle = '#777';
+    ctx.fillText(String(Math.floor(b / opts.beatsPerBar) + 1), x + 3, RULER_H / 2 - 2);
   }
+  ctx.strokeStyle = '#333';
+  ctx.beginPath(); ctx.moveTo(0, RULER_H + 0.5); ctx.lineTo(W, RULER_H + 0.5); ctx.stroke();
 
-  // ── Notes ─────────────────────────────────────────────────────────────────
-  for (const note of track.notes) {
+  // Notes
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(KEY_W, RULER_H, W - KEY_W, gridH);
+  ctx.clip();
+  for (const note of pattern.notes) {
     const nx = beatToX(note.startBeat, vp);
     const ny = noteToY(note.midiNote, vp);
     const nw = Math.max(MIN_NOTE_W, note.durationBeats * vp.pxPerBeat - 1);
-    const nh = SEMITONE_H - 1;
-    const selected = selectedSet.has(note.id);
-    const velAlpha = (note.velocity / 127) * 0.7 + 0.3;
-
-    ctx.fillStyle = selected ? '#fff' : tab.color;
-    ctx.globalAlpha = selected ? 0.9 : velAlpha;
-    ctx.fillRect(nx, ny + 1, nw, nh);
+    if (nx > W || nx + nw < KEY_W) continue;
+    const isSel = selected.has(note.id);
+    const outside = note.startBeat >= pattern.lengthBeats;
+    ctx.globalAlpha = outside ? 0.3 : isSel ? 0.95 : (note.velocity / 127) * 0.65 + 0.35;
+    ctx.fillStyle = isSel ? '#fff' : color;
+    ctx.fillRect(nx, ny + 1, nw, SEMITONE_H - 2);
     ctx.globalAlpha = 1;
-
-    if (selected) {
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(nx, ny + 1, nw, nh);
-    }
+    ctx.strokeStyle = isSel ? '#fff' : 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(nx + 0.5, ny + 1.5, nw - 1, SEMITONE_H - 3);
   }
+  ctx.restore();
 
-  // ── Selection rectangle (during drag-select) ──────────────────────────────
   if (selectionRect) {
     const { x1, y1, x2, y2 } = selectionRect;
-    const rx = Math.min(x1, x2);
-    const ry = Math.min(y1, y2);
-    const rw = Math.abs(x2 - x1);
-    const rh = Math.abs(y2 - y1);
     ctx.save();
     ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = 1;
     ctx.setLineDash([4, 3]);
-    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.strokeRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
     ctx.fillStyle = 'rgba(255,255,255,0.05)';
-    ctx.fillRect(rx, ry, rw, rh);
+    ctx.fillRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
     ctx.restore();
   }
 
-  // ── Playhead ──────────────────────────────────────────────────────────────
-  if (seq.isPlaying || seq.playheadBeat > 0) {
-    const px = beatToX(seq.playheadBeat, vp);
-    if (px >= KEY_W && px <= W) {
-      ctx.strokeStyle = '#ff4040';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, RULER_H + gridH); ctx.stroke();
-      ctx.fillStyle = '#ff4040';
-      ctx.beginPath();
-      ctx.moveTo(px - 5, 0); ctx.lineTo(px + 5, 0); ctx.lineTo(px, 8);
-      ctx.fill();
-    }
-  }
-
-  // ── Velocity lane ─────────────────────────────────────────────────────────
-  if (seq.showVelocityLane) {
-    const velTop = RULER_H + gridH;
+  // Velocity lane
+  if (opts.showVelocityLane) {
+    const top = RULER_H + gridH;
     ctx.fillStyle = '#0d0d0d';
-    ctx.fillRect(0, velTop, W, VEL_LANE_H);
+    ctx.fillRect(0, top, W, VEL_LANE_H);
     ctx.strokeStyle = '#333';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, velTop); ctx.lineTo(W, velTop); ctx.stroke();
-
-    ctx.fillStyle = '#444';
-    ctx.font = '8px monospace';
+    ctx.beginPath(); ctx.moveTo(0, top + 0.5); ctx.lineTo(W, top + 0.5); ctx.stroke();
+    ctx.fillStyle = '#555';
+    ctx.font = '8px ui-monospace, monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText('VEL', 4, velTop + 3);
-
-    for (const note of track.notes) {
+    ctx.fillText('VEL', 4, top + 4);
+    for (const note of pattern.notes) {
       const nx = beatToX(note.startBeat, vp);
       if (nx < KEY_W || nx > W) continue;
-      const barH = Math.max(2, (note.velocity / 127) * (VEL_LANE_H - 6));
-      const selected = selectedSet.has(note.id);
-      ctx.fillStyle = selected ? '#fff' : tab.color;
-      ctx.globalAlpha = selected ? 0.9 : 0.7;
-      ctx.fillRect(nx, velTop + VEL_LANE_H - barH, 4, barH);
+      const bh = Math.max(2, (note.velocity / 127) * (VEL_LANE_H - 6));
+      ctx.fillStyle = selected.has(note.id) ? '#fff' : color;
+      ctx.globalAlpha = selected.has(note.id) ? 0.95 : 0.7;
+      ctx.fillRect(nx, top + VEL_LANE_H - bh, 4, bh);
       ctx.globalAlpha = 1;
     }
   }
 }
 
-// ─── PianoRoll component ──────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 interface PianoRollProps {
-  tab: OscillatorTab;
-  track: SequencerTrack;
-  accent: string;
+  track: Track;
+  clip: Clip;
+  pattern: Pattern;
   height: number;
+  onSeek: (beat: number) => void;
 }
 
-export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
+type Drag = {
+  type: 'move' | 'resize' | 'select' | 'vel' | 'loop';
+  noteId?: string;
+  startX: number;
+  startY: number;
+  origStart?: number;
+  origMidi?: number;
+  lastPreviewMidi?: number;
+};
+
+export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollProps) {
   const { state, dispatch } = useAppStore();
   const seq = state.sequencer;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  // Zoom lives in the store so automation lanes stay aligned with the roll
-  const pxPerBeat = seq.pxPerBeat ?? PX_PER_BEAT_DEFAULT;
+  const playheadRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(800);
   const [selRect, setSelRect] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const dragRef = useRef<Drag | null>(null);
 
-  // Keep preview notes for keyboard piano: key → { osc, gain }
-  const previewRef = useRef<Map<string, { osc: OscillatorNode; gain: GainNode }>>(new Map());
-  const heldKeysRef = useRef<Set<string>>(new Set());
-
-  // Pre-allocated Set — updated when selectedNoteIds changes, never inside the draw loop
-  const selectedSetRef = useRef(new Set<string>());
-  useEffect(() => {
-    selectedSetRef.current = new Set(seq.selectedNoteIds);
-  }, [seq.selectedNoteIds]);
-
-  // Keep latest values in refs for stable closures in native handlers
-  const vpRef = useRef<ViewParams>({
-    pxPerBeat,
+  const vp: ViewParams = {
+    pxPerBeat: seq.pxPerBeat,
     viewStartBeat: seq.viewStartBeat,
     viewLowNote: seq.viewLowNote,
     viewHighNote: seq.viewHighNote,
-  });
-  const seqRef = useRef(seq);
-  const tabRef = useRef(tab);
-  const trackRef = useRef(track);
-  const accentRef = useRef(accent);
-  vpRef.current = { pxPerBeat, viewStartBeat: seq.viewStartBeat, viewLowNote: seq.viewLowNote, viewHighNote: seq.viewHighNote };
-  seqRef.current = seq;
-  tabRef.current = tab;
-  trackRef.current = track;
-  accentRef.current = accent;
+  };
+  const gridH = (vp.viewHighNote - vp.viewLowNote + 1) * SEMITONE_H;
+  const totalH = Math.max(height, RULER_H + gridH) + (seq.showVelocityLane ? VEL_LANE_H : 0);
+  const canvasH = RULER_H + gridH + (seq.showVelocityLane ? VEL_LANE_H : 0);
 
-  const vp = vpRef.current;
-  const totalNotes = vp.viewHighNote - vp.viewLowNote + 1;
-  const gridH = totalNotes * SEMITONE_H;
-  const totalH = height + (seq.showVelocityLane ? VEL_LANE_H : 0);
+  // Latest values for native listeners
+  const live = useRef({ seq, pattern, track, clip, vp, tabs: state.tabs });
+  live.current = { seq, pattern, track, clip, vp, tabs: state.tabs };
 
-  // ─── Canvas resize ─────────────────────────────────────────────────────────
-
+  // ── Size ──
   useLayoutEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-    const observer = new ResizeObserver(() => {
-      canvas.width = container.clientWidth;
-      canvas.height = height + (seqRef.current.showVelocityLane ? VEL_LANE_H : 0);
-    });
-    observer.observe(container);
-    canvas.width = container.clientWidth;
-    canvas.height = height + (seq.showVelocityLane ? VEL_LANE_H : 0);
-    return () => observer.disconnect();
-  }, [height, seq.showVelocityLane]);
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    ro.observe(el);
+    setWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
 
-  // ─── Draw every render (playhead moves at 60fps) ──────────────────────────
+  // ── Draw (data changes only — the playhead is a separate overlay) ──
+  const selectedSet = new Set(seq.selectedNoteIds);
+  useLayoutEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = Math.max(1, Math.floor(width * dpr));
+    c.height = Math.max(1, Math.floor(canvasH * dpr));
+    c.style.width = `${width}px`;
+    c.style.height = `${canvasH}px`;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawPianoRoll(ctx, width, canvasH, pattern, track.color, vp, selectedSet,
+      { beatsPerBar: seq.beatsPerBar, showVelocityLane: seq.showVelocityLane }, selRect);
+  }); // cheap; runs only when this component re-renders
 
+  // ── Playhead overlay: the song position mapped into this pattern ──
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    drawPianoRoll(canvas, track, tab, vp, selectedSetRef.current, {
-      bpm: seq.bpm, beatsPerBar: seq.beatsPerBar, songLengthBars: seq.songLengthBars,
-      playheadBeat: seq.playheadBeat, isPlaying: seq.isPlaying,
-      loopEnabled: seq.loopEnabled, loopStartBeat: seq.loopStartBeat, loopEndBeat: seq.loopEndBeat,
-      showVelocityLane: seq.showVelocityLane,
-    }, accent, selRect);
-  });
+    const place = (songBeat: number) => {
+      const el = playheadRef.current;
+      if (!el) return;
+      const { clip: c, pattern: p, vp: v } = live.current;
+      const inside = songBeat >= c.startBeat && songBeat < c.startBeat + c.lengthBeats;
+      if (!inside || p.lengthBeats <= 0) { el.style.display = 'none'; return; }
+      const pos = (songBeat - c.startBeat + c.offsetBeats) % p.lengthBeats;
+      const x = beatToX(pos, v);
+      el.style.display = x < KEY_W ? 'none' : 'block';
+      el.style.transform = `translateX(${x}px)`;
+    };
+    place(seq.isPlaying ? getPlayhead() : seq.playheadBeat);
+    return subscribePlayhead(place);
+  }, [seq.isPlaying, seq.playheadBeat, clip, pattern, seq.viewStartBeat, seq.pxPerBeat]);
 
-  // ─── Interaction ──────────────────────────────────────────────────────────
-
-  const dragRef = useRef<{
-    type: 'draw' | 'move' | 'resize' | 'select' | 'vel';
-    noteId?: string;
-    startX: number;
-    startY: number;
-    origStart?: number;
-    origMidi?: number;
-  } | null>(null);
-
-  const getCanvasPos = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // ── Hit testing ──
+  const pos = (e: { clientX: number; clientY: number }) => {
     const r = canvasRef.current!.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   };
@@ -327,293 +291,305 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
   const findNote = useCallback((x: number, y: number): SequencerNote | null => {
     const midi = yToNote(y, vp);
     const beat = xToBeat(x, vp);
-    for (const note of [...track.notes].reverse()) {
-      if (note.midiNote === midi && beat >= note.startBeat && beat <= note.startBeat + note.durationBeats) {
-        return note;
-      }
+    for (let i = pattern.notes.length - 1; i >= 0; i--) {
+      const n = pattern.notes[i];
+      if (n.midiNote === midi && beat >= n.startBeat && beat <= n.startBeat + n.durationBeats) return n;
     }
     return null;
-  }, [track.notes, vp]);
+  }, [pattern.notes, vp]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isNearRightEdge = useCallback((note: SequencerNote, x: number) => {
-    return Math.abs(x - beatToX(note.startBeat + note.durationBeats, vp)) < 8;
-  }, [vp]);
+  const nearRightEdge = (n: SequencerNote, x: number) =>
+    Math.abs(x - beatToX(n.startBeat + n.durationBeats, vp)) < 7 && n.durationBeats * vp.pxPerBeat > 12;
 
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const { x, y } = getCanvasPos(e);
-    if (x < KEY_W) return;
+  const audition = (midi: number, vel = 100) => previewNote(track, state.tabs, midi, vel);
 
+  // ── Mouse ──
+  const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    setFocusZone('editor');
+    const { x, y } = pos(e);
     const velTop = RULER_H + gridH;
 
-    // Velocity lane interaction
-    if (y >= velTop && seq.showVelocityLane) {
-      // Find closest note by X
-      let closestNote: SequencerNote | null = null;
-      let closestDist = Infinity;
-      for (const note of track.notes) {
-        const nx = beatToX(note.startBeat, vp);
-        const d = Math.abs(nx - x);
-        if (d < closestDist && d < 20) { closestDist = d; closestNote = note; }
-      }
-      if (closestNote) {
+    // Ruler: drag the loop-end handle, or click to move the song playhead here
+    if (y < RULER_H) {
+      if (x < KEY_W) return;
+      if (Math.abs(x - beatToX(pattern.lengthBeats, vp)) <= 6) {
         dispatch({ type: 'SEQ_PUSH_UNDO' });
-        dragRef.current = { type: 'vel', noteId: closestNote.id, startX: x, startY: y };
-      }
-      return;
-    }
-
-    if (y < RULER_H) return;
-
-    const existing = findNote(x, y);
-
-    if (seq.editMode === 'draw') {
-      if (e.button === 2 && existing) {
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
-        dispatch({ type: 'SEQ_REMOVE_NOTE', tabId: tab.id, noteId: existing.id });
+        dragRef.current = { type: 'loop', startX: x, startY: y };
         return;
       }
-      if (existing) {
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
-        if (isNearRightEdge(existing, x)) {
-          dragRef.current = { type: 'resize', noteId: existing.id, startX: x, startY: y };
-        } else {
-          dragRef.current = { type: 'move', noteId: existing.id, startX: x, startY: y, origStart: existing.startBeat, origMidi: existing.midiNote };
-        }
-      } else {
-        const beat = snapBeat(xToBeat(x, vp), seq.snapValue);
-        const midi = yToNote(y, vp);
-        if (midi < 0 || midi > 127) return;
-        const dur = SNAP_BEATS[seq.defaultNoteLength];
-        const note: SequencerNote = { id: makeNoteId(), midiNote: midi, startBeat: Math.max(0, beat), durationBeats: dur, velocity: 100 };
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
-        dispatch({ type: 'SEQ_ADD_NOTE', tabId: tab.id, note });
-        dragRef.current = { type: 'resize', noteId: note.id, startX: x, startY: y };
-      }
-    } else {
-      if (existing) {
-        if (!e.shiftKey) {
-          dispatch({ type: 'SEQ_SELECT_NOTES', ids: [existing.id] });
-        } else {
-          const sel = seq.selectedNoteIds.includes(existing.id)
-            ? seq.selectedNoteIds.filter((id) => id !== existing.id)
-            : [...seq.selectedNoteIds, existing.id];
-          dispatch({ type: 'SEQ_SELECT_NOTES', ids: sel });
-        }
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
-        if (isNearRightEdge(existing, x)) {
-          dragRef.current = { type: 'resize', noteId: existing.id, startX: x, startY: y };
-        } else {
-          dragRef.current = { type: 'move', noteId: existing.id, startX: x, startY: y, origStart: existing.startBeat, origMidi: existing.midiNote };
-        }
-      } else {
-        dispatch({ type: 'SEQ_SELECT_NOTES', ids: [] });
-        dragRef.current = { type: 'select', startX: x, startY: y };
-      }
+      const beat = Math.max(0, xToBeat(x, vp)) - clip.offsetBeats;
+      onSeek(clip.startBeat + Math.max(0, Math.min(clip.lengthBeats, beat)));
+      return;
     }
-  }, [seq, tab.id, vp, gridH, track.notes, findNote, isNearRightEdge, dispatch]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const { x, y } = getCanvasPos(e);
-    const drag = dragRef.current;
+    // Piano keys: audition
+    if (x < KEY_W) {
+      if (y < RULER_H + gridH) audition(yToNote(y, vp));
+      return;
+    }
 
-    if (!drag) {
-      // Cursor feedback
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      if (x > KEY_W && y > RULER_H && y < RULER_H + gridH) {
-        const hoverNote = findNote(x, y);
-        if (hoverNote && isNearRightEdge(hoverNote, x)) {
-          canvas.style.cursor = 'col-resize';
-        } else if (hoverNote && seq.editMode === 'select') {
-          canvas.style.cursor = 'grab';
-        } else {
-          canvas.style.cursor = seq.editMode === 'draw' ? 'crosshair' : 'default';
-        }
-      } else {
-        canvas.style.cursor = 'default';
+    if (y >= velTop && seq.showVelocityLane) {
+      let best: SequencerNote | null = null;
+      let bestD = 20;
+      for (const n of pattern.notes) {
+        const d = Math.abs(beatToX(n.startBeat, vp) - x);
+        if (d < bestD) { bestD = d; best = n; }
+      }
+      if (best) {
+        dispatch({ type: 'SEQ_PUSH_UNDO' });
+        dragRef.current = { type: 'vel', noteId: best.id, startX: x, startY: y };
       }
       return;
     }
 
-    if (drag.type === 'vel' && drag.noteId) {
-      const velTop = RULER_H + gridH;
-      const vel = Math.max(1, Math.min(127, Math.round((1 - (y - velTop) / VEL_LANE_H) * 127)));
-      dispatch({ type: 'SEQ_SET_VELOCITY', tabId: tab.id, noteId: drag.noteId, velocity: vel });
-    } else if (drag.type === 'resize' && drag.noteId) {
-      const beat = snapBeat(xToBeat(x, vp), seq.snapValue);
-      const note = track.notes.find((n) => n.id === drag.noteId);
-      if (!note) return;
-      const newDur = Math.max(0.0625, beat - note.startBeat);
-      dispatch({ type: 'SEQ_RESIZE_NOTE', tabId: tab.id, noteId: drag.noteId, durationBeats: newDur });
-    } else if (drag.type === 'move' && drag.noteId && drag.origStart !== undefined && drag.origMidi !== undefined) {
-      const dx = x - drag.startX;
-      const dy = y - drag.startY;
-      // Snap the absolute target position, not the delta [fix #2]
-      const newStart = Math.max(0, snapBeat(drag.origStart + dx / vp.pxPerBeat, seq.snapValue));
-      const dMidi = -Math.round(dy / SEMITONE_H);
-      const newMidi = Math.max(0, Math.min(127, drag.origMidi + dMidi));
-      dispatch({ type: 'SEQ_MOVE_NOTE', tabId: tab.id, noteId: drag.noteId, startBeat: newStart, midiNote: newMidi });
-    } else if (drag.type === 'select') {
-      setSelRect({ x1: drag.startX, y1: drag.startY, x2: x, y2: y });
-    }
-  }, [seq.editMode, seq.snapValue, tab.id, vp, gridH, track.notes, findNote, isNearRightEdge, dispatch]);
+    const hit = findNote(x, y);
 
-  const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const drag = dragRef.current;
-    if (drag?.type === 'select') {
-      const { x, y } = getCanvasPos(e);
-      const bx1 = Math.min(drag.startX, x);
-      const bx2 = Math.max(drag.startX, x);
-      const by1 = Math.min(drag.startY, y);
-      const by2 = Math.max(drag.startY, y);
-      const ids = track.notes
-        .filter((n) => {
-          const nx = beatToX(n.startBeat, vp);
-          const ny = noteToY(n.midiNote, vp);
-          return nx + n.durationBeats * vp.pxPerBeat >= bx1 && nx <= bx2 && ny >= by1 && ny <= by2;
-        })
-        .map((n) => n.id);
-      dispatch({ type: 'SEQ_SELECT_NOTES', ids });
-      setSelRect(null);
+    if (e.button === 2) {
+      if (hit) {
+        dispatch({ type: 'SEQ_PUSH_UNDO' });
+        dispatch({ type: 'SEQ_REMOVE_NOTE', patternId: pattern.id, noteId: hit.id });
+      }
+      return;
     }
-    dragRef.current = null;
-  }, [track.notes, vp, dispatch]);
+    if (e.button !== 0) return;
 
-  // ─── Keyboard shortcuts + piano preview ───────────────────────────────────
+    if (hit) {
+      if (seq.editMode === 'select' || e.shiftKey || e.ctrlKey || e.metaKey) {
+        const ids = e.shiftKey
+          ? (seq.selectedNoteIds.includes(hit.id)
+            ? seq.selectedNoteIds.filter((id) => id !== hit.id)
+            : [...seq.selectedNoteIds, hit.id])
+          : (seq.selectedNoteIds.includes(hit.id) ? seq.selectedNoteIds : [hit.id]);
+        dispatch({ type: 'SEQ_SELECT_NOTES', ids });
+      }
+      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      dragRef.current = nearRightEdge(hit, x)
+        ? { type: 'resize', noteId: hit.id, startX: x, startY: y }
+        : { type: 'move', noteId: hit.id, startX: x, startY: y, origStart: hit.startBeat, origMidi: hit.midiNote, lastPreviewMidi: hit.midiNote };
+      audition(hit.midiNote, hit.velocity);
+      return;
+    }
+
+    if (seq.editMode === 'select') {
+      dispatch({ type: 'SEQ_SELECT_NOTES', ids: [] });
+      dragRef.current = { type: 'select', startX: x, startY: y };
+      return;
+    }
+
+    // Draw a note — snap the start *down* so it lands in the cell clicked
+    const grid = SNAP_BEATS[seq.snapValue];
+    const beat = e.altKey ? xToBeat(x, vp) : Math.floor(xToBeat(x, vp) / grid) * grid;
+    const midi = yToNote(y, vp);
+    if (midi < 0 || midi > 127 || beat < 0) return;
+    const note: SequencerNote = {
+      id: uid('n'), midiNote: midi, startBeat: beat,
+      durationBeats: SNAP_BEATS[seq.defaultNoteLength], velocity: 100,
+    };
+    dispatch({ type: 'SEQ_PUSH_UNDO' });
+    dispatch({ type: 'SEQ_ADD_NOTE', patternId: pattern.id, note });
+    dispatch({ type: 'SEQ_SELECT_NOTES', ids: [note.id] });
+    dragRef.current = { type: 'resize', noteId: note.id, startX: x, startY: y };
+    audition(midi);
+  };
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+    const move = (e: MouseEvent) => {
+      const d = dragRef.current;
+      if (!d || !canvasRef.current) return;
+      const { x, y } = pos(e);
+      const { seq: s, pattern: p, vp: v } = live.current;
+      const grid = SNAP_BEATS[s.snapValue];
 
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z') {
-          e.shiftKey ? dispatch({ type: 'SEQ_REDO' }) : dispatch({ type: 'SEQ_UNDO' });
-        } else if (e.key === 'a') {
-          e.preventDefault();
-          dispatch({ type: 'SEQ_SELECT_NOTES', ids: trackRef.current.notes.map((n) => n.id) });
-        } else if (e.key === 'c') {
-          const sel = seqRef.current.selectedNoteIds;
-          if (sel.length > 0) {
-            const notes = trackRef.current.notes.filter((n) => sel.includes(n.id));
-            dispatch({ type: 'SEQ_COPY', notes });
+      if (d.type === 'loop') {
+        const beat = Math.max(grid, snapBeat(xToBeat(x, v), s.snapValue, e.shiftKey));
+        dispatch({ type: 'PATTERN_SET_LENGTH', patternId: p.id, lengthBeats: beat });
+      } else if (d.type === 'vel' && d.noteId) {
+        const top = RULER_H + (v.viewHighNote - v.viewLowNote + 1) * SEMITONE_H;
+        const vel = Math.round((1 - (y - top) / VEL_LANE_H) * 127);
+        dispatch({ type: 'SEQ_SET_VELOCITY', patternId: p.id, noteId: d.noteId, velocity: vel });
+      } else if (d.type === 'resize' && d.noteId) {
+        const note = p.notes.find((n) => n.id === d.noteId);
+        if (!note) return;
+        const end = snapBeat(xToBeat(x, v), s.snapValue, e.shiftKey);
+        dispatch({ type: 'SEQ_RESIZE_NOTE', patternId: p.id, noteId: d.noteId, durationBeats: Math.max(grid / 2, end - note.startBeat) });
+      } else if (d.type === 'move' && d.noteId && d.origStart !== undefined && d.origMidi !== undefined) {
+        const dx = (x - d.startX) / v.pxPerBeat;
+        const dMidi = -Math.round((y - d.startY) / SEMITONE_H);
+        const newStart = Math.max(0, snapBeat(d.origStart + dx, s.snapValue, e.shiftKey));
+        const newMidi = Math.max(0, Math.min(127, d.origMidi + dMidi));
+        // Move the whole selection together when the dragged note is part of it
+        const group = s.selectedNoteIds.includes(d.noteId) && s.selectedNoteIds.length > 1;
+        if (group) {
+          const anchor = p.notes.find((n) => n.id === d.noteId);
+          if (!anchor) return;
+          const db = newStart - anchor.startBeat;
+          const dm = newMidi - anchor.midiNote;
+          if (db === 0 && dm === 0) return;
+          for (const id of s.selectedNoteIds) {
+            const n = p.notes.find((m) => m.id === id);
+            if (n) dispatch({ type: 'SEQ_MOVE_NOTE', patternId: p.id, noteId: id, startBeat: Math.max(0, n.startBeat + db), midiNote: n.midiNote + dm });
           }
-        } else if (e.key === 'v') {
-          dispatch({ type: 'SEQ_PUSH_UNDO' });
-          dispatch({ type: 'SEQ_PASTE', tabId: tabRef.current.id });
+        } else {
+          dispatch({ type: 'SEQ_MOVE_NOTE', patternId: p.id, noteId: d.noteId, startBeat: newStart, midiNote: newMidi });
         }
-        return;
+        if (newMidi !== d.lastPreviewMidi) {
+          d.lastPreviewMidi = newMidi;
+          previewNote(live.current.track, live.current.tabs, newMidi);
+        }
+      } else if (d.type === 'select') {
+        setSelRect({ x1: d.startX, y1: d.startY, x2: x, y2: y });
       }
+    };
+    const up = (e: MouseEvent) => {
+      const d = dragRef.current;
+      dragRef.current = null;
+      if (d?.type === 'select' && canvasRef.current) {
+        const { x, y } = pos(e);
+        const { pattern: p, vp: v } = live.current;
+        const [bx1, bx2] = [Math.min(d.startX, x), Math.max(d.startX, x)];
+        const [by1, by2] = [Math.min(d.startY, y), Math.max(d.startY, y)];
+        const ids = p.notes.filter((n) => {
+          const nx = beatToX(n.startBeat, v);
+          const ny = noteToY(n.midiNote, v);
+          return nx + n.durationBeats * v.pxPerBeat >= bx1 && nx <= bx2 && ny + SEMITONE_H >= by1 && ny <= by2;
+        }).map((n) => n.id);
+        dispatch({ type: 'SEQ_SELECT_NOTES', ids });
+        setSelRect(null);
+      }
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    return () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+  }, [dispatch]);
 
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (seqRef.current.selectedNoteIds.length > 0) {
+  // ── Keyboard (editor focus only) ──
+  useEffect(() => {
+    const held = new Set<string>();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (getFocusZone() !== 'editor' || isTypingTarget(e.target)) return;
+      const { seq: s, pattern: p } = live.current;
+      const mod = e.ctrlKey || e.metaKey;
+
+      if (mod && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        dispatch({ type: 'SEQ_SELECT_NOTES', ids: p.notes.map((n) => n.id) });
+      } else if (mod && e.key.toLowerCase() === 'c') {
+        const notes = p.notes.filter((n) => s.selectedNoteIds.includes(n.id));
+        if (notes.length) dispatch({ type: 'SEQ_COPY', notes });
+      } else if (mod && e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        // Paste after the selection if there is one, otherwise where it was copied from
+        const sel = p.notes.filter((n) => s.selectedNoteIds.includes(n.id));
+        const at = sel.length
+          ? Math.max(...sel.map((n) => n.startBeat + n.durationBeats))
+          : Math.min(...(s.copiedNotes ?? [{ startBeat: 0 }]).map((n) => n.startBeat));
+        dispatch({ type: 'SEQ_PUSH_UNDO' });
+        dispatch({ type: 'SEQ_PASTE', patternId: p.id, atBeat: at });
+      } else if (mod) {
+        return;
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (s.selectedNoteIds.length) {
+          e.preventDefault();
           dispatch({ type: 'SEQ_PUSH_UNDO' });
-          dispatch({ type: 'SEQ_DELETE_SELECTED' });
+          dispatch({ type: 'SEQ_DELETE_SELECTED', patternId: p.id });
         }
       } else if (e.key === 'Escape') {
         dispatch({ type: 'SEQ_SELECT_NOTES', ids: [] });
       } else if (e.key === 'q' || e.key === 'Q') {
-        if (seqRef.current.selectedNoteIds.length > 0) {
+        if (s.selectedNoteIds.length) {
           dispatch({ type: 'SEQ_PUSH_UNDO' });
-          dispatch({ type: 'SEQ_QUANTIZE' });
+          dispatch({ type: 'SEQ_QUANTIZE', patternId: p.id });
+        }
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        if (!s.selectedNoteIds.length) return;
+        e.preventDefault();
+        const step = (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 12 : 1);
+        dispatch({ type: 'SEQ_PUSH_UNDO' });
+        for (const n of p.notes) {
+          if (s.selectedNoteIds.includes(n.id)) {
+            dispatch({ type: 'SEQ_MOVE_NOTE', patternId: p.id, noteId: n.id, startBeat: n.startBeat, midiNote: n.midiNote + step });
+          }
         }
       } else {
-        // Piano preview — skip if key already held (no repeat)
-        const midi = KEY_MIDI[e.key];
-        if (midi !== undefined && !heldKeysRef.current.has(e.key)) {
-          heldKeysRef.current.add(e.key);
-          const audioCtx = getAudioEngine().getAudioContext();
-          const master = getAudioEngine().getMasterGain();
-          if (audioCtx && master) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = tabRef.current.oscillator.waveform as OscillatorType;
-            osc.frequency.value = midiToFreq(midi);
-            const amp = tabRef.current.oscillator.amplitude * 0.4 * tabRef.current.oscillator.masterVolume;
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + 0.01);
-            osc.connect(gain);
-            gain.connect(master);
-            osc.start();
-            previewRef.current.set(e.key, { osc, gain });
-          }
+        const midi = KEY_MIDI[e.key.toLowerCase()];
+        if (midi !== undefined && !held.has(e.key) && !e.repeat) {
+          held.add(e.key);
+          previewNote(live.current.track, live.current.tabs, midi);
         }
       }
     };
-
-    const onKeyUp = (e: KeyboardEvent) => {
-      const midi = KEY_MIDI[e.key];
-      if (midi !== undefined) {
-        heldKeysRef.current.delete(e.key);
-        const nodes = previewRef.current.get(e.key);
-        if (nodes) {
-          const { osc, gain } = nodes;
-          const audioCtx = getAudioEngine().getAudioContext();
-          if (audioCtx) {
-            gain.gain.setValueAtTime(gain.gain.value, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-            try { osc.stop(audioCtx.currentTime + 0.06); } catch (_) { /* already stopped */ }
-          } else {
-            try { osc.stop(); } catch (_) { /* already stopped */ }
-          }
-          previewRef.current.delete(e.key);
-        }
-      }
-    };
-
+    const onKeyUp = (e: KeyboardEvent) => { held.delete(e.key); };
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
-      for (const [, nodes] of previewRef.current) {
-        try { nodes.osc.stop(); } catch (_) { /* already stopped */ }
-      }
-      previewRef.current.clear();
-      heldKeysRef.current.clear();
     };
   }, [dispatch]);
 
-  // ─── Wheel handler: must be non-passive to allow preventDefault ────────────
-
+  // ── Wheel: scroll time, Shift = pitch, Ctrl = zoom ──
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const currentVp = vpRef.current;
-      const currentSeq = seqRef.current;
-
+      const { seq: s, vp: v } = live.current;
       if (e.ctrlKey || e.metaKey) {
-        const factor = e.deltaY > 0 ? 0.85 : 1.18;
-        dispatch({ type: 'SEQ_SET_ZOOM', pxPerBeat: Math.max(20, Math.min(400, pxPerBeat * factor)) });
+        // Read the zoom from the latest view, not a value captured at mount —
+        // the old handler did, which pinned zoom to two fixed steps
+        const r = canvas.getBoundingClientRect();
+        const anchor = xToBeat(e.clientX - r.left, v);
+        const px = Math.max(20, Math.min(400, v.pxPerBeat * (e.deltaY > 0 ? 0.85 : 1.18)));
+        dispatch({ type: 'SEQ_SET_ZOOM', pxPerBeat: px });
+        dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, anchor - (e.clientX - r.left - KEY_W) / px) });
       } else if (e.shiftKey) {
-        const delta = Math.round(e.deltaY / SEMITONE_H);
-        dispatch({
-          type: 'SEQ_SET_VIEW',
-          lowNote: Math.max(0, Math.min(115, currentSeq.viewLowNote + delta)),
-          highNote: Math.max(12, Math.min(127, currentSeq.viewHighNote + delta)),
-        });
+        const delta = e.deltaY > 0 ? -2 : 2;
+        const low = Math.max(0, Math.min(127 - (s.viewHighNote - s.viewLowNote), s.viewLowNote + delta));
+        dispatch({ type: 'SEQ_SET_VIEW', lowNote: low, highNote: low + (s.viewHighNote - s.viewLowNote) });
       } else {
-        const delta = e.deltaY / currentVp.pxPerBeat;
-        dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, currentSeq.viewStartBeat + delta) });
+        const d = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) / v.pxPerBeat;
+        dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, s.viewStartBeat + d) });
       }
     };
-
     canvas.addEventListener('wheel', onWheel, { passive: false });
     return () => canvas.removeEventListener('wheel', onWheel);
   }, [dispatch]);
 
   return (
-    <div ref={containerRef} className="relative overflow-hidden" style={{ height: totalH }}>
+    <div
+      ref={containerRef}
+      className="relative overflow-y-auto overflow-x-hidden"
+      style={{ height: totalH > height ? height : totalH }}
+      onMouseDown={() => setFocusZone('editor')}
+    >
       <canvas
         ref={canvasRef}
         className="block"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseDown={onMouseDown}
+        onMouseMove={(e) => {
+          if (dragRef.current) return;
+          const { x, y } = pos(e);
+          let cursor = 'default';
+          if (y < RULER_H && x >= KEY_W) {
+            cursor = Math.abs(x - beatToX(pattern.lengthBeats, vp)) <= 6 ? 'ew-resize' : 'pointer';
+          } else if (x < KEY_W) {
+            cursor = 'pointer';
+          } else if (y < RULER_H + gridH) {
+            const n = findNote(x, y);
+            cursor = n ? (nearRightEdge(n, x) ? 'ew-resize' : 'grab') : seq.editMode === 'draw' ? 'crosshair' : 'default';
+          }
+          e.currentTarget.style.cursor = cursor;
+        }}
         onContextMenu={(e) => e.preventDefault()}
+        aria-label={`Piano roll for ${pattern.name}`}
+      />
+      <div
+        ref={playheadRef}
+        className="pointer-events-none absolute top-0 w-px bg-red-500"
+        style={{ left: 0, height: canvasH, display: 'none' }}
       />
     </div>
   );

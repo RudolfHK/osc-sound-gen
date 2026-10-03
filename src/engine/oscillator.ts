@@ -53,11 +53,19 @@ export interface OscillatorTab {
   solo: boolean;
 }
 
+export type MainView = 'arrange' | 'lab';
+
 export interface AppState {
+  /** Oscillator lab tabs. Optional sound sources — no track needs one. */
   tabs: OscillatorTab[];
   activeTabId: string;
   masterVolume: number;   // global master gain applied after all tab gains mix
   isRecording: boolean;
   overlayMode: boolean;   // false = single active tab, true = all tabs on same canvas
+  /** Main workspace: the arrangement (default) or the oscillator lab. */
+  view: MainView;
+  /** UI accent colour, independent of any oscillator. */
+  uiTheme: ColorTheme;
+  projectName: string;
   sequencer: SequencerState;
 }

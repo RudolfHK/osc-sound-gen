@@ -1,8 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useVisualizerStore } from '../store/visualizerStore';
-import { useAppStore } from '../store/appStore';
+import { useAccent } from '../store/appStore';
 import { Visualizer, VISUALIZER_MODES, type ColorMode, type VisualizerMode } from '../visualizer/spectrum';
-import { THEME_COLORS } from '../utils/math';
 
 const CANVAS_H = 180;
 
@@ -48,13 +47,11 @@ function Toggle({
 
 export function VisualizerPanel() {
   const { state, dispatch } = useVisualizerStore();
-  const { state: appState } = useAppStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const vizRef = useRef<Visualizer | null>(null);
 
-  const activeTab = appState.tabs.find((t) => t.id === appState.activeTabId) ?? appState.tabs[0];
-  const accent = THEME_COLORS[activeTab.advanced.colorTheme];
+  const accent = useAccent();
 
   // ── Create / destroy ──
   useLayoutEffect(() => {

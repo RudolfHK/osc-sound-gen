@@ -1,10 +1,11 @@
-import { getAudioEngine } from './audio';
+import { getAudioEngine, applyWaveformToNode } from './audio';
 import { getEffectsBus } from './effects';
 import { getChannelRack } from './channelStrip';
 import { findLane, laneRealAt, scheduleLaneOnParam } from './automation';
 import { noiseSource, startNoise } from './sampler';
 import { midiToFreq } from '../utils/music';
 import type { AutomationLane } from '../utils/music';
+import type { OscillatorState, AdvancedSettings } from './oscillator';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1837,7 +1838,6 @@ export interface NoteContext {
 export class InstrumentEngine {
   private output: GainNode | null = null;
   private overrides = new Map<string, InstrumentOverride>();
-  private trackAssign = new Map<string, string>();   // tabId → presetId
   private lastFreq = new Map<string, number>();      // presetId → last note freq (glide)
   private activeVoices = 0;
 
@@ -1857,14 +1857,6 @@ export class InstrumentEngine {
 
   getOverride(presetId: string): InstrumentOverride {
     return this.overrides.get(presetId) ?? {};
-  }
-
-  setAssignments(map: Record<string, string>): void {
-    this.trackAssign = new Map(Object.entries(map));
-  }
-
-  getTrackInstrument(tabId: string): string | null {
-    return this.trackAssign.get(tabId) ?? null;
   }
 
   /** Preset with the user's overrides folded in. */
@@ -2152,6 +2144,74 @@ export class InstrumentEngine {
         try { mix.disconnect(); filter.disconnect(); amp.disconnect(); panner.disconnect(); } catch (_) { /* ignore */ }
       };
     }
+  }
+
+  /**
+   * One note from an oscillator-lab tab used as a track's sound source.
+   *
+   * A fresh oscillator per note makes it polyphonic — chords and overlapping
+   * notes all sound — and the lab's waveform, pulse width and detune carry
+   * over. A low-pass sits after it so cutoff and resonance automation work on
+   * oscillator tracks too.
+   */
+  playOscillatorNote(
+    oscState: OscillatorState,
+    advanced: AdvancedSettings,
+    midiNote: number,
+    velocity: number,
+    time: number,
+    durationS: number,
+    ctxOpts: NoteContext = {},
+  ): void {
+    const ctx = getAudioEngine().getAudioContext();
+    if (!ctx) return;
+    if (this.activeVoices >= MAX_VOICES) return;
+
+    // Headroom: unlike the single lab voice, several of these stack up
+    const peak = (Math.max(0, Math.min(127, velocity)) / 127) * oscState.amplitude * 0.5;
+    if (peak < 0.001) return;
+
+    const stripInput = ctxOpts.trackId ? getChannelRack().getInput(ctxOpts.trackId) : null;
+    const out: AudioNode = stripInput ?? this.getOutput(ctx);
+    const startBeat = ctxOpts.startBeat ?? 0;
+    const bpm = ctxOpts.bpm ?? 120;
+
+    const osc = ctx.createOscillator();
+    applyWaveformToNode(ctx, osc, oscState);
+    osc.frequency.setValueAtTime(midiToFreq(midiNote), time);
+    osc.detune.value = advanced.centsOffset;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.value = 0.7;
+    filter.frequency.value = 20000;
+
+    const amp = ctx.createGain();
+    const attack = 0.005;
+    const release = 0.04;
+    const noteOff = Math.max(time + attack + 0.005, time + Math.max(0.02, durationS));
+    const end = noteOff + release;
+    amp.gain.setValueAtTime(0, time);
+    amp.gain.linearRampToValueAtTime(peak, time + attack);
+    amp.gain.setValueAtTime(peak, noteOff);
+    amp.gain.linearRampToValueAtTime(0, end);
+
+    const cutoffLane = findLane(ctxOpts.lanes, 'cutoff');
+    const resoLane = findLane(ctxOpts.lanes, 'resonance');
+    if (cutoffLane) scheduleLaneOnParam(filter.frequency, cutoffLane, time, end - time, startBeat, bpm);
+    if (resoLane) scheduleLaneOnParam(filter.Q, resoLane, time, end - time, startBeat, bpm);
+
+    osc.connect(filter);
+    filter.connect(amp);
+    amp.connect(out);
+    osc.start(time);
+    osc.stop(end + 0.02);
+
+    this.activeVoices++;
+    osc.onended = () => {
+      this.activeVoices = Math.max(0, this.activeVoices - 1);
+      try { osc.disconnect(); filter.disconnect(); amp.disconnect(); } catch { /* ignore */ }
+    };
   }
 
   /** Audition a preset — plays a short phrase suited to its category. */

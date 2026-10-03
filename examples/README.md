@@ -1,144 +1,66 @@
-# OSC Synthesizer — Example Projects
+# Example Projects
 
-These `.oscproject` files demonstrate what the sequencer can do. Load them via **↑ LOAD** in the sequencer toolbar.
+Seven projects ship with the app. Open them from **OSC ▾ → Open example**, or load a file from this
+folder with **OSC ▾ → Open…**. Each one carries its own tracks, instruments, sections, mixer settings and
+drum patterns, so it plays exactly as written — just press **Space**.
 
-> **Tip:** Open the right number of OSC tabs before loading — use **+ ADD OSC** in the tab bar
-> to match the track count below. Tracks are matched to tabs by position, so a project with
-> three tracks needs three tabs.
-
-> **Note on the Minecraft pieces:** these are original arrangements written *in the style of*
-> C418's Minecraft soundtrack — same mood, key centres, and phrasing ideas — not transcriptions
-> of the copyrighted recordings.
+All of them are original compositions. The Minecraft-style pieces are written *in the style of* C418's
+soundtrack — similar mood, keys and phrasing — not transcriptions of the recordings.
 
 ---
 
 ## Production demo
 
-### midnight-drive.oscproject
-**5 tracks — 118 BPM — 16 bars — A minor**
+### midnight-drive
+**6 tracks · 118 BPM · 16 bars · A minor · sections: Intro → Groove → Lead → Peak**
 
-An original French-touch / synthwave study, written to exercise everything the app
-gained for production work: a sixteenth-note arpeggio generated from held triads,
-filter and resonance sweeps that run under sustained chords, sidechain ducking
-against the kick, and volume automation used as the arrangement.
+An original French-touch / synthwave study and the best tour of the app. Things to look at:
 
-Open **five** OSC tabs before loading, then assign:
+| Track | Sound | What it shows |
+|-------|-------|---------------|
+| Drums | House pattern | One drum clip from the Groove onwards |
+| Sub | Sub Bass | A 4-bar pattern looped across three sections; sidechain 70% |
+| Bass | Reese Bass | Same idea, with a filter cutoff lane opening over the song |
+| Arp | House Pluck | **ARP on** (1/16, up, 2 octaves) — the clip holds three-note chords and the arpeggiator does the rest. It enters at bar 3, so the clip starts two bars into its pattern to stay on the right chord |
+| Pad | Warm Pad | Its automation row is open: resonance rising under held chords |
+| Lead | Supersaw | An 8-bar melody clip in the Lead and Peak sections |
 
-| Track | Role | Instrument | Notes |
-|-------|------|-----------|-------|
-| 1 | Sub | *Synth Bass → Sub Bass* | Enters bar 5. Sidechain 70% |
-| 2 | Bass | *Synth Bass → Reese Bass* or *Saw Bass* | Enters bar 5, filter opens over the arrangement |
-| 3 | Arp | *Synth Pluck → House Pluck* | **ARP is on** (1/16, up, 2 octaves). Enters bar 3 |
-| 4 | Pad | *Synth Pad → Warm Pad* or *Synth Lead → Hoover* | Cutoff + resonance sweep across all 16 bars |
-| 5 | Lead | *Synth Lead → Supersaw* or *Hoover* | Enters bar 9 |
+Try right-clicking the **Groove** section → **Duplicate section** to make the song longer, or
+**Loop this section** to work on one part.
 
-Then:
-1. Open **DRUMS** and pick **House** or **Techno** — leave **SYNC** on so it follows 118 BPM
-2. Open **FX** — the reverb, ping-pong delay and limiter are what glue it together
-3. Open the sequencer's **AUTO** panel and pick a track to see its lanes
+---
 
-The arp track holds three-note chords; the arpeggiator expands them at playback, so
-editing the harmony means moving three notes rather than forty-eight.
+## Minecraft-style studies
 
-Every track's volume lane starts at zero and steps up — that is the arrangement.
-Turn a lane **OFF** in the AUTO panel to hear that part from bar 1 instead.
+No drums — the style doesn't use them. Each has an **A** and **B** section (or theme and variation).
 
-## Minecraft-style
+| Project | Tempo · key | Tracks |
+|---------|-------------|--------|
+| **minecraft-sweden** | 72 BPM · A minor | Melody (Felt Piano), Bass (Sub Bass), Pad (Warm Pad) |
+| **minecraft-wet-hands** | 84 BPM · C major | Piano (Grand Piano), Chords (Glass Pad), Bass (Finger Bass) |
+| **minecraft-subwoofer-lullaby** | 76 BPM · C minor | Melody (Vibraphone), Bass (Sub Bass), Pad (Dark Pad) |
+| **minecraft-haggstrom** | 96 BPM · A minor | Melody (Felt Piano), Arpeggio (Harp), Bass (Sub Bass) |
 
-### minecraft-sweden.oscproject
-**3 tracks — 72 BPM — A minor**
-
-Gentle arpeggiated melody over slow bass and an ambient pad. The calmest of the set.
-
-| Track | Role | Suggested instrument |
-|-------|------|----------------------|
-| 1 | Melody | *Keys → Music Box* or *Piano → Felt Piano* |
-| 2 | Bass | *Synth Bass → Sub Bass* |
-| 3 | Pad | *Synth Pad → Warm Pad* |
-
-### minecraft-wet-hands.oscproject
-**3 tracks — 84 BPM — C major**
-
-Continuous eighth-note piano figure over sustained thirds and a walking bass. The busiest melody line of the three.
-
-| Track | Role | Suggested instrument |
-|-------|------|----------------------|
-| 1 | Piano figure | *Piano → Grand Piano* |
-| 2 | Chord bed | *Synth Pad → Glass Pad* or *Strings → Chamber Strings* |
-| 3 | Bass | *Bass Guitar → Finger Bass* |
-
-### minecraft-subwoofer-lullaby.oscproject
-**3 tracks — 76 BPM — C minor**
-
-Bass-forward, as the name suggests: a prominent octave-jumping bass line under a sparse melody and quiet pad.
-
-| Track | Role | Suggested instrument |
-|-------|------|----------------------|
-| 1 | Melody | *Mallets → Vibraphone* or *Plucked → Kalimba* |
-| 2 | Lead bass | *Synth Bass → Sub Bass* |
-| 3 | Pad | *Synth Pad → Dark Pad* |
-
-### minecraft-haggstrom.oscproject
-**3 tracks — 96 BPM — A minor**
-
-Brighter and more rhythmic — a rising melody over a constant sixteenth-ish arpeggio.
-
-| Track | Role | Suggested instrument |
-|-------|------|----------------------|
-| 1 | Melody | *Piano → Felt Piano* |
-| 2 | Arpeggio | *Plucked → Harp* or *Acoustic Guitar → Nylon Classical* |
-| 3 | Bass | *Synth Bass → Sub Bass* |
+Good ones for trying other sounds: select a track and pick something else in the **INSTRUMENTS** tab —
+*Music Box* or *Celesta* on a melody, *Chamber Strings* under the chords.
 
 ---
 
 ## Other styles
 
-### ambient-cosmos.oscproject
-**3 tracks — 60 BPM — A major**
-
-Slow evolving pad textures with long, deliberately overlapping notes. Good for testing the
-multi-oscillator mix and long release tails.
-
-| Track | Role | Suggested instrument |
-|-------|------|----------------------|
-| 1 | Lead | *Synth Pad → Vapor Pad* |
-| 2 | Mid pad | *Vocal → Choir Oohs* |
-| 3 | Sub bass | *Synth Bass → Sub Bass* |
-
-### arp-sequence.oscproject
-**2 tracks — 134 BPM — C major**
-
-Fast 16th-note arpeggio demonstrating the piano roll at high note density.
-
-| Track | Role | Suggested instrument |
-|-------|------|----------------------|
-| 1 | Arp lead | *Synth Lead → Supersaw* |
-| 2 | Bass hits | *Synth Bass → Acid Bass* |
-
-Pair this one with the **Techno** or **House** drum pattern at the same BPM.
+| Project | Tempo · key | Tracks |
+|---------|-------------|--------|
+| **ambient-cosmos** | 60 BPM · A major | Lead (Vapor Pad), Choir (Choir Oohs), Sub (Sub Bass) — long overlapping notes, a test of release tails and reverb |
+| **arp-sequence** | 134 BPM · C major | Arp (Supersaw), Bass (Acid Bass) over a Techno drum clip that enters in the second section |
 
 ---
 
-## Adding drums
+## Making your own
 
-Open the **DRUMS** panel and pick a pattern that fits the tempo:
+1. Build a song in the arrangement
+2. **OSC ▾ → Save** (Ctrl+S) downloads it as `<project name>.oscproject`
+3. Share the file — it contains everything needed to play it, including any drum patterns and
+   lab oscillators it uses
 
-| Project | Suggested pattern |
-|---------|-------------------|
-| minecraft-* | none, or *Jazz Brush* very quietly |
-| ambient-cosmos | none |
-| arp-sequence | *Techno* or *House* |
-
-Leave **SYNC** enabled so the drum machine follows the sequencer's BPM.
-
----
-
-## Creating your own
-
-1. Build a composition in the sequencer
-2. Assign instruments from the **INSTRUMENTS** panel if you want more than a raw oscillator
-3. Click **↓ SAVE** to export as `.oscproject`
-4. Share the file — it contains all note data, BPM, and track pan settings
-
-Instrument assignments and drum patterns are stored separately in your browser (they persist
-across reloads but do not travel inside the `.oscproject` file).
+To add a project to this list, drop the `.oscproject` file in this folder; it appears in the
+**Open example** menu on the next build.

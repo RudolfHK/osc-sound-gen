@@ -1,7 +1,6 @@
 import { useEffectsStore } from '../store/effectsStore';
-import { useAppStore } from '../store/appStore';
+import { useAccent } from '../store/appStore';
 import { DELAY_DIVISIONS, type DelayDivision, type EffectsSettings } from '../engine/effects';
-import { THEME_COLORS } from '../utils/math';
 
 // ─── Small controls ───────────────────────────────────────────────────────────
 
@@ -60,10 +59,8 @@ function Rack({
 
 export function EffectsPanel() {
   const { state, dispatch } = useEffectsStore();
-  const { state: appState } = useAppStore();
 
-  const activeTab = appState.tabs.find((t) => t.id === appState.activeTabId) ?? appState.tabs[0];
-  const accent = THEME_COLORS[activeTab.advanced.colorTheme];
+  const accent = useAccent();
 
   const set = (patch: Partial<EffectsSettings>) => dispatch({ type: 'FX_SET', patch });
 

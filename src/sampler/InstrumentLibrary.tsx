@@ -97,20 +97,26 @@ function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: Param
 interface CardProps {
   preset: InstrumentPreset;
   assignedTo: string[];
+  /** This is the selected track's current sound. */
+  current: boolean;
+  canAssign: boolean;
   edited: boolean;
   onAudition: () => void;
   onAssign: () => void;
   onContext: (x: number, y: number) => void;
 }
 
-function PresetCard({ preset, assignedTo, edited, onAudition, onAssign, onContext }: CardProps) {
+function PresetCard({ preset, assignedTo, current, canAssign, edited, onAudition, onAssign, onContext }: CardProps) {
   return (
     <div
       onClick={onAudition}
       onContextMenu={(e) => { e.preventDefault(); onContext(e.clientX, e.clientY); }}
       title="Click to audition · Right-click to edit parameters"
       className="group relative flex flex-col justify-between w-[122px] h-[62px] px-2 py-1.5 border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/60 hover:border-neutral-600 cursor-pointer transition-colors"
-      style={{ borderLeftColor: preset.color, borderLeftWidth: 3 }}
+      style={{
+        borderLeftColor: preset.color, borderLeftWidth: 3,
+        ...(current ? { borderColor: preset.color, backgroundColor: preset.color + '1f' } : {}),
+      }}
     >
       <div className="flex items-start justify-between gap-1">
         <span className="text-xs text-neutral-200 leading-tight">{preset.name}</span>
@@ -123,13 +129,17 @@ function PresetCard({ preset, assignedTo, edited, onAudition, onAssign, onContex
         <span className="text-neutral-600 truncate" style={{ fontSize: 9 }}>
           {assignedTo.length > 0 ? `→ ${assignedTo.join(', ')}` : preset.category}
         </span>
-        <button
-          onClick={(e) => { e.stopPropagation(); onAssign(); }}
-          className="opacity-0 group-hover:opacity-100 text-xs px-1 border border-neutral-600 text-neutral-400 hover:text-neutral-100 hover:border-neutral-400 transition-opacity shrink-0"
-          title="Assign to the selected track"
-        >
-          SET
-        </button>
+        {current ? (
+          <span className="text-[9px] px-1 border shrink-0" style={{ borderColor: preset.color, color: preset.color }}>ON TRACK</span>
+        ) : canAssign && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onAssign(); }}
+            className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-xs px-1 border border-neutral-600 text-neutral-400 hover:text-neutral-100 hover:border-neutral-400 transition-opacity shrink-0"
+            title="Give the selected track this sound"
+          >
+            SET
+          </button>
+        )}
       </div>
     </div>
   );
@@ -139,17 +149,13 @@ function PresetCard({ preset, assignedTo, edited, onAudition, onAssign, onContex
 
 export function InstrumentLibrary() {
   const { state, dispatch } = useInstrumentStore();
-  const { state: appState } = useAppStore();
-
-  const [targetTab, setTargetTab] = useState<string>(appState.tabs[0]?.id ?? '');
+  const { state: appState, dispatch: appDispatch } = useAppStore();
   const [menu, setMenu] = useState<{ preset: InstrumentPreset; x: number; y: number } | null>(null);
 
-  // Keep the target selector pointing at a track that still exists
-  useEffect(() => {
-    if (!appState.tabs.some((t) => t.id === targetTab)) {
-      setTargetTab(appState.tabs[0]?.id ?? '');
-    }
-  }, [appState.tabs, targetTab]);
+  const tracks = appState.sequencer.tracks;
+  // Presets go on note tracks; drum tracks have their own kit
+  const target = tracks.find((t) => t.id === appState.sequencer.selectedTrackId && t.source.type !== 'drums')
+    ?? null;
 
   const visible = useMemo(() => {
     const q = state.search.trim().toLowerCase();
@@ -160,37 +166,31 @@ export function InstrumentLibrary() {
     });
   }, [state.category, state.search]);
 
-  /** presetId → labels of the tracks it's assigned to */
-  const assignedLabels = useMemo(() => {
+  /** presetId → names of the tracks that play it */
+  const usedBy = useMemo(() => {
     const map = new Map<string, string[]>();
-    for (const [tabId, presetId] of Object.entries(state.assignments)) {
-      const tab = appState.tabs.find((t) => t.id === tabId);
-      if (!tab) continue;
-      const list = map.get(presetId);
-      if (list) list.push(tab.label); else map.set(presetId, [tab.label]);
+    for (const t of tracks) {
+      if (t.source.type !== 'preset') continue;
+      const list = map.get(t.source.presetId);
+      if (list) list.push(t.name); else map.set(t.source.presetId, [t.name]);
     }
     return map;
-  }, [state.assignments, appState.tabs]);
+  }, [tracks]);
 
   const audition = useCallback((id: string) => {
     void getInstrumentEngine().preview(id);
   }, []);
 
   const assign = useCallback((presetId: string) => {
-    if (!targetTab) return;
-    dispatch({ type: 'INST_ASSIGN', tabId: targetTab, presetId });
-  }, [targetTab, dispatch]);
+    if (!target) return;
+    appDispatch({ type: 'SEQ_PUSH_UNDO' });
+    appDispatch({ type: 'TRACK_SET_SOURCE', trackId: target.id, source: { type: 'preset', presetId } });
+  }, [target, appDispatch]);
 
-  const assignmentRows = Object.entries(state.assignments)
-    .map(([tabId, presetId]) => {
-      const tab = appState.tabs.find((t) => t.id === tabId);
-      const preset = INSTRUMENT_PRESETS.find((p) => p.id === presetId);
-      return tab && preset ? { tab, preset } : null;
-    })
-    .filter((r): r is { tab: typeof appState.tabs[0]; preset: InstrumentPreset } => r !== null);
+  const currentPreset = target?.source.type === 'preset' ? target.source.presetId : null;
 
   return (
-    <div className="flex flex-col border-b border-neutral-800 bg-[#0d0d0d] shrink-0">
+    <div className="flex flex-col h-full min-h-0 bg-[#0d0d0d]">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40 flex-wrap">
         <span className="text-xs text-neutral-600 tracking-widest">INSTRUMENTS</span>
@@ -201,6 +201,7 @@ export function InstrumentLibrary() {
           placeholder="search…"
           onChange={(e) => dispatch({ type: 'INST_SET_SEARCH', search: e.target.value })}
           className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1.5 py-0.5 w-28 focus:outline-none focus:border-neutral-500"
+          aria-label="Search instruments"
         />
 
         <select
@@ -210,6 +211,7 @@ export function InstrumentLibrary() {
             category: e.target.value as InstrumentCategory | 'ALL',
           })}
           className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5"
+          aria-label="Category"
         >
           <option value="ALL">All categories</option>
           {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -217,42 +219,24 @@ export function InstrumentLibrary() {
 
         <span className="text-xs text-neutral-700 font-mono">{visible.length}</span>
 
-        <div className="ml-auto flex items-center gap-1.5">
-          <span className="text-xs text-neutral-600 tracking-widest">ASSIGN TO</span>
-          <select
-            value={targetTab}
-            onChange={(e) => setTargetTab(e.target.value)}
-            className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5"
-          >
-            {appState.tabs.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-          </select>
+        <div className="ml-auto flex items-center gap-1.5 text-xs">
+          {target ? (
+            <>
+              <span className="text-neutral-600 tracking-widest">TRACK</span>
+              <span className="flex items-center gap-1 px-1.5 py-0.5 border" style={{ borderColor: target.color + '88' }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: target.color }} />
+                <span className="text-neutral-200">{target.name}</span>
+              </span>
+              <span className="text-neutral-600">— click SET on a card to give it that sound</span>
+            </>
+          ) : (
+            <span className="text-neutral-600">Select an instrument track in the arrangement to assign a sound to it.</span>
+          )}
         </div>
       </div>
 
-      {/* Active assignments */}
-      {assignmentRows.length > 0 && (
-        <div className="flex items-center gap-1.5 px-3 py-1 border-b border-neutral-800/60 bg-neutral-900/20 flex-wrap">
-          <span className="text-xs text-neutral-600 tracking-widest">ACTIVE</span>
-          {assignmentRows.map(({ tab, preset }) => (
-            <span
-              key={tab.id}
-              className="flex items-center gap-1 px-1.5 py-0.5 text-xs border"
-              style={{ borderColor: preset.color + '66', color: preset.color }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: tab.color }} />
-              {tab.label} → {preset.name}
-              <button
-                onClick={() => dispatch({ type: 'INST_UNASSIGN', tabId: tab.id })}
-                className="ml-0.5 text-neutral-500 hover:text-red-400"
-                title="Play this track with its raw oscillator again"
-              >×</button>
-            </span>
-          ))}
-        </div>
-      )}
-
       {/* Preset grid */}
-      <div className="overflow-y-auto px-2 py-2" style={{ maxHeight: '260px' }}>
+      <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2">
         {visible.length === 0 ? (
           <div className="py-6 text-center text-xs text-neutral-600">
             No instruments match “{state.search}”.
@@ -263,7 +247,9 @@ export function InstrumentLibrary() {
               <PresetCard
                 key={preset.id}
                 preset={preset}
-                assignedTo={assignedLabels.get(preset.id) ?? []}
+                assignedTo={usedBy.get(preset.id) ?? []}
+                current={preset.id === currentPreset}
+                canAssign={!!target}
                 edited={!!state.overrides[preset.id]}
                 onAudition={() => audition(preset.id)}
                 onAssign={() => assign(preset.id)}
@@ -276,8 +262,7 @@ export function InstrumentLibrary() {
 
       {/* Hint bar */}
       <div className="px-3 py-0.5 border-t border-neutral-800/60 text-neutral-700" style={{ fontSize: 9 }}>
-        Click a card to audition · Right-click to edit its parameters · SET assigns it to the chosen track,
-        which the sequencer then plays instead of the raw oscillator.
+        Click a card to audition · Right-click to edit its parameters · SET gives the selected track that sound.
       </div>
 
       {menu && (

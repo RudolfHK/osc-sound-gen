@@ -1,6 +1,6 @@
 # OSC — Digital Oscillator Synthesizer
 
-A browser-based (and optionally desktop) digital oscilloscope and multi-track synthesizer. Set oscillator parameters, compose note sequences in a piano roll, mix tracks, and record the output — all rendered in real time at 60 fps.
+A browser-based (and optionally desktop) music production app: an arrangement of tracks, clips and song sections; a piano roll and drum step sequencer; 161 synthesized instruments; a mixer with per-track EQ, sends and sidechain; master effects; automation; and an optional oscillator lab with a live oscilloscope. Everything is synthesized in real time by the Web Audio API — no sample files.
 
 ---
 
@@ -11,12 +11,14 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:5173**. Click **▶ PLAY** on any oscillator tab to activate audio (required once by browser autoplay policy).
+Open **http://localhost:5173** and press **Space** (or **▶ PLAY**) — the browser needs one click or key press before it allows audio. To hear what it can do straight away, open **OSC ▾ → Open example → midnight drive**.
 
 ```bash
-npm run build    # Production bundle → dist/
-npm run preview  # Serve the production build locally
-npm run lint     # TypeScript type-check (no emit)
+npm run build      # Type-check app + tests, then production bundle → dist/
+npm run preview    # Serve the production build locally
+npm run lint       # Type-check only
+npm test           # Unit tests (Vitest)
+npm run test:e2e   # Browser tests against dist/ (run `npm run build` first)
 ```
 
 For a detailed setup walkthrough see [QUICKSTART.md](QUICKSTART.md). For full feature documentation see [GUIDE.md](GUIDE.md).
@@ -67,36 +69,29 @@ For the complete Electron packaging guide including code signing and auto-update
 
 ## Features
 
-### Oscillator engine
-- **4 waveforms**: Sine, Square (variable pulse width via Fourier series), Sawtooth, Triangle
-- **Logarithmic frequency slider**: 20 Hz – 20 kHz with precision type-in input
-- **Smooth parameter transitions**: `setTargetAtTime` with 10 ms time constant — no clicks or zipper noise
-- **Multi-oscillator**: unlimited tabs, each independent Play/Stop, Mute/Solo, rename, drag-reorder
+### Arrangement
+- **Tracks own their sound** — an instrument preset, a drum kit, or (optionally) an oscillator from the lab
+- **Clips** on a timeline, each playing a looping **pattern**: drag to move (across tracks too), Alt-drag to copy,
+  drag either edge to loop or trim, Ctrl+D to duplicate, Ctrl+E to split, per-clip mute
+- **Linked or independent copies** — duplicates are independent by default, as in Ableton and Logic; linked
+  clips share a pattern and show ⧉
+- **Song sections** on the ruler (Intro, Verse, Drop…): duplicate a section with everything in it, delete one and
+  close the gap, or loop it with one click
+- Bar ruler: click to seek, drag to set the loop; a loop only engages when the playhead reaches it
+- Ctrl+wheel zoom around the cursor, Shift+wheel to scroll time, FIT to see the whole song
+- Track headers with rename, colour, volume, mute/solo (additive), automation toggle and a ⋯ menu
+- Undo/redo covers the whole document — clips, patterns, sections, automation
 
-### Oscilloscope
-- 60 fps Canvas 2D rendering, 2048-sample buffer, antialiased phosphor-glow line
-- **Single mode**: active oscillator with amplitude grid and timing ruler
-- **Overlay mode**: all oscillators rendered simultaneously with a white SUM waveform
+### Editor dock
+- Arrange above, editor below — the Ableton/Logic/Bitwig layout. Tabs for **Editor**, **Mixer**, **Instruments**
+  and **FX**; resizable and collapsible
+- **Piano roll** for the selected clip: draw/select modes, grid and note length, velocity lane, quantize,
+  copy/paste, arrow-key transpose, draggable pattern loop length
+- Every note you draw or drag **plays through the track's actual instrument**
+- **Drum step sequencer** for drum clips; picking a pattern swaps it into the clip
+- Computer-keyboard piano (C4 on A) through the selected track's sound
 
-### Sequencer / Piano Roll
-- Piano roll editor with **Draw** and **Select** edit modes
-- **Configurable note length** — set default duration before drawing
-- **Velocity lane** — toggle a 50 px lane below the roll; drag bars to set per-note velocity
-- **Loop region** — colored overlay; sequencer loops the marked region
-- **Snap grid**: 1/1 → 1/32 note resolution; Shift+drag for free movement
-- **Undo/Redo** — 50 levels; Ctrl+Z / Ctrl+Shift+Z (⌘ on Mac)
-- **Copy/Paste** — Ctrl+C copies selected notes; Ctrl+V pastes at playhead position
-- **Select-all / deselect** — Ctrl+A / Escape
-- **Quantize** — Q key or Q button snaps selected notes to snap grid
-- **Computer keyboard piano** — A/W/S/E/D/F/T/G/Y/H/U/J/K preview notes in the tab's waveform
-
-### Mixer
-- Per-track VU meters (activate once any oscillator starts playing)
-- Volume fader and stereo pan per track
-- Master volume strip
-- Mute/Solo per track
-
-### Drum Machine (`DRUMS`)
+### Drums
 - **33 synthesized voices** — three kick variants (acoustic, 808, tight), three snares
   (acoustic, 808, brush), closed/open/pedal hi-hats, clap, rim, snap, three toms,
   crash, splash, ride, ride bell, reverse cymbal, cowbell, shaker, cabasa, tambourine,
@@ -111,7 +106,7 @@ For the complete Electron packaging guide including code signing and auto-update
 - **Right-click a voice name** → volume, pan, tone, pitch, decay for the whole row
 - Per-voice mute/solo; BPM syncs to the sequencer
 
-### Instrument Library (`INSTRUMENTS`)
+### Instrument Library
 - **161 subtractive-synthesis presets** across eighteen categories:
 
   | Group | Categories |
@@ -142,7 +137,7 @@ For the complete Electron packaging guide including code signing and auto-update
 - **Assign a preset to a track** — the sequencer then plays that track's notes through the
   instrument instead of its raw oscillator, so you can layer synths, guitars and drums
 
-### Master Effects (`FX`)
+### Master Effects
 - **Convolution reverb** with a procedurally generated impulse response — adjustable tail
   length (0.2–8 s) and high-frequency damping
 - **Ping-pong delay**, tempo-synced to the sequencer (1/4 through 1/16, including dotted and
@@ -159,7 +154,7 @@ For the complete Electron packaging guide including code signing and auto-update
   length, so a held chord keeps moving instead of freezing at its starting value
 - Lanes read in looped time, so sweeps repeat with the loop
 - An enabled lane takes its parameter over from the mixer (the control dims to say so)
-- With no separate arranger view, volume lanes double as the arrangement
+- Lanes sit inline under their track in the arrangement, lined up with its clips
 
 ### Arpeggiator
 - Per-track, expanding held chords into running patterns at playback
@@ -168,12 +163,13 @@ For the complete Electron packaging guide including code signing and auto-update
 - Overlapping notes are grouped into chords automatically; the piano roll keeps
   showing your long notes, so editing harmony stays a three-note job
 
-### Channel strips
-- Every track gets 3-band EQ (200 Hz shelf / 1.2 kHz peak / 4 kHz shelf, ±18 dB),
+### Mixer
+- A channel strip per track: 3-band EQ (200 Hz shelf / 1.2 kHz peak / 4 kHz shelf, ±18 dB),
   independent reverb/delay/chorus sends, fader to 150%, pan, mute and solo
-- **Sidechain ducking** — any track can duck under the drum machine's kick, which is
+- **Real per-track meters** (post-fader peak), plus a master meter
+- **Sidechain ducking** — any track can duck under the kicks on a drum track, which is
   what lets kick and bass share a downbeat without masking each other
-- Raw-oscillator and instrument-assigned tracks share the same strip
+- Mute acts as a gain, so it silences notes already ringing
 
 ### Visualizer (`VIZ`)
 - **Off by default and not restored on reload** — it taps the master bus and runs a
@@ -183,19 +179,28 @@ For the complete Electron packaging guide including code signing and auto-update
   (theme / spectrum / mono), mirror, glow, and a 30/60 FPS cap
 
 ### Recording
-- Captures master output to **WebM** (Opus) or **WAV** (16-bit PCM)
-- No time limit; WAV conversion handled in-browser via AudioBuffer decoding
+- **● REC** in the transport records the master output after the limiter; it starts playback if stopped,
+  and stopping the transport ends the take
+- Download as **WAV** (16-bit PCM) or **WebM** (Opus)
+
+### Oscillator Lab (optional)
+- The original synth: **4 waveforms** (square with variable pulse width via a 256-harmonic Fourier series),
+  logarithmic 20 Hz – 20 kHz frequency, phase, detune
+- 60 fps oscilloscope with single and overlay (with SUM) modes
+- Any lab oscillator can be a track's sound — polyphonic, with cutoff/resonance automation
 
 ### Persistence
-- **Auto-save** — full app state (oscillators, sequencer, settings) persists in `localStorage`
-- **Project files** — save/load `.oscproject` (JSON) for sharing compositions
-- Drum patterns and instrument assignments persist separately in `localStorage`
+- **Auto-save** — the whole session is kept in `localStorage`, written in debounced batches and never per frame
+- **Project files** (`.oscproject`, JSON) are self-contained: tracks, clips, patterns, sections, automation, mixer,
+  plus the drum patterns and lab oscillators they use
+- Older project files and saved sessions migrate automatically
 
 ### Example projects
-Seven ready-to-load compositions live in [`examples/`](examples/README.md), including
-`midnight-drive.oscproject` — an original French-touch study that exercises the
-arpeggiator, automation lanes and sidechain together — plus four Minecraft/C418-style
-pieces, an ambient pad study and a fast arpeggio demo.
+Seven compositions ship with the app — open them from **OSC ▾ → Open example**, or find the files in
+[`examples/`](examples/README.md). They include `midnight-drive`, an original French-touch study that uses
+sections, looping clips, the arpeggiator, filter/resonance automation and sidechain together; four
+Minecraft/C418-style pieces; an ambient pad study; and a fast arpeggio over techno drums. All are original
+compositions.
 
 ---
 
@@ -203,22 +208,19 @@ pieces, an ambient pad study and a fast arpeggio demo.
 
 | Shortcut | Action |
 |----------|--------|
-| **Ctrl+Z** | Undo (piano roll) |
-| **Ctrl+Shift+Z** | Redo |
-| **Delete / Backspace** | Delete selected notes |
-| **Right-click note** | Delete note (Draw mode) |
-| **Ctrl+C** | Copy selected notes |
-| **Ctrl+V** | Paste notes at playhead |
-| **Ctrl+A** | Select all notes in track |
-| **Escape** | Deselect all |
-| **Q** | Quantize selected notes to snap grid |
-| **Shift+click** | Toggle note in/out of selection |
-| **A W S E D F T G Y H U J K** | Preview MIDI notes via current oscillator (piano keyboard) |
-| **Ctrl+scroll** | Zoom piano roll horizontally |
-| **Shift+scroll** | Scroll piano roll vertically (pitch) |
-| **Scroll** | Scroll piano roll horizontally (time) |
-| **Double-click tab label** | Rename tab |
-| **Drag tab** | Reorder tabs |
+| **Space** | Play / stop |
+| **Home** | Return to start |
+| **Ctrl+Z** / **Ctrl+Shift+Z** | Undo / redo |
+| **Ctrl+S** / **Ctrl+O** | Save / open project |
+| **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
+| **Delete**, **Ctrl+D**, **Ctrl+E** | Delete / duplicate / split the selected clip *(arrangement)* |
+| **M** / **S** | Mute / solo the selected track *(arrangement)* |
+| **L** / **K** | Loop / metronome *(arrangement)* |
+| **A W S E D F T G Y H U J K…** | Play notes *(editor)* |
+| **↑ / ↓**, **Q**, **Ctrl+A/C/V** | Transpose, quantize, select/copy/paste notes *(editor)* |
+
+Arrangement and editor shortcuts follow whichever you clicked last; none fire while typing in a text field.
+The full list is in [GUIDE.md](GUIDE.md#keyboard-shortcuts).
 
 ---
 
@@ -246,7 +248,9 @@ The square wave audio engine uses a 256-harmonic Fourier series (`PeriodicWave`)
 | Styling | Tailwind CSS 3 (utility-first, dark theme) |
 | Audio | Web Audio API — `OscillatorNode`, `GainNode`, `StereoPannerNode`, `AnalyserNode`, `MediaRecorder` |
 | Oscilloscope | Canvas 2D API, 60 fps `requestAnimationFrame` loop |
-| Piano roll | Canvas 2D API, lookahead scheduler (120 ms / 25 ms interval) |
+| Arrangement & editors | Canvas 2D; playhead drawn as a transformed overlay, so lanes never redraw during playback |
+| Scheduler | Lookahead (120 ms ahead, 25 ms tick) over half-open time windows — each event is scheduled exactly once |
+| Tests | Vitest (model, scheduler, migrations, examples) + Playwright (end-to-end, including audio output) |
 | Desktop | Electron (optional, see above) |
 
 ---
@@ -255,36 +259,60 @@ The square wave audio engine uses a 256-harmonic Fourier series (`PeriodicWave`)
 
 ```
 src/
+├── arrange/
+│   ├── ArrangementView.tsx  tracks, clip lanes, inline automation, playhead overlay, clip gestures
+│   ├── Ruler.tsx            sections row + bar ruler with loop brace
+│   ├── drawLane.ts          clip rendering (note/drum previews, loop markers)
+│   └── geometry.ts          beat↔pixel maths, grid
 ├── engine/
-│   ├── oscillator.ts      state types and defaults
-│   ├── audio.ts           Web Audio API engine (singleton MultiOscillatorEngine)
-│   └── sequencer.ts       lookahead scheduler + per-track audio nodes
+│   ├── timeline.ts          pure event collection over loop-aware windows (unit-tested)
+│   ├── sequencer.ts         scheduler: turns timeline events into Web Audio calls
+│   ├── playhead.ts          live position outside React state
+│   ├── instruments.ts       161 presets, polyphonic preset + oscillator voices
+│   ├── sampler.ts           33 synthesized drum voices
+│   ├── channelStrip.ts      per-track EQ, fader, pan, sends, mute, sidechain, meters
+│   ├── effects.ts           master reverb, delay, chorus
+│   ├── automation.ts        lane maths and AudioParam scheduling
+│   ├── arpeggiator.ts       chord → arpeggio expansion
+│   └── audio.ts             AudioContext, master bus + limiter, lab oscillators
 ├── sequencer/
-│   ├── PianoRoll.tsx      canvas piano roll, all note interaction
-│   ├── SequencerPanel.tsx panel layout, project save/load, resize handle
-│   ├── TransportBar.tsx   BPM, loop, snap, NOTE, VEL, Q, undo/redo
-│   ├── TrackHeader.tsx    per-track sidebar (mute/solo/pan)
-│   └── Mixer.tsx          per-track VU meters + faders
+│   ├── PianoRoll.tsx        note editor for the selected clip
+│   ├── TrackHeader.tsx      editor's pattern column + arpeggiator
+│   ├── AutomationLane.tsx   breakpoint editor canvas
+│   └── Mixer.tsx            channel strips
+├── sampler/                 drum step sequencer, instrument library, FX panel
 ├── store/
-│   └── appStore.ts        useReducer + Context, localStorage persistence
+│   ├── appStore.ts          document model reducer, undo, debounced persistence, migration
+│   └── …                    drum, instrument, effects and visualizer stores
 ├── ui/
-│   ├── controls.tsx       oscillator parameter controls
-│   ├── layout.tsx         top-level layout, oscilloscope bridge
-│   ├── TabBar.tsx         tab add/remove/rename/reorder
-│   └── RecordingControls.tsx recording bar
-├── visualizer/
-│   └── oscilloscope.ts    canvas renderer, single + overlay modes
+│   ├── AppShell.tsx         header, view switch, global shortcuts, engine sync
+│   ├── Transport.tsx        play/stop/record, position, tempo, loop, metronome
+│   ├── Dock.tsx             editor / mixer / instruments / FX tabs
+│   ├── OscLab.tsx           optional oscillator lab
+│   └── …                    context menus, notices, focus scoping, project actions
 ├── utils/
-│   ├── math.ts            waveform math, log↔freq mapping, Fourier coefficients
-│   ├── music.ts           MIDI utils, snap grid, sequencer types
-│   ├── colors.ts          tab color palette
-│   └── wav.ts             WAV encoding utilities
-└── main.tsx               React entry point
-electron/
-└── main.cjs               Electron main process (CommonJS)
-assets/
-└── ICONS.md               Icon conversion instructions for electron-builder
+│   ├── music.ts             track/clip/pattern/section model, MIDI and beat maths
+│   └── project.ts           .oscproject v2 format, v1 + saved-session migration
+└── visualizer/              oscilloscope and audio visualizer
+e2e/smoke.mjs                browser tests (Playwright)
+examples/                    bundled projects
+electron/main.cjs            Electron main process
 ```
+
+---
+
+## Testing
+
+```bash
+npm test                          # 41 unit tests: model, reducer, scheduler, migrations, examples
+npm run build && npm run test:e2e # 18 browser tests
+```
+
+The browser suite drives the built app in Chromium and taps its audio output, so it checks that
+playback actually produces sound, that mute actually silences it, that a tempo change doesn't jump the
+playhead, and that playback doesn't write to storage every frame — not just that nothing threw. It also
+verifies that a session saved by an older version migrates instead of crashing. Set `CHROMIUM_PATH` to
+choose the browser binary.
 
 ---
 

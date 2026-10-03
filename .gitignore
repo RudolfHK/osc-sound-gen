@@ -13,3 +13,4 @@ node_modules/
 
 # Vite cache
 .vite/
+e2e/last-run.png

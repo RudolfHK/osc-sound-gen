@@ -290,7 +290,14 @@ function VoiceRow({
 
 // ─── Main DrumMachine component ───────────────────────────────────────────────
 
-export function DrumMachine() {
+interface DrumMachineProps {
+  /** pattern id → number of arrangement clips that play it */
+  usedBy?: Map<string, number>;
+  /** Set when the editor is showing a specific drum clip. */
+  boundClipLabel?: string;
+}
+
+export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
   const { state, dispatch } = useDrumStore();
   const { state: appState } = useAppStore();
 
@@ -357,7 +364,7 @@ export function DrumMachine() {
   if (!pattern) return null;
 
   return (
-    <div className="flex flex-col border-b border-neutral-800 bg-[#0d0d0d] shrink-0">
+    <div className="flex flex-col bg-[#0d0d0d] h-full min-h-0">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40">
         <span className="text-xs text-neutral-600 tracking-widest">DRUMS</span>
@@ -388,7 +395,13 @@ export function DrumMachine() {
           title="Duplicate pattern"
         >⧉</button>
         <button
-          onClick={() => { if (window.confirm(`Delete pattern "${pattern.name}"?`)) dispatch({ type: 'DRUM_DELETE_PATTERN', patternId: pattern.id }); }}
+          onClick={() => {
+            const n = usedBy?.get(pattern.id) ?? 0;
+            const warning = n > 0
+              ? `"${pattern.name}" is used by ${n} clip${n > 1 ? 's' : ''} in the arrangement, which will go silent. Delete it anyway?`
+              : `Delete pattern "${pattern.name}"?`;
+            if (window.confirm(warning)) dispatch({ type: 'DRUM_DELETE_PATTERN', patternId: pattern.id });
+          }}
           className="px-1.5 py-0.5 text-xs border border-neutral-700 text-neutral-600 hover:text-red-400 hover:border-red-800"
           title="Delete pattern"
         >🗑</button>
@@ -455,9 +468,20 @@ export function DrumMachine() {
                 : 'border-green-700 text-green-400 bg-green-900/20 hover:bg-green-900/40'
             }`}
           >
-            {state.isPlaying ? '■ STOP' : '▶ PLAY'}
+            {state.isPlaying ? '■ STOP' : '▶ AUDITION'}
           </button>
         </div>
+      </div>
+
+      {/* What this pattern is wired to */}
+      <div className="flex items-center gap-2 px-3 py-0.5 border-b border-neutral-800/60 bg-neutral-950 text-[10px] text-neutral-500">
+        {boundClipLabel
+          ? <span>Editing the pattern of <span className="text-neutral-300">{boundClipLabel}</span>. Picking another pattern above swaps it into the clip.</span>
+          : <span>Pattern library — double-click a drum track's lane to place the selected pattern in the arrangement.</span>}
+        {(usedBy?.get(pattern.id) ?? 0) > 1 && (
+          <span className="text-amber-400">Used by {usedBy!.get(pattern.id)} clips — edits change all of them.</span>
+        )}
+        <span className="ml-auto text-neutral-600">AUDITION loops this pattern on its own; the song transport plays the arrangement.</span>
       </div>
 
       {/* Voice group filter */}
@@ -478,7 +502,7 @@ export function DrumMachine() {
       </div>
 
       {/* Voice grid */}
-      <div className="overflow-x-auto overflow-y-auto px-2 py-1" style={{ maxHeight: '300px' }}>
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto px-2 py-1">
         {visibleVoices.map((voice) => (
           <VoiceRow
             key={voice.id}

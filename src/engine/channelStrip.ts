@@ -190,6 +190,42 @@ export class ChannelStripRack {
     }
   }
 
+  // ─── Metering ───────────────────────────────────────────────────────────────
+
+  private analysers = new Map<string, AnalyserNode>();
+
+  /** Post-fader analyser for a track's meter, created on first request. */
+  getAnalyser(trackId: string): AnalyserNode | null {
+    const s = this.get(trackId);
+    if (!s) return null;
+    const existing = this.analysers.get(trackId);
+    if (existing && existing.context === s.ctx) return existing;
+    const a = s.ctx.createAnalyser();
+    a.fftSize = 512;
+    s.panner.connect(a);
+    this.analysers.set(trackId, a);
+    return a;
+  }
+
+  // ─── Mute ───────────────────────────────────────────────────────────────────
+
+  /**
+   * Mute is a gain on the strip input, not a skipped note, so it silences notes
+   * that are already sounding and un-muting brings a held pad straight back.
+   */
+  setMute(trackId: string, muted: boolean): void {
+    const s = this.get(trackId);
+    if (!s) return;
+    s.input.gain.setTargetAtTime(muted ? 0 : 1, s.ctx.currentTime, 0.008);
+  }
+
+  /** Release strips for tracks that no longer exist. */
+  retain(trackIds: Set<string>): void {
+    for (const id of [...this.strips.keys()]) {
+      if (!trackIds.has(id)) this.release(id);
+    }
+  }
+
   /** Any track currently asking to be ducked? Lets the drum engine skip the work. */
   anySidechained(): boolean {
     for (const s of this.strips.values()) if (s.sidechain >= 0.01) return true;
@@ -206,6 +242,11 @@ export class ChannelStripRack {
       try { n.disconnect(); } catch (_) { /* already gone */ }
     }
     this.strips.delete(tabId);
+    const a = this.analysers.get(tabId);
+    if (a) {
+      try { a.disconnect(); } catch (_) { /* already gone */ }
+      this.analysers.delete(tabId);
+    }
   }
 }
 

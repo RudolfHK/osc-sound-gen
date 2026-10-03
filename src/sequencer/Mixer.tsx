@@ -1,251 +1,229 @@
-import { useEffect, useRef, useState } from 'react';
-import { useAppStore } from '../store/appStore';
+import { useEffect, useRef } from 'react';
+import { useAppStore, useAccent } from '../store/appStore';
 import { getAudioEngine } from '../engine/audio';
-import { THEME_COLORS } from '../utils/math';
-import { makeDefaultChannel } from '../utils/music';
-import type { ChannelSettings } from '../utils/music';
+import { getChannelRack } from '../engine/channelStrip';
+import { effectiveTrackMutes, type ChannelSettings, type Track } from '../utils/music';
 
-// Pre-allocated buffer for VU meter reads — never allocate inside the draw loop
-const VU_BUF_SIZE = 256;
+// ─── Metering ─────────────────────────────────────────────────────────────────
+//
+// One animation loop drives every meter, rather than one loop per strip.
 
-// ─── VU Meter canvas ──────────────────────────────────────────────────────────
+type MeterSource = () => AnalyserNode | null;
+const meters = new Map<HTMLCanvasElement, { source: MeterSource; color: string; peak: number; buf: Float32Array }>();
+let meterRaf = 0;
 
-function VUMeter({ analyser, color }: { analyser: AnalyserNode | null; color: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef(0);
-  const bufRef = useRef(new Float32Array(VU_BUF_SIZE));
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !analyser) return;
+function meterLoop() {
+  for (const [canvas, m] of meters) {
+    const a = m.source();
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    if (bufRef.current.length !== analyser.fftSize) {
-      bufRef.current = new Float32Array(analyser.fftSize);
+    if (!ctx) continue;
+    let level = 0;
+    if (a) {
+      if (m.buf.length !== a.fftSize) m.buf = new Float32Array(a.fftSize);
+      a.getFloatTimeDomainData(m.buf as Float32Array<ArrayBuffer>);
+      let peak = 0;
+      for (let i = 0; i < m.buf.length; i++) peak = Math.max(peak, Math.abs(m.buf[i]));
+      const db = 20 * Math.log10(Math.max(peak, 1e-5));
+      level = Math.max(0, Math.min(1, (db + 54) / 54));
     }
-    const buf = bufRef.current;
-
-    const draw = () => {
-      analyser.getFloatTimeDomainData(buf);
-      let rms = 0;
-      for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-      rms = Math.sqrt(rms / buf.length);
-      const db = 20 * Math.log10(Math.max(rms, 1e-6));
-      const level = Math.max(0, Math.min(1, (db + 60) / 60)); // -60 dB → 0 dB
-
-      const W = canvas.width;
-      const H = canvas.height;
-      ctx.fillStyle = '#111';
-      ctx.fillRect(0, 0, W, H);
-
-      const barH = H * level;
-      const gradient = ctx.createLinearGradient(0, H, 0, 0);
-      gradient.addColorStop(0, color);
-      gradient.addColorStop(0.7, color);
-      gradient.addColorStop(0.9, '#ffb000');
-      gradient.addColorStop(1, '#ff4040');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, H - barH, W, barH);
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-    rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [analyser, color]);
-
-  return <canvas ref={canvasRef} width={7} height={44} className="rounded-sm" />;
+    // Fast attack, slow release, like a hardware meter
+    m.peak = level > m.peak ? level : Math.max(level, m.peak - 0.02);
+    const W = canvas.width;
+    const H = canvas.height;
+    ctx.fillStyle = '#141414';
+    ctx.fillRect(0, 0, W, H);
+    const h = m.peak * H;
+    const g = ctx.createLinearGradient(0, H, 0, 0);
+    g.addColorStop(0, m.color);
+    g.addColorStop(0.75, m.color);
+    g.addColorStop(0.9, '#f59e0b');
+    g.addColorStop(1, '#ef4444');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, H - h, W, h);
+  }
+  meterRaf = meters.size ? requestAnimationFrame(meterLoop) : 0;
 }
 
-// ─── Compact labelled slider ──────────────────────────────────────────────────
+function Meter({ source, color }: { source: MeterSource; color: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const srcRef = useRef(source);
+  srcRef.current = source;
+  useEffect(() => {
+    const c = ref.current;
+    if (!c) return;
+    meters.set(c, { source: () => srcRef.current(), color, peak: 0, buf: new Float32Array(512) });
+    if (!meterRaf) meterRaf = requestAnimationFrame(meterLoop);
+    return () => { meters.delete(c); };
+  }, [color]);
+  return <canvas ref={ref} width={6} height={96} className="rounded-sm" aria-hidden />;
+}
 
-function Row({
-  label, value, min, max, step, color, format, onChange, dim,
+// ─── Controls ─────────────────────────────────────────────────────────────────
+
+function Knob({
+  label, value, min, max, step, color, format, onChange, dim, onReset,
 }: {
   label: string; value: number; min: number; max: number; step: number;
-  color: string; format: (v: number) => string;
-  onChange: (v: number) => void; dim?: boolean;
+  color: string; format: (v: number) => string; onChange: (v: number) => void;
+  dim?: boolean; onReset?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-1" title={`${label}: ${format(value)}`}>
-      <span
-        className="shrink-0 font-mono w-4"
-        style={{ fontSize: 8, color: dim ? '#525252' : '#737373' }}
-      >{label}</span>
+    <label className="flex items-center gap-1" title={`${label}: ${format(value)}${onReset ? ' — double-click to reset' : ''}`}>
+      <span className="shrink-0 font-mono w-5" style={{ fontSize: 8, color: dim ? '#525252' : '#8a8a8a' }}>{label}</span>
       <input
         type="range" min={min} max={max} step={step} value={value}
         className="flex-1 h-0.5 min-w-0"
         style={{ accentColor: color }}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        onDoubleClick={onReset}
+        aria-label={label}
       />
-    </div>
+    </label>
   );
 }
 
-// ─── Channel strip ────────────────────────────────────────────────────────────
+const db = (v: number) => `${v > 0 ? '+' : ''}${v.toFixed(1)} dB`;
+const pct = (v: number) => `${Math.round(v * 100)}%`;
 
-function ChannelStrip({ tabId }: { tabId: string }) {
+function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
   const { state, dispatch } = useAppStore();
-  const tab = state.tabs.find((t) => t.id === tabId);
-  const track = state.sequencer.tracks.find((t) => t.tabId === tabId);
-
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  const anyPlaying = state.tabs.some((t) => t.isPlaying) || state.sequencer.isPlaying;
-
-  useEffect(() => {
-    const audioEngine = getAudioEngine();
-    const audioCtx = audioEngine.getAudioContext();
-    const master = audioEngine.getMasterGain();
-    if (!audioCtx || !master) {
-      setAnalyser(null);
-      return;
-    }
-    const node = audioCtx.createAnalyser();
-    node.fftSize = VU_BUF_SIZE;
-    master.connect(node);
-    setAnalyser(node);
-    return () => {
-      try { master.disconnect(node); } catch (_) { /* ignore */ }
-      setAnalyser(null);
-    };
-  }, [tabId, anyPlaying]);
-
-  if (!tab || !track) return null;
-  const color = tab.color;
-  const ch: ChannelSettings = track.channel ?? makeDefaultChannel();
-
-  // Lanes driving a parameter take it over from the fader, so dim what's automated
-  const automated = new Set(
-    (track.lanes ?? []).filter((l) => l.enabled && l.points.length > 0).map((l) => l.target),
-  );
-
-  const setCh = (patch: Partial<ChannelSettings>) =>
-    dispatch({ type: 'SEQ_SET_CHANNEL', tabId, channel: patch });
-
-  const db = (v: number) => `${v > 0 ? '+' : ''}${v.toFixed(1)} dB`;
-  const pct = (v: number) => `${Math.round(v * 100)}%`;
+  const accent = useAccent();
+  const ch = track.channel;
+  const selected = track.id === state.sequencer.selectedTrackId;
+  const automated = new Set(track.lanes.filter((l) => l.enabled && l.points.length > 0).map((l) => l.target));
+  const set = (patch: Partial<ChannelSettings>) => dispatch({ type: 'SEQ_SET_CHANNEL', trackId: track.id, channel: patch });
+  const c = track.color;
 
   return (
-    <div className="flex flex-col gap-1 px-1.5 py-1.5 border-r border-neutral-800 w-[92px] shrink-0">
-      {/* Label */}
-      <div className="flex items-center gap-1">
-        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <span className="text-xs font-mono text-neutral-400 truncate" title={tab.label}>{tab.label}</span>
+    <div
+      className="flex flex-col gap-1 px-1.5 py-1.5 border-r border-neutral-800 w-[96px] shrink-0"
+      style={{ backgroundColor: selected ? '#161616' : undefined, opacity: mutedBySolo ? 0.55 : 1 }}
+      onMouseDown={() => dispatch({ type: 'TRACK_SELECT', trackId: track.id })}
+    >
+      <div className="flex items-center gap-1 border-b pb-1" style={{ borderColor: c }}>
+        <span className="text-xs text-neutral-300 truncate" title={track.name}>{track.name}</span>
       </div>
 
-      {/* EQ */}
       <div className="flex flex-col gap-0.5">
-        <span className="text-neutral-700 tracking-widest" style={{ fontSize: 8 }}>EQ</span>
-        <Row label="HI" value={ch.eqHigh} min={-18} max={18} step={0.5} color={color}
-          format={db} dim={automated.has('eqHigh')} onChange={(v) => setCh({ eqHigh: v })} />
-        <Row label="MD" value={ch.eqMid} min={-18} max={18} step={0.5} color={color}
-          format={db} dim={automated.has('eqMid')} onChange={(v) => setCh({ eqMid: v })} />
-        <Row label="LO" value={ch.eqLow} min={-18} max={18} step={0.5} color={color}
-          format={db} dim={automated.has('eqLow')} onChange={(v) => setCh({ eqLow: v })} />
+        <span className="text-neutral-600 tracking-widest" style={{ fontSize: 8 }}>EQ</span>
+        <Knob label="HI" value={ch.eqHigh} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqHigh')}
+          onChange={(v) => set({ eqHigh: v })} onReset={() => set({ eqHigh: 0 })} />
+        <Knob label="MID" value={ch.eqMid} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqMid')}
+          onChange={(v) => set({ eqMid: v })} onReset={() => set({ eqMid: 0 })} />
+        <Knob label="LO" value={ch.eqLow} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqLow')}
+          onChange={(v) => set({ eqLow: v })} onReset={() => set({ eqLow: 0 })} />
       </div>
 
-      {/* Sends */}
       <div className="flex flex-col gap-0.5">
-        <span className="text-neutral-700 tracking-widest" style={{ fontSize: 8 }}>SEND</span>
-        <Row label="RV" value={ch.sendReverb} min={0} max={1} step={0.01} color="#8b5cf6"
-          format={pct} dim={automated.has('sendReverb')} onChange={(v) => setCh({ sendReverb: v })} />
-        <Row label="DL" value={ch.sendDelay} min={0} max={1} step={0.01} color="#06b6d4"
-          format={pct} dim={automated.has('sendDelay')} onChange={(v) => setCh({ sendDelay: v })} />
-        <Row label="CH" value={ch.sendChorus} min={0} max={1} step={0.01} color="#22c55e"
-          format={pct} dim={automated.has('sendChorus')} onChange={(v) => setCh({ sendChorus: v })} />
+        <span className="text-neutral-600 tracking-widest" style={{ fontSize: 8 }}>SENDS</span>
+        <Knob label="REV" value={ch.sendReverb} min={0} max={1} step={0.01} color="#8b5cf6" format={pct}
+          dim={automated.has('sendReverb')} onChange={(v) => set({ sendReverb: v })} />
+        <Knob label="DLY" value={ch.sendDelay} min={0} max={1} step={0.01} color="#06b6d4" format={pct}
+          dim={automated.has('sendDelay')} onChange={(v) => set({ sendDelay: v })} />
+        <Knob label="CHO" value={ch.sendChorus} min={0} max={1} step={0.01} color="#22c55e" format={pct}
+          dim={automated.has('sendChorus')} onChange={(v) => set({ sendChorus: v })} />
+        <Knob label="SC" value={ch.sidechain} min={0} max={1} step={0.01} color="#f97316" format={pct}
+          onChange={(v) => set({ sidechain: v })} />
       </div>
 
-      {/* Sidechain — ducks this track under the drum machine's kick */}
-      <div className="flex flex-col gap-0.5">
-        <span
-          className="tracking-widest"
-          style={{ fontSize: 8, color: ch.sidechain > 0.01 ? '#f97316' : '#404040' }}
-          title="Duck this track whenever the drum machine's kick fires"
-        >SIDECHAIN</span>
-        <Row label="SC" value={ch.sidechain} min={0} max={1} step={0.01} color="#f97316"
-          format={pct} onChange={(v) => setCh({ sidechain: v })} />
-      </div>
-
-      {/* Fader + meter */}
-      <div className="flex items-end gap-1 mt-auto pt-1">
-        <div className="flex gap-0.5">
-          <VUMeter analyser={analyser} color={color} />
-        </div>
-        <div className="flex flex-col items-center flex-1">
+      <div className="flex items-end gap-1.5 mt-auto pt-1 justify-center">
+        <Meter source={() => getChannelRack().getAnalyser(track.id)} color={c} />
+        <div className="flex flex-col items-center">
           <input
-            type="range" min={0} max={1.5} step={0.01}
-            value={ch.gain}
-            className="h-14"
-            style={{ accentColor: color, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
-            title={`Fader: ${pct(ch.gain)}`}
-            onChange={(e) => setCh({ gain: parseFloat(e.target.value) })}
+            type="range" min={0} max={1.5} step={0.01} value={ch.gain}
+            className="h-24"
+            style={{ accentColor: c, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
+            onChange={(e) => set({ gain: parseFloat(e.target.value) })}
+            onDoubleClick={() => set({ gain: 1 })}
+            title={`Fader ${pct(ch.gain)} — double-click for 100%`}
+            aria-label={`${track.name} fader`}
           />
-          <span
-            className="font-mono"
-            style={{ fontSize: 8, color: automated.has('volume') ? '#525252' : '#737373' }}
-          >{Math.round(ch.gain * 100)}</span>
+          <span className="font-mono" style={{ fontSize: 9, color: automated.has('volume') ? '#525252' : '#8a8a8a' }}>
+            {Math.round(ch.gain * 100)}
+          </span>
         </div>
       </div>
 
-      {/* Pan */}
-      <Row label="PAN" value={track.pan} min={-1} max={1} step={0.01} color={color}
-        format={(v) => v === 0 ? 'C' : v > 0 ? `R${Math.round(v * 100)}` : `L${Math.round(-v * 100)}`}
+      <Knob
+        label="PAN" value={track.pan} min={-1} max={1} step={0.01} color={c}
+        format={(v) => (v === 0 ? 'C' : v > 0 ? `R${Math.round(v * 100)}` : `L${Math.round(-v * 100)}`)}
         dim={automated.has('pan')}
-        onChange={(v) => dispatch({ type: 'SEQ_SET_TRACK_PAN', tabId, pan: v })} />
+        onChange={(v) => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { pan: v } })}
+        onReset={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { pan: 0 } })}
+      />
 
-      {/* Mute/Solo */}
       <div className="flex gap-0.5">
         <button
-          onClick={() => dispatch({ type: 'MUTE_TAB', id: tab.id, muted: !tab.isMuted })}
-          className={`flex-1 h-4 text-xs font-bold border leading-none transition-colors ${
-            tab.isMuted ? 'border-yellow-500 text-yellow-400 bg-yellow-900/30' : 'border-neutral-700 text-neutral-600 hover:text-neutral-400'
+          onClick={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { muted: !track.muted } })}
+          aria-pressed={track.muted}
+          className={`flex-1 h-4 text-[10px] font-bold border leading-none ${
+            track.muted ? 'border-yellow-500 text-yellow-300 bg-yellow-900/30' : 'border-neutral-700 text-neutral-500 hover:text-neutral-300'
           }`}
         >M</button>
         <button
-          onClick={() => dispatch({ type: 'SOLO_TAB', id: tab.id, solo: !tab.solo })}
-          style={tab.solo ? { borderColor: color, color, backgroundColor: color + '22' } : {}}
-          className={`flex-1 h-4 text-xs font-bold border leading-none transition-colors ${
-            !tab.solo ? 'border-neutral-700 text-neutral-600 hover:text-neutral-400' : ''
-          }`}
+          onClick={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { solo: !track.solo } })}
+          aria-pressed={track.solo}
+          className="flex-1 h-4 text-[10px] font-bold border leading-none"
+          style={track.solo ? { borderColor: accent, color: accent, backgroundColor: accent + '22' } : { borderColor: '#404040', color: '#737373' }}
         >S</button>
       </div>
     </div>
   );
 }
 
-// ─── Mixer panel ──────────────────────────────────────────────────────────────
+// ─── Mixer ────────────────────────────────────────────────────────────────────
 
 export function Mixer() {
   const { state, dispatch } = useAppStore();
-  const activeTab = state.tabs.find((t) => t.id === state.activeTabId) ?? state.tabs[0];
-  const accent = THEME_COLORS[activeTab.advanced.colorTheme];
+  const accent = useAccent();
+  const tracks = state.sequencer.tracks;
+  const mutes = effectiveTrackMutes(tracks);
+
+  // The master meter reads straight off the master bus
+  const masterAnalyser = useRef<AnalyserNode | null>(null);
+  const masterSource = () => {
+    const ctx = getAudioEngine().getAudioContext();
+    const master = getAudioEngine().getMasterGain();
+    if (!ctx || !master) return null;
+    if (!masterAnalyser.current || masterAnalyser.current.context !== ctx) {
+      const a = ctx.createAnalyser();
+      a.fftSize = 512;
+      master.connect(a);
+      masterAnalyser.current = a;
+    }
+    return masterAnalyser.current;
+  };
+  useEffect(() => () => { try { masterAnalyser.current?.disconnect(); } catch { /* ignore */ } }, []);
 
   return (
-    <div className="flex border-t border-neutral-800 bg-neutral-950 shrink-0 overflow-x-auto">
-      {/* Master strip */}
-      <div className="flex flex-col items-center gap-1 px-2 py-1.5 border-r border-neutral-700 w-[72px] shrink-0">
-        <span className="text-xs font-mono text-neutral-400">MASTER</span>
-        <div className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
-        <div className="flex flex-col items-center mt-auto">
-          <input
-            type="range" min={0} max={1} step={0.01}
-            value={state.masterVolume}
-            className="h-28"
-            style={{ accentColor: accent, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
-            onChange={(e) => dispatch({ type: 'SET_MASTER_VOLUME', volume: parseFloat(e.target.value) })}
-          />
-          <span className="text-xs text-neutral-600 font-mono">{Math.round(state.masterVolume * 100)}</span>
-        </div>
-      </div>
-
-      {/* Per-tab channel strips */}
-      {state.tabs.map((tab) => (
-        <ChannelStrip key={tab.id} tabId={tab.id} />
+    <div className="flex h-full min-h-0 overflow-x-auto overflow-y-hidden bg-neutral-950">
+      {tracks.map((t) => (
+        <Strip key={t.id} track={t} mutedBySolo={(mutes.get(t.id) ?? false) && !t.muted} />
       ))}
 
-      <div className="px-2 py-1.5 text-neutral-700 max-w-[140px] leading-tight" style={{ fontSize: 9 }}>
-        Dimmed labels are driven by an automation lane and ignore the control here.
+      <div className="flex flex-col items-center gap-1 px-2 py-1.5 border-l border-neutral-700 w-[86px] shrink-0 ml-auto bg-[#0f0f0f]">
+        <span className="text-xs text-neutral-300 tracking-widest">MASTER</span>
+        <div className="flex items-end gap-1.5 mt-auto">
+          <Meter source={masterSource} color={accent} />
+          <div className="flex flex-col items-center">
+            <input
+              type="range" min={0} max={1} step={0.01} value={state.masterVolume}
+              className="h-32"
+              style={{ accentColor: accent, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
+              onChange={(e) => dispatch({ type: 'SET_MASTER_VOLUME', volume: parseFloat(e.target.value) })}
+              aria-label="Master volume"
+            />
+            <span className="text-[9px] text-neutral-500 font-mono">{Math.round(state.masterVolume * 100)}</span>
+          </div>
+        </div>
+        <span className="text-neutral-700 text-center leading-tight" style={{ fontSize: 8 }}>
+          limiter in FX
+        </span>
       </div>
+
+      {tracks.length === 0 && (
+        <div className="flex items-center px-4 text-xs text-neutral-600">Add a track to see its channel strip.</div>
+      )}
     </div>
   );
 }

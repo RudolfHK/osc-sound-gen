@@ -72,7 +72,9 @@ export type DrumAction =
   | { type: 'DRUM_ADD_PATTERN' }
   | { type: 'DRUM_DUPLICATE_PATTERN'; sourceId: string }
   | { type: 'DRUM_DELETE_PATTERN'; patternId: string }
-  | { type: 'DRUM_RENAME_PATTERN'; patternId: string; name: string };
+  | { type: 'DRUM_RENAME_PATTERN'; patternId: string; name: string }
+  /** Merge patterns from a project file; existing ids are replaced. */
+  | { type: 'DRUM_IMPORT_PATTERNS'; patterns: DrumPattern[] };
 
 // ─── Voice catalogue ──────────────────────────────────────────────────────────
 
@@ -153,8 +155,11 @@ function makeVoice(
   };
 }
 
-let _patternId = 1;
-function pid(): string { return `p-${_patternId++}`; }
+// Random ids: a per-session counter restarts at 1 on reload and would collide
+// with pattern ids already saved in localStorage and referenced by drum clips.
+function pid(): string {
+  return `dp-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
 
 /** `hits` maps a voice to its accented steps; `ghosts` to low-velocity steps. */
 function makePattern(
@@ -401,6 +406,14 @@ function migrate(saved: DrumMachineState): DrumMachineState {
     }),
   }));
 
+  // Earlier versions generated ids from a counter that restarted on reload, so
+  // a saved list can hold the same id twice. Give later duplicates fresh ids.
+  const seen = new Set<string>();
+  for (const p of patterns) {
+    if (seen.has(p.id)) p.id = pid();
+    seen.add(p.id);
+  }
+
   const known = new Set(patterns.map((p) => p.name));
   const missing = buildPresets().filter((p) => !known.has(p.name));
   const merged = [...patterns, ...missing];
@@ -563,6 +576,18 @@ export function drumReducer(state: DrumMachineState, action: DrumAction): DrumMa
 
     case 'DRUM_RENAME_PATTERN':
       return patchPattern(state, action.patternId, (p) => ({ ...p, name: action.name }));
+
+    case 'DRUM_IMPORT_PATTERNS': {
+      if (action.patterns.length === 0) return state;
+      // Bring imported patterns up to the current voice list, then merge by id
+      const incoming = migrate({ ...state, patterns: action.patterns }).patterns
+        .filter((p) => action.patterns.some((a) => a.id === p.id));
+      const ids = new Set(incoming.map((p) => p.id));
+      return {
+        ...state,
+        patterns: [...state.patterns.filter((p) => !ids.has(p.id)), ...incoming],
+      };
+    }
 
     default:
       return state;

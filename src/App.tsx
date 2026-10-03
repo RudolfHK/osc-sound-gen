@@ -3,7 +3,7 @@ import { DrumContext, useDrumReducer } from './store/drumStore';
 import { InstrumentContext, useInstrumentReducer } from './store/instrumentStore';
 import { EffectsContext, useEffectsReducer } from './store/effectsStore';
 import { VisualizerContext, useVisualizerReducer } from './store/visualizerStore';
-import { Layout } from './ui/layout';
+import { AppShell } from './ui/AppShell';
 
 export default function App() {
   const store = useAppReducer();
@@ -19,7 +19,7 @@ export default function App() {
         <InstrumentContext.Provider value={instrumentStore}>
           <EffectsContext.Provider value={effectsStore}>
             <VisualizerContext.Provider value={visualizerStore}>
-              <Layout />
+              <AppShell />
             </VisualizerContext.Provider>
           </EffectsContext.Provider>
         </InstrumentContext.Provider>
