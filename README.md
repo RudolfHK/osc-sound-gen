@@ -152,6 +152,36 @@ For the complete Electron packaging guide including code signing and auto-update
 - Send-based: each preset carries its own reverb/delay/chorus levels, and drums have their
   own sends (kicks and sub drops stay dry to keep the low end tight)
 
+### Automation
+- Per-track breakpoint lanes for **filter cutoff, resonance, drive, volume, pan,
+  three EQ bands and three effect sends**
+- Cutoff and resonance are written onto the live filter across each note's full
+  length, so a held chord keeps moving instead of freezing at its starting value
+- Lanes read in looped time, so sweeps repeat with the loop
+- An enabled lane takes its parameter over from the mixer (the control dims to say so)
+- With no separate arranger view, volume lanes double as the arrangement
+
+### Arpeggiator
+- Per-track, expanding held chords into running patterns at playback
+- Rate 1/1–1/32, six modes (`up`, `down`, `updown`, `downup`, `order`, `random`),
+  1–4 octave stacking, 5–100% gate
+- Overlapping notes are grouped into chords automatically; the piano roll keeps
+  showing your long notes, so editing harmony stays a three-note job
+
+### Channel strips
+- Every track gets 3-band EQ (200 Hz shelf / 1.2 kHz peak / 4 kHz shelf, ±18 dB),
+  independent reverb/delay/chorus sends, fader to 150%, pan, mute and solo
+- **Sidechain ducking** — any track can duck under the drum machine's kick, which is
+  what lets kick and bass share a downbeat without masking each other
+- Raw-oscillator and instrument-assigned tracks share the same strip
+
+### Visualizer (`VIZ`)
+- **Off by default and not restored on reload** — it taps the master bus and runs a
+  redraw loop, so it only costs CPU while you're watching it
+- Four modes: log-spaced spectrum bars, waveform, radial, and concentric bloom
+- Customizable sensitivity, smoothing, detail, motion trail, colour mode
+  (theme / spectrum / mono), mirror, glow, and a 30/60 FPS cap
+
 ### Recording
 - Captures master output to **WebM** (Opus) or **WAV** (16-bit PCM)
 - No time limit; WAV conversion handled in-browser via AudioBuffer decoding
@@ -162,8 +192,10 @@ For the complete Electron packaging guide including code signing and auto-update
 - Drum patterns and instrument assignments persist separately in `localStorage`
 
 ### Example projects
-Six ready-to-load compositions live in [`examples/`](examples/README.md) — four
-Minecraft/C418-style pieces, an ambient pad study, and a fast arpeggio demo.
+Seven ready-to-load compositions live in [`examples/`](examples/README.md), including
+`midnight-drive.oscproject` — an original French-touch study that exercises the
+arpeggiator, automation lanes and sidechain together — plus four Minecraft/C418-style
+pieces, an ambient pad study and a fast arpeggio demo.
 
 ---
 

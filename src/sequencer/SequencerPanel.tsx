@@ -4,6 +4,7 @@ import { TransportBar } from './TransportBar';
 import { TrackHeader } from './TrackHeader';
 import { PianoRoll } from './PianoRoll';
 import { Mixer } from './Mixer';
+import { AutomationLane } from './AutomationLane';
 import { THEME_COLORS } from '../utils/math';
 import { downloadBlob } from '../utils/wav';
 import type { SequencerProject } from '../utils/music';
@@ -18,6 +19,7 @@ export function SequencerPanel() {
   const activeTab = state.tabs.find((t) => t.id === state.activeTabId) ?? state.tabs[0];
   const accent = THEME_COLORS[activeTab.advanced.colorTheme];
   const [showMixer, setShowMixer] = useState(false);
+  const [showAutomation, setShowAutomation] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string>(state.tabs[0]?.id ?? '');
   const [trackHeight, setTrackHeight] = useState(TRACK_HEIGHT_DEFAULT);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
@@ -130,6 +132,16 @@ export function SequencerPanel() {
             </span>
           )}
           <button
+            onClick={() => setShowAutomation((s) => !s)}
+            style={showAutomation ? { borderColor: accent, color: accent, backgroundColor: accent + '18' } : {}}
+            className={`px-2 py-0.5 text-xs border tracking-widest transition-colors ${
+              !showAutomation ? 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-300' : ''
+            }`}
+            title="Automation lanes — draw filter sweeps, volume swells and send moves"
+          >
+            AUTO
+          </button>
+          <button
             onClick={() => setShowMixer((s) => !s)}
             style={showMixer ? { borderColor: accent, color: accent, backgroundColor: accent + '18' } : {}}
             className={`px-2 py-0.5 text-xs border tracking-widest transition-colors ${
@@ -179,6 +191,9 @@ export function SequencerPanel() {
       >
         <div className="w-8 h-0.5 bg-neutral-600 rounded" />
       </div>
+
+      {/* Automation lanes for the selected track */}
+      {showAutomation && <AutomationLane track={activeTrackData} accent={accent} />}
 
       {/* Mixer */}
       {showMixer && <Mixer />}

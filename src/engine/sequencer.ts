@@ -1,11 +1,16 @@
 import { getAudioEngine, applyWaveformToNode } from './audio';
 import { getInstrumentEngine } from './instruments';
-import { midiToFreq, beatsToSeconds, SNAP_BEATS } from '../utils/music';
-import type { SequencerState, SequencerTrack, SnapValue } from '../utils/music';
+import { getChannelRack } from './channelStrip';
+import { expandArpCached } from './arpeggiator';
+import { AUTOMATION_TARGETS, CHANNEL_TARGETS, laneValueAt } from './automation';
+import { midiToFreq, beatsToSeconds, SNAP_BEATS, makeDefaultArp, makeDefaultChannel } from '../utils/music';
+import type { SequencerState, SequencerTrack, SnapValue, SequencerNote } from '../utils/music';
 import type { OscillatorState, OscillatorTab } from './oscillator';
 
 const SCHEDULE_AHEAD_S = 0.12; // schedule 120ms ahead
 const SCHEDULER_MS = 25;       // run scheduler every 25ms
+/** Channel automation is written in chunks this many beats long. */
+const AUTOMATION_CHUNK_BEATS = 0.25;
 
 // ─── Per-track audio nodes owned by the sequencer (separate from UI tabs) ────
 
@@ -32,6 +37,10 @@ export class SequencerEngine {
   private scheduledKeys = new Set<string>();
 
   private tracks: SequencerTrack[] = [];
+  /** Tracks paired with their arpeggiator-expanded note lists. */
+  private expandedTracks: { track: SequencerTrack; notes: SequencerNote[] }[] = [];
+  /** How far ahead channel automation has been written, per track. */
+  private chanSchedBeat = new Map<string, number>();
   private tabMap = new Map<string, OscillatorTab>(); // tabId → tab
 
   // Own audio nodes (separate from MultiOscillatorEngine's UI nodes)
@@ -52,6 +61,25 @@ export class SequencerEngine {
     this.tracks = state.tracks;
     this.tabMap.clear();
     for (const t of tabs) this.tabMap.set(t.id, t);
+
+    // Run each track's notes through its arpeggiator once, here, rather than
+    // inside the scheduler where it would repeat every 25 ms.
+    this.expandedTracks = state.tracks.map((track) => ({
+      track,
+      notes: expandArpCached(track.tabId, track.notes, track.arp ?? makeDefaultArp()),
+    }));
+
+    // Push channel settings, skipping anything an active lane is driving so the
+    // two don't fight over the same AudioParam.
+    const rack = getChannelRack();
+    for (const track of state.tracks) {
+      const automated = new Set(
+        (track.lanes ?? [])
+          .filter((l) => l.enabled && l.points.length > 0)
+          .map((l) => l.target as string),
+      );
+      rack.apply(track.tabId, track.channel ?? makeDefaultChannel(), track.pan, automated);
+    }
   }
 
   async play(
@@ -70,6 +98,7 @@ export class SequencerEngine {
     this.startAudioTime = ctx.currentTime + 0.05; // 50ms latency buffer
     this.scheduleUpToBeat = startBeat;
     this.scheduledKeys.clear();
+    this.chanSchedBeat.clear();
 
     // Create own oscillator nodes per track
     this.teardownSeqNodes();
@@ -91,14 +120,9 @@ export class SequencerEngine {
   }
 
   updateState(state: SequencerState, tabs: OscillatorTab[]): void {
+    // configure() already pushes pan and the rest of the channel settings onto
+    // each strip, which is where panning now lives.
     this.configure(state, tabs);
-    // Update pan on live nodes
-    const ctx = getAudioEngine().getAudioContext();
-    if (!ctx) return;
-    for (const track of state.tracks) {
-      const nodes = this.seqNodes.get(track.tabId);
-      if (nodes) nodes.panner.pan.setTargetAtTime(track.pan, ctx.currentTime, 0.01);
-    }
   }
 
   get running(): boolean {
@@ -121,7 +145,7 @@ export class SequencerEngine {
     const currentMonotonicBeat = this.startBeat + (now - this.startAudioTime) * bps;
     const scheduleToMonotonic = currentMonotonicBeat + lookaheadBeats;
 
-    for (const track of this.tracks) {
+    for (const { track, notes } of this.expandedTracks) {
       const nodes = this.seqNodes.get(track.tabId);
       const tab = this.tabMap.get(track.tabId);
       if (!tab) continue;
@@ -133,7 +157,7 @@ export class SequencerEngine {
       const restoreFreq = tab.oscillator.frequency;
       const restoreGain = tab.oscillator.amplitude * tab.oscillator.masterVolume;
 
-      for (const note of track.notes) {
+      for (const note of notes) {
         if (this.loopEnabled) {
           const loopLen = this.loopEndBeat - this.loopStartBeat;
           if (loopLen <= 0) continue;
@@ -156,8 +180,8 @@ export class SequencerEngine {
               const noteOnTime = this.startAudioTime + (monotonicStart - this.startBeat) / bps;
               const noteOffTime = noteOnTime + beatsToSeconds(note.durationBeats, this.bpm);
 
-              this.emitNote(presetId, track.pan, nodes, note, tab.oscillator,
-                noteOnTime, noteOffTime, restoreFreq, restoreGain);
+              this.emitNote(presetId, track, nodes, note, tab.oscillator,
+                noteOnTime, noteOffTime, restoreFreq, restoreGain, monotonicStart);
               this.scheduledKeys.add(key);
             }
           }
@@ -171,16 +195,62 @@ export class SequencerEngine {
             const noteOnTime = this.startAudioTime + (note.startBeat - this.startBeat) / bps;
             const noteOffTime = noteOnTime + beatsToSeconds(note.durationBeats, this.bpm);
 
-            this.emitNote(presetId, track.pan, nodes, note, tab.oscillator,
-              noteOnTime, noteOffTime, restoreFreq, restoreGain);
+            this.emitNote(presetId, track, nodes, note, tab.oscillator,
+              noteOnTime, noteOffTime, restoreFreq, restoreGain, note.startBeat);
             this.scheduledKeys.add(key);
           }
         }
       }
     }
 
+    this.scheduleChannelAutomation(scheduleToMonotonic, bps);
+
     this.scheduleUpToBeat = scheduleToMonotonic;
     this.schedulerTimer = setTimeout(() => this.schedulerLoop(), SCHEDULER_MS);
+  }
+
+  /**
+   * Write channel-strip automation (volume, pan, EQ, sends) ahead of the
+   * playhead in short chunks.
+   *
+   * Unlike note parameters these live on long-lived nodes, so each chunk ramps
+   * toward the lane's value at the chunk's end instead of being rewritten from
+   * scratch every tick.
+   */
+  private scheduleChannelAutomation(scheduleToMonotonic: number, bps: number): void {
+    const ctx = getAudioEngine().getAudioContext();
+    if (!ctx) return;
+    const rack = getChannelRack();
+
+    for (const track of this.tracks) {
+      const lanes = (track.lanes ?? []).filter(
+        (l) => l.enabled && l.points.length > 0 && CHANNEL_TARGETS.includes(l.target),
+      );
+      if (lanes.length === 0) continue;
+
+      const params = rack.getParams(track.tabId);
+      if (!params) continue;
+
+      let upTo = this.chanSchedBeat.get(track.tabId) ?? this.startBeat;
+      // Guard against a huge catch-up if the tab was backgrounded
+      if (scheduleToMonotonic - upTo > 8) upTo = scheduleToMonotonic - 1;
+
+      while (upTo < scheduleToMonotonic) {
+        const chunkEnd = upTo + AUTOMATION_CHUNK_BEATS;
+        const atTime = this.startAudioTime + (chunkEnd - this.startBeat) / bps;
+        // Lanes follow the looped position, so automation repeats with the music
+        const lookupBeat = this.effectiveBeat(chunkEnd);
+
+        for (const lane of lanes) {
+          const param = params[lane.target as keyof typeof params];
+          if (!param) continue;
+          const real = AUTOMATION_TARGETS[lane.target].toReal(laneValueAt(lane, lookupBeat));
+          param.linearRampToValueAtTime(real, Math.max(atTime, ctx.currentTime + 0.005));
+        }
+        upTo = chunkEnd;
+      }
+      this.chanSchedBeat.set(track.tabId, upTo);
+    }
   }
 
   /**
@@ -189,7 +259,7 @@ export class SequencerEngine {
    */
   private emitNote(
     presetId: string | null,
-    pan: number,
+    track: SequencerTrack,
     nodes: SeqNodes | undefined,
     note: { midiNote: number; velocity: number },
     oscState: OscillatorState,
@@ -197,13 +267,21 @@ export class SequencerEngine {
     noteOffTime: number,
     restoreFreq: number,
     restoreGain: number,
+    songBeat: number,
   ): void {
     if (presetId) {
       getInstrumentEngine().playNote(
         presetId, note.midiNote,
         // Scale note velocity by the track's own amplitude so the mixer still applies
         note.velocity * oscState.amplitude,
-        noteOnTime, noteOffTime - noteOnTime, pan,
+        noteOnTime, noteOffTime - noteOnTime,
+        {
+          trackId: track.tabId,
+          lanes: track.lanes,
+          // Lane lookups use the looped position so automation repeats with the loop
+          startBeat: this.effectiveBeat(songBeat),
+          bpm: this.bpm,
+        },
       );
       return;
     }
@@ -269,6 +347,7 @@ export class SequencerEngine {
   private buildSeqNodes(ctx: AudioContext, tabs: OscillatorTab[], state: SequencerState): void {
     const master = getAudioEngine().getMasterGain();
     if (!master) return;
+    const rack = getChannelRack();
 
     for (const track of state.tracks) {
       const tab = tabs.find((t) => t.id === track.tabId);
@@ -283,11 +362,14 @@ export class SequencerEngine {
       applyWaveformToNode(ctx, osc, tab.oscillator);
       osc.frequency.value = tab.oscillator.frequency;
       gain.gain.value = 0;  // silent until note events
-      panner.pan.value = track.pan;
+      // Pan now lives on the channel strip, so the voice sits centred here
+      panner.pan.value = 0;
 
       osc.connect(gain);
       gain.connect(panner);
-      panner.connect(master);
+      // Raw-oscillator tracks get the same channel strip as instrument tracks,
+      // so EQ, sends and sidechain work the same either way.
+      panner.connect(rack.getInput(track.tabId) ?? master);
       osc.start();
 
       this.seqNodes.set(track.tabId, { osc, gain, panner });

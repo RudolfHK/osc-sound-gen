@@ -1,0 +1,1939 @@
+{
+ "version": "1.0",
+ "name": "Midnight Drive (French-touch study)",
+ "savedAt": "2024-01-01T00:00:00.000Z",
+ "bpm": 118,
+ "beatsPerBar": 4,
+ "songLengthBars": 16,
+ "masterVolume": 0.78,
+ "tracks": [
+  {
+   "tabId": "0",
+   "pan": 0,
+   "notes": [
+    {
+     "id": "wd-1",
+     "midiNote": 33,
+     "startBeat": 0,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-2",
+     "midiNote": 29,
+     "startBeat": 4,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-3",
+     "midiNote": 36,
+     "startBeat": 8,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-4",
+     "midiNote": 31,
+     "startBeat": 12,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-5",
+     "midiNote": 33,
+     "startBeat": 16,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-6",
+     "midiNote": 29,
+     "startBeat": 20,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-7",
+     "midiNote": 36,
+     "startBeat": 24,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-8",
+     "midiNote": 31,
+     "startBeat": 28,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-9",
+     "midiNote": 33,
+     "startBeat": 32,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-10",
+     "midiNote": 29,
+     "startBeat": 36,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-11",
+     "midiNote": 36,
+     "startBeat": 40,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-12",
+     "midiNote": 31,
+     "startBeat": 44,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-13",
+     "midiNote": 33,
+     "startBeat": 48,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-14",
+     "midiNote": 29,
+     "startBeat": 52,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-15",
+     "midiNote": 36,
+     "startBeat": 56,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-16",
+     "midiNote": 31,
+     "startBeat": 60,
+     "durationBeats": 3.85,
+     "velocity": 104
+    }
+   ],
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 2.5,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.7
+   },
+   "lanes": [
+    {
+     "id": "wl-volume",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-1",
+       "beat": 0,
+       "value": 0.0
+      },
+      {
+       "id": "wp-2",
+       "beat": 15.5,
+       "value": 0.0
+      },
+      {
+       "id": "wp-3",
+       "beat": 16,
+       "value": 0.667
+      },
+      {
+       "id": "wp-4",
+       "beat": 64,
+       "value": 0.667
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "tabId": "1",
+   "pan": 0,
+   "notes": [
+    {
+     "id": "wd-17",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-18",
+     "midiNote": 45,
+     "startBeat": 1.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-19",
+     "midiNote": 45,
+     "startBeat": 2,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-20",
+     "midiNote": 45,
+     "startBeat": 2.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-21",
+     "midiNote": 45,
+     "startBeat": 3.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-22",
+     "midiNote": 41,
+     "startBeat": 4,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-23",
+     "midiNote": 41,
+     "startBeat": 5.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-24",
+     "midiNote": 41,
+     "startBeat": 6,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-25",
+     "midiNote": 41,
+     "startBeat": 6.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-26",
+     "midiNote": 41,
+     "startBeat": 7.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-27",
+     "midiNote": 48,
+     "startBeat": 8,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-28",
+     "midiNote": 48,
+     "startBeat": 9.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-29",
+     "midiNote": 48,
+     "startBeat": 10,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-30",
+     "midiNote": 48,
+     "startBeat": 10.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-31",
+     "midiNote": 48,
+     "startBeat": 11.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-32",
+     "midiNote": 43,
+     "startBeat": 12,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-33",
+     "midiNote": 43,
+     "startBeat": 13.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-34",
+     "midiNote": 43,
+     "startBeat": 14,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-35",
+     "midiNote": 43,
+     "startBeat": 14.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-36",
+     "midiNote": 43,
+     "startBeat": 15.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-37",
+     "midiNote": 45,
+     "startBeat": 16,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-38",
+     "midiNote": 45,
+     "startBeat": 17.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-39",
+     "midiNote": 45,
+     "startBeat": 18,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-40",
+     "midiNote": 45,
+     "startBeat": 18.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-41",
+     "midiNote": 45,
+     "startBeat": 19.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-42",
+     "midiNote": 41,
+     "startBeat": 20,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-43",
+     "midiNote": 41,
+     "startBeat": 21.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-44",
+     "midiNote": 41,
+     "startBeat": 22,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-45",
+     "midiNote": 41,
+     "startBeat": 22.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-46",
+     "midiNote": 41,
+     "startBeat": 23.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-47",
+     "midiNote": 48,
+     "startBeat": 24,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-48",
+     "midiNote": 48,
+     "startBeat": 25.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-49",
+     "midiNote": 48,
+     "startBeat": 26,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-50",
+     "midiNote": 48,
+     "startBeat": 26.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-51",
+     "midiNote": 48,
+     "startBeat": 27.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-52",
+     "midiNote": 43,
+     "startBeat": 28,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-53",
+     "midiNote": 43,
+     "startBeat": 29.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-54",
+     "midiNote": 43,
+     "startBeat": 30,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-55",
+     "midiNote": 43,
+     "startBeat": 30.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-56",
+     "midiNote": 43,
+     "startBeat": 31.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-57",
+     "midiNote": 45,
+     "startBeat": 32,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-58",
+     "midiNote": 45,
+     "startBeat": 33.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-59",
+     "midiNote": 45,
+     "startBeat": 34,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-60",
+     "midiNote": 45,
+     "startBeat": 34.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-61",
+     "midiNote": 45,
+     "startBeat": 35.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-62",
+     "midiNote": 41,
+     "startBeat": 36,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-63",
+     "midiNote": 41,
+     "startBeat": 37.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-64",
+     "midiNote": 41,
+     "startBeat": 38,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-65",
+     "midiNote": 41,
+     "startBeat": 38.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-66",
+     "midiNote": 41,
+     "startBeat": 39.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-67",
+     "midiNote": 48,
+     "startBeat": 40,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-68",
+     "midiNote": 48,
+     "startBeat": 41.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-69",
+     "midiNote": 48,
+     "startBeat": 42,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-70",
+     "midiNote": 48,
+     "startBeat": 42.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-71",
+     "midiNote": 48,
+     "startBeat": 43.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-72",
+     "midiNote": 43,
+     "startBeat": 44,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-73",
+     "midiNote": 43,
+     "startBeat": 45.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-74",
+     "midiNote": 43,
+     "startBeat": 46,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-75",
+     "midiNote": 43,
+     "startBeat": 46.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-76",
+     "midiNote": 43,
+     "startBeat": 47.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-77",
+     "midiNote": 45,
+     "startBeat": 48,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-78",
+     "midiNote": 45,
+     "startBeat": 49.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-79",
+     "midiNote": 45,
+     "startBeat": 50,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-80",
+     "midiNote": 45,
+     "startBeat": 50.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-81",
+     "midiNote": 45,
+     "startBeat": 51.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-82",
+     "midiNote": 41,
+     "startBeat": 52,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-83",
+     "midiNote": 41,
+     "startBeat": 53.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-84",
+     "midiNote": 41,
+     "startBeat": 54,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-85",
+     "midiNote": 41,
+     "startBeat": 54.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-86",
+     "midiNote": 41,
+     "startBeat": 55.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-87",
+     "midiNote": 48,
+     "startBeat": 56,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-88",
+     "midiNote": 48,
+     "startBeat": 57.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-89",
+     "midiNote": 48,
+     "startBeat": 58,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-90",
+     "midiNote": 48,
+     "startBeat": 58.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-91",
+     "midiNote": 48,
+     "startBeat": 59.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-92",
+     "midiNote": 43,
+     "startBeat": 60,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-93",
+     "midiNote": 43,
+     "startBeat": 61.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-94",
+     "midiNote": 43,
+     "startBeat": 62,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-95",
+     "midiNote": 43,
+     "startBeat": 62.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-96",
+     "midiNote": 43,
+     "startBeat": 63.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    }
+   ],
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.95,
+    "eqLow": 0.0,
+    "eqMid": -1.5,
+    "eqHigh": 0.0,
+    "sendReverb": 0.05,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.5
+   },
+   "lanes": [
+    {
+     "id": "wl-volume",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-5",
+       "beat": 0,
+       "value": 0.0
+      },
+      {
+       "id": "wp-6",
+       "beat": 15.5,
+       "value": 0.0
+      },
+      {
+       "id": "wp-7",
+       "beat": 16,
+       "value": 0.667
+      },
+      {
+       "id": "wp-8",
+       "beat": 64,
+       "value": 0.667
+      }
+     ]
+    },
+    {
+     "id": "wl-cutoff",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-9",
+       "beat": 16,
+       "value": 0.42
+      },
+      {
+       "id": "wp-10",
+       "beat": 32,
+       "value": 0.55
+      },
+      {
+       "id": "wp-11",
+       "beat": 44,
+       "value": 0.48
+      },
+      {
+       "id": "wp-12",
+       "beat": 48,
+       "value": 0.72
+      },
+      {
+       "id": "wp-13",
+       "beat": 64,
+       "value": 0.62
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "tabId": "2",
+   "pan": -0.18,
+   "notes": [
+    {
+     "id": "wd-97",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-98",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-99",
+     "midiNote": 64,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-100",
+     "midiNote": 53,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-101",
+     "midiNote": 57,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-102",
+     "midiNote": 60,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-103",
+     "midiNote": 60,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-104",
+     "midiNote": 64,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-105",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-106",
+     "midiNote": 55,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-107",
+     "midiNote": 59,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-108",
+     "midiNote": 62,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-109",
+     "midiNote": 57,
+     "startBeat": 16,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-110",
+     "midiNote": 60,
+     "startBeat": 16,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-111",
+     "midiNote": 64,
+     "startBeat": 16,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-112",
+     "midiNote": 53,
+     "startBeat": 20,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-113",
+     "midiNote": 57,
+     "startBeat": 20,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-114",
+     "midiNote": 60,
+     "startBeat": 20,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-115",
+     "midiNote": 60,
+     "startBeat": 24,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-116",
+     "midiNote": 64,
+     "startBeat": 24,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-117",
+     "midiNote": 67,
+     "startBeat": 24,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-118",
+     "midiNote": 55,
+     "startBeat": 28,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-119",
+     "midiNote": 59,
+     "startBeat": 28,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-120",
+     "midiNote": 62,
+     "startBeat": 28,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-121",
+     "midiNote": 57,
+     "startBeat": 32,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-122",
+     "midiNote": 60,
+     "startBeat": 32,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-123",
+     "midiNote": 64,
+     "startBeat": 32,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-124",
+     "midiNote": 53,
+     "startBeat": 36,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-125",
+     "midiNote": 57,
+     "startBeat": 36,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-126",
+     "midiNote": 60,
+     "startBeat": 36,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-127",
+     "midiNote": 60,
+     "startBeat": 40,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-128",
+     "midiNote": 64,
+     "startBeat": 40,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-129",
+     "midiNote": 67,
+     "startBeat": 40,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-130",
+     "midiNote": 55,
+     "startBeat": 44,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-131",
+     "midiNote": 59,
+     "startBeat": 44,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-132",
+     "midiNote": 62,
+     "startBeat": 44,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-133",
+     "midiNote": 57,
+     "startBeat": 48,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-134",
+     "midiNote": 60,
+     "startBeat": 48,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-135",
+     "midiNote": 64,
+     "startBeat": 48,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-136",
+     "midiNote": 53,
+     "startBeat": 52,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-137",
+     "midiNote": 57,
+     "startBeat": 52,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-138",
+     "midiNote": 60,
+     "startBeat": 52,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-139",
+     "midiNote": 60,
+     "startBeat": 56,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-140",
+     "midiNote": 64,
+     "startBeat": 56,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-141",
+     "midiNote": 67,
+     "startBeat": 56,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-142",
+     "midiNote": 55,
+     "startBeat": 60,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-143",
+     "midiNote": 59,
+     "startBeat": 60,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-144",
+     "midiNote": 62,
+     "startBeat": 60,
+     "durationBeats": 4,
+     "velocity": 96
+    }
+   ],
+   "arp": {
+    "enabled": true,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 2,
+    "gate": 0.55
+   },
+   "channel": {
+    "gain": 0.8,
+    "eqLow": -4.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.22,
+    "sendDelay": 0.3,
+    "sendChorus": 0.0,
+    "sidechain": 0.25
+   },
+   "lanes": [
+    {
+     "id": "wl-volume",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-14",
+       "beat": 0,
+       "value": 0.0
+      },
+      {
+       "id": "wp-15",
+       "beat": 7.5,
+       "value": 0.0
+      },
+      {
+       "id": "wp-16",
+       "beat": 8,
+       "value": 0.5
+      },
+      {
+       "id": "wp-17",
+       "beat": 32,
+       "value": 0.6
+      },
+      {
+       "id": "wp-18",
+       "beat": 64,
+       "value": 0.6
+      }
+     ]
+    },
+    {
+     "id": "wl-cutoff",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-19",
+       "beat": 0,
+       "value": 0.3
+      },
+      {
+       "id": "wp-20",
+       "beat": 16,
+       "value": 0.48
+      },
+      {
+       "id": "wp-21",
+       "beat": 32,
+       "value": 0.62
+      },
+      {
+       "id": "wp-22",
+       "beat": 47,
+       "value": 0.4
+      },
+      {
+       "id": "wp-23",
+       "beat": 48,
+       "value": 0.85
+      },
+      {
+       "id": "wp-24",
+       "beat": 64,
+       "value": 0.78
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "tabId": "3",
+   "pan": 0.15,
+   "notes": [
+    {
+     "id": "wd-145",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-146",
+     "midiNote": 48,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-147",
+     "midiNote": 52,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-148",
+     "midiNote": 41,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-149",
+     "midiNote": 45,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-150",
+     "midiNote": 48,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-151",
+     "midiNote": 48,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-152",
+     "midiNote": 52,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-153",
+     "midiNote": 55,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-154",
+     "midiNote": 43,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-155",
+     "midiNote": 47,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-156",
+     "midiNote": 50,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-157",
+     "midiNote": 45,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-158",
+     "midiNote": 48,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-159",
+     "midiNote": 52,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-160",
+     "midiNote": 41,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-161",
+     "midiNote": 45,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-162",
+     "midiNote": 48,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-163",
+     "midiNote": 48,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-164",
+     "midiNote": 52,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-165",
+     "midiNote": 55,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-166",
+     "midiNote": 43,
+     "startBeat": 28,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-167",
+     "midiNote": 47,
+     "startBeat": 28,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-168",
+     "midiNote": 50,
+     "startBeat": 28,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-169",
+     "midiNote": 45,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-170",
+     "midiNote": 48,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-171",
+     "midiNote": 52,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-172",
+     "midiNote": 41,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-173",
+     "midiNote": 45,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-174",
+     "midiNote": 48,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-175",
+     "midiNote": 48,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-176",
+     "midiNote": 52,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-177",
+     "midiNote": 55,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-178",
+     "midiNote": 43,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-179",
+     "midiNote": 47,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-180",
+     "midiNote": 50,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-181",
+     "midiNote": 45,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-182",
+     "midiNote": 48,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-183",
+     "midiNote": 52,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-184",
+     "midiNote": 41,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-185",
+     "midiNote": 45,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-186",
+     "midiNote": 48,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-187",
+     "midiNote": 48,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-188",
+     "midiNote": 52,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-189",
+     "midiNote": 55,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-190",
+     "midiNote": 43,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-191",
+     "midiNote": 47,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-192",
+     "midiNote": 50,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 74
+    }
+   ],
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.75,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 1.5,
+    "sendReverb": 0.45,
+    "sendDelay": 0.0,
+    "sendChorus": 0.3,
+    "sidechain": 0.3
+   },
+   "lanes": [
+    {
+     "id": "wl-volume",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-25",
+       "beat": 0,
+       "value": 0.4
+      },
+      {
+       "id": "wp-26",
+       "beat": 16,
+       "value": 0.58
+      },
+      {
+       "id": "wp-27",
+       "beat": 48,
+       "value": 0.62
+      },
+      {
+       "id": "wp-28",
+       "beat": 64,
+       "value": 0.5
+      }
+     ]
+    },
+    {
+     "id": "wl-cutoff",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-29",
+       "beat": 0,
+       "value": 0.26
+      },
+      {
+       "id": "wp-30",
+       "beat": 12,
+       "value": 0.4
+      },
+      {
+       "id": "wp-31",
+       "beat": 24,
+       "value": 0.34
+      },
+      {
+       "id": "wp-32",
+       "beat": 40,
+       "value": 0.58
+      },
+      {
+       "id": "wp-33",
+       "beat": 56,
+       "value": 0.72
+      },
+      {
+       "id": "wp-34",
+       "beat": 64,
+       "value": 0.44
+      }
+     ]
+    },
+    {
+     "id": "wl-resonance",
+     "target": "resonance",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-35",
+       "beat": 0,
+       "value": 0.12
+      },
+      {
+       "id": "wp-36",
+       "beat": 20,
+       "value": 0.3
+      },
+      {
+       "id": "wp-37",
+       "beat": 40,
+       "value": 0.52
+      },
+      {
+       "id": "wp-38",
+       "beat": 56,
+       "value": 0.66
+      },
+      {
+       "id": "wp-39",
+       "beat": 64,
+       "value": 0.25
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "tabId": "4",
+   "pan": 0.05,
+   "notes": [
+    {
+     "id": "wd-193",
+     "midiNote": 69,
+     "startBeat": 32,
+     "durationBeats": 2.0,
+     "velocity": 96
+    },
+    {
+     "id": "wd-194",
+     "midiNote": 72,
+     "startBeat": 34,
+     "durationBeats": 1.0,
+     "velocity": 88
+    },
+    {
+     "id": "wd-195",
+     "midiNote": 71,
+     "startBeat": 35,
+     "durationBeats": 1.0,
+     "velocity": 84
+    },
+    {
+     "id": "wd-196",
+     "midiNote": 69,
+     "startBeat": 36,
+     "durationBeats": 1.5,
+     "velocity": 92
+    },
+    {
+     "id": "wd-197",
+     "midiNote": 67,
+     "startBeat": 37.5,
+     "durationBeats": 0.5,
+     "velocity": 80
+    },
+    {
+     "id": "wd-198",
+     "midiNote": 64,
+     "startBeat": 38,
+     "durationBeats": 2.0,
+     "velocity": 86
+    },
+    {
+     "id": "wd-199",
+     "midiNote": 67,
+     "startBeat": 40,
+     "durationBeats": 2.0,
+     "velocity": 94
+    },
+    {
+     "id": "wd-200",
+     "midiNote": 76,
+     "startBeat": 42,
+     "durationBeats": 1.0,
+     "velocity": 100
+    },
+    {
+     "id": "wd-201",
+     "midiNote": 74,
+     "startBeat": 43,
+     "durationBeats": 1.0,
+     "velocity": 92
+    },
+    {
+     "id": "wd-202",
+     "midiNote": 71,
+     "startBeat": 44,
+     "durationBeats": 2.0,
+     "velocity": 90
+    },
+    {
+     "id": "wd-203",
+     "midiNote": 74,
+     "startBeat": 46,
+     "durationBeats": 2.0,
+     "velocity": 94
+    },
+    {
+     "id": "wd-204",
+     "midiNote": 69,
+     "startBeat": 48,
+     "durationBeats": 1.0,
+     "velocity": 98
+    },
+    {
+     "id": "wd-205",
+     "midiNote": 72,
+     "startBeat": 49,
+     "durationBeats": 1.0,
+     "velocity": 92
+    },
+    {
+     "id": "wd-206",
+     "midiNote": 76,
+     "startBeat": 50,
+     "durationBeats": 2.0,
+     "velocity": 104
+    },
+    {
+     "id": "wd-207",
+     "midiNote": 72,
+     "startBeat": 52,
+     "durationBeats": 1.5,
+     "velocity": 94
+    },
+    {
+     "id": "wd-208",
+     "midiNote": 69,
+     "startBeat": 53.5,
+     "durationBeats": 0.5,
+     "velocity": 84
+    },
+    {
+     "id": "wd-209",
+     "midiNote": 67,
+     "startBeat": 54,
+     "durationBeats": 2.0,
+     "velocity": 88
+    },
+    {
+     "id": "wd-210",
+     "midiNote": 76,
+     "startBeat": 56,
+     "durationBeats": 2.0,
+     "velocity": 102
+    },
+    {
+     "id": "wd-211",
+     "midiNote": 74,
+     "startBeat": 58,
+     "durationBeats": 1.0,
+     "velocity": 94
+    },
+    {
+     "id": "wd-212",
+     "midiNote": 72,
+     "startBeat": 59,
+     "durationBeats": 1.0,
+     "velocity": 90
+    },
+    {
+     "id": "wd-213",
+     "midiNote": 71,
+     "startBeat": 60,
+     "durationBeats": 2.0,
+     "velocity": 92
+    },
+    {
+     "id": "wd-214",
+     "midiNote": 69,
+     "startBeat": 62,
+     "durationBeats": 2.0,
+     "velocity": 96
+    }
+   ],
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": -6.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.4,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "wl-volume",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-40",
+       "beat": 0,
+       "value": 0.0
+      },
+      {
+       "id": "wp-41",
+       "beat": 31.5,
+       "value": 0.0
+      },
+      {
+       "id": "wp-42",
+       "beat": 32,
+       "value": 0.52
+      },
+      {
+       "id": "wp-43",
+       "beat": 48,
+       "value": 0.62
+      },
+      {
+       "id": "wp-44",
+       "beat": 64,
+       "value": 0.55
+      }
+     ]
+    },
+    {
+     "id": "wl-cutoff",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-45",
+       "beat": 32,
+       "value": 0.55
+      },
+      {
+       "id": "wp-46",
+       "beat": 48,
+       "value": 0.75
+      },
+      {
+       "id": "wp-47",
+       "beat": 64,
+       "value": 0.68
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

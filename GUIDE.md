@@ -515,6 +515,143 @@ only if you want to hear the raw sum.
 
 ---
 
+## Automation
+
+Click **AUTO** in the sequencer toolbar. This is the feature that separates a loop
+from an arrangement: instead of one fixed value per parameter, you draw how it moves
+across the song.
+
+### Drawing a lane
+
+1. Pick a parameter from the **+ add…** dropdown — Filter Cutoff, Resonance, Drive,
+   Volume, Pan, the three EQ bands, or the three effect sends
+2. **Click** anywhere in the lane to add a point
+3. **Drag** a point to move it; hold **Shift** while dragging to ignore the snap grid
+4. **Right-click** a point to delete it
+
+Points are joined by straight lines. Before the first point and after the last, the
+lane holds that point's value. The number at the left edge reads out the lane's value
+at the playhead.
+
+### What each lane does
+
+| Lane | Applies to |
+|------|-----------|
+| **Filter Cutoff** | Replaces the instrument's own filter envelope for the whole note |
+| **Resonance** | The filter's Q — push it high for whistling, self-oscillating sweeps |
+| **Drive** | Sampled once per note (a distortion curve can't be ramped mid-note) |
+| **Volume, Pan, EQ, Sends** | The track's channel strip, moving continuously |
+
+Cutoff and resonance are written onto the live filter across each note's full length.
+That is why a four-bar held chord keeps moving instead of freezing at whatever the
+cutoff was when it started — and it is how you get the resonant, juddering sustained
+chords that a lot of raw electronic material is built from.
+
+### Automation beats the mixer
+
+While a lane is enabled, it owns its parameter. The matching control in the mixer is
+dimmed and ignored. Turn the lane **OFF** (the button keeps the points) to hand control
+back to the fader.
+
+### Lanes loop with the loop
+
+Lane positions are read in looped time, so an eight-bar sweep repeats with an eight-bar
+loop rather than running off the end.
+
+### Using volume lanes as an arrangement
+
+There is no separate arranger view. Instead, give each track a volume lane that starts
+at zero and steps up where that part should enter. That is how `midnight-drive.oscproject`
+builds from a pad to a full five-track mix, and it means intro/build/drop are just
+shapes you draw.
+
+---
+
+## The Arpeggiator
+
+Each track has one, in the track header to the left of the piano roll. Click **ARP** to
+turn it on.
+
+Hold a chord — draw three or four long overlapping notes — and the arpeggiator expands
+it into a running pattern at playback. Notes whose spans overlap are treated as one
+chord; a new chord starts wherever the overlap breaks.
+
+| Control | Effect |
+|---------|--------|
+| **Rate** | Step length, 1/1 down to 1/32 |
+| **Mode** | `up`, `down`, `updown`, `downup`, `order` (as drawn), `random` |
+| **OCT** | Stack the pattern up 1–4 octaves |
+| **GATE** | How much of each step sounds, 5–100%. Low values stutter, high values run legato |
+
+`updown` and `downup` don't repeat the turnaround note, so they swing like a pendulum
+rather than stuttering at each end.
+
+The piano roll still shows your long chords — the expansion happens on the way to the
+audio engine. Editing four held notes is a great deal less work than editing sixty-four
+sixteenths, and transposing the harmony is a three-note move.
+
+---
+
+## Channel Strips and Sidechain
+
+Every track now has a full channel strip in the **MIXER**, not just a fader.
+
+| Section | Controls |
+|---------|----------|
+| **EQ** | HI (high shelf, 4 kHz), MD (peaking, 1.2 kHz), LO (low shelf, 200 Hz), ±18 dB each |
+| **SEND** | RV / DL / CH — this track's level into the master reverb, delay and chorus |
+| **SIDECHAIN** | Duck depth under the drum machine's kick |
+| **Fader / PAN / M / S** | Level (up to 150%), position, mute, solo |
+
+Raw-oscillator tracks and instrument-assigned tracks both run through the same strip,
+so EQ and sends work either way.
+
+### Sidechain ducking
+
+Turn **SC** up on a bass or pad track, then play a pattern with a kick in it. Every kick
+pulls that track down and releases it over about a quarter of a second.
+
+This is what makes four-to-the-floor material breathe: without it the kick and the bass
+occupy the same moment and mask each other on every downbeat. Start around 50–70% on sub
+and bass, 20–30% on pads, and leave leads alone.
+
+The duck is triggered by the drum machine's three kick voices. It needs the drum machine
+to be playing — it does not follow kicks you draw in the piano roll.
+
+### Two layers of sends
+
+A preset carries its own send levels (the instrument's character, set in the
+**INSTRUMENTS** right-click editor) and the channel adds its own on top (the mix
+engineer's choice). Preset sends default low and channel sends default to zero, so
+nothing doubles up until you ask for it.
+
+---
+
+## The Visualizer
+
+Click **VIZ** in the header. It is **off by default and does not survive a reload** on
+purpose — it taps the master bus with an FFT analyser and runs a redraw loop, which is
+real CPU you shouldn't pay for unless you're looking at it.
+
+Four modes: **Spectrum** (log-spaced bars), **Waveform**, **Radial** (bars around a
+circle) and **Bloom** (concentric rings tracking frequency bands).
+
+| Option | Effect |
+|--------|--------|
+| **SENS** | Input gain before drawing, 0.2–4× |
+| **SMOOTH** | Analyser time smoothing. High is calm, low is twitchy |
+| **DETAIL** | Bar count, 16–192 |
+| **TRAIL** | Motion trail — 0 clears each frame, high values smear |
+| **COLOR** | Theme (follows the active oscillator's colour), Spectrum, or Mono |
+| **MIRROR / GLOW** | Symmetry, and shadow bloom |
+| **FPS** | 60 or 30 |
+
+Your option choices persist; the on/off state doesn't. If playback starts to crackle
+while it's open, turn **GLOW** off first — shadow blur is by far the most expensive
+thing here — then drop to 30 FPS.
+
+---
+
 ## Recording Audio
 
 ### Starting a recording

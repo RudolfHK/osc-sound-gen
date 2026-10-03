@@ -12,6 +12,37 @@ These `.oscproject` files demonstrate what the sequencer can do. Load them via *
 
 ---
 
+## Production demo
+
+### midnight-drive.oscproject
+**5 tracks — 118 BPM — 16 bars — A minor**
+
+An original French-touch / synthwave study, written to exercise everything the app
+gained for production work: a sixteenth-note arpeggio generated from held triads,
+filter and resonance sweeps that run under sustained chords, sidechain ducking
+against the kick, and volume automation used as the arrangement.
+
+Open **five** OSC tabs before loading, then assign:
+
+| Track | Role | Instrument | Notes |
+|-------|------|-----------|-------|
+| 1 | Sub | *Synth Bass → Sub Bass* | Enters bar 5. Sidechain 70% |
+| 2 | Bass | *Synth Bass → Reese Bass* or *Saw Bass* | Enters bar 5, filter opens over the arrangement |
+| 3 | Arp | *Synth Pluck → House Pluck* | **ARP is on** (1/16, up, 2 octaves). Enters bar 3 |
+| 4 | Pad | *Synth Pad → Warm Pad* or *Synth Lead → Hoover* | Cutoff + resonance sweep across all 16 bars |
+| 5 | Lead | *Synth Lead → Supersaw* or *Hoover* | Enters bar 9 |
+
+Then:
+1. Open **DRUMS** and pick **House** or **Techno** — leave **SYNC** on so it follows 118 BPM
+2. Open **FX** — the reverb, ping-pong delay and limiter are what glue it together
+3. Open the sequencer's **AUTO** panel and pick a track to see its lanes
+
+The arp track holds three-note chords; the arpeggiator expands them at playback, so
+editing the harmony means moving three notes rather than forty-eight.
+
+Every track's volume lane starts at zero and steps up — that is the arrangement.
+Turn a lane **OFF** in the AUTO panel to hear that part from bar 1 instead.
+
 ## Minecraft-style
 
 ### minecraft-sweden.oscproject

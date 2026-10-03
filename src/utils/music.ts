@@ -24,10 +24,98 @@ export interface SequencerNote {
   velocity: number;      // 0–127
 }
 
+// ─── Automation ───────────────────────────────────────────────────────────────
+
+export type AutomationTarget =
+  | 'volume' | 'pan'
+  | 'cutoff' | 'resonance' | 'drive'
+  | 'sendReverb' | 'sendDelay' | 'sendChorus'
+  | 'eqLow' | 'eqMid' | 'eqHigh';
+
+export interface AutomationPoint {
+  id: string;
+  beat: number;
+  /** Normalized 0–1; each target maps this onto its own range. */
+  value: number;
+}
+
+export interface AutomationLane {
+  id: string;
+  target: AutomationTarget;
+  enabled: boolean;
+  points: AutomationPoint[];
+}
+
+// ─── Arpeggiator ──────────────────────────────────────────────────────────────
+
+export type ArpMode = 'up' | 'down' | 'updown' | 'downup' | 'order' | 'random';
+
+export const ARP_MODES: ArpMode[] = ['up', 'down', 'updown', 'downup', 'order', 'random'];
+
+export interface ArpSettings {
+  enabled: boolean;
+  rate: SnapValue;
+  mode: ArpMode;
+  octaves: number;   // 1–4
+  gate: number;      // 0.05–1 — fraction of each step the note sounds for
+}
+
+export function makeDefaultArp(): ArpSettings {
+  return { enabled: false, rate: '1/16', mode: 'up', octaves: 1, gate: 0.65 };
+}
+
+// ─── Per-track channel strip ──────────────────────────────────────────────────
+
+export interface ChannelSettings {
+  gain: number;        // 0–1.5
+  eqLow: number;       // -18 … +18 dB  (low shelf, 200 Hz)
+  eqMid: number;       // -18 … +18 dB  (peaking, 1.2 kHz)
+  eqHigh: number;      // -18 … +18 dB  (high shelf, 4 kHz)
+  sendReverb: number;  // 0–1
+  sendDelay: number;   // 0–1
+  sendChorus: number;  // 0–1
+  /** Duck depth when the drum machine's kick fires. 0 = no sidechain. */
+  sidechain: number;   // 0–1
+}
+
+export function makeDefaultChannel(): ChannelSettings {
+  return {
+    gain: 1, eqLow: 0, eqMid: 0, eqHigh: 0,
+    sendReverb: 0, sendDelay: 0, sendChorus: 0, sidechain: 0,
+  };
+}
+
 export interface SequencerTrack {
   tabId: string;
   notes: SequencerNote[];
   pan: number;           // -1 (left) to +1 (right)
+  arp: ArpSettings;
+  channel: ChannelSettings;
+  lanes: AutomationLane[];
+}
+
+export function makeTrack(tabId: string): SequencerTrack {
+  return {
+    tabId, notes: [], pan: 0,
+    arp: makeDefaultArp(),
+    channel: makeDefaultChannel(),
+    lanes: [],
+  };
+}
+
+/** Fill in fields added after a project or session was saved. */
+export function normalizeTrack(t: Partial<SequencerTrack> & { tabId: string }): SequencerTrack {
+  return {
+    tabId: t.tabId,
+    notes: t.notes ?? [],
+    pan: t.pan ?? 0,
+    arp: { ...makeDefaultArp(), ...t.arp },
+    channel: { ...makeDefaultChannel(), ...t.channel },
+    lanes: (t.lanes ?? []).map((l) => ({
+      ...l,
+      points: [...l.points].sort((a, b) => a.beat - b.beat),
+    })),
+  };
 }
 
 export interface SequencerState {
@@ -47,7 +135,9 @@ export interface SequencerState {
   selectedNoteIds: string[];
   copiedNotes: SequencerNote[] | null;  // note clipboard
   showVelocityLane: boolean;            // show velocity editing lane
+  activeLaneId: string | null;          // automation lane open in the editor
   viewStartBeat: number;
+  pxPerBeat: number;     // horizontal zoom, shared by the piano roll and automation lanes
   viewLowNote: number;   // lowest visible MIDI note
   viewHighNote: number;  // highest visible MIDI note
   undoStack: SequencerTrack[][];
@@ -83,7 +173,9 @@ export function makeDefaultSequencerState(): SequencerState {
     selectedNoteIds: [],
     copiedNotes: null,
     showVelocityLane: false,
+    activeLaneId: null,
     viewStartBeat: 0,
+    pxPerBeat: 80,
     viewLowNote: 48,   // C3
     viewHighNote: 84,  // C6
     undoStack: [],

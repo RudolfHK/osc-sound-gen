@@ -243,7 +243,8 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
   const seq = state.sequencer;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [pxPerBeat, setPxPerBeat] = useState(PX_PER_BEAT_DEFAULT);
+  // Zoom lives in the store so automation lanes stay aligned with the roll
+  const pxPerBeat = seq.pxPerBeat ?? PX_PER_BEAT_DEFAULT;
   const [selRect, setSelRect] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   // Keep preview notes for keyboard piano: key → { osc, gain }
@@ -585,7 +586,7 @@ export function PianoRoll({ tab, track, accent, height }: PianoRollProps) {
 
       if (e.ctrlKey || e.metaKey) {
         const factor = e.deltaY > 0 ? 0.85 : 1.18;
-        setPxPerBeat((prev) => Math.max(20, Math.min(400, prev * factor)));
+        dispatch({ type: 'SEQ_SET_ZOOM', pxPerBeat: Math.max(20, Math.min(400, pxPerBeat * factor)) });
       } else if (e.shiftKey) {
         const delta = Math.round(e.deltaY / SEMITONE_H);
         dispatch({

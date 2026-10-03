@@ -11,13 +11,20 @@ import { THEME_COLORS } from '../utils/math';
 import {
   makeDefaultSequencerState,
   makeNoteId,
+  makeTrack,
+  normalizeTrack,
   SNAP_BEATS,
   type SequencerNote,
   type SequencerTrack,
   type SequencerState,
   type SnapValue,
   type SequencerProject,
+  type ArpSettings,
+  type ChannelSettings,
+  type AutomationTarget,
+  type AutomationPoint,
 } from '../utils/music';
+import { makeLaneId, makePointId, withPoint } from '../engine/automation';
 
 // ─── ID generator ─────────────────────────────────────────────────────────────
 
@@ -80,6 +87,18 @@ export type Action =
   | { type: 'SEQ_PASTE'; tabId: string }
   | { type: 'SEQ_QUANTIZE' }
   | { type: 'SEQ_TOGGLE_VELOCITY_LANE' }
+  // ── Arpeggiator / channel strip / automation ─────────────────────────────────
+  | { type: 'SEQ_SET_ARP'; tabId: string; arp: Partial<ArpSettings> }
+  | { type: 'SEQ_SET_CHANNEL'; tabId: string; channel: Partial<ChannelSettings> }
+  | { type: 'SEQ_ADD_LANE'; tabId: string; target: AutomationTarget }
+  | { type: 'SEQ_REMOVE_LANE'; tabId: string; laneId: string }
+  | { type: 'SEQ_TOGGLE_LANE'; tabId: string; laneId: string }
+  | { type: 'SEQ_ADD_POINT'; tabId: string; laneId: string; beat: number; value: number }
+  | { type: 'SEQ_MOVE_POINT'; tabId: string; laneId: string; pointId: string; beat: number; value: number }
+  | { type: 'SEQ_REMOVE_POINT'; tabId: string; laneId: string; pointId: string }
+  | { type: 'SEQ_CLEAR_LANE'; tabId: string; laneId: string }
+  | { type: 'SEQ_SET_ACTIVE_LANE'; laneId: string | null }
+  | { type: 'SEQ_SET_ZOOM'; pxPerBeat: number }
   // ── Project ──────────────────────────────────────────────────────────────────
   | { type: 'LOAD_PROJECT'; project: SequencerProject };
 
@@ -104,7 +123,7 @@ export const INITIAL_APP_STATE: AppState = {
   overlayMode: false,
   sequencer: {
     ...makeDefaultSequencerState(),
-    tracks: [{ tabId: FIRST_TAB.id, notes: [], pan: 0 }],
+    tracks: [makeTrack(FIRST_TAB.id)],
   },
 };
 
@@ -127,7 +146,7 @@ export function reducer(state: AppState, action: Action): AppState {
         isMuted: false,
         solo: false,
       };
-      const newTrack: SequencerTrack = { tabId: newTab.id, notes: [], pan: 0 };
+      const newTrack: SequencerTrack = makeTrack(newTab.id);
       return {
         ...state,
         tabs: [...state.tabs, newTab],
@@ -251,7 +270,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SEQ_SYNC_TRACKS': {
       const existing = new Map(state.sequencer.tracks.map((t) => [t.tabId, t]));
       const synced = action.tabIds.map(
-        (id) => existing.get(id) ?? { tabId: id, notes: [], pan: 0 },
+        (id) => existing.get(id) ?? makeTrack(id),
       );
       return seqUpdate(state, { tracks: synced });
     }
@@ -417,12 +436,84 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SEQ_TOGGLE_VELOCITY_LANE':
       return seqUpdate(state, { showVelocityLane: !state.sequencer.showVelocityLane });
 
+    // ── Arpeggiator / channel strip ──────────────────────────────────────────────
+
+    case 'SEQ_SET_ARP':
+      return patchTrack(state, action.tabId, (t) => ({ ...t, arp: { ...t.arp, ...action.arp } }));
+
+    case 'SEQ_SET_CHANNEL':
+      return patchTrack(state, action.tabId, (t) => ({
+        ...t, channel: { ...t.channel, ...action.channel },
+      }));
+
+    // ── Automation ───────────────────────────────────────────────────────────────
+
+    case 'SEQ_ADD_LANE': {
+      const existing = state.sequencer.tracks
+        .find((t) => t.tabId === action.tabId)?.lanes
+        .find((l) => l.target === action.target);
+      // One lane per parameter — adding an existing target just selects it
+      if (existing) return seqUpdate(state, { activeLaneId: existing.id });
+
+      const lane = { id: makeLaneId(), target: action.target, enabled: true, points: [] };
+      const next = patchTrack(state, action.tabId, (t) => ({ ...t, lanes: [...t.lanes, lane] }));
+      return seqUpdate(next, { activeLaneId: lane.id });
+    }
+
+    case 'SEQ_REMOVE_LANE': {
+      const next = patchTrack(state, action.tabId, (t) => ({
+        ...t, lanes: t.lanes.filter((l) => l.id !== action.laneId),
+      }));
+      return state.sequencer.activeLaneId === action.laneId
+        ? seqUpdate(next, { activeLaneId: null })
+        : next;
+    }
+
+    case 'SEQ_TOGGLE_LANE':
+      return patchLane(state, action.tabId, action.laneId, (l) => ({ ...l, enabled: !l.enabled }));
+
+    case 'SEQ_ADD_POINT': {
+      const point: AutomationPoint = {
+        id: makePointId(),
+        beat: Math.max(0, action.beat),
+        value: Math.max(0, Math.min(1, action.value)),
+      };
+      return patchLane(state, action.tabId, action.laneId, (l) => ({
+        ...l, points: withPoint(l.points, point),
+      }));
+    }
+
+    case 'SEQ_MOVE_POINT':
+      return patchLane(state, action.tabId, action.laneId, (l) => ({
+        ...l,
+        points: l.points
+          .map((p) => p.id === action.pointId
+            ? { ...p, beat: Math.max(0, action.beat), value: Math.max(0, Math.min(1, action.value)) }
+            : p)
+          .sort((a, b) => a.beat - b.beat),
+      }));
+
+    case 'SEQ_REMOVE_POINT':
+      return patchLane(state, action.tabId, action.laneId, (l) => ({
+        ...l, points: l.points.filter((p) => p.id !== action.pointId),
+      }));
+
+    case 'SEQ_CLEAR_LANE':
+      return patchLane(state, action.tabId, action.laneId, (l) => ({ ...l, points: [] }));
+
+    case 'SEQ_SET_ACTIVE_LANE':
+      return seqUpdate(state, { activeLaneId: action.laneId });
+
+    case 'SEQ_SET_ZOOM':
+      return seqUpdate(state, { pxPerBeat: Math.max(20, Math.min(400, action.pxPerBeat)) });
+
     // ── Project ──────────────────────────────────────────────────────────────────
 
     case 'LOAD_PROJECT': {
       const p = action.project;
-      // Remap stable index-based tabIds → current session tabIds
-      const remapped = p.tracks.map((t, i) => ({
+      // Remap stable index-based tabIds → current session tabIds, filling in any
+      // fields the project predates.
+      const remapped = p.tracks.map((t, i) => normalizeTrack({
         ...t,
         tabId: state.tabs[i]?.id ?? state.tabs[0].id,
       }));
@@ -431,6 +522,7 @@ export function reducer(state: AppState, action: Action): AppState {
         beatsPerBar: p.beatsPerBar,
         songLengthBars: p.songLengthBars,
         tracks: remapped,
+        activeLaneId: null,
       });
       return p.masterVolume !== undefined ? { ...base, masterVolume: p.masterVolume } : base;
     }
@@ -452,6 +544,28 @@ function updateTab(
 
 function seqUpdate(state: AppState, patch: Partial<SequencerState>): AppState {
   return { ...state, sequencer: { ...state.sequencer, ...patch } };
+}
+
+function patchTrack(
+  state: AppState,
+  tabId: string,
+  patcher: (t: SequencerTrack) => SequencerTrack,
+): AppState {
+  return seqUpdate(state, {
+    tracks: state.sequencer.tracks.map((t) => (t.tabId === tabId ? patcher(t) : t)),
+  });
+}
+
+function patchLane(
+  state: AppState,
+  tabId: string,
+  laneId: string,
+  patcher: (l: SequencerTrack['lanes'][number]) => SequencerTrack['lanes'][number],
+): AppState {
+  return patchTrack(state, tabId, (t) => ({
+    ...t,
+    lanes: t.lanes.map((l) => (l.id === laneId ? patcher(l) : l)),
+  }));
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { getAudioEngine } from './audio';
 import { getEffectsBus } from './effects';
+import { getChannelRack } from './channelStrip';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,6 +83,15 @@ export class DrumSynth {
     if (velGain < 0.001) return;
 
     const out = this.getOutput(ctx);
+
+    // A kick ducks every track that asked for sidechain. This is what makes
+    // four-to-the-floor material breathe instead of the bass and kick masking
+    // each other on every downbeat.
+    const isKick = voice === 'kick' || voice === 'kick-808' || voice === 'kick-tight';
+    if (isKick) {
+      const rack = getChannelRack();
+      if (rack.anySidechained()) rack.duckAll(time);
+    }
 
     // Per-hit channel strip: gain + panner
     const chanGain = ctx.createGain();

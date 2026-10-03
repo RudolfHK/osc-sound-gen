@@ -1,7 +1,10 @@
 import { getAudioEngine } from './audio';
 import { getEffectsBus } from './effects';
+import { getChannelRack } from './channelStrip';
+import { findLane, laneRealAt, scheduleLaneOnParam } from './automation';
 import { noiseSource, startNoise } from './sampler';
 import { midiToFreq } from '../utils/music';
+import type { AutomationLane } from '../utils/music';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1818,6 +1821,19 @@ function driveCurve(amount: number): Float32Array<ArrayBuffer> {
 
 const MAX_VOICES = 64;
 
+/** Per-note routing and automation context supplied by the sequencer. */
+export interface NoteContext {
+  /** Pan override, used when no channel strip handles it. */
+  pan?: number;
+  /** Route through this track's channel strip (EQ, fader, sends, sidechain). */
+  trackId?: string;
+  /** Automation lanes for the track; cutoff/resonance/drive are read from here. */
+  lanes?: AutomationLane[];
+  /** Song position of the note, needed to look up lane values. */
+  startBeat?: number;
+  bpm?: number;
+}
+
 export class InstrumentEngine {
   private output: GainNode | null = null;
   private overrides = new Map<string, InstrumentOverride>();
@@ -1907,7 +1923,6 @@ export class InstrumentEngine {
 
   /**
    * Schedule one note. `time` and `durationS` are in AudioContext seconds.
-   * `panOverride` lets the sequencer apply per-track pan on top of the preset.
    */
   playNote(
     presetId: string,
@@ -1915,13 +1930,18 @@ export class InstrumentEngine {
     velocity: number,
     time: number,
     durationS: number,
-    panOverride?: number,
+    ctxOpts?: NoteContext,
   ): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
     const preset = this.resolve(presetId);
     if (!preset) return;
     if (this.activeVoices >= MAX_VOICES) return;
+
+    const opts = ctxOpts ?? {};
+    const lanes = opts.lanes;
+    const startBeat = opts.startBeat ?? 0;
+    const bpm = opts.bpm ?? 120;
 
     const velNorm = Math.max(0, Math.min(127, velocity)) / 127;
 
@@ -1934,7 +1954,11 @@ export class InstrumentEngine {
     const peak = velNorm * preset.volume * levelJitter;
     if (peak < 0.001) return;
 
-    const out = this.getOutput(ctx);
+    // Voices land on the track's channel strip when the sequencer supplies one,
+    // so the fader, EQ, sends and sidechain apply to the whole part at once.
+    const stripInput = opts.trackId ? getChannelRack().getInput(opts.trackId) : null;
+    const out: AudioNode = stripInput ?? this.getOutput(ctx);
+
     const freq = midiToFreq(midiNote + preset.octave * 12);
     const { attack, decay, sustain, release } = preset.amp;
     const dur = Math.max(0.02, durationS);
@@ -1952,7 +1976,9 @@ export class InstrumentEngine {
     amp.gain.value = 0;
 
     const panner = ctx.createStereoPanner();
-    panner.pan.value = Math.max(-1, Math.min(1, panOverride ?? preset.pan));
+    // When a channel strip handles pan, the voice keeps only the preset's own
+    // placement so the two don't fight.
+    panner.pan.value = Math.max(-1, Math.min(1, opts.pan ?? preset.pan));
 
     let head: AudioNode = mix;
     if (preset.body) {
@@ -1966,10 +1992,15 @@ export class InstrumentEngine {
     }
     head.connect(filter);
 
+    // Drive can't be ramped (a WaveShaper curve is fixed once set), so an
+    // automated drive lane is sampled at the note's start instead.
+    const driveLane = findLane(lanes, 'drive');
+    const driveAmount = driveLane ? laneRealAt(driveLane, startBeat) : preset.drive;
+
     let tail: AudioNode = filter;
-    if (preset.drive > 0.01) {
+    if (driveAmount > 0.01) {
       const shaper = ctx.createWaveShaper();
-      shaper.curve = driveCurve(preset.drive);
+      shaper.curve = driveCurve(driveAmount);
       shaper.oversample = '2x';
       tail.connect(shaper);
       tail = shaper;
@@ -1979,24 +2010,41 @@ export class InstrumentEngine {
     panner.connect(out);
 
     // ── FX sends tap the voice post-pan ──
+    // These are the instrument's own character. The track's channel strip adds
+    // its own sends downstream, which the mix engineer controls separately.
     const sendNodes = getEffectsBus().connectSends(panner, preset.send);
 
-    // ── Filter envelope, with velocity opening the cutoff ──
-    const keyF = preset.filter.cutoff *
-      Math.pow(2, preset.filter.keyTrack * (midiNote - 60) / 12);
-    // A hard hit is brighter, not just louder — this is most of what makes
-    // velocity feel expressive rather than a volume knob.
-    const velF = keyF * (1 + preset.filter.velTrack * (velNorm * 2 - 0.7));
-    const base = Math.max(40, Math.min(20000, velF));
-    if (preset.filter.envAmount > 0.01) {
-      const top = Math.max(60, Math.min(20000, base * (1 + preset.filter.envAmount)));
-      filter.frequency.setValueAtTime(base, time);
-      filter.frequency.linearRampToValueAtTime(top, time + Math.max(0.002, attack));
-      filter.frequency.exponentialRampToValueAtTime(
-        base, time + attack + Math.max(0.02, preset.filter.envDecay),
-      );
+    // ── Filter: an automation lane replaces the per-note envelope ──
+    const noteEnd = Math.max(time + attack + 0.005, time + dur) + release;
+    const cutoffLane = findLane(lanes, 'cutoff');
+    const resoLane = findLane(lanes, 'resonance');
+
+    if (resoLane) {
+      scheduleLaneOnParam(filter.Q, resoLane, time, noteEnd - time, startBeat, bpm);
+    }
+
+    if (cutoffLane) {
+      // A swept lane under a held chord is the whole reason automation exists —
+      // the note keeps moving for its entire length rather than being fixed at
+      // whatever the cutoff was when it started.
+      scheduleLaneOnParam(filter.frequency, cutoffLane, time, noteEnd - time, startBeat, bpm);
     } else {
-      filter.frequency.setValueAtTime(base, time);
+      const keyF = preset.filter.cutoff *
+        Math.pow(2, preset.filter.keyTrack * (midiNote - 60) / 12);
+      // A hard hit is brighter, not just louder — this is most of what makes
+      // velocity feel expressive rather than a volume knob.
+      const velF = keyF * (1 + preset.filter.velTrack * (velNorm * 2 - 0.7));
+      const base = Math.max(40, Math.min(20000, velF));
+      if (preset.filter.envAmount > 0.01) {
+        const top = Math.max(60, Math.min(20000, base * (1 + preset.filter.envAmount)));
+        filter.frequency.setValueAtTime(base, time);
+        filter.frequency.linearRampToValueAtTime(top, time + Math.max(0.002, attack));
+        filter.frequency.exponentialRampToValueAtTime(
+          base, time + attack + Math.max(0.02, preset.filter.envDecay),
+        );
+      } else {
+        filter.frequency.setValueAtTime(base, time);
+      }
     }
 
     // ── Amp envelope ──

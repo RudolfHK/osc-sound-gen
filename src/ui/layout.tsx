@@ -11,6 +11,9 @@ import { useAppStore, computeEffectiveMutes } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
 import { useInstrumentStore } from '../store/instrumentStore';
 import { useEffectsStore } from '../store/effectsStore';
+import { useVisualizerStore } from '../store/visualizerStore';
+import { getChannelRack } from '../engine/channelStrip';
+import { makeDefaultChannel } from '../utils/music';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
 
 export function Layout() {
@@ -18,6 +21,7 @@ export function Layout() {
   const { state: drumState, dispatch: drumDispatch } = useDrumStore();
   const { state: instState, dispatch: instDispatch } = useInstrumentStore();
   const { state: fxState, dispatch: fxDispatch } = useEffectsStore();
+  const { state: vizState, dispatch: vizDispatch } = useVisualizerStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scopeRef = useRef<Oscilloscope | null>(null);
 
@@ -88,6 +92,21 @@ export function Layout() {
   useEffect(() => {
     getAudioEngine().setMasterVolume(state.masterVolume);
   }, [state.masterVolume]);
+
+  // Push each track's channel strip settings so mixer moves apply immediately,
+  // whether or not the sequencer is running. Parameters an automation lane is
+  // driving are skipped so the two never fight.
+  useEffect(() => {
+    const rack = getChannelRack();
+    for (const track of state.sequencer.tracks) {
+      const automated = new Set(
+        (track.lanes ?? [])
+          .filter((l) => l.enabled && l.points.length > 0)
+          .map((l) => l.target as string),
+      );
+      rack.apply(track.tabId, track.channel ?? makeDefaultChannel(), track.pan, automated);
+    }
+  }, [state.sequencer.tracks]);
 
   // Sync sequencer engine when tracks change during playback (undo/redo, note edits)
   useEffect(() => {
@@ -228,6 +247,17 @@ export function Layout() {
           >
             FX
           </button>
+          {/* Visualizer toggle — off by default, it costs a redraw loop */}
+          <button
+            onClick={() => vizDispatch({ type: 'VIZ_ENABLE', enabled: !vizState.enabled })}
+            style={vizState.enabled ? { borderColor: themeColor, color: themeColor, backgroundColor: themeColor + '18' } : {}}
+            className={`px-2 py-1 text-xs border transition-colors tracking-widest ${
+              !vizState.enabled ? 'border-neutral-700 text-neutral-600 hover:border-neutral-500 hover:text-neutral-300' : ''
+            }`}
+            title="Audio visualizer (off by default for performance)"
+          >
+            VIZ
+          </button>
           {/* Status */}
           <div className="flex items-center gap-2 text-xs text-neutral-600">
             <span
@@ -261,6 +291,9 @@ export function Layout() {
 
       {/* Master effects rack (lazy import when first opened) */}
       {fxState.isOpen && <EffectsPanelLazy />}
+
+      {/* Visualizer (lazy import; nothing runs while it is off) */}
+      {vizState.enabled && <VisualizerLazy />}
 
       {/* Oscilloscope */}
       <div className="flex-1 relative min-h-0">
@@ -337,6 +370,21 @@ function InstrumentLibraryLazy() {
       </div>
     }>
       <InstrumentLibraryLazyComp />
+    </Suspense>
+  );
+}
+
+const VisualizerPanelLazyComp = lazy(() =>
+  import('./VisualizerPanel').then((m) => ({ default: m.VisualizerPanel }))
+);
+function VisualizerLazy() {
+  return (
+    <Suspense fallback={
+      <div className="h-20 flex items-center justify-center text-xs text-neutral-600 tracking-widest">
+        LOADING VISUALIZER…
+      </div>
+    }>
+      <VisualizerPanelLazyComp />
     </Suspense>
   );
 }

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../store/appStore';
 import { getAudioEngine } from '../engine/audio';
 import { THEME_COLORS } from '../utils/math';
+import { makeDefaultChannel } from '../utils/music';
+import type { ChannelSettings } from '../utils/music';
 
 // Pre-allocated buffer for VU meter reads — never allocate inside the draw loop
 const VU_BUF_SIZE = 256;
@@ -19,7 +21,6 @@ function VUMeter({ analyser, color }: { analyser: AnalyserNode | null; color: st
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Update buffer size if analyser fftSize differs
     if (bufRef.current.length !== analyser.fftSize) {
       bufRef.current = new Float32Array(analyser.fftSize);
     }
@@ -53,7 +54,32 @@ function VUMeter({ analyser, color }: { analyser: AnalyserNode | null; color: st
     return () => cancelAnimationFrame(rafRef.current);
   }, [analyser, color]);
 
-  return <canvas ref={canvasRef} width={8} height={60} className="rounded-sm" />;
+  return <canvas ref={canvasRef} width={7} height={44} className="rounded-sm" />;
+}
+
+// ─── Compact labelled slider ──────────────────────────────────────────────────
+
+function Row({
+  label, value, min, max, step, color, format, onChange, dim,
+}: {
+  label: string; value: number; min: number; max: number; step: number;
+  color: string; format: (v: number) => string;
+  onChange: (v: number) => void; dim?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1" title={`${label}: ${format(value)}`}>
+      <span
+        className="shrink-0 font-mono w-4"
+        style={{ fontSize: 8, color: dim ? '#525252' : '#737373' }}
+      >{label}</span>
+      <input
+        type="range" min={min} max={max} step={step} value={value}
+        className="flex-1 h-0.5 min-w-0"
+        style={{ accentColor: color }}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+      />
+    </div>
+  );
 }
 
 // ─── Channel strip ────────────────────────────────────────────────────────────
@@ -63,11 +89,8 @@ function ChannelStrip({ tabId }: { tabId: string }) {
   const tab = state.tabs.find((t) => t.id === tabId);
   const track = state.sequencer.tracks.find((t) => t.tabId === tabId);
 
-  // Use state (not ref) so VUMeter re-renders when analyser becomes available
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-
-  // Re-run when any tab starts playing so we catch the moment AudioContext is created
-  const anyPlaying = state.tabs.some((t) => t.isPlaying);
+  const anyPlaying = state.tabs.some((t) => t.isPlaying) || state.sequencer.isPlaying;
 
   useEffect(() => {
     const audioEngine = getAudioEngine();
@@ -77,81 +100,111 @@ function ChannelStrip({ tabId }: { tabId: string }) {
       setAnalyser(null);
       return;
     }
-
     const node = audioCtx.createAnalyser();
     node.fftSize = VU_BUF_SIZE;
-    // Tap off the master output — all channels are mixed here
     master.connect(node);
     setAnalyser(node);
-
     return () => {
       try { master.disconnect(node); } catch (_) { /* ignore */ }
       setAnalyser(null);
     };
-  }, [tabId, anyPlaying]); // anyPlaying triggers re-run when AudioContext is first created
+  }, [tabId, anyPlaying]);
 
   if (!tab || !track) return null;
   const color = tab.color;
+  const ch: ChannelSettings = track.channel ?? makeDefaultChannel();
+
+  // Lanes driving a parameter take it over from the fader, so dim what's automated
+  const automated = new Set(
+    (track.lanes ?? []).filter((l) => l.enabled && l.points.length > 0).map((l) => l.target),
+  );
+
+  const setCh = (patch: Partial<ChannelSettings>) =>
+    dispatch({ type: 'SEQ_SET_CHANNEL', tabId, channel: patch });
+
+  const db = (v: number) => `${v > 0 ? '+' : ''}${v.toFixed(1)} dB`;
+  const pct = (v: number) => `${Math.round(v * 100)}%`;
 
   return (
-    <div className="flex flex-col items-center gap-1.5 px-2 py-2 border-r border-neutral-800 min-w-[60px]">
+    <div className="flex flex-col gap-1 px-1.5 py-1.5 border-r border-neutral-800 w-[92px] shrink-0">
       {/* Label */}
-      <span className="text-xs font-mono text-neutral-400 truncate max-w-[50px] text-center">{tab.label}</span>
-      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-
-      {/* VU meters — tap from master (both L/R show same signal for now) */}
-      <div className="flex gap-0.5">
-        <VUMeter analyser={analyser} color={color} />
-        <VUMeter analyser={analyser} color={color} />
+      <div className="flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+        <span className="text-xs font-mono text-neutral-400 truncate" title={tab.label}>{tab.label}</span>
       </div>
 
-      {/* Volume fader */}
-      <div className="flex flex-col items-center">
-        <input
-          type="range" min={0} max={1} step={0.01}
-          value={tab.oscillator.masterVolume}
-          className="h-20"
-          style={{ accentColor: color, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value);
-            dispatch({
-              type: 'UPDATE_TAB_OSC',
-              id: tab.id,
-              oscillator: { ...tab.oscillator, masterVolume: v },
-            });
-            if (tab.isPlaying) getAudioEngine().updateTab(tab.id, { ...tab.oscillator, masterVolume: v }, tab.advanced);
-          }}
-        />
-        <span className="text-xs text-neutral-600 font-mono">{Math.round(tab.oscillator.masterVolume * 100)}</span>
+      {/* EQ */}
+      <div className="flex flex-col gap-0.5">
+        <span className="text-neutral-700 tracking-widest" style={{ fontSize: 8 }}>EQ</span>
+        <Row label="HI" value={ch.eqHigh} min={-18} max={18} step={0.5} color={color}
+          format={db} dim={automated.has('eqHigh')} onChange={(v) => setCh({ eqHigh: v })} />
+        <Row label="MD" value={ch.eqMid} min={-18} max={18} step={0.5} color={color}
+          format={db} dim={automated.has('eqMid')} onChange={(v) => setCh({ eqMid: v })} />
+        <Row label="LO" value={ch.eqLow} min={-18} max={18} step={0.5} color={color}
+          format={db} dim={automated.has('eqLow')} onChange={(v) => setCh({ eqLow: v })} />
+      </div>
+
+      {/* Sends */}
+      <div className="flex flex-col gap-0.5">
+        <span className="text-neutral-700 tracking-widest" style={{ fontSize: 8 }}>SEND</span>
+        <Row label="RV" value={ch.sendReverb} min={0} max={1} step={0.01} color="#8b5cf6"
+          format={pct} dim={automated.has('sendReverb')} onChange={(v) => setCh({ sendReverb: v })} />
+        <Row label="DL" value={ch.sendDelay} min={0} max={1} step={0.01} color="#06b6d4"
+          format={pct} dim={automated.has('sendDelay')} onChange={(v) => setCh({ sendDelay: v })} />
+        <Row label="CH" value={ch.sendChorus} min={0} max={1} step={0.01} color="#22c55e"
+          format={pct} dim={automated.has('sendChorus')} onChange={(v) => setCh({ sendChorus: v })} />
+      </div>
+
+      {/* Sidechain — ducks this track under the drum machine's kick */}
+      <div className="flex flex-col gap-0.5">
+        <span
+          className="tracking-widest"
+          style={{ fontSize: 8, color: ch.sidechain > 0.01 ? '#f97316' : '#404040' }}
+          title="Duck this track whenever the drum machine's kick fires"
+        >SIDECHAIN</span>
+        <Row label="SC" value={ch.sidechain} min={0} max={1} step={0.01} color="#f97316"
+          format={pct} onChange={(v) => setCh({ sidechain: v })} />
+      </div>
+
+      {/* Fader + meter */}
+      <div className="flex items-end gap-1 mt-auto pt-1">
+        <div className="flex gap-0.5">
+          <VUMeter analyser={analyser} color={color} />
+        </div>
+        <div className="flex flex-col items-center flex-1">
+          <input
+            type="range" min={0} max={1.5} step={0.01}
+            value={ch.gain}
+            className="h-14"
+            style={{ accentColor: color, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
+            title={`Fader: ${pct(ch.gain)}`}
+            onChange={(e) => setCh({ gain: parseFloat(e.target.value) })}
+          />
+          <span
+            className="font-mono"
+            style={{ fontSize: 8, color: automated.has('volume') ? '#525252' : '#737373' }}
+          >{Math.round(ch.gain * 100)}</span>
+        </div>
       </div>
 
       {/* Pan */}
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-neutral-600" style={{ fontSize: 8 }}>PAN</span>
-        <input
-          type="range" min={-1} max={1} step={0.01}
-          value={track.pan}
-          className="w-12"
-          style={{ accentColor: color }}
-          onChange={(e) => dispatch({ type: 'SEQ_SET_TRACK_PAN', tabId: tab.id, pan: parseFloat(e.target.value) })}
-        />
-        <span className="font-mono text-neutral-600" style={{ fontSize: 8 }}>
-          {track.pan === 0 ? 'C' : track.pan > 0 ? `R${Math.round(track.pan * 100)}` : `L${Math.round(-track.pan * 100)}`}
-        </span>
-      </div>
+      <Row label="PAN" value={track.pan} min={-1} max={1} step={0.01} color={color}
+        format={(v) => v === 0 ? 'C' : v > 0 ? `R${Math.round(v * 100)}` : `L${Math.round(-v * 100)}`}
+        dim={automated.has('pan')}
+        onChange={(v) => dispatch({ type: 'SEQ_SET_TRACK_PAN', tabId, pan: v })} />
 
       {/* Mute/Solo */}
       <div className="flex gap-0.5">
         <button
           onClick={() => dispatch({ type: 'MUTE_TAB', id: tab.id, muted: !tab.isMuted })}
-          className={`w-5 h-5 text-xs font-bold border leading-none transition-colors ${
+          className={`flex-1 h-4 text-xs font-bold border leading-none transition-colors ${
             tab.isMuted ? 'border-yellow-500 text-yellow-400 bg-yellow-900/30' : 'border-neutral-700 text-neutral-600 hover:text-neutral-400'
           }`}
         >M</button>
         <button
           onClick={() => dispatch({ type: 'SOLO_TAB', id: tab.id, solo: !tab.solo })}
           style={tab.solo ? { borderColor: color, color, backgroundColor: color + '22' } : {}}
-          className={`w-5 h-5 text-xs font-bold border leading-none transition-colors ${
+          className={`flex-1 h-4 text-xs font-bold border leading-none transition-colors ${
             !tab.solo ? 'border-neutral-700 text-neutral-600 hover:text-neutral-400' : ''
           }`}
         >S</button>
@@ -170,14 +223,14 @@ export function Mixer() {
   return (
     <div className="flex border-t border-neutral-800 bg-neutral-950 shrink-0 overflow-x-auto">
       {/* Master strip */}
-      <div className="flex flex-col items-center gap-1.5 px-2 py-2 border-r border-neutral-700 min-w-[60px]">
+      <div className="flex flex-col items-center gap-1 px-2 py-1.5 border-r border-neutral-700 w-[72px] shrink-0">
         <span className="text-xs font-mono text-neutral-400">MASTER</span>
-        <div className="w-2 h-2 rounded-full bg-neutral-400" />
-        <div className="flex flex-col items-center">
+        <div className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
+        <div className="flex flex-col items-center mt-auto">
           <input
             type="range" min={0} max={1} step={0.01}
             value={state.masterVolume}
-            className="h-20"
+            className="h-28"
             style={{ accentColor: accent, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
             onChange={(e) => dispatch({ type: 'SET_MASTER_VOLUME', volume: parseFloat(e.target.value) })}
           />
@@ -189,6 +242,10 @@ export function Mixer() {
       {state.tabs.map((tab) => (
         <ChannelStrip key={tab.id} tabId={tab.id} />
       ))}
+
+      <div className="px-2 py-1.5 text-neutral-700 max-w-[140px] leading-tight" style={{ fontSize: 9 }}>
+        Dimmed labels are driven by an automation lane and ignore the control here.
+      </div>
     </div>
   );
 }
