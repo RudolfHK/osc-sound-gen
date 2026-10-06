@@ -116,7 +116,7 @@ export function FrequencyControl({ value, onChange, color = '#00ff88' }: Frequen
           onBlur={commitInput}
           onKeyDown={handleKey}
           style={{ borderBottomColor: editing ? color : undefined, color }}
-          className="w-24 bg-transparent text-right text-xs font-mono border-b border-neutral-700 focus:outline-none px-1"
+          className="w-24 bg-transparent text-right text-xs font-mono border-b border-neutral-700 focus:outline-hidden px-1"
           aria-label="Frequency in Hz"
         />
       </div>

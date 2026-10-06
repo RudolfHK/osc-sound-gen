@@ -55,7 +55,7 @@ function Meter({ source, color }: { source: MeterSource; color: string }) {
     if (!meterRaf) meterRaf = requestAnimationFrame(meterLoop);
     return () => { meters.delete(c); };
   }, [color]);
-  return <canvas ref={ref} width={6} height={96} className="rounded-sm" aria-hidden />;
+  return <canvas ref={ref} width={6} height={96} className="rounded-xs" aria-hidden />;
 }
 
 // ─── Controls ─────────────────────────────────────────────────────────────────

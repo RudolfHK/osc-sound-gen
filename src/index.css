@@ -1,6 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Scan only what the old v3 `content` config listed (index.html + src),
+   so build output such as release/ is never picked up as class sources. */
+@import "tailwindcss" source(none);
+@source "../index.html";
+@source "../src";
+
+/* Tailwind v3 preflight defaults that v4 changed, kept so the UI looks the same:
+   bare `border` was gray-200 (v4: currentColor), buttons had a pointer cursor
+   (v4: default), and placeholders were gray-400 (v4: 50% currentColor). */
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}
 
 @layer base {
   *, *::before, *::after {
@@ -28,7 +47,7 @@
   }
 
   .slider-track {
-    @apply appearance-none w-full h-1 rounded-full bg-neutral-700 outline-none cursor-pointer;
+    @apply appearance-none w-full h-1 rounded-full bg-neutral-700 outline-hidden cursor-pointer;
   }
 
   .slider-track::-webkit-slider-thumb {

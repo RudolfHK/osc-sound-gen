@@ -41,7 +41,7 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
           onChange={(e) => setName(e.target.value)}
           onBlur={() => dispatch({ type: 'PATTERN_RENAME', patternId: pattern.id, name })}
           onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-          className="bg-neutral-950 border border-neutral-700 text-xs text-neutral-200 px-1.5 py-0.5 focus:outline-none focus:border-neutral-500"
+          className="bg-neutral-950 border border-neutral-700 text-xs text-neutral-200 px-1.5 py-0.5 focus:outline-hidden focus:border-neutral-500"
         />
       </label>
 

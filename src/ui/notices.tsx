@@ -43,7 +43,7 @@ export function Notices() {
       {list.map((n) => (
         <div
           key={n.id}
-          className={`flex items-start gap-2 px-3 py-2 text-xs border rounded shadow-xl bg-neutral-900 ${
+          className={`flex items-start gap-2 px-3 py-2 text-xs border rounded-sm shadow-xl bg-neutral-900 ${
             n.tone === 'error' ? 'border-red-800 text-red-300'
               : n.tone === 'warn' ? 'border-amber-800 text-amber-200' : 'border-neutral-700 text-neutral-300'
           }`}

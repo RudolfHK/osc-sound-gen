@@ -52,7 +52,7 @@ export function TabBar({ tabs, activeTabId, onSelect, onAdd, onRemove, onRename,
             onDrop={() => handleDrop(idx)}
             onClick={() => onSelect(tab.id)}
             className={`
-              flex items-center gap-1.5 px-2 py-1 text-xs border rounded-sm cursor-pointer shrink-0 select-none
+              flex items-center gap-1.5 px-2 py-1 text-xs border rounded-xs cursor-pointer shrink-0 select-none
               transition-colors duration-100
               ${isActive
                 ? 'border-neutral-600 bg-neutral-800 text-neutral-100'
@@ -70,7 +70,7 @@ export function TabBar({ tabs, activeTabId, onSelect, onAdd, onRemove, onRename,
             {editingId === tab.id ? (
               <input
                 autoFocus
-                className="bg-transparent border-b border-neutral-400 outline-none w-16 text-xs text-neutral-100"
+                className="bg-transparent border-b border-neutral-400 outline-hidden w-16 text-xs text-neutral-100"
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 onBlur={() => commitEdit(tab.id)}
@@ -115,7 +115,7 @@ export function TabBar({ tabs, activeTabId, onSelect, onAdd, onRemove, onRename,
       {/* Add tab button */}
       <button
         onClick={onAdd}
-        className="px-2 py-1 text-xs text-neutral-600 hover:text-neutral-300 border border-transparent hover:border-neutral-700 rounded-sm transition-colors shrink-0"
+        className="px-2 py-1 text-xs text-neutral-600 hover:text-neutral-300 border border-transparent hover:border-neutral-700 rounded-xs transition-colors shrink-0"
         title="Add oscillator"
       >
         + OSC

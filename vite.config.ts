@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'node:fs';
 
 /**
@@ -29,7 +30,7 @@ function shipLgplNotice(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), shipLgplNotice()],
+  plugins: [react(), tailwindcss(), shipLgplNotice()],
   // Relative base path so assets load correctly under both file:// (Electron)
   // and any web host root. Swap to '/subdir/' only if deploying to a subdirectory.
   base: './',

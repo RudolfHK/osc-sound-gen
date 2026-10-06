@@ -61,7 +61,7 @@ export function ContextMenu({ x, y, items, onClose, title }: Props) {
     <div
       ref={ref}
       role="menu"
-      className="fixed z-[100] min-w-[180px] py-1 bg-neutral-900 border border-neutral-700 rounded shadow-2xl text-xs"
+      className="fixed z-[100] min-w-[180px] py-1 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl text-xs"
       style={{ left: pos.left, top: pos.top }}
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -93,7 +93,7 @@ export function ContextMenu({ x, y, items, onClose, title }: Props) {
               {item.submenu && <span className="text-neutral-600">▸</span>}
             </button>
             {item.submenu && openSub === i && (
-              <div className="absolute left-full top-0 -mt-1 ml-0.5 min-w-[180px] max-h-[60vh] overflow-y-auto py-1 bg-neutral-900 border border-neutral-700 rounded shadow-2xl">
+              <div className="absolute left-full top-0 -mt-1 ml-0.5 min-w-[180px] max-h-[60vh] overflow-y-auto py-1 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl">
                 {item.submenu.map((sub, j) => sub.divider
                   ? <div key={j} className="my-1 border-t border-neutral-800" />
                   : (

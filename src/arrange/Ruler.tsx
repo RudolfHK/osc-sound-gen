@@ -303,7 +303,7 @@ export function Ruler({ view, width, onSeek }: Props) {
             if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
             if (e.key === 'Escape') setRenaming(null);
           }}
-          className="absolute top-0.5 h-4 px-1 text-xs bg-neutral-950 border border-neutral-500 text-neutral-100 focus:outline-none"
+          className="absolute top-0.5 h-4 px-1 text-xs bg-neutral-950 border border-neutral-500 text-neutral-100 focus:outline-hidden"
           style={{ left: renaming.x + 2, width: 140 }}
           aria-label="Section name"
         />

@@ -117,7 +117,7 @@ function StepContextMenu({ step, x, y, onUpdate, onClose }: StepMenuProps) {
   return (
     <div
       ref={ref}
-      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded shadow-lg p-3 w-44"
+      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-lg p-3 w-44"
       style={{ left: x, top: y }}
     >
       <div className="text-xs text-neutral-500 tracking-widest mb-2">STEP PARAMS</div>
@@ -159,7 +159,7 @@ function VoiceContextMenu({ voice, x, y, onUpdate, onClearRow, onClose }: VoiceM
   return (
     <div
       ref={ref}
-      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded shadow-lg p-3 w-48"
+      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-lg p-3 w-48"
       style={{ left: x, top: y }}
     >
       <div className="text-xs tracking-widest mb-2" style={{ color: voice.color }}>{voice.name.toUpperCase()}</div>

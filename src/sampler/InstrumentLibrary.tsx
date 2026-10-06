@@ -40,7 +40,7 @@ function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: Param
   return (
     <div
       ref={ref}
-      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded shadow-2xl p-3 w-56 max-h-[460px] overflow-y-auto"
+      className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl p-3 w-56 max-h-[460px] overflow-y-auto"
       style={{ left, top }}
     >
       <div className="flex items-center justify-between mb-2">
@@ -200,7 +200,7 @@ export function InstrumentLibrary() {
           value={state.search}
           placeholder="search…"
           onChange={(e) => dispatch({ type: 'INST_SET_SEARCH', search: e.target.value })}
-          className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1.5 py-0.5 w-28 focus:outline-none focus:border-neutral-500"
+          className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1.5 py-0.5 w-28 focus:outline-hidden focus:border-neutral-500"
           aria-label="Search instruments"
         />
 

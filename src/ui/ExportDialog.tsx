@@ -164,7 +164,7 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) closeExport(); }}>
-      <div role="dialog" aria-modal="true" aria-label="Export" className="w-[560px] max-w-[94vw] max-h-[92vh] overflow-y-auto bg-neutral-900 border border-neutral-700 rounded shadow-2xl">
+      <div role="dialog" aria-modal="true" aria-label="Export" className="w-[560px] max-w-[94vw] max-h-[92vh] overflow-y-auto bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl">
         <div className="flex items-center px-4 py-2.5 border-b border-neutral-800">
           <span className="text-sm tracking-widest" style={{ color: accent }}>
             {isTake ? 'EXPORT RECORDING' : 'EXPORT'}
@@ -275,7 +275,7 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
                 <span>{PHASE_LABEL[progress.phase]}{progress.detail ? ` · ${progress.detail}` : ''}…</span>
                 <span className="font-mono">{Math.round(progress.fraction * 100)}%</span>
               </div>
-              <div className="h-1.5 bg-neutral-800 rounded overflow-hidden">
+              <div className="h-1.5 bg-neutral-800 rounded-sm overflow-hidden">
                 <div className="h-full transition-[width] duration-150" style={{ width: `${progress.fraction * 100}%`, backgroundColor: accent }} />
               </div>
             </div>

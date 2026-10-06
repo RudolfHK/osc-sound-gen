@@ -232,7 +232,7 @@ export function Transport() {
               dispatch({ type: 'SEQ_SET_BPM', bpm: seq.bpm + (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 10 : 1) });
             }
           }}
-          className="w-12 bg-neutral-950 border border-neutral-700 text-xs text-neutral-100 font-mono text-center px-1 py-0.5 focus:outline-none focus:border-neutral-400"
+          className="w-12 bg-neutral-950 border border-neutral-700 text-xs text-neutral-100 font-mono text-center px-1 py-0.5 focus:outline-hidden focus:border-neutral-400"
         />
       </label>
 
