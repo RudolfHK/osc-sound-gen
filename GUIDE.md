@@ -1,7 +1,7 @@
 # OSC · User Guide
 
 OSC is a browser-based music production app: an arrangement of tracks and clips, a piano roll and
-drum step sequencer, 161 synthesized instruments, a mixer with per-track EQ, sends and sidechain,
+drum step sequencer, 219 synthesized instruments, a mixer with per-track EQ, sends and sidechain,
 master effects, automation, and an optional oscillator lab for hands-on waveform synthesis.
 
 Everything is synthesized in real time by the Web Audio API — there are no sample files.
@@ -82,7 +82,7 @@ Each track has a **sound source**, shown under its name:
 
 | Source | Plays | Add with |
 |--------|-------|----------|
-| **Instrument** | One of the 161 presets in the instrument library | **+ Instrument** |
+| **Instrument** | One of the 219 presets in the instrument library | **+ Instrument** |
 | **Drum kit** | Drum patterns from the step sequencer | **+ Drums** |
 | **Oscillator** | A waveform from the OSC LAB (optional) | **+ Oscillator**, or ⋯ → *Use an oscillator* |
 
@@ -240,6 +240,7 @@ Click the arrangement to give keyboard focus back to it.
 | **⏮** (Home) | Back to the loop start, press again for bar 1 |
 | **▶ PLAY / ■ STOP** (Space) | Play from the playhead; stopping leaves the playhead where it stopped |
 | **⏹** | Stop; when already stopped, return to the start |
+| **↶ / ↷** | Undo / redo (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y). Greyed out when there is nothing to undo or redo; hover to see how many steps are stored |
 | **● REC** | Record the master output live, losslessly — see *Exporting and Recording* |
 | **⤓ EXPORT** | Export the song as WAV, MP3, stems or MIDI |
 | Position | Bar.beat.sixteenth and elapsed time |
@@ -247,6 +248,17 @@ Click the arrangement to give keyboard focus back to it.
 | **4/4** | Beats per bar |
 | **↻ LOOP** (L) | Loop the range shown on the ruler |
 | **♩ CLICK** (K) | Metronome, accented on the downbeat |
+
+Stopping is immediate. Every note that is sounding, still releasing or already queued to play is
+cut off within a few milliseconds, and the reverb and delay tails are cleared with it, so a held pad
+doesn't fade out after you press stop. Seeking while playing (clicking the ruler, Home, a section
+name) works the same way: the old notes stop and playback continues from the new spot. Volume
+changes from the master slider and the mixer faders also take effect at once.
+
+**What undo covers:** everything in the song, including clips, notes, patterns, sections, automation,
+track names and colours, instruments, the arpeggiator and the whole mixer (faders, pan, EQ, sends,
+sidechain, mute and solo). One continuous movement of a fader or knob is a single undo step.
+The tempo, loop range and view (zoom, scroll) are not part of the undo history.
 
 ---
 
@@ -340,7 +352,7 @@ future version adds new voices or presets, your patterns are migrated rather tha
 
 ## The Instrument Library
 
-Open the **INSTRUMENTS** tab of the dock (Alt+I). This is a library of 161 synthesized instruments across
+Open the **INSTRUMENTS** tab of the dock (Alt+I). This is a library of 219 synthesized instruments across
 eighteen categories:
 
 | Group | Categories |

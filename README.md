@@ -1,6 +1,6 @@
 # OSC — Digital Oscillator Synthesizer
 
-A browser-based (and optionally desktop) music production app: an arrangement of tracks, clips and song sections; a piano roll and drum step sequencer; 161 synthesized instruments; a mixer with per-track EQ, sends and sidechain; master effects; automation; and an optional oscillator lab with a live oscilloscope. Everything is synthesized in real time by the Web Audio API — no sample files.
+A browser-based (and optionally desktop) music production app: an arrangement of tracks, clips and song sections; a piano roll and drum step sequencer; 219 synthesized instruments; a mixer with per-track EQ, sends and sidechain; master effects; automation; and an optional oscillator lab with a live oscilloscope. Everything is synthesized in real time by the Web Audio API — no sample files.
 
 ---
 
@@ -80,7 +80,9 @@ For the complete Electron packaging guide including code signing and auto-update
 - Bar ruler: click to seek, drag to set the loop; a loop only engages when the playhead reaches it
 - Ctrl+wheel zoom around the cursor, Shift+wheel to scroll time, FIT to see the whole song
 - Track headers with rename, colour, volume, mute/solo (additive), automation toggle and a ⋯ menu
-- Undo/redo covers the whole document — clips, patterns, sections, automation
+- Undo/redo (↶/↷ in the transport, Ctrl+Z / Ctrl+Shift+Z) covers the whole document: clips, patterns,
+  sections, automation, instruments and every mixer control. A fader drag counts as one step
+- Stop and seek are immediate: held notes, queued notes and reverb/delay tails are cut within ~4 ms
 
 ### Editor dock
 - Arrange above, editor below — the Ableton/Logic/Bitwig layout. Tabs for **Editor**, **Mixer**, **Instruments**
@@ -107,21 +109,31 @@ For the complete Electron packaging guide including code signing and auto-update
 - Per-voice mute/solo; BPM syncs to the sequencer
 
 ### Instrument Library
-- **161 subtractive-synthesis presets** across eighteen categories:
+- **219 subtractive-synthesis presets** across eighteen categories:
 
   | Group | Categories |
   |-------|-----------|
-  | Keyboards | Piano (6), Keys (9), Organ (6) |
-  | Synths | Synth Lead (14), Synth Pad (14), Synth Bass (13), Synth Pluck (8) |
+  | Keyboards | Piano (6), Keys (12), Organ (9) |
+  | Synths | Synth Lead (16), Synth Pad (16), Synth Bass (13), Synth Pluck (9) |
   | Guitars | Electric (14), Acoustic (9), Bass Guitar (8) |
-  | Orchestral | Strings (9), Brass (8), Woodwind (8) |
-  | Tuned percussion | Mallets (7), Plucked (8) |
-  | Other | Vocal (5), World (7), FX (8) |
+  | Orchestral | Strings (15), Brass (13), Woodwind (17) |
+  | Tuned percussion | Mallets (11), Plucked (15) |
+  | Other | Vocal (10), World (15), FX (11) |
 
-- Acoustic pianos, Rhodes/Wurlitzer, church and drawbar organs; trumpet, trombone, tuba,
-  flugelhorn; clarinet, oboe, bassoon, piccolo, pan flute, alto and tenor sax; cello, viola,
-  double bass, tremolo and staccato strings; vibraphone, glockenspiel, tubular bells, timpani,
-  steel drum; choirs; erhu, oud, shamisen, hang drum, didgeridoo, bagpipe
+- Acoustic pianos, Rhodes/Wurlitzer, harmonium, tape flute and tape choir; church, drawbar,
+  theatre, gospel and calliope organs
+- Brass: trumpet, cornet, flugelhorn, trombone, bass trombone, euphonium, tuba, French horn,
+  soft brass choir, mariachi trumpets
+- Woodwind: flute, piccolo, recorder, tin whistle, ocarina, shakuhachi, pan flute, clarinet,
+  bass clarinet, oboe, English horn, bassoon, soprano/alto/tenor/baritone sax, harmonica
+- Strings: solo violin, viola, cello, double bass, legato violins, cello section, spiccato,
+  pizzicato, tremolo, harmonics, sul ponticello, folk fiddle
+- Mallets and bells: vibraphone, marimba, bass marimba, xylophone, glockenspiel, crotales,
+  handbells, tubular and church bells, steel drum, timpani
+- Plucked and world: harp, koto, guzheng, pipa, lute, zither, autoharp, cimbalom, balalaika,
+  sitar, banjo, mandolin, ukulele, kalimba; erhu, sarangi, oud, bouzouki, shamisen, kora,
+  santoor, charango, duduk, ney, dizi, gamelan, hang drum, didgeridoo, bagpipe
+- Choirs: aahs, oohs, boys, male, breath and doo choirs, soprano, vocal pad, vocoder
 - Guitars span clean, jazz, jangle, crunch, overdrive, distortion, shoegaze, palm mute, funk
   wah, surf tremolo, slide, e-bow, harmonics and power chord (electric); steel, nylon,
   12-string, folk, bright, picked, parlor, muted and resonator (acoustic)
@@ -286,10 +298,11 @@ src/
 ├── engine/
 │   ├── timeline.ts          pure event collection over loop-aware windows (unit-tested)
 │   ├── sequencer.ts         scheduler: turns timeline events into Web Audio calls
+│   ├── voices.ts            voice registry — cuts held/queued notes on stop and seek
 │   ├── playhead.ts          live position outside React state
 │   ├── emit.ts              timeline events → sound, shared by playback and export
 │   ├── pcmRecorder.ts       lossless live recording (with pcm-tap.worklet.js)
-│   ├── instruments.ts       161 presets, polyphonic preset + oscillator voices
+│   ├── instruments.ts       219 presets, polyphonic preset + oscillator voices
 │   ├── sampler.ts           33 synthesized drum voices
 │   ├── channelStrip.ts      per-track EQ, fader, pan, sends, mute, sidechain, meters
 │   ├── effects.ts           master reverb, delay, chorus

@@ -1754,11 +1754,18 @@ export const INSTRUMENT_PRESETS: InstrumentPreset[] = [
     drive: 0.5, width: 0.6, send: { reverb: 0.8, delay: 0.2 }, volume: 0.6,
   }),
   P('fx-noise-sweep', 'Noise Sweep', 'FX', {
-    layers: [{ wave: 'triangle', detune: 0, octave: 0, gain: 0.15 }],
-    filter: { type: 'bandpass', cutoff: 600, q: 6, envAmount: 16, envDecay: 2, keyTrack: 0.15, velTrack: 0.4 },
+    // A wide, inharmonic saw cluster stands in for sustained noise: the noise
+    // generator here is a transient and dies away before the sweep is heard.
+    layers: [
+      { wave: 'sawtooth', detune: -47, octave: 1, gain: 0.6 },
+      { wave: 'sawtooth', detune: 38, octave: 1 + 1 / 12, gain: 0.6 },
+      { wave: 'square', detune: 13, octave: 1 + 6 / 12, gain: 0.4 },
+      { wave: 'sawtooth', detune: -21, octave: 2 + 2 / 12, gain: 0.4 },
+    ],
+    filter: { type: 'bandpass', cutoff: 600, q: 4, envAmount: 16, envDecay: 2, keyTrack: 0.15, velTrack: 0.4 },
     amp: { attack: 0.8, decay: 1.4, sustain: 0.6, release: 1 },
     noise: 1, noiseDecay: 2.4, noiseFreq: 3000,
-    width: 0.75, send: { reverb: 0.65, delay: 0.35 }, volume: 0.45,
+    width: 0.75, send: { reverb: 0.65, delay: 0.35 }, volume: 0.85,
   }),
   P('fx-drone', 'Metallic Drone', 'FX', {
     layers: [
@@ -1793,6 +1800,687 @@ export const INSTRUMENT_PRESETS: InstrumentPreset[] = [
     filter: { type: 'lowpass', cutoff: 6000, q: 8, envAmount: 0, envDecay: 0.1, keyTrack: 0.4, velTrack: 0.5 },
     amp: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.08 },
     glide: 0.15, drive: 0.4, send: { reverb: 0.3, delay: 0.35 }, volume: 0.55,
+  }),
+  // ══ Expansion: orchestral, world, choir and texture instruments ═════════════
+  // ── Strings ──
+  P('str-legato-violins', 'Legato Violins', 'Strings', {
+    layers: [
+      { wave: 'sawtooth', detune: -9, octave: 0, gain: 0.8 },
+      { wave: 'sawtooth', detune: 7, octave: 0, gain: 0.8 },
+      { wave: 'triangle', detune: 0, octave: 1, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3000, q: 1.2, envAmount: 0.8, envDecay: 0.8, keyTrack: 0.5, velTrack: 0.6 },
+    body: { freq: 2400, gain: 5, q: 1.4 },
+    amp: { attack: 0.22, decay: 0.6, sustain: 0.9, release: 0.7 },
+    glide: 0.05, vibrato: { rate: 5.6, depth: 12 },
+    humanize: 0.2, width: 0.65, send: { reverb: 0.55 }, volume: 0.55,
+  }),
+  P('str-spiccato', 'Spiccato Ensemble', 'Strings', {
+    layers: [
+      { wave: 'sawtooth', detune: -6, octave: 0, gain: 0.9 },
+      { wave: 'sawtooth', detune: 6, octave: 0, gain: 0.9 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2600, q: 1.4, envAmount: 2, envDecay: 0.08, keyTrack: 0.5, velTrack: 0.85 },
+    body: { freq: 1400, gain: 6, q: 1.6 },
+    amp: { attack: 0.004, decay: 0.16, sustain: 0.05, release: 0.12 },
+    noise: 0.2, noiseDecay: 0.02, noiseFreq: 3800,
+    humanize: 0.24, width: 0.6, send: { reverb: 0.4 }, volume: 0.62,
+  }),
+  P('str-cello-section', 'Cello Section', 'Strings', {
+    layers: [
+      { wave: 'sawtooth', detune: -7, octave: 0, gain: 0.85 },
+      { wave: 'sawtooth', detune: 8, octave: 0, gain: 0.85 },
+      { wave: 'sine', detune: 0, octave: -1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1300, q: 1.4, envAmount: 1, envDecay: 0.7, keyTrack: 0.45, velTrack: 0.6 },
+    body: { freq: 600, gain: 6, q: 1.3 },
+    amp: { attack: 0.2, decay: 0.6, sustain: 0.88, release: 0.8 },
+    vibrato: { rate: 5, depth: 10 },
+    humanize: 0.2, width: 0.5, send: { reverb: 0.5 }, volume: 0.6,
+  }),
+  P('str-harmonics', 'String Harmonics', 'Strings', {
+    layers: [
+      { wave: 'sine', detune: -4, octave: 1, gain: 0.9 },
+      { wave: 'sine', detune: 5, octave: 1, gain: 0.9 },
+      { wave: 'triangle', detune: 0, octave: 2, gain: 0.2 },
+    ],
+    filter: { type: 'highpass', cutoff: 500, q: 0.8, envAmount: 0, envDecay: 0.5, keyTrack: 0.3, velTrack: 0.3 },
+    amp: { attack: 0.4, decay: 0.8, sustain: 0.85, release: 1.4 },
+    vibrato: { rate: 4.8, depth: 6 },
+    humanize: 0.15, width: 0.8, send: { reverb: 0.75, chorus: 0.2 }, volume: 0.5,
+  }),
+  P('str-fiddle', 'Folk Fiddle', 'Strings', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 1 },
+      { wave: 'square', detune: 5, octave: 0, gain: 0.18 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1800, q: 1.6, envAmount: 1.6, envDecay: 0.2, keyTrack: 0.55, velTrack: 0.8 },
+    body: { freq: 2800, gain: 8, q: 2.2 },
+    amp: { attack: 0.03, decay: 0.3, sustain: 0.8, release: 0.25 },
+    noise: 0.18, noiseDecay: 0.05, noiseFreq: 4500,
+    glide: 0.03, vibrato: { rate: 6.2, depth: 14 },
+    humanize: 0.3, send: { reverb: 0.3 }, volume: 0.6,
+  }),
+  P('str-sul-pont', 'Sul Ponticello', 'Strings', {
+    layers: [
+      { wave: 'sawtooth', detune: -10, octave: 0, gain: 0.7 },
+      { wave: 'sawtooth', detune: 10, octave: 0, gain: 0.7 },
+      { wave: 'square', detune: 0, octave: 1, gain: 0.25 },
+    ],
+    filter: { type: 'highpass', cutoff: 900, q: 2.5, envAmount: 0, envDecay: 0.5, keyTrack: 0.5, velTrack: 0.4 },
+    body: { freq: 4200, gain: 9, q: 3 },
+    amp: { attack: 0.3, decay: 0.6, sustain: 0.85, release: 0.9 },
+    vibrato: { rate: 7.5, depth: 5 },
+    humanize: 0.25, width: 0.7, send: { reverb: 0.6 }, volume: 0.45,
+  }),
+
+  // ── Brass ──
+  P('brass-cornet', 'Cornet', 'Brass', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 0.9 },
+      { wave: 'triangle', detune: 4, octave: 0, gain: 0.4 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1800, q: 2.2, envAmount: 2.8, envDecay: 0.2, keyTrack: 0.5, velTrack: 0.9 },
+    body: { freq: 1300, gain: 6, q: 1.8 },
+    amp: { attack: 0.035, decay: 0.3, sustain: 0.82, release: 0.22 },
+    noise: 0.1, noiseDecay: 0.05, noiseFreq: 3200,
+    drive: 0.15, vibrato: { rate: 5.4, depth: 8 },
+    humanize: 0.18, send: { reverb: 0.32 }, volume: 0.62,
+  }),
+  P('brass-euphonium', 'Euphonium', 'Brass', {
+    layers: [
+      { wave: 'triangle', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sawtooth', detune: 3, octave: 0, gain: 0.35 },
+      { wave: 'sine', detune: 0, octave: -1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1100, q: 1.4, envAmount: 1.8, envDecay: 0.3, keyTrack: 0.45, velTrack: 0.8 },
+    body: { freq: 500, gain: 5, q: 1.2 },
+    amp: { attack: 0.06, decay: 0.35, sustain: 0.85, release: 0.35 },
+    noise: 0.08, noiseDecay: 0.06, noiseFreq: 1800,
+    vibrato: { rate: 4.8, depth: 6 }, octave: -1,
+    humanize: 0.16, send: { reverb: 0.42 }, volume: 0.66,
+  }),
+  P('brass-bass-trombone', 'Bass Trombone', 'Brass', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 1 },
+      { wave: 'square', detune: -4, octave: 0, gain: 0.25 },
+    ],
+    filter: { type: 'lowpass', cutoff: 900, q: 2.4, envAmount: 3, envDecay: 0.25, keyTrack: 0.45, velTrack: 0.95 },
+    body: { freq: 420, gain: 6, q: 1.6 },
+    amp: { attack: 0.05, decay: 0.3, sustain: 0.85, release: 0.3 },
+    noise: 0.12, noiseDecay: 0.06, noiseFreq: 1500,
+    drive: 0.25, glide: 0.04, octave: -1,
+    humanize: 0.18, send: { reverb: 0.36 }, volume: 0.62,
+  }),
+  P('brass-soft', 'Soft Brass Choir', 'Brass', {
+    layers: [
+      { wave: 'sawtooth', detune: -8, octave: 0, gain: 0.7 },
+      { wave: 'sawtooth', detune: 8, octave: 0, gain: 0.7 },
+      { wave: 'triangle', detune: 0, octave: -1, gain: 0.4 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1200, q: 1.2, envAmount: 1.4, envDecay: 0.6, keyTrack: 0.45, velTrack: 0.7 },
+    body: { freq: 800, gain: 4, q: 1.2 },
+    amp: { attack: 0.18, decay: 0.5, sustain: 0.85, release: 0.6 },
+    vibrato: { rate: 4.6, depth: 5 },
+    humanize: 0.15, width: 0.55, send: { reverb: 0.55 }, volume: 0.55,
+  }),
+  P('brass-mariachi', 'Mariachi Trumpets', 'Brass', {
+    layers: [
+      { wave: 'sawtooth', detune: -11, octave: 0, gain: 0.85 },
+      { wave: 'sawtooth', detune: 11, octave: 0, gain: 0.85 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2600, q: 2.6, envAmount: 3.2, envDecay: 0.16, keyTrack: 0.5, velTrack: 0.95 },
+    body: { freq: 1900, gain: 8, q: 2.2 },
+    amp: { attack: 0.03, decay: 0.25, sustain: 0.8, release: 0.22 },
+    noise: 0.14, noiseDecay: 0.04, noiseFreq: 4200,
+    drive: 0.3, vibrato: { rate: 6.8, depth: 16 },
+    humanize: 0.25, width: 0.5, send: { reverb: 0.35 }, volume: 0.55,
+  }),
+
+  // ── Woodwind ──
+  P('wind-soprano-sax', 'Soprano Sax', 'Woodwind', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 0.8 },
+      { wave: 'square', detune: 3, octave: 0, gain: 0.35 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1700, q: 1.4, envAmount: 1.6, envDecay: 0.2, keyTrack: 0.55, velTrack: 0.85 },
+    body: { freq: 2600, gain: 7, q: 2 },
+    amp: { attack: 0.04, decay: 0.25, sustain: 0.85, release: 0.22 },
+    noise: 0.2, noiseDecay: 0.08, noiseFreq: 4200,
+    drive: 0.2, glide: 0.03, vibrato: { rate: 5.4, depth: 12 },
+    humanize: 0.22, send: { reverb: 0.38 }, volume: 0.6,
+  }),
+  P('wind-bari-sax', 'Baritone Sax', 'Woodwind', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 1 },
+      { wave: 'square', detune: -4, octave: 0, gain: 0.4 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1100, q: 2, envAmount: 2.4, envDecay: 0.2, keyTrack: 0.5, velTrack: 0.9 },
+    body: { freq: 650, gain: 7, q: 1.6 },
+    amp: { attack: 0.03, decay: 0.25, sustain: 0.85, release: 0.2 },
+    noise: 0.2, noiseDecay: 0.07, noiseFreq: 2400,
+    drive: 0.35, octave: -1, vibrato: { rate: 5, depth: 8 },
+    humanize: 0.22, send: { reverb: 0.3 }, volume: 0.62,
+  }),
+  P('wind-bass-clarinet', 'Bass Clarinet', 'Woodwind', {
+    layers: [
+      { wave: 'square', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 0, octave: -1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 900, q: 1.6, envAmount: 1.2, envDecay: 0.3, keyTrack: 0.45, velTrack: 0.6 },
+    body: { freq: 520, gain: 5, q: 1.4 },
+    amp: { attack: 0.05, decay: 0.3, sustain: 0.9, release: 0.3 },
+    noise: 0.12, noiseDecay: 0.1, noiseFreq: 1800,
+    octave: -1, vibrato: { rate: 4.2, depth: 4 },
+    humanize: 0.16, send: { reverb: 0.4 }, volume: 0.66,
+  }),
+  P('wind-english-horn', 'English Horn', 'Woodwind', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 0.7 },
+      { wave: 'square', detune: 2, octave: 0, gain: 0.3 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1100, q: 1.5, envAmount: 1.2, envDecay: 0.3, keyTrack: 0.5, velTrack: 0.6 },
+    body: { freq: 1500, gain: 8, q: 2.4 },
+    amp: { attack: 0.06, decay: 0.3, sustain: 0.88, release: 0.3 },
+    noise: 0.12, noiseDecay: 0.08, noiseFreq: 3000,
+    vibrato: { rate: 5, depth: 8 },
+    humanize: 0.2, send: { reverb: 0.48 }, volume: 0.85,
+  }),
+  P('wind-recorder', 'Recorder', 'Woodwind', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'triangle', detune: 0, octave: 1, gain: 0.12 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3000, q: 0.8, envAmount: 0.6, envDecay: 0.2, keyTrack: 0.5, velTrack: 0.4 },
+    amp: { attack: 0.03, decay: 0.2, sustain: 0.9, release: 0.12 },
+    noise: 0.22, noiseDecay: 0.06, noiseFreq: 5200,
+    vibrato: { rate: 5, depth: 3 }, octave: 1,
+    humanize: 0.15, send: { reverb: 0.32 }, volume: 0.62,
+  }),
+  P('wind-shakuhachi', 'Shakuhachi', 'Woodwind', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'triangle', detune: 7, octave: 1, gain: 0.12 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2600, q: 1.2, envAmount: 1.4, envDecay: 0.5, keyTrack: 0.5, velTrack: 0.7 },
+    amp: { attack: 0.12, decay: 0.5, sustain: 0.8, release: 0.5 },
+    noise: 0.45, noiseDecay: 0.5, noiseFreq: 3800,
+    glide: 0.08, vibrato: { rate: 4.4, depth: 16 },
+    humanize: 0.3, send: { reverb: 0.65, delay: 0.15 }, volume: 0.62,
+  }),
+  P('wind-tin-whistle', 'Tin Whistle', 'Woodwind', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 1, gain: 1 },
+      { wave: 'square', detune: 3, octave: 1, gain: 0.06 },
+    ],
+    filter: { type: 'lowpass', cutoff: 6000, q: 0.8, envAmount: 0.4, envDecay: 0.1, keyTrack: 0.5, velTrack: 0.4 },
+    amp: { attack: 0.015, decay: 0.15, sustain: 0.88, release: 0.08 },
+    noise: 0.2, noiseDecay: 0.04, noiseFreq: 6500,
+    glide: 0.02, vibrato: { rate: 6, depth: 10 },
+    humanize: 0.25, send: { reverb: 0.3 }, volume: 0.55,
+  }),
+  P('wind-ocarina', 'Ocarina', 'Woodwind', {
+    layers: [{ wave: 'sine', detune: 0, octave: 0, gain: 1 }],
+    filter: { type: 'lowpass', cutoff: 2200, q: 0.7, envAmount: 0.4, envDecay: 0.2, keyTrack: 0.4, velTrack: 0.4 },
+    body: { freq: 900, gain: 3, q: 1 },
+    amp: { attack: 0.05, decay: 0.3, sustain: 0.85, release: 0.2 },
+    noise: 0.16, noiseDecay: 0.12, noiseFreq: 3400,
+    vibrato: { rate: 5.2, depth: 7 }, octave: 1,
+    humanize: 0.18, send: { reverb: 0.5 }, volume: 0.66,
+  }),
+  P('wind-harmonica', 'Harmonica', 'Woodwind', {
+    layers: [
+      { wave: 'square', detune: -6, octave: 0, gain: 0.6 },
+      { wave: 'sawtooth', detune: 6, octave: 0, gain: 0.5 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1600, q: 1.8, envAmount: 1.2, envDecay: 0.2, keyTrack: 0.5, velTrack: 0.8 },
+    body: { freq: 2200, gain: 7, q: 2 },
+    amp: { attack: 0.03, decay: 0.3, sustain: 0.8, release: 0.15 },
+    noise: 0.15, noiseDecay: 0.06, noiseFreq: 3000,
+    drive: 0.2, glide: 0.04, vibrato: { rate: 6.5, depth: 12 },
+    humanize: 0.28, send: { reverb: 0.25 }, volume: 0.55,
+  }),
+
+  // ── Mallets & bells ──
+  P('mal-crotales', 'Crotales', 'Mallets', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 2, gain: 1 },
+      { wave: 'sine', detune: 8, octave: 2 + 7 / 12, gain: 0.3 },
+      { wave: 'sine', detune: -6, octave: 3, gain: 0.15 },
+    ],
+    filter: { type: 'highpass', cutoff: 1000, q: 0.8, envAmount: 0, envDecay: 0.5, keyTrack: 0.4, velTrack: 0.5 },
+    amp: { attack: 0.001, decay: 3, sustain: 0.02, release: 2.4 },
+    noise: 0.1, noiseDecay: 0.006, noiseFreq: 8000,
+    humanize: 0.1, width: 0.4, send: { reverb: 0.6 }, volume: 0.5,
+  }),
+  P('mal-handbells', 'Handbells', 'Mallets', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 4, octave: 1, gain: 0.35 },
+      { wave: 'sine', detune: -9, octave: 1 + 7 / 12, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 5000, q: 0.8, envAmount: 0.8, envDecay: 0.1, keyTrack: 0.5, velTrack: 0.6 },
+    amp: { attack: 0.002, decay: 2.4, sustain: 0.06, release: 1.8 },
+    vibrato: { rate: 3.5, depth: 3 },
+    humanize: 0.18, width: 0.5, send: { reverb: 0.55 }, volume: 0.6,
+  }),
+  P('mal-bass-marimba', 'Bass Marimba', 'Mallets', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 0, octave: 2, gain: 0.18 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1400, q: 1.2, envAmount: 1.6, envDecay: 0.06, keyTrack: 0.5, velTrack: 0.7 },
+    body: { freq: 300, gain: 6, q: 1.4 },
+    amp: { attack: 0.002, decay: 0.9, sustain: 0.02, release: 0.5 },
+    noise: 0.2, noiseDecay: 0.012, noiseFreq: 1200,
+    octave: -1, humanize: 0.14, send: { reverb: 0.3 }, volume: 0.78,
+  }),
+  P('mal-church-bell', 'Church Bell', 'Mallets', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 0, octave: -1, gain: 0.5 },
+      { wave: 'sine', detune: 15, octave: 3 / 12, gain: 0.4 },   // the bell's minor third
+      { wave: 'sine', detune: -10, octave: 1 + 7 / 12, gain: 0.25 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3600, q: 1, envAmount: 1, envDecay: 0.2, keyTrack: 0.4, velTrack: 0.5 },
+    amp: { attack: 0.002, decay: 4, sustain: 0.04, release: 3.5 },
+    noise: 0.15, noiseDecay: 0.02, noiseFreq: 2000,
+    humanize: 0.08, width: 0.4, send: { reverb: 0.7 }, volume: 0.5,
+  }),
+
+  // ── Plucked ──
+  P('pluck-guzheng', 'Guzheng', 'Plucked', {
+    layers: [
+      { wave: 'triangle', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sawtooth', detune: 4, octave: 0, gain: 0.2 },
+      { wave: 'sine', detune: -3, octave: 1, gain: 0.25 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3800, q: 1.4, envAmount: 2, envDecay: 0.14, keyTrack: 0.6, velTrack: 0.85 },
+    body: { freq: 1500, gain: 6, q: 1.8 },
+    amp: { attack: 0.002, decay: 2.2, sustain: 0.04, release: 1 },
+    noise: 0.2, noiseDecay: 0.015, noiseFreq: 3400,
+    glide: 0.05, vibrato: { rate: 5.5, depth: 14 },
+    humanize: 0.2, width: 0.3, send: { reverb: 0.5 }, volume: 0.66,
+  }),
+  P('pluck-pipa', 'Pipa', 'Plucked', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 0.7 },
+      { wave: 'triangle', detune: 5, octave: 0, gain: 0.6 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3000, q: 2, envAmount: 2.6, envDecay: 0.08, keyTrack: 0.6, velTrack: 0.9 },
+    body: { freq: 2000, gain: 8, q: 2.4 },
+    amp: { attack: 0.001, decay: 0.8, sustain: 0.03, release: 0.4 },
+    noise: 0.3, noiseDecay: 0.01, noiseFreq: 4200,
+    humanize: 0.22, send: { reverb: 0.35 }, volume: 0.62,
+  }),
+  P('pluck-lute', 'Lute', 'Plucked', {
+    layers: [
+      { wave: 'triangle', detune: -5, octave: 0, gain: 0.8 },
+      { wave: 'triangle', detune: 5, octave: 0, gain: 0.8 },   // paired courses
+      { wave: 'sine', detune: 0, octave: 1, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2400, q: 1.2, envAmount: 1.8, envDecay: 0.12, keyTrack: 0.55, velTrack: 0.8 },
+    body: { freq: 420, gain: 6, q: 1.2 },
+    amp: { attack: 0.002, decay: 1.4, sustain: 0.04, release: 0.6 },
+    noise: 0.18, noiseDecay: 0.012, noiseFreq: 2600,
+    humanize: 0.22, width: 0.3, send: { reverb: 0.42 }, volume: 0.68,
+  }),
+  P('pluck-zither', 'Zither', 'Plucked', {
+    layers: [
+      { wave: 'sawtooth', detune: -3, octave: 0, gain: 0.5 },
+      { wave: 'triangle', detune: 3, octave: 0, gain: 0.8 },
+      { wave: 'sine', detune: 7, octave: 1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 4200, q: 1.4, envAmount: 1.8, envDecay: 0.15, keyTrack: 0.6, velTrack: 0.8 },
+    body: { freq: 2400, gain: 5, q: 2 },
+    amp: { attack: 0.001, decay: 2.6, sustain: 0.03, release: 1.4 },
+    noise: 0.2, noiseDecay: 0.01, noiseFreq: 5000,
+    humanize: 0.18, width: 0.4, send: { reverb: 0.5 }, volume: 0.6,
+  }),
+  P('pluck-autoharp', 'Autoharp', 'Plucked', {
+    layers: [
+      { wave: 'triangle', detune: -8, octave: 0, gain: 0.8 },
+      { wave: 'sawtooth', detune: 8, octave: 0, gain: 0.3 },
+      { wave: 'triangle', detune: 0, octave: 1, gain: 0.35 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3600, q: 1, envAmount: 1.6, envDecay: 0.2, keyTrack: 0.55, velTrack: 0.7 },
+    body: { freq: 900, gain: 4, q: 1.2 },
+    amp: { attack: 0.004, decay: 2.4, sustain: 0.05, release: 1.4 },
+    noise: 0.16, noiseDecay: 0.02, noiseFreq: 3600,
+    humanize: 0.2, width: 0.55, send: { reverb: 0.5, chorus: 0.2 }, volume: 0.62,
+  }),
+  P('pluck-cimbalom', 'Cimbalom', 'Plucked', {
+    layers: [
+      { wave: 'triangle', detune: -6, octave: 0, gain: 0.8 },
+      { wave: 'triangle', detune: 6, octave: 0, gain: 0.8 },
+      { wave: 'square', detune: 0, octave: 1, gain: 0.12 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3200, q: 1.6, envAmount: 2.2, envDecay: 0.1, keyTrack: 0.6, velTrack: 0.9 },
+    body: { freq: 1200, gain: 6, q: 1.8 },
+    amp: { attack: 0.001, decay: 2, sustain: 0.05, release: 1.2 },
+    noise: 0.32, noiseDecay: 0.008, noiseFreq: 2400,
+    humanize: 0.2, width: 0.4, send: { reverb: 0.42 }, volume: 0.62,
+  }),
+  P('pluck-balalaika', 'Balalaika', 'Plucked', {
+    layers: [
+      { wave: 'sawtooth', detune: -4, octave: 0, gain: 0.6 },
+      { wave: 'triangle', detune: 4, octave: 0, gain: 0.7 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3400, q: 1.8, envAmount: 2.4, envDecay: 0.07, keyTrack: 0.6, velTrack: 0.9 },
+    body: { freq: 1700, gain: 7, q: 2 },
+    amp: { attack: 0.001, decay: 0.6, sustain: 0.04, release: 0.3 },
+    noise: 0.26, noiseDecay: 0.01, noiseFreq: 3800,
+    humanize: 0.25, send: { reverb: 0.3 }, volume: 0.62,
+  }),
+
+  // ── World ──
+  P('wld-duduk', 'Duduk', 'World', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 0.6 },
+      { wave: 'sine', detune: 3, octave: 0, gain: 0.7 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1300, q: 1.8, envAmount: 1, envDecay: 0.4, keyTrack: 0.5, velTrack: 0.6 },
+    body: { freq: 900, gain: 7, q: 2 },
+    amp: { attack: 0.1, decay: 0.4, sustain: 0.88, release: 0.5 },
+    noise: 0.15, noiseDecay: 0.15, noiseFreq: 2200,
+    glide: 0.07, vibrato: { rate: 4.6, depth: 12 },
+    humanize: 0.25, send: { reverb: 0.6 }, volume: 0.66,
+  }),
+  P('wld-ney', 'Ney Flute', 'World', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'triangle', detune: -6, octave: 1, gain: 0.1 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2200, q: 1, envAmount: 0.8, envDecay: 0.6, keyTrack: 0.5, velTrack: 0.6 },
+    amp: { attack: 0.14, decay: 0.5, sustain: 0.82, release: 0.6 },
+    noise: 0.55, noiseDecay: 0.6, noiseFreq: 3000,
+    glide: 0.09, vibrato: { rate: 4.8, depth: 14 },
+    humanize: 0.3, send: { reverb: 0.65 }, volume: 0.6,
+  }),
+  P('wld-kora', 'Kora', 'World', {
+    layers: [
+      { wave: 'triangle', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 3, octave: 1, gain: 0.35 },
+      { wave: 'sawtooth', detune: -4, octave: 0, gain: 0.12 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3200, q: 1.4, envAmount: 2, envDecay: 0.12, keyTrack: 0.6, velTrack: 0.85 },
+    body: { freq: 700, gain: 7, q: 1.6 },   // the calabash
+    amp: { attack: 0.002, decay: 1.6, sustain: 0.04, release: 0.9 },
+    noise: 0.2, noiseDecay: 0.012, noiseFreq: 3000,
+    humanize: 0.2, width: 0.35, send: { reverb: 0.45 }, volume: 0.66,
+  }),
+  P('wld-santoor', 'Santoor', 'World', {
+    layers: [
+      { wave: 'triangle', detune: -9, octave: 0, gain: 0.7 },
+      { wave: 'triangle', detune: 9, octave: 0, gain: 0.7 },
+      { wave: 'sine', detune: 0, octave: 1, gain: 0.35 },
+      { wave: 'sine', detune: 5, octave: 2, gain: 0.1 },
+    ],
+    filter: { type: 'lowpass', cutoff: 4600, q: 1.2, envAmount: 1.8, envDecay: 0.1, keyTrack: 0.6, velTrack: 0.85 },
+    amp: { attack: 0.001, decay: 2.4, sustain: 0.04, release: 1.6 },
+    noise: 0.28, noiseDecay: 0.006, noiseFreq: 5200,
+    humanize: 0.18, width: 0.5, send: { reverb: 0.55 }, volume: 0.58,
+  }),
+  P('wld-gamelan', 'Gamelan Gong Chime', 'World', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 22, octave: 0, gain: 0.6 },    // paired, deliberately beating
+      { wave: 'sine', detune: -12, octave: 2 + 4 / 12, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3000, q: 1.2, envAmount: 1.2, envDecay: 0.1, keyTrack: 0.5, velTrack: 0.6 },
+    body: { freq: 1100, gain: 5, q: 2 },
+    amp: { attack: 0.002, decay: 3, sustain: 0.05, release: 2.4 },
+    noise: 0.15, noiseDecay: 0.01, noiseFreq: 2600,
+    humanize: 0.12, width: 0.5, send: { reverb: 0.6 }, volume: 0.58,
+  }),
+  P('wld-sarangi', 'Sarangi', 'World', {
+    layers: [
+      { wave: 'sawtooth', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sawtooth', detune: 9, octave: 1, gain: 0.15 },  // sympathetic strings
+    ],
+    filter: { type: 'bandpass', cutoff: 1500, q: 2.4, envAmount: 1.4, envDecay: 0.5, keyTrack: 0.55, velTrack: 0.7 },
+    body: { freq: 2400, gain: 9, q: 2.6 },
+    amp: { attack: 0.1, decay: 0.5, sustain: 0.85, release: 0.6 },
+    glide: 0.1, vibrato: { rate: 5.8, depth: 20 },
+    humanize: 0.3, width: 0.3, send: { reverb: 0.55 }, volume: 0.56,
+  }),
+  P('wld-dizi', 'Dizi', 'World', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 1, gain: 1 },
+      { wave: 'sawtooth', detune: 4, octave: 1, gain: 0.08 },  // the membrane buzz
+    ],
+    filter: { type: 'lowpass', cutoff: 4800, q: 1.4, envAmount: 0.8, envDecay: 0.2, keyTrack: 0.5, velTrack: 0.6 },
+    body: { freq: 3600, gain: 6, q: 3 },
+    amp: { attack: 0.04, decay: 0.25, sustain: 0.85, release: 0.2 },
+    noise: 0.3, noiseDecay: 0.1, noiseFreq: 6000,
+    glide: 0.04, vibrato: { rate: 5.8, depth: 12 },
+    humanize: 0.25, send: { reverb: 0.45 }, volume: 0.55,
+  }),
+  P('wld-charango', 'Charango', 'World', {
+    layers: [
+      { wave: 'triangle', detune: -7, octave: 1, gain: 0.8 },
+      { wave: 'sawtooth', detune: 7, octave: 1, gain: 0.3 },
+      { wave: 'triangle', detune: 0, octave: 0, gain: 0.4 },
+    ],
+    filter: { type: 'lowpass', cutoff: 4400, q: 1.4, envAmount: 2, envDecay: 0.08, keyTrack: 0.6, velTrack: 0.85 },
+    body: { freq: 2600, gain: 6, q: 2 },
+    amp: { attack: 0.001, decay: 0.7, sustain: 0.04, release: 0.35 },
+    noise: 0.25, noiseDecay: 0.01, noiseFreq: 4600,
+    humanize: 0.25, width: 0.45, send: { reverb: 0.32 }, volume: 0.6,
+  }),
+
+  // ── Vocal ──
+  P('voc-boys-choir', 'Boys Choir', 'Vocal', {
+    layers: [
+      { wave: 'triangle', detune: -7, octave: 0, gain: 0.8 },
+      { wave: 'triangle', detune: 7, octave: 0, gain: 0.8 },
+      { wave: 'sine', detune: 0, octave: 1, gain: 0.3 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1300, q: 1.2, envAmount: 0.6, envDecay: 1, keyTrack: 0.6, velTrack: 0.4 },
+    body: { freq: 3000, gain: 6, q: 1.8 },
+    amp: { attack: 0.3, decay: 0.6, sustain: 0.9, release: 1.1 },
+    octave: 1, vibrato: { rate: 5.2, depth: 6 },
+    humanize: 0.15, width: 0.7, send: { reverb: 0.75 }, volume: 0.8,
+  }),
+  P('voc-male-choir', 'Male Choir', 'Vocal', {
+    layers: [
+      { wave: 'sawtooth', detune: -10, octave: 0, gain: 0.7 },
+      { wave: 'sawtooth', detune: 10, octave: 0, gain: 0.7 },
+      { wave: 'triangle', detune: 0, octave: -1, gain: 0.4 },
+    ],
+    filter: { type: 'bandpass', cutoff: 650, q: 1.5, envAmount: 0.6, envDecay: 1, keyTrack: 0.5, velTrack: 0.4 },
+    body: { freq: 2400, gain: 7, q: 1.6 },
+    amp: { attack: 0.3, decay: 0.7, sustain: 0.9, release: 1 },
+    octave: -1, vibrato: { rate: 4.8, depth: 9 },
+    humanize: 0.2, width: 0.7, send: { reverb: 0.7 }, volume: 0.58,
+  }),
+  P('voc-soprano', 'Soprano', 'Vocal', {
+    layers: [
+      { wave: 'triangle', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sawtooth', detune: 2, octave: 0, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2400, q: 1.2, envAmount: 0.8, envDecay: 0.6, keyTrack: 0.6, velTrack: 0.6 },
+    body: { freq: 3100, gain: 9, q: 2.2 },   // the singer's formant
+    amp: { attack: 0.12, decay: 0.4, sustain: 0.9, release: 0.6 },
+    octave: 1, glide: 0.05, vibrato: { rate: 5.6, depth: 24 },
+    humanize: 0.2, send: { reverb: 0.6 }, volume: 0.9,
+  }),
+  P('voc-breath', 'Breath Choir', 'Vocal', {
+    layers: [
+      { wave: 'sine', detune: -6, octave: 0, gain: 0.8 },
+      { wave: 'sine', detune: 6, octave: 0, gain: 0.8 },
+      { wave: 'triangle', detune: 0, octave: 1, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1800, q: 0.9, envAmount: 0.6, envDecay: 1.4, keyTrack: 0.5, velTrack: 0.3 },
+    amp: { attack: 0.5, decay: 0.8, sustain: 0.85, release: 1.6 },
+    noise: 0.5, noiseDecay: 1.2, noiseFreq: 3200,
+    vibrato: { rate: 4.4, depth: 5 },
+    humanize: 0.18, width: 0.8, send: { reverb: 0.8, chorus: 0.25 }, volume: 0.55,
+  }),
+  P('voc-doo', 'Doo Choir', 'Vocal', {
+    layers: [
+      { wave: 'triangle', detune: -5, octave: 0, gain: 0.9 },
+      { wave: 'triangle', detune: 5, octave: 0, gain: 0.9 },
+    ],
+    filter: { type: 'lowpass', cutoff: 900, q: 2, envAmount: 1.6, envDecay: 0.12, keyTrack: 0.5, velTrack: 0.6 },
+    body: { freq: 500, gain: 6, q: 1.6 },
+    amp: { attack: 0.02, decay: 0.3, sustain: 0.5, release: 0.25 },
+    vibrato: { rate: 5, depth: 6 },
+    humanize: 0.2, width: 0.6, send: { reverb: 0.45 }, volume: 0.66,
+  }),
+
+  // ── Organ & keys ──
+  P('organ-theatre', 'Theatre Organ', 'Organ', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 0, octave: 1, gain: 0.6 },
+      { wave: 'triangle', detune: 0, octave: -1, gain: 0.5 },
+      { wave: 'sine', detune: 0, octave: 2, gain: 0.25 },
+    ],
+    filter: { type: 'lowpass', cutoff: 4000, q: 0.8, envAmount: 0, envDecay: 0.3, keyTrack: 0.3, velTrack: 0 },
+    amp: { attack: 0.02, decay: 0.2, sustain: 1, release: 0.25 },
+    vibrato: { rate: 6.8, depth: 14 },   // the tremulant
+    width: 0.4, send: { reverb: 0.45, chorus: 0.3 }, volume: 0.5,
+  }),
+  P('organ-gospel', 'Gospel Organ', 'Organ', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: -1, gain: 0.8 },
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'sine', detune: 2, octave: 7 / 12 + 1, gain: 0.45 },
+      { wave: 'square', detune: 0, octave: 2, gain: 0.08 },
+    ],
+    filter: { type: 'lowpass', cutoff: 5200, q: 0.8, envAmount: 0.6, envDecay: 0.05, keyTrack: 0.3, velTrack: 0.2 },
+    amp: { attack: 0.004, decay: 0.15, sustain: 0.95, release: 0.08 },
+    noise: 0.12, noiseDecay: 0.01, noiseFreq: 3000,   // key click
+    drive: 0.25, width: 0.35, send: { reverb: 0.25, chorus: 0.5 }, volume: 0.5,
+  }),
+  P('organ-calliope', 'Calliope', 'Organ', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'triangle', detune: 8, octave: 1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3200, q: 1, envAmount: 0.6, envDecay: 0.1, keyTrack: 0.4, velTrack: 0.3 },
+    amp: { attack: 0.03, decay: 0.2, sustain: 0.9, release: 0.1 },
+    noise: 0.35, noiseDecay: 0.2, noiseFreq: 4400,   // steam
+    vibrato: { rate: 7, depth: 9 },
+    humanize: 0.25, send: { reverb: 0.3 }, volume: 0.55,
+  }),
+  P('keys-harmonium', 'Harmonium', 'Keys', {
+    layers: [
+      { wave: 'sawtooth', detune: -4, octave: 0, gain: 0.6 },
+      { wave: 'square', detune: 4, octave: 0, gain: 0.4 },
+      { wave: 'sawtooth', detune: 0, octave: -1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1600, q: 1.2, envAmount: 0.6, envDecay: 0.3, keyTrack: 0.4, velTrack: 0.4 },
+    body: { freq: 1100, gain: 5, q: 1.4 },
+    amp: { attack: 0.08, decay: 0.3, sustain: 0.9, release: 0.2 },
+    noise: 0.1, noiseDecay: 0.1, noiseFreq: 2000,
+    humanize: 0.15, width: 0.3, send: { reverb: 0.35 }, volume: 0.55,
+  }),
+  P('keys-tape-flute', 'Tape Flute', 'Keys', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'triangle', detune: 6, octave: 1, gain: 0.18 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2600, q: 0.8, envAmount: 0.4, envDecay: 0.3, keyTrack: 0.5, velTrack: 0.3 },
+    amp: { attack: 0.08, decay: 0.4, sustain: 0.85, release: 0.3 },
+    noise: 0.2, noiseDecay: 0.25, noiseFreq: 4000,
+    vibrato: { rate: 0.7, depth: 9 },   // the tape's wow
+    humanize: 0.2, width: 0.3, send: { reverb: 0.4, chorus: 0.2 }, volume: 0.62,
+  }),
+  P('keys-tape-choir', 'Tape Choir', 'Keys', {
+    layers: [
+      { wave: 'sawtooth', detune: -7, octave: 0, gain: 0.6 },
+      { wave: 'triangle', detune: 7, octave: 0, gain: 0.8 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1000, q: 0.9, envAmount: 0.6, envDecay: 0.8, keyTrack: 0.5, velTrack: 0.3 },
+    body: { freq: 2600, gain: 6, q: 1.6 },
+    amp: { attack: 0.15, decay: 0.6, sustain: 0.85, release: 0.6 },
+    vibrato: { rate: 0.6, depth: 11 },
+    humanize: 0.2, width: 0.6, send: { reverb: 0.55, chorus: 0.3 }, volume: 0.8,
+  }),
+
+  // ── Synth textures ──
+  P('lead-theremin', 'Theremin', 'Synth Lead', {
+    layers: [{ wave: 'sine', detune: 0, octave: 0, gain: 1 }, { wave: 'triangle', detune: 0, octave: 1, gain: 0.1 }],
+    filter: { type: 'lowpass', cutoff: 5000, q: 0.7, envAmount: 0, envDecay: 0.3, keyTrack: 0.3, velTrack: 0.2 },
+    amp: { attack: 0.08, decay: 0.3, sustain: 0.92, release: 0.4 },
+    glide: 0.18, vibrato: { rate: 6, depth: 26 },
+    send: { reverb: 0.5, delay: 0.2 }, volume: 0.6,
+  }),
+  P('lead-whistle', 'Synth Whistle', 'Synth Lead', {
+    layers: [{ wave: 'sine', detune: 0, octave: 1, gain: 1 }],
+    filter: { type: 'lowpass', cutoff: 7000, q: 0.7, envAmount: 0, envDecay: 0.3, keyTrack: 0.3, velTrack: 0.2 },
+    amp: { attack: 0.02, decay: 0.2, sustain: 0.9, release: 0.15 },
+    noise: 0.15, noiseDecay: 0.06, noiseFreq: 7000,
+    glide: 0.05, vibrato: { rate: 5.5, depth: 12 },
+    send: { reverb: 0.35, delay: 0.25 }, volume: 0.5,
+  }),
+  P('pad-shimmer', 'Shimmer Pad', 'Synth Pad', {
+    layers: [
+      { wave: 'sawtooth', detune: -10, octave: 0, gain: 0.5 },
+      { wave: 'sawtooth', detune: 10, octave: 0, gain: 0.5 },
+      { wave: 'sine', detune: 4, octave: 1, gain: 0.5 },
+      { wave: 'sine', detune: -4, octave: 2, gain: 0.25 },
+    ],
+    filter: { type: 'lowpass', cutoff: 3200, q: 0.9, envAmount: 1, envDecay: 2, keyTrack: 0.3, velTrack: 0.3 },
+    amp: { attack: 1.1, decay: 1.5, sustain: 0.85, release: 2.4 },
+    width: 0.85, send: { reverb: 0.8, delay: 0.2, chorus: 0.3 }, volume: 0.45,
+  }),
+  P('pad-frozen', 'Frozen Lake', 'Synth Pad', {
+    layers: [
+      { wave: 'triangle', detune: -14, octave: 0, gain: 0.7 },
+      { wave: 'triangle', detune: 14, octave: 0, gain: 0.7 },
+      { wave: 'sine', detune: 0, octave: 19 / 12, gain: 0.25 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2200, q: 2.2, envAmount: 1.6, envDecay: 3, keyTrack: 0.3, velTrack: 0.3 },
+    amp: { attack: 1.5, decay: 2, sustain: 0.8, release: 3 },
+    vibrato: { rate: 0.3, depth: 8 },
+    width: 0.9, send: { reverb: 0.85, chorus: 0.25 }, volume: 0.5,
+  }),
+  P('pluck-raindrop', 'Raindrop', 'Synth Pluck', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 1, gain: 1 },
+      { wave: 'triangle', detune: 7, octave: 2, gain: 0.2 },
+    ],
+    filter: { type: 'lowpass', cutoff: 5000, q: 1.6, envAmount: 2, envDecay: 0.05, keyTrack: 0.6, velTrack: 0.7 },
+    amp: { attack: 0.001, decay: 0.45, sustain: 0, release: 0.4 },
+    glide: 0.01, humanize: 0.12, width: 0.4, send: { reverb: 0.55, delay: 0.45 }, volume: 0.6,
+  }),
+
+  // ── FX ──
+  P('fx-wind', 'Howling Wind', 'FX', {
+    // Detuned saws through a narrow, slowly wandering band: the whistle of wind
+    layers: [
+      { wave: 'sawtooth', detune: -40, octave: 0, gain: 0.7 },
+      { wave: 'sawtooth', detune: 35, octave: 0, gain: 0.7 },
+      { wave: 'sawtooth', detune: 7, octave: 1 + 1 / 12, gain: 0.4 },
+    ],
+    filter: { type: 'bandpass', cutoff: 900, q: 7, envAmount: 1.4, envDecay: 3, keyTrack: 0.6, velTrack: 0.5 },
+    amp: { attack: 0.9, decay: 1.5, sustain: 0.75, release: 2 },
+    noise: 0.8, noiseDecay: 1.5, noiseFreq: 1200,
+    glide: 0.4, vibrato: { rate: 0.4, depth: 60 },
+    width: 0.8, send: { reverb: 0.7 }, volume: 0.95,
+  }),
+  P('fx-ufo', 'UFO', 'FX', {
+    layers: [
+      { wave: 'sine', detune: 0, octave: 1, gain: 1 },
+      { wave: 'sine', detune: 40, octave: 1, gain: 0.7 },
+    ],
+    filter: { type: 'lowpass', cutoff: 4000, q: 4, envAmount: 0, envDecay: 0.3, keyTrack: 0.3, velTrack: 0.3 },
+    amp: { attack: 0.3, decay: 1, sustain: 0.8, release: 1.5 },
+    glide: 0.35, vibrato: { rate: 9, depth: 120 },
+    width: 0.6, send: { reverb: 0.6, delay: 0.4 }, volume: 0.45,
+  }),
+  P('fx-reverse-swell', 'Reverse Swell', 'FX', {
+    layers: [
+      { wave: 'sawtooth', detune: -12, octave: 0, gain: 0.6 },
+      { wave: 'sawtooth', detune: 12, octave: 0, gain: 0.6 },
+      { wave: 'sine', detune: 0, octave: 1, gain: 0.4 },
+    ],
+    filter: { type: 'lowpass', cutoff: 800, q: 2, envAmount: 4, envDecay: 2.5, keyTrack: 0.3, velTrack: 0.3 },
+    amp: { attack: 2.2, decay: 0.1, sustain: 1, release: 0.05 },   // swells, then cuts dead
+    width: 0.8, send: { reverb: 0.6 }, volume: 0.45,
   }),
 ];
 
