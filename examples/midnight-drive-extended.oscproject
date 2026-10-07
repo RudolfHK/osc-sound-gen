@@ -1,0 +1,6042 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Midnight Drive (Extended)",
+ "savedAt": "2026-10-07T00:00:00.000Z",
+ "bpm": 118,
+ "beatsPerBar": 4,
+ "songLengthBars": 98,
+ "loop": {
+  "enabled": false,
+  "startBeat": 64,
+  "endBeat": 128
+ },
+ "masterVolume": 0.78,
+ "tracks": [
+  {
+   "id": "trk-mde-drums",
+   "name": "Drums",
+   "color": "#ff8800",
+   "source": {
+    "type": "drums"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-303",
+     "patternId": "dp-mde-hats",
+     "startBeat": 32,
+     "lengthBeats": 28,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-304",
+     "patternId": "dp-mde-roll",
+     "startBeat": 60,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-305",
+     "patternId": "dp-mde-house-crash",
+     "startBeat": 64,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-306",
+     "patternId": "dp-mde-house",
+     "startBeat": 68,
+     "lengthBeats": 60,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-307",
+     "patternId": "dp-mde-house-crash",
+     "startBeat": 128,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-308",
+     "patternId": "dp-mde-house",
+     "startBeat": 132,
+     "lengthBeats": 60,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-309",
+     "patternId": "dp-mde-hats",
+     "startBeat": 224,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-310",
+     "patternId": "dp-mde-build8",
+     "startBeat": 240,
+     "lengthBeats": 12,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-311",
+     "patternId": "dp-mde-roll",
+     "startBeat": 252,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-312",
+     "patternId": "dp-mde-house-crash",
+     "startBeat": 256,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-313",
+     "patternId": "dp-mde-house",
+     "startBeat": 260,
+     "lengthBeats": 60,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-314",
+     "patternId": "dp-mde-half",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-315",
+     "patternId": "dp-mde-house-crash",
+     "startBeat": 352,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-316",
+     "patternId": "dp-mde-house",
+     "startBeat": 356,
+     "lengthBeats": 12,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.05,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mde-sub",
+   "name": "Sub",
+   "color": "#00ff88",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-sub"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-317",
+     "patternId": "pat-mde-sub",
+     "startBeat": 48,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-318",
+     "patternId": "pat-mde-sub",
+     "startBeat": 64,
+     "lengthBeats": 128,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-319",
+     "patternId": "pat-mde-sub",
+     "startBeat": 240,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-320",
+     "patternId": "pat-mde-sub",
+     "startBeat": 256,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-321",
+     "patternId": "pat-mde-sub-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-322",
+     "patternId": "pat-mde-sub",
+     "startBeat": 352,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-323",
+     "patternId": "pat-mde-end-sub",
+     "startBeat": 384,
+     "lengthBeats": 8,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 2.5,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.7
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mde-bass",
+   "name": "Bass",
+   "color": "#ffb000",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-reese"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-324",
+     "patternId": "pat-mde-bass",
+     "startBeat": 48,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-325",
+     "patternId": "pat-mde-bass",
+     "startBeat": 64,
+     "lengthBeats": 128,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-326",
+     "patternId": "pat-mde-bass",
+     "startBeat": 240,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-327",
+     "patternId": "pat-mde-bass",
+     "startBeat": 256,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-328",
+     "patternId": "pat-mde-bass-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-329",
+     "patternId": "pat-mde-bass",
+     "startBeat": 352,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.95,
+    "eqLow": 0.0,
+    "eqMid": -1.5,
+    "eqHigh": 0.0,
+    "sendReverb": 0.05,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.5
+   },
+   "lanes": [
+    {
+     "id": "wl-mde-330",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-331",
+       "beat": 48,
+       "value": 0.22
+      },
+      {
+       "id": "wp-mde-332",
+       "beat": 64,
+       "value": 0.42
+      },
+      {
+       "id": "wp-mde-333",
+       "beat": 128,
+       "value": 0.55
+      },
+      {
+       "id": "wp-mde-334",
+       "beat": 192,
+       "value": 0.48
+      },
+      {
+       "id": "wp-mde-335",
+       "beat": 240,
+       "value": 0.2
+      },
+      {
+       "id": "wp-mde-336",
+       "beat": 255,
+       "value": 0.5
+      },
+      {
+       "id": "wp-mde-337",
+       "beat": 256,
+       "value": 0.74
+      },
+      {
+       "id": "wp-mde-338",
+       "beat": 320,
+       "value": 0.5
+      },
+      {
+       "id": "wp-mde-339",
+       "beat": 352,
+       "value": 0.6
+      },
+      {
+       "id": "wp-mde-340",
+       "beat": 368,
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "showAutomation": false,
+   "activeLaneId": "wl-mde-330"
+  },
+  {
+   "id": "trk-mde-arp",
+   "name": "Arp",
+   "color": "#00aaff",
+   "source": {
+    "type": "preset",
+    "presetId": "pluck-house"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-341",
+     "patternId": "pat-mde-arp",
+     "startBeat": 16,
+     "lengthBeats": 176,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-342",
+     "patternId": "pat-mde-arp",
+     "startBeat": 192,
+     "lengthBeats": 128,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-343",
+     "patternId": "pat-mde-arp-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-344",
+     "patternId": "pat-mde-arp",
+     "startBeat": 352,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.18,
+   "arp": {
+    "enabled": true,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 2,
+    "gate": 0.55
+   },
+   "channel": {
+    "gain": 0.8,
+    "eqLow": -4,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.22,
+    "sendDelay": 0.3,
+    "sendChorus": 0.0,
+    "sidechain": 0.25
+   },
+   "lanes": [
+    {
+     "id": "wl-mde-345",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-346",
+       "beat": 16,
+       "value": 0.22
+      },
+      {
+       "id": "wp-mde-347",
+       "beat": 64,
+       "value": 0.48
+      },
+      {
+       "id": "wp-mde-348",
+       "beat": 128,
+       "value": 0.62
+      },
+      {
+       "id": "wp-mde-349",
+       "beat": 192,
+       "value": 0.3
+      },
+      {
+       "id": "wp-mde-350",
+       "beat": 224,
+       "value": 0.32
+      },
+      {
+       "id": "wp-mde-351",
+       "beat": 255,
+       "value": 0.66
+      },
+      {
+       "id": "wp-mde-352",
+       "beat": 256,
+       "value": 0.86
+      },
+      {
+       "id": "wp-mde-353",
+       "beat": 320,
+       "value": 0.55
+      },
+      {
+       "id": "wp-mde-354",
+       "beat": 352,
+       "value": 0.7
+      },
+      {
+       "id": "wp-mde-355",
+       "beat": 384,
+       "value": 0.3
+      }
+     ]
+    },
+    {
+     "id": "wl-mde-356",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-357",
+       "beat": 0,
+       "value": 0.533
+      },
+      {
+       "id": "wp-mde-358",
+       "beat": 368,
+       "value": 0.533
+      },
+      {
+       "id": "wp-mde-359",
+       "beat": 384,
+       "value": 0.0
+      }
+     ]
+    }
+   ],
+   "showAutomation": false,
+   "activeLaneId": "wl-mde-345"
+  },
+  {
+   "id": "trk-mde-pad",
+   "name": "Pad",
+   "color": "#ff4466",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-warm"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-360",
+     "patternId": "pat-mde-pad",
+     "startBeat": 0,
+     "lengthBeats": 320,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-361",
+     "patternId": "pat-mde-pad-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-362",
+     "patternId": "pat-mde-pad",
+     "startBeat": 352,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-363",
+     "patternId": "pat-mde-end-pad",
+     "startBeat": 384,
+     "lengthBeats": 8,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.75,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 1.5,
+    "sendReverb": 0.45,
+    "sendDelay": 0.0,
+    "sendChorus": 0.3,
+    "sidechain": 0.3
+   },
+   "lanes": [
+    {
+     "id": "wl-mde-364",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-365",
+       "beat": 0,
+       "value": 0.2
+      },
+      {
+       "id": "wp-mde-366",
+       "beat": 32,
+       "value": 0.36
+      },
+      {
+       "id": "wp-mde-367",
+       "beat": 64,
+       "value": 0.42
+      },
+      {
+       "id": "wp-mde-368",
+       "beat": 128,
+       "value": 0.58
+      },
+      {
+       "id": "wp-mde-369",
+       "beat": 192,
+       "value": 0.36
+      },
+      {
+       "id": "wp-mde-370",
+       "beat": 252,
+       "value": 0.62
+      },
+      {
+       "id": "wp-mde-371",
+       "beat": 256,
+       "value": 0.72
+      },
+      {
+       "id": "wp-mde-372",
+       "beat": 320,
+       "value": 0.5
+      },
+      {
+       "id": "wp-mde-373",
+       "beat": 352,
+       "value": 0.55
+      },
+      {
+       "id": "wp-mde-374",
+       "beat": 392,
+       "value": 0.25
+      }
+     ]
+    },
+    {
+     "id": "wl-mde-375",
+     "target": "resonance",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-376",
+       "beat": 0,
+       "value": 0.12
+      },
+      {
+       "id": "wp-mde-377",
+       "beat": 32,
+       "value": 0.22
+      },
+      {
+       "id": "wp-mde-378",
+       "beat": 60,
+       "value": 0.5
+      },
+      {
+       "id": "wp-mde-379",
+       "beat": 64,
+       "value": 0.3
+      },
+      {
+       "id": "wp-mde-380",
+       "beat": 192,
+       "value": 0.45
+      },
+      {
+       "id": "wp-mde-381",
+       "beat": 252,
+       "value": 0.7
+      },
+      {
+       "id": "wp-mde-382",
+       "beat": 256,
+       "value": 0.4
+      },
+      {
+       "id": "wp-mde-383",
+       "beat": 320,
+       "value": 0.25
+      },
+      {
+       "id": "wp-mde-384",
+       "beat": 384,
+       "value": 0.12
+      }
+     ]
+    },
+    {
+     "id": "wl-mde-385",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-386",
+       "beat": 0,
+       "value": 0.3
+      },
+      {
+       "id": "wp-mde-387",
+       "beat": 32,
+       "value": 0.42
+      },
+      {
+       "id": "wp-mde-388",
+       "beat": 64,
+       "value": 0.5
+      },
+      {
+       "id": "wp-mde-389",
+       "beat": 368,
+       "value": 0.5
+      },
+      {
+       "id": "wp-mde-390",
+       "beat": 383,
+       "value": 0.25
+      },
+      {
+       "id": "wp-mde-391",
+       "beat": 384,
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "showAutomation": true,
+   "activeLaneId": "wl-mde-364"
+  },
+  {
+   "id": "trk-mde-keys",
+   "name": "Keys",
+   "color": "#facc15",
+   "source": {
+    "type": "preset",
+    "presetId": "keys-rhodes"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-392",
+     "patternId": "pat-mde-keys",
+     "startBeat": 96,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-393",
+     "patternId": "pat-mde-keys",
+     "startBeat": 256,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-394",
+     "patternId": "pat-mde-keys-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.3,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.6,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.25,
+    "sendDelay": 0.15,
+    "sendChorus": 0.2,
+    "sidechain": 0.35
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mde-choir",
+   "name": "Choir",
+   "color": "#f472b6",
+   "source": {
+    "type": "preset",
+    "presetId": "voc-breath"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-395",
+     "patternId": "pat-mde-choir",
+     "startBeat": 192,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-396",
+     "patternId": "pat-mde-choir",
+     "startBeat": 288,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-397",
+     "patternId": "pat-mde-choir-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-398",
+     "patternId": "pat-mde-end-choir",
+     "startBeat": 384,
+     "lengthBeats": 8,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.2,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.55,
+    "eqLow": -8,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.5,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.2
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mde-bells",
+   "name": "Bells",
+   "color": "#a3e635",
+   "source": {
+    "type": "preset",
+    "presetId": "mal-handbells"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-399",
+     "patternId": "pat-mde-bells",
+     "startBeat": 192,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-400",
+     "patternId": "pat-mde-bells",
+     "startBeat": 352,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-401",
+     "patternId": "pat-mde-end-bells",
+     "startBeat": 384,
+     "lengthBeats": 8,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.3,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.55,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.4,
+    "sendDelay": 0.25,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mde-strings",
+   "name": "Strings",
+   "color": "#38bdf8",
+   "source": {
+    "type": "preset",
+    "presetId": "str-legato-violins"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-402",
+     "patternId": "pat-mde-strings",
+     "startBeat": 256,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-403",
+     "patternId": "pat-mde-strings-br",
+     "startBeat": 320,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.62,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.45,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mde-lead",
+   "name": "Lead",
+   "color": "#cc44ff",
+   "source": {
+    "type": "preset",
+    "presetId": "lead-supersaw"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-404",
+     "patternId": "pat-mde-lead-a",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-405",
+     "patternId": "pat-mde-lead-b",
+     "startBeat": 256,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-406",
+     "patternId": "pat-mde-lead-a",
+     "startBeat": 352,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.05,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.4,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "wl-mde-407",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "wp-mde-408",
+       "beat": 128,
+       "value": 0.55
+      },
+      {
+       "id": "wp-mde-409",
+       "beat": 192,
+       "value": 0.75
+      },
+      {
+       "id": "wp-mde-410",
+       "beat": 256,
+       "value": 0.7
+      },
+      {
+       "id": "wp-mde-411",
+       "beat": 288,
+       "value": 0.82
+      },
+      {
+       "id": "wp-mde-412",
+       "beat": 320,
+       "value": 0.7
+      },
+      {
+       "id": "wp-mde-413",
+       "beat": 368,
+       "value": 0.5
+      }
+     ]
+    }
+   ],
+   "showAutomation": false,
+   "activeLaneId": "wl-mde-407"
+  },
+  {
+   "id": "trk-mde-fx",
+   "name": "FX",
+   "color": "#94a3b8",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-reverse-swell"
+   },
+   "clips": [
+    {
+     "id": "clip-mde-414",
+     "patternId": "pat-mde-swell",
+     "startBeat": 60,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mde-415",
+     "patternId": "pat-mde-swell",
+     "startBeat": 252,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-mde-sub",
+   "name": "Sub \u00b7 main",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-1",
+     "midiNote": 33,
+     "startBeat": 0,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-2",
+     "midiNote": 29,
+     "startBeat": 4,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-3",
+     "midiNote": 36,
+     "startBeat": 8,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-4",
+     "midiNote": 31,
+     "startBeat": 12,
+     "durationBeats": 3.85,
+     "velocity": 104
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-sub-br",
+   "name": "Sub \u00b7 bridge",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-5",
+     "midiNote": 29,
+     "startBeat": 0,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-6",
+     "midiNote": 31,
+     "startBeat": 4,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-7",
+     "midiNote": 28,
+     "startBeat": 8,
+     "durationBeats": 3.85,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-8",
+     "midiNote": 33,
+     "startBeat": 12,
+     "durationBeats": 3.85,
+     "velocity": 104
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-bass",
+   "name": "Bass \u00b7 main",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-9",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-10",
+     "midiNote": 45,
+     "startBeat": 1.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-11",
+     "midiNote": 45,
+     "startBeat": 2,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-12",
+     "midiNote": 45,
+     "startBeat": 2.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-13",
+     "midiNote": 45,
+     "startBeat": 3.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-14",
+     "midiNote": 41,
+     "startBeat": 4,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-15",
+     "midiNote": 41,
+     "startBeat": 5.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-16",
+     "midiNote": 41,
+     "startBeat": 6,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-17",
+     "midiNote": 41,
+     "startBeat": 6.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-18",
+     "midiNote": 41,
+     "startBeat": 7.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-19",
+     "midiNote": 48,
+     "startBeat": 8,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-20",
+     "midiNote": 48,
+     "startBeat": 9.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-21",
+     "midiNote": 48,
+     "startBeat": 10,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-22",
+     "midiNote": 48,
+     "startBeat": 10.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-23",
+     "midiNote": 48,
+     "startBeat": 11.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-24",
+     "midiNote": 43,
+     "startBeat": 12,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-25",
+     "midiNote": 43,
+     "startBeat": 13.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-26",
+     "midiNote": 43,
+     "startBeat": 14,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-27",
+     "midiNote": 43,
+     "startBeat": 14.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-28",
+     "midiNote": 43,
+     "startBeat": 15.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-bass-br",
+   "name": "Bass \u00b7 bridge",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-29",
+     "midiNote": 41,
+     "startBeat": 0,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-30",
+     "midiNote": 41,
+     "startBeat": 1.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-31",
+     "midiNote": 41,
+     "startBeat": 2,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-32",
+     "midiNote": 41,
+     "startBeat": 2.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-33",
+     "midiNote": 41,
+     "startBeat": 3.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-34",
+     "midiNote": 43,
+     "startBeat": 4,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-35",
+     "midiNote": 43,
+     "startBeat": 5.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-36",
+     "midiNote": 43,
+     "startBeat": 6,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-37",
+     "midiNote": 43,
+     "startBeat": 6.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-38",
+     "midiNote": 43,
+     "startBeat": 7.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-39",
+     "midiNote": 40,
+     "startBeat": 8,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-40",
+     "midiNote": 40,
+     "startBeat": 9.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-41",
+     "midiNote": 40,
+     "startBeat": 10,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-42",
+     "midiNote": 40,
+     "startBeat": 10.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-43",
+     "midiNote": 40,
+     "startBeat": 11.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-44",
+     "midiNote": 45,
+     "startBeat": 12,
+     "durationBeats": 0.45,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-45",
+     "midiNote": 45,
+     "startBeat": 13.5,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-46",
+     "midiNote": 45,
+     "startBeat": 14,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-47",
+     "midiNote": 45,
+     "startBeat": 14.75,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-48",
+     "midiNote": 45,
+     "startBeat": 15.5,
+     "durationBeats": 0.45,
+     "velocity": 94
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-arp",
+   "name": "Arp \u00b7 main",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-49",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-50",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-51",
+     "midiNote": 64,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-52",
+     "midiNote": 53,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-53",
+     "midiNote": 57,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-54",
+     "midiNote": 60,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-55",
+     "midiNote": 60,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-56",
+     "midiNote": 64,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-57",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-58",
+     "midiNote": 55,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-59",
+     "midiNote": 59,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-60",
+     "midiNote": 62,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-arp-br",
+   "name": "Arp \u00b7 bridge",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-61",
+     "midiNote": 53,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-62",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-63",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-64",
+     "midiNote": 55,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-65",
+     "midiNote": 59,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-66",
+     "midiNote": 62,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-67",
+     "midiNote": 52,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-68",
+     "midiNote": 55,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-69",
+     "midiNote": 59,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-70",
+     "midiNote": 57,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-71",
+     "midiNote": 60,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-72",
+     "midiNote": 64,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 96
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-pad",
+   "name": "Pad \u00b7 main",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-73",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-74",
+     "midiNote": 48,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-75",
+     "midiNote": 52,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-76",
+     "midiNote": 41,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-77",
+     "midiNote": 45,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-78",
+     "midiNote": 48,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-79",
+     "midiNote": 48,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-80",
+     "midiNote": 52,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-81",
+     "midiNote": 55,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-82",
+     "midiNote": 43,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-83",
+     "midiNote": 47,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-84",
+     "midiNote": 50,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-pad-br",
+   "name": "Pad \u00b7 bridge",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-85",
+     "midiNote": 41,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-86",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-87",
+     "midiNote": 48,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-88",
+     "midiNote": 43,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-89",
+     "midiNote": 47,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-90",
+     "midiNote": 50,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-91",
+     "midiNote": 40,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-92",
+     "midiNote": 43,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-93",
+     "midiNote": 47,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-94",
+     "midiNote": 45,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-95",
+     "midiNote": 48,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-96",
+     "midiNote": 52,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 74
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-keys",
+   "name": "Keys \u00b7 main",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-97",
+     "midiNote": 57,
+     "startBeat": 0.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-98",
+     "midiNote": 60,
+     "startBeat": 0.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-99",
+     "midiNote": 64,
+     "startBeat": 0.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-100",
+     "midiNote": 57,
+     "startBeat": 1.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-101",
+     "midiNote": 60,
+     "startBeat": 1.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-102",
+     "midiNote": 64,
+     "startBeat": 1.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-103",
+     "midiNote": 57,
+     "startBeat": 3,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-104",
+     "midiNote": 60,
+     "startBeat": 3,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-105",
+     "midiNote": 64,
+     "startBeat": 3,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-106",
+     "midiNote": 53,
+     "startBeat": 4.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-107",
+     "midiNote": 57,
+     "startBeat": 4.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-108",
+     "midiNote": 60,
+     "startBeat": 4.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-109",
+     "midiNote": 53,
+     "startBeat": 5.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-110",
+     "midiNote": 57,
+     "startBeat": 5.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-111",
+     "midiNote": 60,
+     "startBeat": 5.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-112",
+     "midiNote": 53,
+     "startBeat": 7,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-113",
+     "midiNote": 57,
+     "startBeat": 7,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-114",
+     "midiNote": 60,
+     "startBeat": 7,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-115",
+     "midiNote": 60,
+     "startBeat": 8.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-116",
+     "midiNote": 64,
+     "startBeat": 8.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-117",
+     "midiNote": 67,
+     "startBeat": 8.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-118",
+     "midiNote": 60,
+     "startBeat": 9.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-119",
+     "midiNote": 64,
+     "startBeat": 9.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-120",
+     "midiNote": 67,
+     "startBeat": 9.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-121",
+     "midiNote": 60,
+     "startBeat": 11,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-122",
+     "midiNote": 64,
+     "startBeat": 11,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-123",
+     "midiNote": 67,
+     "startBeat": 11,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-124",
+     "midiNote": 55,
+     "startBeat": 12.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-125",
+     "midiNote": 59,
+     "startBeat": 12.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-126",
+     "midiNote": 62,
+     "startBeat": 12.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-127",
+     "midiNote": 55,
+     "startBeat": 13.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-128",
+     "midiNote": 59,
+     "startBeat": 13.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-129",
+     "midiNote": 62,
+     "startBeat": 13.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-130",
+     "midiNote": 55,
+     "startBeat": 15,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-131",
+     "midiNote": 59,
+     "startBeat": 15,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-132",
+     "midiNote": 62,
+     "startBeat": 15,
+     "durationBeats": 0.35,
+     "velocity": 86
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-keys-br",
+   "name": "Keys \u00b7 bridge",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-133",
+     "midiNote": 53,
+     "startBeat": 0.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-134",
+     "midiNote": 57,
+     "startBeat": 0.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-135",
+     "midiNote": 60,
+     "startBeat": 0.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-136",
+     "midiNote": 53,
+     "startBeat": 1.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-137",
+     "midiNote": 57,
+     "startBeat": 1.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-138",
+     "midiNote": 60,
+     "startBeat": 1.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-139",
+     "midiNote": 53,
+     "startBeat": 3,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-140",
+     "midiNote": 57,
+     "startBeat": 3,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-141",
+     "midiNote": 60,
+     "startBeat": 3,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-142",
+     "midiNote": 55,
+     "startBeat": 4.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-143",
+     "midiNote": 59,
+     "startBeat": 4.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-144",
+     "midiNote": 62,
+     "startBeat": 4.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-145",
+     "midiNote": 55,
+     "startBeat": 5.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-146",
+     "midiNote": 59,
+     "startBeat": 5.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-147",
+     "midiNote": 62,
+     "startBeat": 5.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-148",
+     "midiNote": 55,
+     "startBeat": 7,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-149",
+     "midiNote": 59,
+     "startBeat": 7,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-150",
+     "midiNote": 62,
+     "startBeat": 7,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-151",
+     "midiNote": 52,
+     "startBeat": 8.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-152",
+     "midiNote": 55,
+     "startBeat": 8.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-153",
+     "midiNote": 59,
+     "startBeat": 8.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-154",
+     "midiNote": 52,
+     "startBeat": 9.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-155",
+     "midiNote": 55,
+     "startBeat": 9.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-156",
+     "midiNote": 59,
+     "startBeat": 9.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-157",
+     "midiNote": 52,
+     "startBeat": 11,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-158",
+     "midiNote": 55,
+     "startBeat": 11,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-159",
+     "midiNote": 59,
+     "startBeat": 11,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-160",
+     "midiNote": 57,
+     "startBeat": 12.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-161",
+     "midiNote": 60,
+     "startBeat": 12.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-162",
+     "midiNote": 64,
+     "startBeat": 12.5,
+     "durationBeats": 0.35,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-163",
+     "midiNote": 57,
+     "startBeat": 13.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-164",
+     "midiNote": 60,
+     "startBeat": 13.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-165",
+     "midiNote": 64,
+     "startBeat": 13.5,
+     "durationBeats": 0.35,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-166",
+     "midiNote": 57,
+     "startBeat": 15,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-167",
+     "midiNote": 60,
+     "startBeat": 15,
+     "durationBeats": 0.35,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-168",
+     "midiNote": 64,
+     "startBeat": 15,
+     "durationBeats": 0.35,
+     "velocity": 86
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-choir",
+   "name": "Choir \u00b7 main",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-169",
+     "midiNote": 69,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-170",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-171",
+     "midiNote": 76,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-172",
+     "midiNote": 65,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-173",
+     "midiNote": 69,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-174",
+     "midiNote": 72,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-175",
+     "midiNote": 72,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-176",
+     "midiNote": 76,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-177",
+     "midiNote": 79,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-178",
+     "midiNote": 67,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-179",
+     "midiNote": 71,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-180",
+     "midiNote": 74,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 70
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-choir-br",
+   "name": "Choir \u00b7 bridge",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "wd-mde-181",
+     "midiNote": 65,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-182",
+     "midiNote": 69,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-183",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-184",
+     "midiNote": 67,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-185",
+     "midiNote": 71,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-186",
+     "midiNote": 74,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-187",
+     "midiNote": 64,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-188",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-189",
+     "midiNote": 71,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-190",
+     "midiNote": 69,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-191",
+     "midiNote": 72,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-192",
+     "midiNote": 76,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 70
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-lead-a",
+   "name": "Lead A",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "wd-mde-193",
+     "midiNote": 69,
+     "startBeat": 0,
+     "durationBeats": 2,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-194",
+     "midiNote": 72,
+     "startBeat": 2,
+     "durationBeats": 1,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-195",
+     "midiNote": 71,
+     "startBeat": 3,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-196",
+     "midiNote": 69,
+     "startBeat": 4,
+     "durationBeats": 1.5,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-197",
+     "midiNote": 67,
+     "startBeat": 5.5,
+     "durationBeats": 0.5,
+     "velocity": 80
+    },
+    {
+     "id": "wd-mde-198",
+     "midiNote": 64,
+     "startBeat": 6,
+     "durationBeats": 2,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-199",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 2,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-200",
+     "midiNote": 76,
+     "startBeat": 10,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-201",
+     "midiNote": 74,
+     "startBeat": 11,
+     "durationBeats": 1,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-202",
+     "midiNote": 71,
+     "startBeat": 12,
+     "durationBeats": 2,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-203",
+     "midiNote": 74,
+     "startBeat": 14,
+     "durationBeats": 2,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-204",
+     "midiNote": 69,
+     "startBeat": 16,
+     "durationBeats": 1,
+     "velocity": 98
+    },
+    {
+     "id": "wd-mde-205",
+     "midiNote": 72,
+     "startBeat": 17,
+     "durationBeats": 1,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-206",
+     "midiNote": 76,
+     "startBeat": 18,
+     "durationBeats": 2,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-207",
+     "midiNote": 72,
+     "startBeat": 20,
+     "durationBeats": 1.5,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-208",
+     "midiNote": 69,
+     "startBeat": 21.5,
+     "durationBeats": 0.5,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-209",
+     "midiNote": 67,
+     "startBeat": 22,
+     "durationBeats": 2,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-210",
+     "midiNote": 76,
+     "startBeat": 24,
+     "durationBeats": 2,
+     "velocity": 102
+    },
+    {
+     "id": "wd-mde-211",
+     "midiNote": 74,
+     "startBeat": 26,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-212",
+     "midiNote": 72,
+     "startBeat": 27,
+     "durationBeats": 1,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-213",
+     "midiNote": 71,
+     "startBeat": 28,
+     "durationBeats": 2,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-214",
+     "midiNote": 69,
+     "startBeat": 30,
+     "durationBeats": 2,
+     "velocity": 96
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-lead-b",
+   "name": "Lead B",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "wd-mde-215",
+     "midiNote": 69,
+     "startBeat": 0,
+     "durationBeats": 2,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-216",
+     "midiNote": 72,
+     "startBeat": 2,
+     "durationBeats": 1,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-217",
+     "midiNote": 71,
+     "startBeat": 3,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-218",
+     "midiNote": 69,
+     "startBeat": 4,
+     "durationBeats": 1.5,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-219",
+     "midiNote": 67,
+     "startBeat": 5.5,
+     "durationBeats": 0.5,
+     "velocity": 80
+    },
+    {
+     "id": "wd-mde-220",
+     "midiNote": 64,
+     "startBeat": 6,
+     "durationBeats": 2,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-221",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 2,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-222",
+     "midiNote": 76,
+     "startBeat": 10,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-223",
+     "midiNote": 74,
+     "startBeat": 11,
+     "durationBeats": 1,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-224",
+     "midiNote": 71,
+     "startBeat": 12,
+     "durationBeats": 2,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-225",
+     "midiNote": 74,
+     "startBeat": 14,
+     "durationBeats": 2,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-226",
+     "midiNote": 76,
+     "startBeat": 16,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-227",
+     "midiNote": 81,
+     "startBeat": 17,
+     "durationBeats": 1,
+     "velocity": 108
+    },
+    {
+     "id": "wd-mde-228",
+     "midiNote": 79,
+     "startBeat": 18,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-229",
+     "midiNote": 76,
+     "startBeat": 19,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-230",
+     "midiNote": 77,
+     "startBeat": 20,
+     "durationBeats": 1.5,
+     "velocity": 104
+    },
+    {
+     "id": "wd-mde-231",
+     "midiNote": 76,
+     "startBeat": 21.5,
+     "durationBeats": 0.5,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-232",
+     "midiNote": 72,
+     "startBeat": 22,
+     "durationBeats": 2,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-233",
+     "midiNote": 79,
+     "startBeat": 24,
+     "durationBeats": 1.5,
+     "velocity": 106
+    },
+    {
+     "id": "wd-mde-234",
+     "midiNote": 76,
+     "startBeat": 25.5,
+     "durationBeats": 0.5,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-235",
+     "midiNote": 74,
+     "startBeat": 26,
+     "durationBeats": 1,
+     "velocity": 98
+    },
+    {
+     "id": "wd-mde-236",
+     "midiNote": 72,
+     "startBeat": 27,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-237",
+     "midiNote": 74,
+     "startBeat": 28,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-238",
+     "midiNote": 71,
+     "startBeat": 29,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-239",
+     "midiNote": 74,
+     "startBeat": 30,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-240",
+     "midiNote": 79,
+     "startBeat": 31,
+     "durationBeats": 1,
+     "velocity": 108
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-bells",
+   "name": "Bells \u00b7 hook",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "wd-mde-241",
+     "midiNote": 81,
+     "startBeat": 0,
+     "durationBeats": 2,
+     "velocity": 77
+    },
+    {
+     "id": "wd-mde-242",
+     "midiNote": 84,
+     "startBeat": 2,
+     "durationBeats": 1,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-243",
+     "midiNote": 83,
+     "startBeat": 3,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "wd-mde-244",
+     "midiNote": 81,
+     "startBeat": 4,
+     "durationBeats": 1.5,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-245",
+     "midiNote": 79,
+     "startBeat": 5.5,
+     "durationBeats": 0.5,
+     "velocity": 64
+    },
+    {
+     "id": "wd-mde-246",
+     "midiNote": 76,
+     "startBeat": 6,
+     "durationBeats": 2,
+     "velocity": 69
+    },
+    {
+     "id": "wd-mde-247",
+     "midiNote": 79,
+     "startBeat": 8,
+     "durationBeats": 2,
+     "velocity": 75
+    },
+    {
+     "id": "wd-mde-248",
+     "midiNote": 88,
+     "startBeat": 10,
+     "durationBeats": 1,
+     "velocity": 80
+    },
+    {
+     "id": "wd-mde-249",
+     "midiNote": 86,
+     "startBeat": 11,
+     "durationBeats": 1,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-250",
+     "midiNote": 83,
+     "startBeat": 12,
+     "durationBeats": 2,
+     "velocity": 72
+    },
+    {
+     "id": "wd-mde-251",
+     "midiNote": 86,
+     "startBeat": 14,
+     "durationBeats": 2,
+     "velocity": 75
+    },
+    {
+     "id": "wd-mde-252",
+     "midiNote": 81,
+     "startBeat": 16,
+     "durationBeats": 1,
+     "velocity": 78
+    },
+    {
+     "id": "wd-mde-253",
+     "midiNote": 84,
+     "startBeat": 17,
+     "durationBeats": 1,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-254",
+     "midiNote": 88,
+     "startBeat": 18,
+     "durationBeats": 2,
+     "velocity": 83
+    },
+    {
+     "id": "wd-mde-255",
+     "midiNote": 84,
+     "startBeat": 20,
+     "durationBeats": 1.5,
+     "velocity": 75
+    },
+    {
+     "id": "wd-mde-256",
+     "midiNote": 81,
+     "startBeat": 21.5,
+     "durationBeats": 0.5,
+     "velocity": 67
+    },
+    {
+     "id": "wd-mde-257",
+     "midiNote": 79,
+     "startBeat": 22,
+     "durationBeats": 2,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-258",
+     "midiNote": 88,
+     "startBeat": 24,
+     "durationBeats": 2,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-259",
+     "midiNote": 86,
+     "startBeat": 26,
+     "durationBeats": 1,
+     "velocity": 75
+    },
+    {
+     "id": "wd-mde-260",
+     "midiNote": 84,
+     "startBeat": 27,
+     "durationBeats": 1,
+     "velocity": 72
+    },
+    {
+     "id": "wd-mde-261",
+     "midiNote": 83,
+     "startBeat": 28,
+     "durationBeats": 2,
+     "velocity": 74
+    },
+    {
+     "id": "wd-mde-262",
+     "midiNote": 81,
+     "startBeat": 30,
+     "durationBeats": 2,
+     "velocity": 77
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-strings",
+   "name": "Strings \u00b7 counter",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "wd-mde-263",
+     "midiNote": 76,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-264",
+     "midiNote": 77,
+     "startBeat": 4,
+     "durationBeats": 4,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-265",
+     "midiNote": 79,
+     "startBeat": 8,
+     "durationBeats": 4,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-266",
+     "midiNote": 74,
+     "startBeat": 12,
+     "durationBeats": 4,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-267",
+     "midiNote": 76,
+     "startBeat": 16,
+     "durationBeats": 4,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-268",
+     "midiNote": 81,
+     "startBeat": 20,
+     "durationBeats": 4,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-269",
+     "midiNote": 79,
+     "startBeat": 24,
+     "durationBeats": 4,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-270",
+     "midiNote": 79,
+     "startBeat": 28,
+     "durationBeats": 2,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-271",
+     "midiNote": 83,
+     "startBeat": 30,
+     "durationBeats": 2,
+     "velocity": 96
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-strings-br",
+   "name": "Strings \u00b7 bridge",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "wd-mde-272",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 2,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-273",
+     "midiNote": 69,
+     "startBeat": 2,
+     "durationBeats": 1,
+     "velocity": 80
+    },
+    {
+     "id": "wd-mde-274",
+     "midiNote": 72,
+     "startBeat": 3,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-275",
+     "midiNote": 74,
+     "startBeat": 4,
+     "durationBeats": 2,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-276",
+     "midiNote": 71,
+     "startBeat": 6,
+     "durationBeats": 2,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-277",
+     "midiNote": 71,
+     "startBeat": 8,
+     "durationBeats": 1,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-278",
+     "midiNote": 67,
+     "startBeat": 9,
+     "durationBeats": 1,
+     "velocity": 80
+    },
+    {
+     "id": "wd-mde-279",
+     "midiNote": 64,
+     "startBeat": 10,
+     "durationBeats": 2,
+     "velocity": 82
+    },
+    {
+     "id": "wd-mde-280",
+     "midiNote": 69,
+     "startBeat": 12,
+     "durationBeats": 3,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-281",
+     "midiNote": 72,
+     "startBeat": 15,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "wd-mde-282",
+     "midiNote": 77,
+     "startBeat": 16,
+     "durationBeats": 2,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-283",
+     "midiNote": 76,
+     "startBeat": 18,
+     "durationBeats": 1,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-284",
+     "midiNote": 72,
+     "startBeat": 19,
+     "durationBeats": 1,
+     "velocity": 86
+    },
+    {
+     "id": "wd-mde-285",
+     "midiNote": 74,
+     "startBeat": 20,
+     "durationBeats": 2,
+     "velocity": 94
+    },
+    {
+     "id": "wd-mde-286",
+     "midiNote": 79,
+     "startBeat": 22,
+     "durationBeats": 2,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-287",
+     "midiNote": 76,
+     "startBeat": 24,
+     "durationBeats": 1.5,
+     "velocity": 96
+    },
+    {
+     "id": "wd-mde-288",
+     "midiNote": 74,
+     "startBeat": 25.5,
+     "durationBeats": 0.5,
+     "velocity": 88
+    },
+    {
+     "id": "wd-mde-289",
+     "midiNote": 71,
+     "startBeat": 26,
+     "durationBeats": 2,
+     "velocity": 92
+    },
+    {
+     "id": "wd-mde-290",
+     "midiNote": 69,
+     "startBeat": 28,
+     "durationBeats": 4,
+     "velocity": 94
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-swell",
+   "name": "Swell",
+   "lengthBeats": 4,
+   "notes": [
+    {
+     "id": "wd-mde-291",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 100
+    },
+    {
+     "id": "wd-mde-292",
+     "midiNote": 64,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 96
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-end-pad",
+   "name": "Pad \u00b7 end",
+   "lengthBeats": 8,
+   "notes": [
+    {
+     "id": "wd-mde-293",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 78
+    },
+    {
+     "id": "wd-mde-294",
+     "midiNote": 48,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 78
+    },
+    {
+     "id": "wd-mde-295",
+     "midiNote": 52,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 78
+    },
+    {
+     "id": "wd-mde-296",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 78
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-end-sub",
+   "name": "Sub \u00b7 end",
+   "lengthBeats": 8,
+   "notes": [
+    {
+     "id": "wd-mde-297",
+     "midiNote": 33,
+     "startBeat": 0,
+     "durationBeats": 6,
+     "velocity": 100
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-end-choir",
+   "name": "Choir \u00b7 end",
+   "lengthBeats": 8,
+   "notes": [
+    {
+     "id": "wd-mde-298",
+     "midiNote": 69,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-299",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 70
+    },
+    {
+     "id": "wd-mde-300",
+     "midiNote": 76,
+     "startBeat": 0,
+     "durationBeats": 7,
+     "velocity": 70
+    }
+   ]
+  },
+  {
+   "id": "pat-mde-end-bells",
+   "name": "Bells \u00b7 end",
+   "lengthBeats": 8,
+   "notes": [
+    {
+     "id": "wd-mde-301",
+     "midiNote": 81,
+     "startBeat": 0,
+     "durationBeats": 4,
+     "velocity": 90
+    },
+    {
+     "id": "wd-mde-302",
+     "midiNote": 76,
+     "startBeat": 0.5,
+     "durationBeats": 4,
+     "velocity": 70
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-mde-0",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#6366f1"
+  },
+  {
+   "id": "mk-mde-1",
+   "beat": 32,
+   "name": "Build",
+   "color": "#8b5cf6"
+  },
+  {
+   "id": "mk-mde-2",
+   "beat": 64,
+   "name": "Groove",
+   "color": "#0ea5e9"
+  },
+  {
+   "id": "mk-mde-3",
+   "beat": 128,
+   "name": "Lead",
+   "color": "#22c55e"
+  },
+  {
+   "id": "mk-mde-4",
+   "beat": 192,
+   "name": "Breakdown",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-mde-5",
+   "beat": 224,
+   "name": "Build 2",
+   "color": "#a855f7"
+  },
+  {
+   "id": "mk-mde-6",
+   "beat": 256,
+   "name": "Drop",
+   "color": "#eab308"
+  },
+  {
+   "id": "mk-mde-7",
+   "beat": 320,
+   "name": "Bridge",
+   "color": "#f97316"
+  },
+  {
+   "id": "mk-mde-8",
+   "beat": 352,
+   "name": "Outro",
+   "color": "#ec4899"
+  }
+ ],
+ "drumPatterns": [
+  {
+   "id": "dp-mde-house",
+   "name": "MD House",
+   "genre": "Electronic",
+   "stepCount": 16,
+   "swing": 0,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-mde-house-crash",
+   "name": "MD House + Crash",
+   "genre": "Electronic",
+   "stepCount": 16,
+   "swing": 0,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "crash",
+     "name": "crash",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 110,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.75,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-mde-hats",
+   "name": "MD Hats",
+   "genre": "Electronic",
+   "stepCount": 16,
+   "swing": 0,
+   "voices": [
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 78,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 78,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 78,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 78,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 58,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "rim",
+     "name": "rim",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 70,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 64,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.6,
+     "pan": -0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-mde-build8",
+   "name": "MD Build (8ths)",
+   "genre": "Electronic",
+   "stepCount": 16,
+   "swing": 0,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 60,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 64,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 76,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 84,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 88,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.75,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 80,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-mde-roll",
+   "name": "MD Snare Roll",
+   "genre": "Electronic",
+   "stepCount": 16,
+   "swing": 0,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 104,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 104,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 104,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 104,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 57,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 62,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 67,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 77,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 82,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 87,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 92,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 97,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 102,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 107,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 112,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 117,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 122,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 127,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.8,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-mde-half",
+   "name": "MD Half-time",
+   "genre": "Electronic",
+   "stepCount": 16,
+   "swing": 0,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 84,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "rim",
+     "name": "rim",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 86,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 90,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 68,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 52,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.6,
+     "pan": 0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  }
+ ],
+ "oscillators": []
+}

@@ -85,7 +85,10 @@ function startServer() {
 const AUDIO_TAP = () => {
   const origConnect = AudioNode.prototype.connect;
   AudioNode.prototype.connect = function (dest, ...rest) {
-    if (dest instanceof AudioDestinationNode) {
+    // The app's output is the first node wired to the live speakers. Later
+    // connections are an export's offline graph or the recorder's silent sink.
+    const live = !(this.context instanceof OfflineAudioContext);
+    if (dest instanceof AudioDestinationNode && live && window.__oscCtx !== this.context) {
       window.__oscOut = this;
       window.__oscCtx = this.context;
     }
@@ -302,7 +305,7 @@ try {
   await step('example projects load from the File menu', async () => {
     await page.getByRole('button', { name: 'OSC ▾' }).click();
     await page.getByRole('menuitem', { name: /Open example/ }).hover();
-    await page.getByRole('button', { name: /midnight drive/i }).click();
+    await page.getByRole('button', { name: 'midnight drive', exact: true }).click();
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes >= 5, `expected the example's tracks, saw ${lanes}`);
@@ -412,7 +415,7 @@ try {
     // Make sure Midnight Drive is loaded — the export checks below depend on it
     await page.getByRole('button', { name: 'OSC ▾' }).click();
     await page.getByRole('menuitem', { name: /Open example/ }).hover();
-    await page.getByRole('menu').getByRole('button', { name: /midnight drive/i }).click();
+    await page.getByRole('menu').getByRole('button', { name: 'midnight drive', exact: true }).click();
     await page.waitForTimeout(300);
     await button('⤓ EXPORT').click();
     await dialog().waitFor({ timeout: 3000 });
@@ -525,6 +528,27 @@ try {
     assert(w.seconds > 1.0 && w.seconds < 3.5, `recording length ${w.seconds.toFixed(2)}s`);
     await dialog().getByRole('button', { name: 'Done', exact: true }).click();
     if (await button('■ STOP').count()) await button('■ STOP').click();
+  });
+
+  await step('the extended Midnight Drive loads as a full song', async () => {
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.getByRole('menuitem', { name: /Open example/ }).hover();
+    await page.getByRole('button', { name: 'midnight drive extended', exact: true }).click();
+    await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
+    const lanes = await page.locator('[data-lane-track]').count();
+    assert(lanes === 11, `expected 11 tracks, saw ${lanes}`);
+    // Section names are drawn on the ruler canvas; read them from the saved session instead
+    const saved = await page.evaluate(() => new Promise((r) => setTimeout(() => r(localStorage.getItem('osc-app-state')), 700)));
+    const sections = JSON.parse(saved).sequencer.markers.map((m) => m.name);
+    for (const name of ['Intro', 'Breakdown', 'Drop', 'Bridge', 'Outro']) {
+      assert(sections.includes(name), `missing section ${name} (have ${sections.join(', ')})`);
+    }
+    await page.getByTitle('Return to start (Home)').click();
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(1500);
+    const level = await page.evaluate(() => window.__level(500));
+    await button('■ STOP').click();
+    assert(level > 0.01, `extended example is silent (peak ${level.toFixed(4)})`);
   });
 
   await step('no uncaught errors during the run', async () => {

@@ -29,11 +29,11 @@ describe('bundled examples', () => {
     });
   }
 
-  // Parts that loop a shared chord cycle must enter on the right chord. The
-  // arp clip starts two bars into the song, so it has to start two bars into
-  // its pattern as well — this is the bug the clip offset exists to prevent.
-  it('midnight-drive: arp and pad play the same chord in every bar', () => {
-    const p = parseProject(JSON.parse(readFileSync(join(DIR, 'midnight-drive.oscproject'), 'utf8')));
+  // Parts that loop a shared chord cycle must enter on the right chord. A clip
+  // that starts partway into the cycle has to start the same distance into its
+  // pattern — this is the bug the clip offset exists to prevent.
+  const chordCheck = (file: string, chordTracks: string[]) => {
+    const p = parseProject(JSON.parse(readFileSync(join(DIR, file), 'utf8')));
     const input = {
       tracks: p.doc.tracks,
       patterns: p.doc.patterns,
@@ -42,20 +42,39 @@ describe('bundled examples', () => {
       metronome: false,
       beatsPerBar: 4,
     };
-    const arp = p.doc.tracks.find((t) => t.name === 'Arp')!;
-    const pad = p.doc.tracks.find((t) => t.name === 'Pad')!;
+    const byName = (n: string) => p.doc.tracks.find((t) => t.name === n)!;
+    const pad = byName('Pad');
+    const arp = byName('Arp');
     const firstArpBar = arp.clips[0].startBeat / 4;
+    let checked = 0;
 
-    for (let bar = firstArpBar; bar < 16; bar++) {
+    for (let bar = 0; bar < p.songLengthBars; bar++) {
       const ev = eventsInWindow(input, bar * 4, bar * 4 + 0.01, { enabled: false, start: 0, end: 0 }, false);
       const pcs = (trackId: string) => new Set(
         ev.filter((e) => e.kind === 'note' && e.track.id === trackId)
           .map((e) => (e.kind === 'note' ? e.midiNote % 12 : -1)),
       );
-      const a = pcs(arp.id);
-      const b = pcs(pad.id);
-      expect(a.size, `bar ${bar + 1}: arp silent`).toBeGreaterThan(0);
-      expect([...a].sort(), `bar ${bar + 1}: arp and pad disagree`).toEqual([...b].sort());
+      const padPcs = pcs(pad.id);
+      if (bar >= firstArpBar && padPcs.size > 0 && bar < firstArpBar + 64) {
+        expect(pcs(arp.id).size, `${file} bar ${bar + 1}: arp silent`).toBeGreaterThan(0);
+      }
+      if (padPcs.size === 0) continue;
+      for (const name of chordTracks) {
+        const other = pcs(byName(name).id);
+        for (const pc of other) {
+          expect(padPcs.has(pc), `${file} bar ${bar + 1}: ${name} plays outside the pad's chord`).toBe(true);
+        }
+        if (other.size) checked++;
+      }
     }
+    return checked;
+  };
+
+  it('midnight-drive: every chord part plays the pad\'s chord in every bar', () => {
+    expect(chordCheck('midnight-drive.oscproject', ['Arp', 'Sub'])).toBeGreaterThan(20);
+  });
+
+  it('midnight-drive-extended: every chord part agrees with the pad, bridge included', () => {
+    expect(chordCheck('midnight-drive-extended.oscproject', ['Arp', 'Sub', 'Keys', 'Choir'])).toBeGreaterThan(150);
   });
 });

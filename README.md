@@ -225,9 +225,11 @@ For the complete Electron packaging guide including code signing and auto-update
 - Older project files and saved sessions migrate automatically
 
 ### Example projects
-Seven compositions ship with the app — open them from **OSC ▾ → Open example**, or find the files in
+Eight compositions ship with the app — open them from **OSC ▾ → Open example**, or find the files in
 [`examples/`](examples/README.md). They include `midnight-drive`, an original French-touch study that uses
-sections, looping clips, the arpeggiator, filter/resonance automation and sidechain together; four
+sections, looping clips, the arpeggiator, filter/resonance automation and sidechain together;
+`midnight-drive-extended`, the same material grown into a full 98-bar song with builds, a breakdown,
+a drop, a bridge with its own chord progression and an outro; four
 Minecraft/C418-style pieces; an ambient pad study; and a fast arpeggio over techno drums. All are original
 compositions.
 
