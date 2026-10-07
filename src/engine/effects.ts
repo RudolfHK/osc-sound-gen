@@ -1,4 +1,5 @@
 import { getAudioEngine } from './audio';
+import { HARD_STOP_FADE_S, holdAt } from './voices';
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
@@ -109,19 +110,38 @@ function buildImpulse(ctx: BaseAudioContext, seconds: number, damp: number): Aud
 
 // ─── Effects bus ──────────────────────────────────────────────────────────────
 
+/**
+ * The part of an effect that holds audio — a convolver, or delay lines with
+ * their feedback loop. Gated at both ends so a hard stop can swap it for an
+ * empty one: the old tail fades out while the new unit starts silent.
+ */
+interface TailUnit {
+  inGate: GainNode;
+  outGate: GainNode;
+  nodes: AudioNode[];
+}
+
+interface ReverbUnit extends TailUnit {
+  convolver: ConvolverNode;
+}
+
+interface DelayUnit extends TailUnit {
+  delayL: DelayNode;
+  delayR: DelayNode;
+  feedbackL: GainNode;
+  feedbackR: GainNode;
+}
+
 interface BusNodes {
   ctx: AudioContext;
   reverbIn: GainNode;
   delayIn: GainNode;
   chorusIn: GainNode;
 
-  convolver: ConvolverNode;
+  reverb: ReverbUnit;
   reverbReturn: GainNode;
 
-  delayL: DelayNode;
-  delayR: DelayNode;
-  feedbackL: GainNode;
-  feedbackR: GainNode;
+  delay: DelayUnit;
   delayReturn: GainNode;
 
   chorusVoices: { delay: DelayNode; lfo: OscillatorNode; lfoGain: GainNode; panner: StereoPannerNode }[];
@@ -153,43 +173,15 @@ export class EffectsBus {
     chorusIn.gain.value = 1;
 
     // ── Reverb ──
-    const convolver = ctx.createConvolver();
     const reverbReturn = ctx.createGain();
     reverbReturn.gain.value = this.settings.reverbEnabled ? this.settings.reverbMix : 0;
-    reverbIn.connect(convolver);
-    convolver.connect(reverbReturn);
+    const reverb = this.buildReverb(ctx, reverbIn, reverbReturn, null);
     if (master) reverbReturn.connect(master);
 
     // ── Ping-pong delay ──
-    // Left taps the input, right takes left's output; each feeds back into the
-    // other, so repeats alternate across the stereo field.
-    const delayL = ctx.createDelay(2);
-    const delayR = ctx.createDelay(2);
-    const feedbackL = ctx.createGain();
-    const feedbackR = ctx.createGain();
-    const panL = ctx.createStereoPanner();
-    const panR = ctx.createStereoPanner();
     const delayReturn = ctx.createGain();
-    // Tame the repeats so they sit behind the dry signal instead of piling up
-    const damper = ctx.createBiquadFilter();
-    damper.type = 'lowpass';
-    damper.frequency.value = 4200;
-
-    panL.pan.value = -0.7;
-    panR.pan.value = 0.7;
     delayReturn.gain.value = this.settings.delayEnabled ? this.settings.delayMix : 0;
-
-    delayIn.connect(delayL);
-    delayL.connect(damper);
-    damper.connect(delayR);
-    delayL.connect(feedbackL);
-    delayR.connect(feedbackR);
-    feedbackL.connect(delayR);
-    feedbackR.connect(delayL);
-    delayL.connect(panL);
-    delayR.connect(panR);
-    panL.connect(delayReturn);
-    panR.connect(delayReturn);
+    const delay = this.buildDelay(ctx, delayIn, delayReturn);
     if (master) delayReturn.connect(master);
 
     // ── Chorus ──
@@ -223,14 +215,120 @@ export class EffectsBus {
 
     const nodes: BusNodes = {
       ctx, reverbIn, delayIn, chorusIn,
-      convolver, reverbReturn,
-      delayL, delayR, feedbackL, feedbackR, delayReturn,
+      reverb, reverbReturn,
+      delay, delayReturn,
       chorusVoices, chorusReturn,
     };
 
     this.irSize = -1; // force IR render
     this.applyTo(nodes, this.settings);
     return nodes;
+  }
+
+  private gates(ctx: AudioContext, from: AudioNode, to: AudioNode): { inGate: GainNode; outGate: GainNode } {
+    const inGate = ctx.createGain();
+    const outGate = ctx.createGain();
+    from.connect(inGate);
+    outGate.connect(to);
+    return { inGate, outGate };
+  }
+
+  private buildReverb(ctx: AudioContext, from: AudioNode, to: AudioNode, ir: AudioBuffer | null): ReverbUnit {
+    const { inGate, outGate } = this.gates(ctx, from, to);
+    const convolver = ctx.createConvolver();
+    if (ir) convolver.buffer = ir;
+    inGate.connect(convolver);
+    convolver.connect(outGate);
+    return { inGate, outGate, convolver, nodes: [inGate, convolver, outGate] };
+  }
+
+  /**
+   * Left taps the input, right takes left's output; each feeds back into the
+   * other, so repeats alternate across the stereo field.
+   */
+  private buildDelay(ctx: AudioContext, from: AudioNode, to: AudioNode): DelayUnit {
+    const { inGate, outGate } = this.gates(ctx, from, to);
+    const delayL = ctx.createDelay(2);
+    const delayR = ctx.createDelay(2);
+    const feedbackL = ctx.createGain();
+    const feedbackR = ctx.createGain();
+    const panL = ctx.createStereoPanner();
+    const panR = ctx.createStereoPanner();
+    // Tame the repeats so they sit behind the dry signal instead of piling up
+    const damper = ctx.createBiquadFilter();
+    damper.type = 'lowpass';
+    damper.frequency.value = 4200;
+
+    panL.pan.value = -0.7;
+    panR.pan.value = 0.7;
+    // Start at the right time and feedback; gliding there would sweep the pitch
+    const p = this.delayParams();
+    delayL.delayTime.value = p.time;
+    delayR.delayTime.value = p.time;
+    feedbackL.gain.value = p.fbL;
+    feedbackR.gain.value = p.fbR;
+
+    inGate.connect(delayL);
+    delayL.connect(damper);
+    damper.connect(delayR);
+    delayL.connect(feedbackL);
+    delayR.connect(feedbackR);
+    feedbackL.connect(delayR);
+    feedbackR.connect(delayL);
+    delayL.connect(panL);
+    delayR.connect(panR);
+    panL.connect(outGate);
+    panR.connect(outGate);
+
+    return {
+      inGate, outGate, delayL, delayR, feedbackL, feedbackR,
+      nodes: [inGate, delayL, delayR, feedbackL, feedbackR, panL, panR, damper, outGate],
+    };
+  }
+
+  private delayParams(): { time: number; fbL: number; fbR: number } {
+    const s = this.settings;
+    const timeS = s.delaySync
+      ? DELAY_DIVISION_BEATS[s.delayDivision] * (60 / this.bpm)
+      : s.delayTimeMs / 1000;
+    const fb = s.delayPingPong ? s.delayFeedback : s.delayFeedback * 0.6;
+    return { time: Math.max(0.02, Math.min(2, timeS)), fbL: fb, fbR: s.delayPingPong ? fb : 0 };
+  }
+
+  /**
+   * Cut the reverb and delay tails now. A tail is audio held inside the
+   * convolver and the delay lines, so muting a return would only hide it until
+   * the return opened again. Instead the old units fade out over a few ms and
+   * empty ones take their place. The new units stay deaf until the voices'
+   * own fade-out has finished, or those last milliseconds would seed a new tail.
+   */
+  flushTails(fadeS = HARD_STOP_FADE_S): void {
+    const n = this.nodes;
+    if (!n || n.ctx !== getAudioEngine().getAudioContext()) return;
+    const ctx = n.ctx;
+    const now = ctx.currentTime;
+    const openAt = now + fadeS + 0.003;
+
+    const old: TailUnit[] = [n.reverb, n.delay];
+    for (const u of old) {
+      holdAt(u.outGate.gain, now);
+      u.outGate.gain.linearRampToValueAtTime(0, now + fadeS);
+    }
+    try { n.reverbIn.disconnect(n.reverb.inGate); } catch { /* ignore */ }
+    try { n.delayIn.disconnect(n.delay.inGate); } catch { /* ignore */ }
+
+    n.reverb = this.buildReverb(ctx, n.reverbIn, n.reverbReturn, n.reverb.convolver.buffer);
+    n.delay = this.buildDelay(ctx, n.delayIn, n.delayReturn);
+    for (const u of [n.reverb, n.delay]) {
+      u.inGate.gain.setValueAtTime(0, now);
+      u.inGate.gain.setValueAtTime(1, openAt);
+    }
+
+    setTimeout(() => {
+      for (const u of old) for (const node of u.nodes) {
+        try { node.disconnect(); } catch { /* ignore */ }
+      }
+    }, 60);
   }
 
   private ensure(): BusNodes | null {
@@ -251,22 +349,18 @@ export class EffectsBus {
 
     // Reverb — only re-render the impulse when its shape actually changed
     if (s.reverbSize !== this.irSize || s.reverbDamp !== this.irDamp) {
-      n.convolver.buffer = buildImpulse(ctx, s.reverbSize, s.reverbDamp);
+      n.reverb.convolver.buffer = buildImpulse(ctx, s.reverbSize, s.reverbDamp);
       this.irSize = s.reverbSize;
       this.irDamp = s.reverbDamp;
     }
     n.reverbReturn.gain.setTargetAtTime(s.reverbEnabled ? s.reverbMix : 0, now, TC);
 
     // Delay
-    const timeS = s.delaySync
-      ? DELAY_DIVISION_BEATS[s.delayDivision] * (60 / this.bpm)
-      : s.delayTimeMs / 1000;
-    const clamped = Math.max(0.02, Math.min(2, timeS));
-    n.delayL.delayTime.setTargetAtTime(clamped, now, TC);
-    n.delayR.delayTime.setTargetAtTime(clamped, now, TC);
-    const fb = s.delayPingPong ? s.delayFeedback : s.delayFeedback * 0.6;
-    n.feedbackL.gain.setTargetAtTime(fb, now, TC);
-    n.feedbackR.gain.setTargetAtTime(s.delayPingPong ? fb : 0, now, TC);
+    const d = this.delayParams();
+    n.delay.delayL.delayTime.setTargetAtTime(d.time, now, TC);
+    n.delay.delayR.delayTime.setTargetAtTime(d.time, now, TC);
+    n.delay.feedbackL.gain.setTargetAtTime(d.fbL, now, TC);
+    n.delay.feedbackR.gain.setTargetAtTime(d.fbR, now, TC);
     n.delayReturn.gain.setTargetAtTime(s.delayEnabled ? s.delayMix : 0, now, TC);
 
     // Chorus

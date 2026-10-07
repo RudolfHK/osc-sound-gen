@@ -1,8 +1,13 @@
 import { getAudioEngine } from './audio';
 import { getEffectsBus } from './effects';
+import { holdAt } from './voices';
 import type { ChannelSettings } from '../utils/music';
 
-const TC = 0.015;
+/**
+ * Smoothing for fader, pan, EQ and send moves: 4 ms reaches the new value
+ * within about 15 ms, which reads as instant while still avoiding zipper noise.
+ */
+const TC = 0.004;
 
 // ─── EQ band frequencies ──────────────────────────────────────────────────────
 
@@ -190,6 +195,23 @@ export class ChannelStripRack {
     }
   }
 
+  /**
+   * Transport stopped: drop automation ramps and sidechain ducks that were
+   * written ahead of the playhead, so nothing keeps moving after the stop.
+   * Params hold where they are; the caller reapplies the static mix.
+   */
+  haltAutomation(): void {
+    for (const s of this.strips.values()) {
+      const now = s.ctx.currentTime;
+      for (const p of [s.gain.gain, s.panner.pan, s.eqLow.gain, s.eqMid.gain, s.eqHigh.gain,
+                       s.sendReverb.gain, s.sendDelay.gain, s.sendChorus.gain]) {
+        holdAt(p, now);
+      }
+      s.duck.gain.cancelScheduledValues(now);
+      s.duck.gain.setTargetAtTime(1, now, TC);
+    }
+  }
+
   // ─── Metering ───────────────────────────────────────────────────────────────
 
   private analysers = new Map<string, AnalyserNode>();
@@ -216,7 +238,7 @@ export class ChannelStripRack {
   setMute(trackId: string, muted: boolean): void {
     const s = this.get(trackId);
     if (!s) return;
-    s.input.gain.setTargetAtTime(muted ? 0 : 1, s.ctx.currentTime, 0.008);
+    s.input.gain.setTargetAtTime(muted ? 0 : 1, s.ctx.currentTime, TC);
   }
 
   /** Release strips for tracks that no longer exist. */

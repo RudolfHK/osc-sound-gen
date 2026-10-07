@@ -210,6 +210,23 @@ export function Transport() {
         >⏹</button>
       </div>
 
+      <div className="flex gap-0.5" role="group" aria-label="History">
+        <button
+          onClick={() => dispatch({ type: 'SEQ_UNDO' })}
+          disabled={seq.undoStack.length === 0}
+          className={`${btn} ${off} disabled:opacity-30 disabled:pointer-events-none`}
+          title={`Undo (Ctrl+Z)${seq.undoStack.length ? ` — ${seq.undoStack.length} step${seq.undoStack.length === 1 ? '' : 's'}` : ''}`}
+          aria-label="Undo"
+        >↶</button>
+        <button
+          onClick={() => dispatch({ type: 'SEQ_REDO' })}
+          disabled={seq.redoStack.length === 0}
+          className={`${btn} ${off} disabled:opacity-30 disabled:pointer-events-none`}
+          title={`Redo (Ctrl+Shift+Z / Ctrl+Y)${seq.redoStack.length ? ` — ${seq.redoStack.length} step${seq.redoStack.length === 1 ? '' : 's'}` : ''}`}
+          aria-label="Redo"
+        >↷</button>
+      </div>
+
       <RecordButton onStartTransport={() => void play()} isPlaying={seq.isPlaying} />
       <button
         onClick={() => openExport('song')}

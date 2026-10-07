@@ -179,11 +179,11 @@ export function Mixer() {
   const tracks = state.sequencer.tracks;
   const mutes = effectiveTrackMutes(tracks);
 
-  // The master meter reads straight off the master bus
+  // The master meter reads the output — after the limiter and master fader
   const masterAnalyser = useRef<AnalyserNode | null>(null);
   const masterSource = () => {
     const ctx = getAudioEngine().getAudioContext();
-    const master = getAudioEngine().getMasterGain();
+    const master = getAudioEngine().getOutputNode();
     if (!ctx || !master) return null;
     if (!masterAnalyser.current || masterAnalyser.current.context !== ctx) {
       const a = ctx.createAnalyser();

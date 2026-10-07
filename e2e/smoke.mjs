@@ -212,6 +212,18 @@ try {
     await page.getByText('3 notes').waitFor({ timeout: 2000 });
   });
 
+  await step('the undo and redo buttons step through history', async () => {
+    const undo = page.getByRole('button', { name: 'Undo', exact: true });
+    const redo = page.getByRole('button', { name: 'Redo', exact: true });
+    assert(await redo.isDisabled(), 'redo should be disabled with nothing undone');
+    await undo.click();
+    await page.getByText('2 notes').waitFor({ timeout: 2000 });
+    assert(await redo.isEnabled(), 'redo should be enabled after an undo');
+    await redo.click();
+    await page.getByText('3 notes').waitFor({ timeout: 2000 });
+    assert(await redo.isDisabled(), 'redo should be disabled once history is replayed');
+  });
+
   await step('a drum clip can be placed on the drum track', async () => {
     const drums = page.locator('[data-lane-track]').nth(trackIndex.Drums);
     const box = await drums.boundingBox();
@@ -294,6 +306,63 @@ try {
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes >= 5, `expected the example's tracks, saw ${lanes}`);
+  });
+
+  // ── Transport response: stop, seek and volume act at once ──
+  // Midnight Drive holds long pad chords through a reverb, which is exactly
+  // what used to keep sounding after stop.
+  const settle = 90; // > one 2048-sample analyser window, so pre-stop audio is out of it
+  await step('stop silences held notes and effect tails at once', async () => {
+    await page.locator('main').click({ position: { x: 5, y: 5 } });
+    await page.keyboard.press('Home');
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(2200);
+    const loud = await page.evaluate(() => window.__level(500));
+    assert(loud > 0.02, `example should be audible (peak ${loud.toFixed(4)})`);
+    await button('■ STOP').click();
+    await page.waitForTimeout(settle);
+    const after = await page.evaluate(() => window.__level(400));
+    assert(after < 0.003, `still sounding after stop (peak ${after.toFixed(4)} vs ${loud.toFixed(4)} playing)`);
+  });
+
+  await step('seeking while playing cuts the old notes immediately', async () => {
+    // Make room past the song's end, fit it in view and seek into the silence there
+    const length = page.getByTitle('Song length in bars').locator('input');
+    await length.fill('64');
+    await page.getByRole('button', { name: 'FIT' }).click();
+    await page.keyboard.press('Home');
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(2200);
+    const ruler = page.locator('[data-arrange-lanes] canvas').first();
+    const box = await ruler.boundingBox();
+    await page.mouse.click(box.x + box.width - 40, box.y + box.height - 6); // bar row, about bar 62 — nothing plays there
+    await page.waitForTimeout(settle);
+    const after = await page.evaluate(() => window.__level(400));
+    assert(after < 0.003, `old notes kept sounding after seek (peak ${after.toFixed(4)})`);
+    await button('■ STOP').click();
+    await length.fill('16');
+  });
+
+  await step('master volume changes are immediate', async () => {
+    const vol = page.locator('header input[type="range"]');
+    const setVol = (v) => vol.evaluate((el, value) => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(el, String(value));
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, v);
+    await page.getByTitle('Return to start (Home)').click();
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(1500);
+    const full = await page.evaluate(() => window.__level(700));
+    await setVol(0);
+    await page.waitForTimeout(settle);
+    const off = await page.evaluate(() => window.__level(300));
+    await setVol(0.8);
+    await page.waitForTimeout(settle);
+    const back = await page.evaluate(() => window.__level(500));
+    await button('■ STOP').click();
+    assert(off < 0.002, `volume 0 still audible after ${settle} ms (peak ${off.toFixed(4)} vs ${full.toFixed(4)})`);
+    assert(back > full * 0.4, `volume did not come straight back (${back.toFixed(4)} vs ${full.toFixed(4)})`);
   });
 
   await step('mixer, instruments and FX tabs render', async () => {

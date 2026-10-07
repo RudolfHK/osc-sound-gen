@@ -2,6 +2,8 @@ import { squareWaveCoefficients, applyDetune } from '../utils/math';
 import type { OscillatorState, AdvancedSettings } from './oscillator';
 
 const TC = 0.01; // 10ms exponential time constant for smooth UI-driven changes
+/** Master fader smoothing — fast enough to feel instant, slow enough not to click. */
+const MASTER_TC = 0.004;
 
 // ─── Per-tab audio node bundle ────────────────────────────────────────────────
 
@@ -19,6 +21,12 @@ export class MultiOscillatorEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
   private limiter: DynamicsCompressorNode | null = null;
+  /**
+   * Master volume, after the limiter. Before it, turning down would just let
+   * the limiter release (150 ms) and claw the level back, so the change seemed
+   * to fade in rather than happen.
+   */
+  private outputGain: GainNode | null = null;
   private mediaStreamDest: MediaStreamAudioDestinationNode | null = null;
   private tabs = new Map<string, TabNodes>();
 
@@ -40,9 +48,13 @@ export class MultiOscillatorEngine {
       this.limiter.attack.value = 0.003;
       this.limiter.release.value = 0.15;
 
+      this.outputGain = this.ctx.createGain();
+      this.outputGain.gain.value = this.pendingVolume;
+
       this.masterGain.connect(this.limiter);
-      this.limiter.connect(this.ctx.destination);
-      this.limiter.connect(this.mediaStreamDest);
+      this.limiter.connect(this.outputGain);
+      this.outputGain.connect(this.ctx.destination);
+      this.outputGain.connect(this.mediaStreamDest);
     }
     return this.ctx;
   }
@@ -59,8 +71,11 @@ export class MultiOscillatorEngine {
     ctx: AudioContext | null;
     master: GainNode | null;
     limiter: DynamicsCompressorNode | null;
+    output: GainNode | null;
     dest: MediaStreamAudioDestinationNode | null;
   } | null = null;
+  /** Volume set before the context exists, applied when it's created. */
+  private pendingVolume = 0.8;
 
   get isRenderingOffline(): boolean {
     return this.saved !== null;
@@ -68,13 +83,17 @@ export class MultiOscillatorEngine {
 
   beginOffline(ctx: OfflineAudioContext, masterVolume: number): void {
     if (this.saved) throw new Error('An offline render is already in progress');
-    this.saved = { ctx: this.ctx, master: this.masterGain, limiter: this.limiter, dest: this.mediaStreamDest };
+    this.saved = {
+      ctx: this.ctx, master: this.masterGain, limiter: this.limiter,
+      output: this.outputGain, dest: this.mediaStreamDest,
+    };
 
     // OfflineAudioContext implements every factory method the engines use;
     // the live-only APIs (resume, media streams) are never reached while rendering.
     this.ctx = ctx as unknown as AudioContext;
     this.masterGain = ctx.createGain();
-    this.masterGain.gain.value = masterVolume;
+    this.outputGain = ctx.createGain();
+    this.outputGain.gain.value = masterVolume;
     this.limiter = ctx.createDynamicsCompressor();
     this.limiter.threshold.value = -6;
     this.limiter.knee.value = 6;
@@ -82,23 +101,25 @@ export class MultiOscillatorEngine {
     this.limiter.attack.value = 0.003;
     this.limiter.release.value = 0.15;
     this.masterGain.connect(this.limiter);
-    this.limiter.connect(ctx.destination);
+    this.limiter.connect(this.outputGain);
+    this.outputGain.connect(ctx.destination);
     this.mediaStreamDest = null;
   }
 
   endOffline(): void {
     if (!this.saved) return;
-    try { this.masterGain?.disconnect(); this.limiter?.disconnect(); } catch { /* ignore */ }
+    try { this.masterGain?.disconnect(); this.limiter?.disconnect(); this.outputGain?.disconnect(); } catch { /* ignore */ }
     this.ctx = this.saved.ctx;
     this.masterGain = this.saved.master;
     this.limiter = this.saved.limiter;
+    this.outputGain = this.saved.output;
     this.mediaStreamDest = this.saved.dest;
     this.saved = null;
   }
 
-  /** The node feeding the speakers — recording taps here. */
+  /** The node feeding the speakers (post limiter and master volume) — recording taps here. */
   getOutputNode(): AudioNode | null {
-    return this.limiter;
+    return this.outputGain;
   }
 
   /** Master limiter control. Disabled = transparent (threshold at 0, ratio 1). */
@@ -181,8 +202,12 @@ export class MultiOscillatorEngine {
   }
 
   setMasterVolume(volume: number): void {
-    if (!this.ctx || !this.masterGain) return;
-    this.masterGain.gain.setTargetAtTime(volume, this.ctx.currentTime, TC);
+    this.pendingVolume = volume;
+    if (!this.ctx || !this.outputGain || this.saved) return;
+    const g = this.outputGain.gain;
+    const now = this.ctx.currentTime;
+    g.cancelScheduledValues(now);
+    g.setTargetAtTime(volume, now, MASTER_TC);
   }
 
   // ─── Sequencer note scheduling ────────────────────────────────────────────────
@@ -260,6 +285,7 @@ export class MultiOscillatorEngine {
     this.ctx = null;
     this.masterGain = null;
     this.limiter = null;
+    this.outputGain = null;
     this.mediaStreamDest = null;
   }
 }

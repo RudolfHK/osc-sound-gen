@@ -3,6 +3,7 @@ import { getEffectsBus } from './effects';
 import { getChannelRack } from './channelStrip';
 import { findLane, laneRealAt, scheduleLaneOnParam } from './automation';
 import { noiseSource, startNoise } from './sampler';
+import { VoicePool } from './voices';
 import { midiToFreq } from '../utils/music';
 import type { AutomationLane } from '../utils/music';
 import type { OscillatorState, AdvancedSettings } from './oscillator';
@@ -1839,16 +1840,25 @@ export class InstrumentEngine {
   private output: GainNode | null = null;
   private overrides = new Map<string, InstrumentOverride>();
   private lastFreq = new Map<string, number>();      // presetId → last note freq (glide)
-  private activeVoices = 0;
+  /** Every voice that is sounding or scheduled — lets the transport cut them off. */
+  private voices = new VoicePool();
   /** Lifted during offline export, where every note is scheduled ahead of time. */
   private voiceLimit = MAX_VOICES;
 
   /** Remove the polyphony cap (offline render) and return a function that restores it. */
   unlimitVoices(): () => void {
-    const prev = { limit: this.voiceLimit, active: this.activeVoices };
+    const prev = this.voiceLimit;
     this.voiceLimit = Number.POSITIVE_INFINITY;
-    this.activeVoices = 0;
-    return () => { this.voiceLimit = prev.limit; this.activeVoices = prev.active; };
+    return () => { this.voiceLimit = prev; };
+  }
+
+  /** Hard stop: silence every note now, including held and pre-scheduled ones. */
+  silenceAll(): void {
+    this.voices.silence();
+  }
+
+  private atVoiceLimit(ctx: AudioContext): boolean {
+    return this.voiceLimit !== Number.POSITIVE_INFINITY && this.voices.count(ctx) >= this.voiceLimit;
   }
 
   // ─── Configuration ──────────────────────────────────────────────────────────
@@ -1938,7 +1948,7 @@ export class InstrumentEngine {
     if (!ctx) return;
     const preset = this.resolve(presetId);
     if (!preset) return;
-    if (this.activeVoices >= this.voiceLimit) return;
+    if (this.atVoiceLimit(ctx)) return;
 
     const opts = ctxOpts ?? {};
     const lanes = opts.lanes;
@@ -2142,11 +2152,11 @@ export class InstrumentEngine {
     }
 
     // ── Cleanup ──
-    this.activeVoices++;
+    const voice = this.voices.add(amp, [...oscs, ...(lfo ? [lfo] : [])], end + 0.02);
     const first = oscs[0];
     if (first) {
       first.onended = () => {
-        this.activeVoices = Math.max(0, this.activeVoices - 1);
+        this.voices.remove(voice);
         for (const o of oscs) { try { o.disconnect(); } catch (_) { /* ignore */ } }
         for (const n of extras) { try { n.disconnect(); } catch (_) { /* ignore */ } }
         for (const s of sendNodes) { try { s.disconnect(); } catch (_) { /* ignore */ } }
@@ -2175,7 +2185,7 @@ export class InstrumentEngine {
   ): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
-    if (this.activeVoices >= this.voiceLimit) return;
+    if (this.atVoiceLimit(ctx)) return;
 
     // Headroom: unlike the single lab voice, several of these stack up
     const peak = (Math.max(0, Math.min(127, velocity)) / 127) * oscState.amplitude * 0.5;
@@ -2217,9 +2227,9 @@ export class InstrumentEngine {
     osc.start(time);
     osc.stop(end + 0.02);
 
-    this.activeVoices++;
+    const voice = this.voices.add(amp, [osc], end + 0.02);
     osc.onended = () => {
-      this.activeVoices = Math.max(0, this.activeVoices - 1);
+      this.voices.remove(voice);
       try { osc.disconnect(); filter.disconnect(); amp.disconnect(); } catch { /* ignore */ }
     };
   }

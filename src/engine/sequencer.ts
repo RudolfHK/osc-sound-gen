@@ -1,5 +1,8 @@
 import { getAudioEngine } from './audio';
 import { getChannelRack } from './channelStrip';
+import { getInstrumentEngine } from './instruments';
+import { getDrumSynth } from './sampler';
+import { getEffectsBus } from './effects';
 import { emitEvent } from './emit';
 import { expandArpCached } from './arpeggiator';
 import { AUTOMATION_TARGETS, CHANNEL_TARGETS, laneValueAt } from './automation';
@@ -47,6 +50,8 @@ export class SequencerEngine {
   private tracks: Track[] = [];
   private tabs = new Map<string, OscillatorTab>();
   private chanSchedBeat = new Map<string, number>();
+  /** Last mix state pushed, reapplied after a stop drops automation. */
+  private lastSeq: SequencerState | null = null;
 
   private schedulerTimer: ReturnType<typeof setTimeout> | null = null;
   private rafId = 0;
@@ -71,6 +76,7 @@ export class SequencerEngine {
 
   /** Push channel settings, mute and solo to every strip. */
   applyMixState(seq: SequencerState): void {
+    this.lastSeq = seq;
     const rack = getChannelRack();
     const mutes = effectiveTrackMutes(seq.tracks);
     for (const track of seq.tracks) {
@@ -112,6 +118,21 @@ export class SequencerEngine {
       this.schedulerTimer = null;
     }
     cancelAnimationFrame(this.rafId);
+    this.silence();
+  }
+
+  /**
+   * Hard stop. Notes are scheduled ahead and carry their own release, so
+   * halting the scheduler alone lets held notes, queued notes and effect tails
+   * play out. Stopping (and seeking, which restarts playback) must be heard
+   * at once, the way it is in any DAW.
+   */
+  private silence(): void {
+    getInstrumentEngine().silenceAll();
+    getDrumSynth().silenceAll();
+    getEffectsBus().flushTails();
+    getChannelRack().haltAutomation();
+    if (this.lastSeq) this.applyMixState(this.lastSeq);
   }
 
   /**

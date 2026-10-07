@@ -3,7 +3,7 @@
  * Chosen because the project has no third-party state library — zero extra deps.
  */
 
-import { createContext, useContext, useEffect, useReducer, useRef, type Dispatch } from 'react';
+import { createContext, useCallback, useContext, useEffect, useReducer, useRef, type Dispatch } from 'react';
 import type { OscillatorState, AdvancedSettings, OscillatorTab, AppState, MainView } from '../engine/oscillator';
 import { DEFAULT_STATE, DEFAULT_ADVANCED } from '../engine/oscillator';
 import { getTabColor } from '../utils/colors';
@@ -1086,8 +1086,59 @@ export function restoreState(raw: string | null, legacyAssignmentsRaw: string | 
   };
 }
 
+// ─── Automatic undo steps ─────────────────────────────────────────────────────
+
+/** Track fields that are view state, not part of the song — no undo step. */
+const VIEW_ONLY_TRACK_FIELDS = new Set(['activeLaneId', 'showAutomation']);
+
+/** Merge repeated moves of the same control into one undo step within this gap. */
+export const UNDO_COALESCE_MS = 1200;
+
+/**
+ * Which edits record an undo step on their own, so every control in the app
+ * is undoable without each one remembering to push a snapshot.
+ *
+ * Returns a key: repeated actions with the same key in quick succession — a
+ * fader being dragged, a knob being turned — share one undo step, the way a
+ * DAW treats a single gesture. `null` means "always a new step"; `undefined`
+ * means the action doesn't edit the song (or pushes its own step).
+ */
+export function autoUndoKey(action: Action): string | null | undefined {
+  const keys = (o: object) => Object.keys(o).sort().join(',');
+  switch (action.type) {
+    case 'TRACK_UPDATE': {
+      const fields = Object.keys(action.patch).filter((k) => !VIEW_ONLY_TRACK_FIELDS.has(k));
+      if (fields.length === 0) return undefined;
+      // Mute/solo are toggles: each click is its own step
+      if (fields.includes('muted') || fields.includes('solo')) return null;
+      return `track:${action.trackId}:${fields.sort().join(',')}`;
+    }
+    case 'SEQ_SET_CHANNEL': return `channel:${action.trackId}:${keys(action.channel)}`;
+    case 'SEQ_SET_ARP': return `arp:${action.trackId}:${keys(action.arp)}`;
+    case 'MARKER_UPDATE': return `marker:${action.id}:${keys(action.patch)}`;
+    case 'PATTERN_RENAME': return `pattern-name:${action.patternId}`;
+    case 'TRACK_ADD':
+    case 'TRACK_REMOVE':
+    case 'TRACK_DUPLICATE':
+    case 'TRACK_MOVE':
+    case 'TRACK_SET_SOURCE':
+    case 'MARKER_ADD':
+    case 'MARKER_REMOVE':
+    case 'SECTION_DUPLICATE':
+    case 'SECTION_DELETE':
+    case 'CLIP_TOGGLE_MUTE':
+    case 'SEQ_ADD_LANE':
+    case 'SEQ_REMOVE_LANE':
+    case 'SEQ_TOGGLE_LANE':
+    case 'SEQ_CLEAR_LANE':
+      return null;
+    default:
+      return undefined;
+  }
+}
+
 export function useAppReducer(): StoreCtx {
-  const [state, dispatch] = useReducer(reducer, undefined, () => {
+  const [state, rawDispatch] = useReducer(reducer, undefined, () => {
     try {
       return restoreState(localStorage.getItem(LS_KEY), localStorage.getItem(LS_INSTRUMENTS));
     } catch (err) {
@@ -1114,6 +1165,24 @@ export function useAppReducer(): StoreCtx {
     };
     window.addEventListener('beforeunload', flush);
     return () => window.removeEventListener('beforeunload', flush);
+  }, []);
+
+  // Record an undo step ahead of song edits that don't push their own. A push
+  // that changes nothing is dropped by the reducer, so explicit pushes from
+  // components and this one never double up.
+  const lastGesture = useRef<{ key: string; at: number } | null>(null);
+  const dispatch = useCallback<Dispatch<Action>>((action) => {
+    const key = autoUndoKey(action);
+    if (key !== undefined) {
+      const now = performance.now();
+      const last = lastGesture.current;
+      const sameGesture = key !== null && last?.key === key && now - last.at < UNDO_COALESCE_MS;
+      if (!sameGesture) rawDispatch({ type: 'SEQ_PUSH_UNDO' });
+      lastGesture.current = key === null ? null : { key, at: now };
+    } else if (action.type === 'SEQ_PUSH_UNDO' || action.type === 'SEQ_UNDO' || action.type === 'SEQ_REDO') {
+      lastGesture.current = null;
+    }
+    rawDispatch(action);
   }, []);
 
   return { state, dispatch };

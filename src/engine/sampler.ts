@@ -1,6 +1,7 @@
 import { getAudioEngine } from './audio';
 import { getEffectsBus } from './effects';
 import { getChannelRack } from './channelStrip';
+import { VoicePool } from './voices';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,13 @@ function startNoise(src: AudioBufferSourceNode, t: number, stopAt: number): void
 
 export class DrumSynth {
   private output: GainNode | null = null;
+  /** Hits that may still be ringing or are queued — cut off by a transport stop. */
+  private hits = new VoicePool();
+
+  /** Hard stop: silence every hit now, including ones scheduled ahead. */
+  silenceAll(): void {
+    this.hits.silence();
+  }
 
   private getOutput(ctx: AudioContext): GainNode {
     if (!this.output || this.output.context !== ctx) {
@@ -104,6 +112,8 @@ export class DrumSynth {
     panner.pan.value = Math.max(-1, Math.min(1, p.pan));
     chanGain.connect(panner);
     panner.connect(out);
+    // The longest hit (a crash with its decay stretched) rings for about 4 s
+    this.hits.add(chanGain, [], time + 4);
 
     // Ambience — a kit with no room around it is the giveaway that it is synthetic.
     // Cymbals and snares get the send; kicks and subs stay dry to keep the low end tight.

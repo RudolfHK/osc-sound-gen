@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { reducer, restoreState, makeInitialAppState, findClip } from './appStore';
+import { reducer, restoreState, makeInitialAppState, findClip, autoUndoKey } from './appStore';
 import { parseProject, serializeProject, guessPresetForNotes } from '../utils/project';
 import type { AppState } from '../engine/oscillator';
 
@@ -202,6 +202,26 @@ describe('undo', () => {
     expect(s.sequencer.selectedClipId).toBeNull();
     s = reducer(s, { type: 'SEQ_REDO' });
     expect(s.sequencer.tracks[1].clips).toHaveLength(1);
+  });
+  it('records mixer and track edits, coalescing a single control gesture', () => {
+    const id = 't';
+    const fader = autoUndoKey({ type: 'SEQ_SET_CHANNEL', trackId: id, channel: { gain: 0.5 } });
+    expect(fader).toBe(autoUndoKey({ type: 'SEQ_SET_CHANNEL', trackId: id, channel: { gain: 0.6 } }));
+    expect(fader).not.toBe(autoUndoKey({ type: 'SEQ_SET_CHANNEL', trackId: id, channel: { eqLow: 2 } }));
+    // Toggles and structural edits are one step each
+    expect(autoUndoKey({ type: 'TRACK_UPDATE', trackId: id, patch: { muted: true } })).toBeNull();
+    expect(autoUndoKey({ type: 'TRACK_ADD', source: { type: 'drums' } })).toBeNull();
+    // View state and transport aren't song edits
+    expect(autoUndoKey({ type: 'TRACK_UPDATE', trackId: id, patch: { showAutomation: true } })).toBeUndefined();
+    expect(autoUndoKey({ type: 'SEQ_SET_PLAYHEAD', beat: 4 })).toBeUndefined();
+
+    // A fader move is undoable end to end
+    let s = fresh();
+    const track = s.sequencer.tracks[0];
+    s = reducer(s, { type: 'SEQ_PUSH_UNDO' });
+    s = reducer(s, { type: 'SEQ_SET_CHANNEL', trackId: track.id, channel: { gain: 0.2 } });
+    s = reducer(s, { type: 'SEQ_UNDO' });
+    expect(s.sequencer.tracks[0].channel.gain).toBe(track.channel.gain);
   });
 });
 
