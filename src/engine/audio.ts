@@ -27,7 +27,6 @@ export class MultiOscillatorEngine {
    * to fade in rather than happen.
    */
   private outputGain: GainNode | null = null;
-  private mediaStreamDest: MediaStreamAudioDestinationNode | null = null;
   private tabs = new Map<string, TabNodes>();
 
   // ─── Context ─────────────────────────────────────────────────────────────────
@@ -36,7 +35,6 @@ export class MultiOscillatorEngine {
     if (!this.ctx) {
       this.ctx = new AudioContext();
       this.masterGain = this.ctx.createGain();
-      this.mediaStreamDest = this.ctx.createMediaStreamDestination();
 
       // Master limiter catches the peaks that appear once several instruments,
       // drum voices and effect returns are summed. Both the speakers and the
@@ -54,7 +52,6 @@ export class MultiOscillatorEngine {
       this.masterGain.connect(this.limiter);
       this.limiter.connect(this.outputGain);
       this.outputGain.connect(this.ctx.destination);
-      this.outputGain.connect(this.mediaStreamDest);
     }
     return this.ctx;
   }
@@ -72,7 +69,6 @@ export class MultiOscillatorEngine {
     master: GainNode | null;
     limiter: DynamicsCompressorNode | null;
     output: GainNode | null;
-    dest: MediaStreamAudioDestinationNode | null;
   } | null = null;
   /** Volume set before the context exists, applied when it's created. */
   private pendingVolume = 0.8;
@@ -85,7 +81,7 @@ export class MultiOscillatorEngine {
     if (this.saved) throw new Error('An offline render is already in progress');
     this.saved = {
       ctx: this.ctx, master: this.masterGain, limiter: this.limiter,
-      output: this.outputGain, dest: this.mediaStreamDest,
+      output: this.outputGain,
     };
 
     // OfflineAudioContext implements every factory method the engines use;
@@ -103,7 +99,6 @@ export class MultiOscillatorEngine {
     this.masterGain.connect(this.limiter);
     this.limiter.connect(this.outputGain);
     this.outputGain.connect(ctx.destination);
-    this.mediaStreamDest = null;
   }
 
   endOffline(): void {
@@ -113,7 +108,6 @@ export class MultiOscillatorEngine {
     this.masterGain = this.saved.master;
     this.limiter = this.saved.limiter;
     this.outputGain = this.saved.output;
-    this.mediaStreamDest = this.saved.dest;
     this.saved = null;
   }
 
@@ -195,12 +189,6 @@ export class MultiOscillatorEngine {
     nodes.muteGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, TC);
   }
 
-  setTabPan(id: string, pan: number): void {
-    const nodes = this.tabs.get(id);
-    if (!this.ctx || !nodes) return;
-    nodes.panner.pan.setTargetAtTime(pan, this.ctx.currentTime, TC);
-  }
-
   setMasterVolume(volume: number): void {
     this.pendingVolume = volume;
     if (!this.ctx || !this.outputGain || this.saved) return;
@@ -210,37 +198,7 @@ export class MultiOscillatorEngine {
     g.setTargetAtTime(volume, now, MASTER_TC);
   }
 
-  // ─── Sequencer note scheduling ────────────────────────────────────────────────
-  // Called by SequencerEngine to schedule note events at precise AudioContext times.
-
-  scheduleNoteOn(tabId: string, freq: number, gainValue: number, time: number): void {
-    const nodes = this.tabs.get(tabId);
-    if (!nodes) return;
-    nodes.osc.frequency.cancelScheduledValues(time);
-    nodes.osc.frequency.setValueAtTime(freq, time);
-    nodes.ampGain.gain.cancelScheduledValues(time);
-    nodes.ampGain.gain.setValueAtTime(0, time);
-    nodes.ampGain.gain.linearRampToValueAtTime(gainValue, time + 0.005);
-  }
-
-  scheduleNoteOff(tabId: string, restoreFreq: number, restoreGain: number, time: number): void {
-    const nodes = this.tabs.get(tabId);
-    if (!nodes) return;
-    nodes.ampGain.gain.cancelScheduledValues(time - 0.001);
-    nodes.ampGain.gain.setValueAtTime(restoreGain, time - 0.001);
-    nodes.ampGain.gain.linearRampToValueAtTime(0, time);
-    nodes.osc.frequency.setValueAtTime(restoreFreq, time + 0.001);
-  }
-
   // ─── Accessors ────────────────────────────────────────────────────────────────
-
-  isTabPlaying(id: string): boolean {
-    return this.tabs.has(id);
-  }
-
-  getMediaStreamDest(): MediaStreamAudioDestinationNode | null {
-    return this.mediaStreamDest;
-  }
 
   getAudioContext(): AudioContext | null {
     return this.ctx;
@@ -275,22 +233,28 @@ export class MultiOscillatorEngine {
       panner.disconnect();
     }, 100);
   }
-
-  destroy(): void {
-    for (const id of [...this.tabs.keys()]) {
-      this.teardownTabNodes(id);
-      this.tabs.delete(id);
-    }
-    void this.ctx?.close();
-    this.ctx = null;
-    this.masterGain = null;
-    this.limiter = null;
-    this.outputGain = null;
-    this.mediaStreamDest = null;
-  }
 }
 
 // ─── Waveform helper (exported for use by SequencerEngine) ────────────────────
+
+/**
+ * Pulse waves per context and width. Building one is 256 harmonics of maths,
+ * and oscillator tracks used to do it for every note they played.
+ */
+const pulseWaves = new WeakMap<BaseAudioContext, Map<number, PeriodicWave>>();
+
+function pulseWave(ctx: BaseAudioContext, width: number): PeriodicWave {
+  let byWidth = pulseWaves.get(ctx);
+  if (!byWidth) { byWidth = new Map(); pulseWaves.set(ctx, byWidth); }
+  const key = Math.round(width * 1000) / 1000;
+  let wave = byWidth.get(key);
+  if (!wave) {
+    const [real, imag] = squareWaveCoefficients(key, 256);
+    wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+    byWidth.set(key, wave);
+  }
+  return wave;
+}
 
 export function applyWaveformToNode(
   ctx: AudioContext,
@@ -302,8 +266,7 @@ export function applyWaveformToNode(
     case 'sawtooth':  osc.type = 'sawtooth'; break;
     case 'triangle':  osc.type = 'triangle'; break;
     case 'square': {
-      const [real, imag] = squareWaveCoefficients(state.pulseWidth, 256);
-      osc.setPeriodicWave(ctx.createPeriodicWave(real, imag, { disableNormalization: false }));
+      osc.setPeriodicWave(pulseWave(ctx, state.pulseWidth));
       break;
     }
   }

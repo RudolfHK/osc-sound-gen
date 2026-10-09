@@ -11,7 +11,6 @@ export interface OscillatorState {
   phase: number;        // radians, 0–2π
   pulseWidth: number;   // 0.01–0.99 (square only)
   masterVolume: number; // 0.0–1.0 — repurposed as per-tab level in multi-tab mode
-  isPlaying: boolean;
 }
 
 export interface AdvancedSettings {
@@ -29,7 +28,6 @@ export const DEFAULT_STATE: OscillatorState = {
   phase: 0,
   pulseWidth: 0.5,
   masterVolume: 0.7,
-  isPlaying: false,
 };
 
 export const DEFAULT_ADVANCED: AdvancedSettings = {
@@ -48,6 +46,7 @@ export interface OscillatorTab {
   color: string;          // accent color for tab indicator + oscilloscope waveform
   oscillator: OscillatorState;
   advanced: AdvancedSettings;
+  /** Whether the lab is sounding this tab right now (never persisted as true). */
   isPlaying: boolean;
   isMuted: boolean;
   solo: boolean;

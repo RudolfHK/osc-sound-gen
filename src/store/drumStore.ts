@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useReducer, type Dispatch } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type Dispatch } from 'react';
+import { registerHistoryParticipant, requestUndoStep } from './history';
 import type { DrumVoiceType } from '../engine/sampler';
 
 // ─── Data model ───────────────────────────────────────────────────────────────
@@ -74,7 +75,9 @@ export type DrumAction =
   | { type: 'DRUM_DELETE_PATTERN'; patternId: string }
   | { type: 'DRUM_RENAME_PATTERN'; patternId: string; name: string }
   /** Merge patterns from a project file; existing ids are replaced. */
-  | { type: 'DRUM_IMPORT_PATTERNS'; patterns: DrumPattern[] };
+  | { type: 'DRUM_IMPORT_PATTERNS'; patterns: DrumPattern[] }
+  /** Undo/redo: put a recorded pattern list back. */
+  | { type: 'DRUM_RESTORE_PATTERNS'; patterns: DrumPattern[] };
 
 // ─── Voice catalogue ──────────────────────────────────────────────────────────
 
@@ -589,8 +592,44 @@ export function drumReducer(state: DrumMachineState, action: DrumAction): DrumMa
       };
     }
 
+    case 'DRUM_RESTORE_PATTERNS': {
+      if (action.patterns.length === 0 || action.patterns === state.patterns) return state;
+      const active = action.patterns.some((p) => p.id === state.activePatternId)
+        ? state.activePatternId
+        : action.patterns[0].id;
+      return { ...state, patterns: action.patterns, activePatternId: active };
+    }
+
     default:
       return state;
+  }
+}
+
+/**
+ * Which drum edits get an undo step, and which merge (see `autoUndoKey` in the
+ * app store). Drum patterns are part of the song, so they share its history.
+ */
+export function drumUndoKey(a: DrumAction): string | null | undefined {
+  const keys = (o: object) => Object.keys(o).sort().join(',');
+  switch (a.type) {
+    case 'DRUM_TOGGLE_STEP': return `drum-steps:${a.patternId}`;
+    case 'DRUM_SET_STEP_PARAMS': return `drum-step:${a.patternId}:${a.voiceId}:${a.stepIndex}:${keys(a.params)}`;
+    case 'DRUM_SET_VOICE_PARAMS': return `drum-voice:${a.patternId}:${a.voiceId}:${keys(a.params)}`;
+    case 'DRUM_SET_SWING': return `drum-swing:${a.patternId}`;
+    case 'DRUM_RENAME_PATTERN': return `drum-name:${a.patternId}`;
+    case 'DRUM_SET_STEP_COUNT':
+    case 'DRUM_MUTE_VOICE':
+    case 'DRUM_SOLO_VOICE':
+    case 'DRUM_CLEAR_PATTERN':
+    case 'DRUM_CLEAR_VOICE':
+    case 'DRUM_ADD_PATTERN':
+    case 'DRUM_DUPLICATE_PATTERN':
+      return null;
+    // Keyed so the UI can record the step first and remove the pattern's clips
+    // (in the app store) under the same step
+    case 'DRUM_DELETE_PATTERN': return `drum-delete:${a.patternId}`;
+    default:
+      return undefined;
   }
 }
 
@@ -627,22 +666,60 @@ export function useDrumStore(): DrumCtx {
 }
 
 const LS_KEY = 'osc-drum-state';
+const PERSIST_DEBOUNCE_MS = 400;
+
+/** What is worth saving: not the transport state of the AUDITION loop. */
+function persisted(s: DrumMachineState) {
+  const { isPlaying: _p, currentStep: _c, ...rest } = s;
+  return rest;
+}
 
 export function useDrumReducer(): DrumCtx {
-  const [state, dispatch] = useReducer(drumReducer, undefined, () => {
+  const [state, rawDispatch] = useReducer(drumReducer, undefined, () => {
     try {
       const saved = localStorage.getItem(LS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as DrumMachineState;
-        if (parsed.patterns?.length) return migrate(parsed);
+        if (parsed.patterns?.length) return { ...migrate(parsed), isPlaying: false, currentStep: 0 };
       }
     } catch (_) { /* corrupt or missing */ }
     return buildInitialState();
   });
 
-  useEffect(() => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota */ }
-  }, [state]);
+  const latest = useRef(state);
+  latest.current = state;
 
-  return { state, dispatch };
+  // Saved in debounced batches, and only when saved fields change — the
+  // AUDITION loop's step counter changes many times a second and must not
+  // rewrite the whole pattern library each time.
+  const { patterns, activePatternId, bpm, syncBpm, voiceFilter, isOpen } = state;
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(persisted(latest.current))); } catch (_) { /* quota */ }
+    }, PERSIST_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [patterns, activePatternId, bpm, syncBpm, voiceFilter, isOpen]);
+
+  useEffect(() => {
+    const flush = () => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(persisted(latest.current))); } catch (_) { /* quota */ }
+    };
+    window.addEventListener('beforeunload', flush);
+    return () => window.removeEventListener('beforeunload', flush);
+  }, []);
+
+  // Drum patterns share the song's undo history
+  useEffect(() => registerHistoryParticipant<DrumPattern[]>({
+    id: 'drums',
+    snapshot: () => latest.current.patterns,
+    restore: (p) => rawDispatch({ type: 'DRUM_RESTORE_PATTERNS', patterns: p }),
+  }), []);
+
+  const dispatch = useCallback<Dispatch<DrumAction>>((action) => {
+    const key = drumUndoKey(action);
+    if (key !== undefined) requestUndoStep(key);
+    rawDispatch(action);
+  }, []);
+
+  return useMemo(() => ({ state, dispatch }), [state, dispatch]);
 }

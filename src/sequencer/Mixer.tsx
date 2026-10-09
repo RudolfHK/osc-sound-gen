@@ -182,8 +182,10 @@ export function Mixer() {
   // The master meter reads the output — after the limiter and master fader
   const masterAnalyser = useRef<AnalyserNode | null>(null);
   const masterSource = () => {
-    const ctx = getAudioEngine().getAudioContext();
-    const master = getAudioEngine().getOutputNode();
+    const engine = getAudioEngine();
+    if (engine.isRenderingOffline) return null; // meters show the live mix only
+    const ctx = engine.getAudioContext();
+    const master = engine.getOutputNode();
     if (!ctx || !master) return null;
     if (!masterAnalyser.current || masterAnalyser.current.context !== ctx) {
       const a = ctx.createAnalyser();
@@ -211,7 +213,7 @@ export function Mixer() {
               className="h-32"
               style={{ accentColor: accent, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
               onChange={(e) => dispatch({ type: 'SET_MASTER_VOLUME', volume: parseFloat(e.target.value) })}
-              aria-label="Master volume"
+              aria-label="Master fader"
             />
             <span className="text-[9px] text-neutral-500 font-mono">{Math.round(state.masterVolume * 100)}</span>
           </div>

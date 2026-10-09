@@ -3,6 +3,8 @@ import { useDrumStore, voiceGroupOf, patternsByGenre, VOICE_GROUPS } from '../st
 import { useAppStore } from '../store/appStore';
 import { getDrumSynth } from '../engine/sampler';
 import { getAudioEngine } from '../engine/audio';
+import { Ticker } from '../engine/ticker';
+import { requestUndoStep } from '../store/history';
 import type { DrumVoiceType, DrumHitParams } from '../engine/sampler';
 import type { DrumVoiceConfig, DrumStep, DrumPattern } from '../store/drumStore';
 
@@ -12,27 +14,36 @@ class DrumScheduler {
   private running = false;
   private bpm = 120;
   private pattern: DrumPattern | null = null;
+  private ctx: AudioContext | null = null;
   private nextStepTime = 0;
   private nextStepIdx = 0;
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private ticker = new Ticker();
   private rafId = 0;
+  private lastShown = -1;
   private onStep: ((s: number) => void) | null = null;
+  /** Bumped by play and stop, so a stop during play's await isn't lost. */
+  private generation = 0;
 
   async play(bpm: number, pattern: DrumPattern, onStep: (s: number) => void): Promise<void> {
+    const gen = ++this.generation;
     const ctx = await getAudioEngine().getOrCreateAudioContext();
+    if (gen !== this.generation) return;
+    this.ctx = ctx;
     this.bpm = bpm;
     this.pattern = pattern;
     this.onStep = onStep;
     this.running = true;
     this.nextStepIdx = 0;
+    this.lastShown = -1;
     this.nextStepTime = ctx.currentTime + 0.05;
-    this.timer = setInterval(() => this.tick(), 25);
+    this.ticker.start(25, () => this.tick());
     this.rafLoop(ctx);
   }
 
   stop(): void {
+    this.generation++;
     this.running = false;
-    if (this.timer !== null) { clearInterval(this.timer); this.timer = null; }
+    this.ticker.stop();
     cancelAnimationFrame(this.rafId);
   }
 
@@ -42,15 +53,25 @@ class DrumScheduler {
   private stepDur(): number { return 60 / (this.bpm * 4); }
 
   private tick(): void {
-    if (!this.running || !this.pattern) return;
-    const ctx = getAudioEngine().getAudioContext();
-    if (!ctx) return;
+    const ctx = this.ctx;
+    if (!this.running || !this.pattern || !ctx) return;
+    // While an export renders, the synth would write into the export — pause
+    if (getAudioEngine().isRenderingOffline) return;
     const LOOKAHEAD = 0.12;
     const until = ctx.currentTime + LOOKAHEAD;
+    const stepDur = this.stepDur();
+
+    // After a stall (an export, a frozen tab) skip the missed steps instead of
+    // playing them all at once, keeping the bar position
+    const behind = ctx.currentTime - 0.05 - this.nextStepTime;
+    if (behind > 0) {
+      const skip = Math.ceil(behind / stepDur);
+      this.nextStepTime += skip * stepDur;
+      this.nextStepIdx = (this.nextStepIdx + skip) % this.pattern.stepCount;
+    }
 
     while (this.nextStepTime < until) {
       const p = this.pattern;
-      const stepDur = this.stepDur();
       const swingDelay = this.nextStepIdx % 2 === 1 ? p.swing * stepDur * 0.5 : 0;
       const t = this.nextStepTime + swingDelay;
 
@@ -88,7 +109,11 @@ class DrumScheduler {
       const elapsed = ctx.currentTime - (this.nextStepTime - this.stepDur() * this.nextStepIdx);
       const stepCount = this.pattern.stepCount;
       const display = ((Math.floor(elapsed / this.stepDur()) % stepCount) + stepCount) % stepCount;
-      this.onStep?.(display);
+      // Only when it changes: this drives React state, not a canvas
+      if (display !== this.lastShown) {
+        this.lastShown = display;
+        this.onStep?.(display);
+      }
       this.rafId = requestAnimationFrame(update);
     };
     this.rafId = requestAnimationFrame(update);
@@ -268,6 +293,8 @@ function VoiceRow({
             <button
               key={i}
               title="Left-click to toggle · Right-click for velocity/pitch"
+              aria-label={`${voice.name} step ${i + 1}`}
+              aria-pressed={step.active}
               onClick={() => onToggleStep(i)}
               onContextMenu={(e) => { e.preventDefault(); if (step.active) onStepRightClick(i, step, e.clientX, e.clientY); }}
               className={`w-6 h-6 border transition-colors ${groupStart ? 'ml-1' : ''}`}
@@ -299,7 +326,7 @@ interface DrumMachineProps {
 
 export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
   const { state, dispatch } = useDrumStore();
-  const { state: appState } = useAppStore();
+  const { state: appState, dispatch: appDispatch } = useAppStore();
 
   const pattern = state.patterns.find((p) => p.id === state.activePatternId)
     ?? state.patterns[0];
@@ -396,11 +423,20 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
         >⧉</button>
         <button
           onClick={() => {
-            const n = usedBy?.get(pattern.id) ?? 0;
+            if (state.patterns.length <= 1) return; // the library always keeps one
+            const clips = appState.sequencer.tracks
+              .filter((t) => t.source.type === 'drums')
+              .flatMap((t) => t.clips.filter((c) => c.patternId === pattern.id));
+            const n = clips.length;
             const warning = n > 0
-              ? `"${pattern.name}" is used by ${n} clip${n > 1 ? 's' : ''} in the arrangement, which will go silent. Delete it anyway?`
+              ? `"${pattern.name}" is used by ${n} clip${n > 1 ? 's' : ''} in the arrangement. Delete the pattern and ${n > 1 ? 'those clips' : 'that clip'}? (Undo brings both back.)`
               : `Delete pattern "${pattern.name}"?`;
-            if (window.confirm(warning)) dispatch({ type: 'DRUM_DELETE_PATTERN', patternId: pattern.id });
+            if (!window.confirm(warning)) return;
+            // One undo step covers the clips and the pattern: the step is
+            // recorded first, and the drum store's own request merges into it
+            requestUndoStep(`drum-delete:${pattern.id}`);
+            for (const c of clips) appDispatch({ type: 'CLIP_DELETE', clipId: c.id });
+            dispatch({ type: 'DRUM_DELETE_PATTERN', patternId: pattern.id });
           }}
           className="px-1.5 py-0.5 text-xs border border-neutral-700 text-neutral-600 hover:text-red-400 hover:border-red-800"
           title="Delete pattern"

@@ -7,11 +7,8 @@ import { getAudioEngine } from './audio';
 import { getInstrumentEngine } from './instruments';
 import { getChannelRack } from './channelStrip';
 import { getDrumSynth } from './sampler';
-import type { TimelineEvent } from './timeline';
+import type { NoteEvent, TimelineEvent } from './timeline';
 import type { OscillatorTab } from './oscillator';
-
-/** Drum voices that trigger sidechain ducking. */
-const KICKS = new Set(['kick', 'kick-808', 'kick-tight']);
 
 /**
  * Schedule one event at context time `at`.
@@ -33,8 +30,8 @@ export function emitEvent(
   const bps = bpm / 60;
 
   if (e.kind === 'drum') {
+    // The drum synth ducks sidechained tracks itself when it plays a kick
     const time = at + e.swingBeats / bps;
-    if (KICKS.has(e.voice.id)) getChannelRack().duckAll(time);
     getDrumSynth().trigger(e.voice.id, {
       volume: e.voice.volume,
       pan: e.voice.pan,
@@ -47,7 +44,7 @@ export function emitEvent(
   }
 
   const durationS = e.durationBeats / bps;
-  const noteCtx = { trackId: track.id, lanes: track.lanes, startBeat: e.songBeat, bpm };
+  const noteCtx = { trackId: track.id, lanes: track.lanes, startBeat: e.songBeat, bpm, patch: track.patch };
 
   if (track.source.type === 'preset') {
     getInstrumentEngine().playNote(track.source.presetId, e.midiNote, e.velocity, at, durationS, noteCtx);
@@ -75,4 +72,18 @@ function emitClick(ctx: BaseAudioContext, time: number, accent: boolean): void {
   osc.start(time);
   osc.stop(time + 0.06);
   osc.onended = () => { osc.disconnect(); g.disconnect(); };
+}
+
+/**
+ * Whether a held note picked up partway through (note chase) is still worth
+ * restarting. Sustaining sounds are; a piano or pluck that has mostly decayed
+ * would come back as a fresh attack, which is worse than silence.
+ */
+export function worthChasing(e: NoteEvent, intoSeconds: number): boolean {
+  const src = e.track.source;
+  if (src.type !== 'preset') return true;
+  const p = getInstrumentEngine().resolve(src.presetId, e.track.patch);
+  if (!p) return false;
+  if (p.amp.sustain >= 0.25) return true;
+  return intoSeconds < p.amp.attack + p.amp.decay * 0.35;
 }

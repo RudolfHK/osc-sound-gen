@@ -1,6 +1,6 @@
 # State of the App and Feature Roadmap
 
-*Status: analysis and plan only — nothing in this document is implemented yet.*
+*Status: the bugs and debt in §2 are fixed (see §2.3); the features in §3 onward are plan only.*
 *Reviewed: `main` at `baf47eb` (October 2026).*
 
 This is the result of three passes over the app: the automated test suites, a hands-on QA run that
@@ -92,8 +92,35 @@ matter once inserts, modulation and audio tracks add load.
 | P4 | Up to 23 audio nodes per note; each automated parameter writes up to 400 events per note. | Cap events by curve shape; share one LFO per track for vibrato; this is also the motivation for F18 | 1 |
 | P5 | The export pipeline and the 152 KB preset table load up front. | Lazy-load the export dialog and pipeline; keep the preset list but split the specs | 0.5 |
 
-**Phase 0 total: about 12–13 days** for B1–B14 and P1–P5, or **6–7 days** for B1–B11 alone, which removes
+**Phase 0 total (estimate at review time): about 12–13 days** for B1–B14 and P1–P5, or **6–7 days** for B1–B11 alone, which removes
 everything a user can hit.
+
+### 2.3 Status — all fixed
+
+Every item above was fixed after this review. How each was checked:
+
+| # | Fix | Verified by |
+|---|---|---|
+| B1 | Lab button reads the tab's playing flag; the duplicate flag is gone from the oscillator settings | e2e: PLAY → STOP → PLAY with measured tone |
+| B2 | Compact transport below 1600 px, short view toggle below 1280 px, transport on its own scrollable row below 1024 px | e2e: one 39 px row at 1024 px; 95 px on a phone (was 259) with no page overflow |
+| B3 | Note chase on play and seek; decayed one-shots aren't re-struck | unit tests (held notes, overlaps, clip ends); e2e: sound within 350 ms of starting mid-chord |
+| B4 | Effects rack, channel strips and instrument/drum outputs are kept per audio context, so an export builds its own and leaves the live ones alone | e2e: live effect racks stay at 1 across WAV/MP3/stem/MIDI exports |
+| B5 | AUDITION updates React only when the step changes; drum, FX, instrument and visualizer stores save debounced and skip transport/search state | e2e: at most 1 storage write in 1.5 s of AUDITION (was ~90) |
+| B6 | One duck per kick; a window's events are sorted by the time they sound | unit test on event order |
+| B7 | `Track.patch` (per-track instrument settings, editable from the library's new TRACK scope); project files carry the master effects and bake library edits into each track | unit tests: round trip of effects and patches; old files get default effects |
+| B8 | One undo history across stores: song settings in every entry, drum patterns and effects via history participants | unit tests; e2e: drum step and tempo undo |
+| B9 | Scheduler ticks from a Worker timer; lookahead widens when ticks run late; notes more than 50 ms overdue are dropped instead of bunched | Heaviest song at the Drop with the CPU throttled 4×: every note queued at least 74 ms ahead, none late (before: 3 within 5 ms, one 3 ms late). Same at 6× |
+| B10 | Generation counter in both schedulers | — (race window is one `await`) |
+| B11 | Drum AUDITION pauses while an export renders, skips missed steps, and is stopped by the export dialog | e2e export steps |
+| B12 | Deleting a drum pattern also removes its clips, as one undo step | — |
+| B13 | Orphaned note patterns are left out of the saved session; a full storage quota shows a notice once | unit test |
+| B14 | Electron 44 and electron-builder in devDependencies, icon, preload, sandbox, CSP, navigation and permission guards; fixed an invalid NSIS option | packaged Linux build launched under Xvfb: loads from `file://`, CSP clean, plays, exports MP3 (`npm run test:electron`) |
+| Smaller | Glide per track (chords glide together), voice stealing at the polyphony cap, strips start with the track's settings, debounced reverb impulse rebuild, arp cache keyed by identity (random mode no longer re-rolls each tick), dead code removed | unit tests + e2e |
+| P1 | Store context values memoised | Scrolling the arrangement measured at 60 fps (p95 16.7 ms) even with the CPU throttled 4×, so scroll state stays in the store for now |
+| P2 | Each lane redraws only when its own patterns change; ruler and piano roll redraw only on their own inputs | — |
+| P3 | Notes indexed by start time per pattern, looked up by binary search | 300 randomised cases match the per-note search exactly |
+| P4 | Automation written as one ramp per breakpoint (exponential for cutoff) instead of 8 samples per beat: a 32-beat note drops from 256 events to 4; pulse waves cached | unit tests: exact reproduction of the lane |
+| P5 | Export dialog and pipeline load on first use | main bundle 494 → 472 KB (142 → 132 KB gzipped). The preset table stays in the main bundle: playback needs it at startup |
 
 ---
 

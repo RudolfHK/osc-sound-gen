@@ -63,7 +63,8 @@ function startNoise(src: AudioBufferSourceNode, t: number, stopAt: number): void
 // ─── Drum synth ───────────────────────────────────────────────────────────────
 
 export class DrumSynth {
-  private output: GainNode | null = null;
+  /** Fallback output (no track strip) per audio context — the live one survives exports. */
+  private outputs = new WeakMap<BaseAudioContext, GainNode>();
   /** Hits that may still be ringing or are queued — cut off by a transport stop. */
   private hits = new VoicePool();
 
@@ -73,13 +74,14 @@ export class DrumSynth {
   }
 
   private getOutput(ctx: AudioContext): GainNode {
-    if (!this.output || this.output.context !== ctx) {
-      this.output = ctx.createGain();
-      this.output.gain.value = 1;
+    let out = this.outputs.get(ctx);
+    if (!out) {
+      out = ctx.createGain();
       const master = getAudioEngine().getMasterGain();
-      if (master) this.output.connect(master);
+      if (master) out.connect(master);
+      this.outputs.set(ctx, out);
     }
-    return this.output;
+    return out;
   }
 
   /**
@@ -113,7 +115,7 @@ export class DrumSynth {
     chanGain.connect(panner);
     panner.connect(out);
     // The longest hit (a crash with its decay stretched) rings for about 4 s
-    this.hits.add(chanGain, [], time + 4);
+    this.hits.add(chanGain, [], time, time + 4);
 
     // Ambience — a kit with no room around it is the giveaway that it is synthetic.
     // Cymbals and snares get the send; kicks and subs stay dry to keep the low end tight.

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { reducer, restoreState, makeInitialAppState, findClip, autoUndoKey } from './appStore';
-import { parseProject, serializeProject, guessPresetForNotes } from '../utils/project';
+import { reducer, restoreState, makeInitialAppState, findClip, autoUndoKey, referencedPatterns } from './appStore';
+import { DEFAULT_EFFECTS } from '../engine/effects';
+import { parseProject, serializeProject, guessPresetForNotes, parseEffects } from '../utils/project';
 import type { AppState } from '../engine/oscillator';
 
 const fresh = (): AppState => makeInitialAppState();
@@ -203,6 +204,54 @@ describe('undo', () => {
     s = reducer(s, { type: 'SEQ_REDO' });
     expect(s.sequencer.tracks[1].clips).toHaveLength(1);
   });
+  it('restores tempo, song length and other stores\' state', () => {
+    let s = fresh();
+    const drums = [{ id: 'dp', name: 'A', genre: 'x', stepCount: 16, swing: 0, voices: [] }];
+    s = reducer(s, { type: 'SEQ_PUSH_UNDO', extras: { drums } });
+    s = reducer(s, { type: 'SEQ_SET_BPM', bpm: 140 });
+    s = reducer(s, { type: 'SEQ_SET_SONG_LENGTH', bars: 40 });
+    const later = [...drums];
+    s = reducer(s, { type: 'SEQ_UNDO', extras: { drums: later } });
+    expect(s.sequencer.bpm).toBe(120);
+    expect(s.sequencer.songLengthBars).toBe(16);
+    // The drum store gets its recorded patterns back through an effect
+    expect(s.sequencer.pendingRestore?.extras.drums).toBe(drums);
+    s = reducer(s, { type: 'SEQ_REDO', extras: { drums } });
+    expect(s.sequencer.bpm).toBe(140);
+    expect(s.sequencer.pendingRestore?.extras.drums).toBe(later);
+  });
+
+  it('counts a change in another store as an undo step, and nothing else', () => {
+    let s = fresh();
+    const a = { reverbSize: 1 };
+    s = reducer(s, { type: 'SEQ_PUSH_UNDO', extras: { fx: a } });
+    s = reducer(s, { type: 'SEQ_PUSH_UNDO', extras: { fx: a } });
+    expect(s.sequencer.undoStack).toHaveLength(1);
+    s = reducer(s, { type: 'SEQ_PUSH_UNDO', extras: { fx: { reverbSize: 2 } } });
+    expect(s.sequencer.undoStack).toHaveLength(2);
+  });
+
+  it('gives each track its own instrument settings, cleared by a new sound', () => {
+    let s = fresh();
+    const t = s.sequencer.tracks.find((x) => x.source.type === 'preset')!;
+    s = reducer(s, { type: 'TRACK_SET_PATCH', trackId: t.id, patch: { cutoff: 800 } });
+    s = reducer(s, { type: 'TRACK_SET_PATCH', trackId: t.id, patch: { release: 2 } });
+    expect(s.sequencer.tracks.find((x) => x.id === t.id)!.patch).toEqual({ cutoff: 800, release: 2 });
+    s = reducer(s, { type: 'TRACK_SET_SOURCE', trackId: t.id, source: { type: 'preset', presetId: 'pad-warm' } });
+    expect(s.sequencer.tracks.find((x) => x.id === t.id)!.patch).toEqual({});
+  });
+
+  it('drops note patterns no clip uses when saving the session', () => {
+    let s = fresh();
+    const t = s.sequencer.tracks.find((x) => x.source.type === 'preset')!;
+    s = reducer(s, { type: 'CLIP_ADD', trackId: t.id, startBeat: 0, lengthBeats: 4 });
+    const clip = findClip(s.sequencer, s.sequencer.selectedClipId)!.clip;
+    expect(Object.keys(referencedPatterns(s.sequencer))).toContain(clip.patternId);
+    s = reducer(s, { type: 'CLIP_DELETE', clipId: clip.id });
+    expect(s.sequencer.patterns[clip.patternId]).toBeDefined(); // kept for undo
+    expect(referencedPatterns(s.sequencer)[clip.patternId]).toBeUndefined();
+  });
+
   it('records mixer and track edits, coalescing a single control gesture', () => {
     const id = 't';
     const fader = autoUndoKey({ type: 'SEQ_SET_CHANNEL', trackId: id, channel: { gain: 0.5 } });
@@ -259,6 +308,7 @@ describe('project files', () => {
         { id: 'dp-unused', name: 'B', genre: 'x', stepCount: 16, swing: 0, voices: [] },
       ],
       allOscillators: s.tabs,
+      effects: DEFAULT_EFFECTS,
     });
     expect(file.drumPatterns.map((d) => d.id)).toEqual(['dp-used']);
     expect(file.oscillators).toHaveLength(0); // nothing uses an oscillator
@@ -266,6 +316,35 @@ describe('project files', () => {
     const loaded = parseProject(JSON.parse(JSON.stringify(file)));
     expect(loaded.doc.tracks[0].clips).toHaveLength(1);
     expect(loaded.warnings).toEqual([]);
+  });
+
+  it('carries the master effects and each track\'s instrument settings', () => {
+    const s = fresh();
+    const keys = s.sequencer.tracks.find((t) => t.source.type === 'preset')!;
+    const presetId = keys.source.type === 'preset' ? keys.source.presetId : '';
+    const tracks = s.sequencer.tracks.map((t) => (t.id === keys.id ? { ...t, patch: { cutoff: 900 } } : t));
+    const file = serializeProject({
+      name: 'T', bpm: 120, beatsPerBar: 4, songLengthBars: 4,
+      loop: { enabled: false, startBeat: 0, endBeat: 16 }, masterVolume: 0.8,
+      doc: { tracks, patterns: {}, markers: [] },
+      allDrumPatterns: [], allOscillators: [],
+      effects: { ...DEFAULT_EFFECTS, reverbSize: 5, delayDivision: '1/16' },
+      // A library-wide edit to the same preset: baked in, the track's own value wins
+      libraryOverrides: { [presetId]: { cutoff: 2000, release: 1.5 } },
+    });
+    const loaded = parseProject(JSON.parse(JSON.stringify(file)));
+    expect(loaded.effects.reverbSize).toBe(5);
+    expect(loaded.effects.delayDivision).toBe('1/16');
+    expect(loaded.doc.tracks.find((t) => t.id === keys.id)!.patch).toEqual({ cutoff: 900, release: 1.5 });
+  });
+
+  it('falls back to default effects for older files and rejects bad values', () => {
+    expect(parseEffects(undefined)).toEqual(DEFAULT_EFFECTS);
+    const e = parseEffects({ reverbMix: 'loud', delayDivision: '1/3', chorusRate: 2, limiterEnabled: false });
+    expect(e.reverbMix).toBe(DEFAULT_EFFECTS.reverbMix);
+    expect(e.delayDivision).toBe(DEFAULT_EFFECTS.delayDivision);
+    expect(e.chorusRate).toBe(2);
+    expect(e.limiterEnabled).toBe(false);
   });
 
   it('rejects files that are not projects', () => {

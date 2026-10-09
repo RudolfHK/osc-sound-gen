@@ -29,8 +29,39 @@ function shipLgplNotice(): Plugin {
   };
 }
 
+/**
+ * Content-Security-Policy for the built app (web and Electron). Everything the
+ * app needs is bundled — scripts, workers, the audio worklet, examples — so
+ * nothing outside the app's own origin may run. Inline styles stay allowed:
+ * React sets them as `style` attributes. Only for builds: the dev server
+ * injects inline scripts for hot reload.
+ */
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "worker-src 'self' blob:",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "media-src 'self' blob:",
+  "connect-src 'self' blob: data:",
+  "font-src 'self' data:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+
+function contentSecurityPolicy(): Plugin {
+  return {
+    name: 'content-security-policy',
+    apply: 'build',
+    transformIndexHtml: () => [
+      { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP }, injectTo: 'head-prepend' },
+    ],
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), shipLgplNotice()],
+  plugins: [react(), tailwindcss(), shipLgplNotice(), contentSecurityPolicy()],
   // Relative base path so assets load correctly under both file:// (Electron)
   // and any web host root. Swap to '/subdir/' only if deploying to a subdirectory.
   base: './',

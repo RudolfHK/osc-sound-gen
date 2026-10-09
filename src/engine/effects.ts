@@ -146,7 +146,15 @@ interface BusNodes {
 
   chorusVoices: { delay: DelayNode; lfo: OscillatorNode; lfoGain: GainNode; panner: StereoPannerNode }[];
   chorusReturn: GainNode;
+
+  /** Shape of the impulse response currently loaded (−1 = none yet). */
+  irSize: number;
+  irDamp: number;
+  irTimer: ReturnType<typeof setTimeout> | null;
 }
+
+/** Re-rendering the reverb impulse costs a few ms; wait for a slider to settle. */
+const IR_DEBOUNCE_MS = 120;
 
 /**
  * A master send-effects rack. Instrument voices and drum hits connect their dry
@@ -154,10 +162,14 @@ interface BusNodes {
  * per-sound while the processing cost is paid once.
  */
 export class EffectsBus {
-  private nodes: BusNodes | null = null;
+  /**
+   * One rack per audio context. An export builds its own inside the offline
+   * context; the live rack is left as it is and used again afterwards, so an
+   * export no longer leaves a second, orphaned rack (and its running chorus
+   * LFOs) behind on the live output.
+   */
+  private byCtx = new WeakMap<BaseAudioContext, BusNodes>();
   private settings: EffectsSettings = { ...DEFAULT_EFFECTS };
-  private irSize = -1;
-  private irDamp = -1;
   private bpm = 120;
 
   // ─── Construction ───────────────────────────────────────────────────────────
@@ -218,9 +230,9 @@ export class EffectsBus {
       reverb, reverbReturn,
       delay, delayReturn,
       chorusVoices, chorusReturn,
+      irSize: -1, irDamp: -1, irTimer: null,
     };
 
-    this.irSize = -1; // force IR render
     this.applyTo(nodes, this.settings);
     return nodes;
   }
@@ -303,8 +315,9 @@ export class EffectsBus {
    * own fade-out has finished, or those last milliseconds would seed a new tail.
    */
   flushTails(fadeS = HARD_STOP_FADE_S): void {
-    const n = this.nodes;
-    if (!n || n.ctx !== getAudioEngine().getAudioContext()) return;
+    const ctxNow = getAudioEngine().getAudioContext();
+    const n = ctxNow ? this.byCtx.get(ctxNow) : undefined;
+    if (!n) return;
     const ctx = n.ctx;
     const now = ctx.currentTime;
     const openAt = now + fadeS + 0.003;
@@ -334,10 +347,12 @@ export class EffectsBus {
   private ensure(): BusNodes | null {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return null;
-    if (!this.nodes || this.nodes.ctx !== ctx) {
-      this.nodes = this.build(ctx);
+    let n = this.byCtx.get(ctx);
+    if (!n) {
+      n = this.build(ctx);
+      this.byCtx.set(ctx, n);
     }
-    return this.nodes;
+    return n;
   }
 
   // ─── Parameter updates ──────────────────────────────────────────────────────
@@ -347,11 +362,19 @@ export class EffectsBus {
     const now = ctx.currentTime;
     const TC = 0.02;
 
-    // Reverb — only re-render the impulse when its shape actually changed
-    if (s.reverbSize !== this.irSize || s.reverbDamp !== this.irDamp) {
-      n.reverb.convolver.buffer = buildImpulse(ctx, s.reverbSize, s.reverbDamp);
-      this.irSize = s.reverbSize;
-      this.irDamp = s.reverbDamp;
+    // Reverb — only re-render the impulse when its shape actually changed. The
+    // first impulse (and any offline render) is built at once; live slider
+    // moves rebuild once the slider settles rather than on every step.
+    if (s.reverbSize !== n.irSize || s.reverbDamp !== n.irDamp) {
+      const load = () => {
+        n.irTimer = null;
+        n.reverb.convolver.buffer = buildImpulse(ctx, s.reverbSize, s.reverbDamp);
+        n.irSize = s.reverbSize;
+        n.irDamp = s.reverbDamp;
+      };
+      if (n.irTimer !== null) clearTimeout(n.irTimer);
+      if (n.irSize < 0 || ctx instanceof OfflineAudioContext) load();
+      else n.irTimer = setTimeout(load, IR_DEBOUNCE_MS);
     }
     n.reverbReturn.gain.setTargetAtTime(s.reverbEnabled ? s.reverbMix : 0, now, TC);
 
@@ -386,10 +409,6 @@ export class EffectsBus {
     if (bpm === this.bpm) return;
     this.bpm = bpm;
     if (this.settings.delaySync) this.update(this.settings);
-  }
-
-  getSettings(): EffectsSettings {
-    return this.settings;
   }
 
   getDrumSends(): { reverb: number; delay: number } {

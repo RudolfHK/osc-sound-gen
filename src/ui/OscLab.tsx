@@ -142,6 +142,7 @@ export function OscLab() {
           state={activeTab.oscillator}
           advanced={activeTab.advanced}
           accentColor={activeTab.color}
+          isPlaying={activeTab.isPlaying}
           isMuted={activeTab.isMuted}
           isSolo={activeTab.solo}
           onStateChange={(osc) => changeOsc(activeTab.id, osc)}

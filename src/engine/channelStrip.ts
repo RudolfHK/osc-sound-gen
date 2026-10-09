@@ -40,11 +40,36 @@ interface Strip {
   sendChorus: GainNode;
   /** Duck depth from the track's settings, read when the kick fires. */
   sidechain: number;
+  /** Post-fader meter tap, made on first request. */
+  analyser: AnalyserNode | null;
+}
+
+/** What the mixer last asked of a track's strip. */
+interface Desired {
+  settings: ChannelSettings;
+  pan: number;
+  automated: Set<string>;
+  muted: boolean;
 }
 
 export class ChannelStripRack {
-  private strips = new Map<string, Strip>();
-  private ctxRef: AudioContext | null = null;
+  /**
+   * Strips per audio context. An export renders into an offline context that
+   * gets strips of its own; the live ones are left untouched and simply used
+   * again afterwards, so nothing is rebuilt or left dangling.
+   */
+  private byCtx = new WeakMap<BaseAudioContext, Map<string, Strip>>();
+  /** Last settings per track — a strip built later starts with them, not defaults. */
+  private desired = new Map<string, Desired>();
+
+  /** Strips of the current context. */
+  private get strips(): Map<string, Strip> {
+    const ctx = getAudioEngine().getAudioContext();
+    if (!ctx) return new Map();
+    let m = this.byCtx.get(ctx);
+    if (!m) { m = new Map(); this.byCtx.set(ctx, m); }
+    return m;
+  }
 
   // ─── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -52,14 +77,8 @@ export class ChannelStripRack {
   get(tabId: string): Strip | null {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return null;
-
-    // A new AudioContext invalidates every node we hold
-    if (this.ctxRef !== ctx) {
-      this.strips.clear();
-      this.ctxRef = ctx;
-    }
-
-    const existing = this.strips.get(tabId);
+    const strips = this.strips;
+    const existing = strips.get(tabId);
     if (existing) return existing;
 
     const master = getAudioEngine().getMasterGain();
@@ -111,9 +130,17 @@ export class ChannelStripRack {
 
     const strip: Strip = {
       ctx, input, duck, eqLow, eqMid, eqHigh, gain, panner,
-      sendReverb, sendDelay, sendChorus, sidechain: 0,
+      sendReverb, sendDelay, sendChorus, sidechain: 0, analyser: null,
     };
-    this.strips.set(tabId, strip);
+    strips.set(tabId, strip);
+
+    // Start at the track's real settings: a note auditioned before playback
+    // has ever started should already go through its fader, EQ and sends.
+    const d = this.desired.get(tabId);
+    if (d) {
+      this.write(strip, d, (param, value) => { param.value = value; });
+      input.gain.value = d.muted ? 0 : 1;
+    }
     return strip;
   }
 
@@ -135,12 +162,19 @@ export class ChannelStripRack {
     pan: number,
     automated: Set<string> = new Set(),
   ): void {
+    const prev = this.desired.get(tabId);
+    const d: Desired = { settings, pan, automated, muted: prev?.muted ?? false };
+    this.desired.set(tabId, d);
     const s = this.get(tabId);
     if (!s) return;
     const now = s.ctx.currentTime;
+    this.write(s, d, (param, value) => param.setTargetAtTime(value, now, TC));
+  }
+
+  private write(s: Strip, d: Desired, to: (param: AudioParam, value: number) => void): void {
+    const { settings, pan, automated } = d;
     const set = (name: string, param: AudioParam, value: number) => {
-      if (automated.has(name)) return;
-      param.setTargetAtTime(value, now, TC);
+      if (!automated.has(name)) to(param, value);
     };
 
     set('volume', s.gain.gain, settings.gain);
@@ -214,19 +248,17 @@ export class ChannelStripRack {
 
   // ─── Metering ───────────────────────────────────────────────────────────────
 
-  private analysers = new Map<string, AnalyserNode>();
-
-  /** Post-fader analyser for a track's meter, created on first request. */
+  /** Post-fader analyser for a track's live meter, created on first request. */
   getAnalyser(trackId: string): AnalyserNode | null {
+    if (getAudioEngine().isRenderingOffline) return null; // meters are for the live mix
     const s = this.get(trackId);
     if (!s) return null;
-    const existing = this.analysers.get(trackId);
-    if (existing && existing.context === s.ctx) return existing;
-    const a = s.ctx.createAnalyser();
-    a.fftSize = 512;
-    s.panner.connect(a);
-    this.analysers.set(trackId, a);
-    return a;
+    if (!s.analyser) {
+      s.analyser = s.ctx.createAnalyser();
+      s.analyser.fftSize = 512;
+      s.panner.connect(s.analyser);
+    }
+    return s.analyser;
   }
 
   // ─── Mute ───────────────────────────────────────────────────────────────────
@@ -236,6 +268,8 @@ export class ChannelStripRack {
    * that are already sounding and un-muting brings a held pad straight back.
    */
   setMute(trackId: string, muted: boolean): void {
+    const d = this.desired.get(trackId);
+    if (d) d.muted = muted;
     const s = this.get(trackId);
     if (!s) return;
     s.input.gain.setTargetAtTime(muted ? 0 : 1, s.ctx.currentTime, TC);
@@ -245,6 +279,9 @@ export class ChannelStripRack {
   retain(trackIds: Set<string>): void {
     for (const id of [...this.strips.keys()]) {
       if (!trackIds.has(id)) this.release(id);
+    }
+    for (const id of [...this.desired.keys()]) {
+      if (!trackIds.has(id)) this.desired.delete(id);
     }
   }
 
@@ -260,15 +297,10 @@ export class ChannelStripRack {
     const s = this.strips.get(tabId);
     if (!s) return;
     for (const n of [s.input, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
-                     s.sendReverb, s.sendDelay, s.sendChorus]) {
-      try { n.disconnect(); } catch (_) { /* already gone */ }
+                     s.sendReverb, s.sendDelay, s.sendChorus, s.analyser]) {
+      try { n?.disconnect(); } catch (_) { /* already gone */ }
     }
     this.strips.delete(tabId);
-    const a = this.analysers.get(tabId);
-    if (a) {
-      try { a.disconnect(); } catch (_) { /* already gone */ }
-      this.analysers.delete(tabId);
-    }
   }
 }
 

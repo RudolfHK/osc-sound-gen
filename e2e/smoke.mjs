@@ -59,6 +59,7 @@ async function step(name, fn) {
   } catch (err) {
     results.push({ name, ok: false, err: err.message });
     console.log(`  ✗ ${name}\n      ${err.message.split('\n')[0]}`);
+    if (process.env.E2E_SHOTS) await globalThis.__shot?.(name);
   }
 }
 const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
@@ -93,6 +94,14 @@ const AUDIO_TAP = () => {
       window.__oscCtx = this.context;
     }
     return origConnect.call(this, dest, ...rest);
+  };
+  // Whole effect racks built on the live context: only a rack's chorus uses
+  // 0.1 s delay lines, so counting those counts racks
+  window.__liveRacks = 0;
+  const origDelay = BaseAudioContext.prototype.createDelay;
+  BaseAudioContext.prototype.createDelay = function (max, ...a) {
+    if (!(this instanceof OfflineAudioContext) && max === 0.1) window.__liveRacks += 0.5;
+    return origDelay.call(this, max, ...a);
   };
   window.__level = (ms = 600) => new Promise((resolve) => {
     const ctx = window.__oscCtx;
@@ -132,6 +141,7 @@ try {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('dialog', (d) => d.accept());
 
+  globalThis.__shot = (name) => page.screenshot({ path: `${process.env.E2E_SHOTS}/${name.replace(/\W+/g, '-')}.png` }).catch(() => {});
   const button = (name) => page.getByRole('button', { name, exact: true }).first();  // reads the current `page`
   // Lanes render in track order; filled in once the starter tracks are known
   const trackIndex = {};
@@ -232,6 +242,40 @@ try {
     const box = await drums.boundingBox();
     await page.mouse.dblclick(box.x + 30, box.y + box.height / 2);
     await page.getByText('AUDITION', { exact: false }).first().waitFor({ timeout: 3000 });
+  });
+
+  await step('the drum AUDITION loop does not rewrite storage every frame', async () => {
+    await page.waitForTimeout(600); // let saves from the previous edits land
+    await button('▶ AUDITION').click();
+    await page.waitForTimeout(600);
+    const keys = await page.evaluate(() => new Promise((res) => {
+      const written = [];
+      const orig = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (...a) { written.push(a[0]); return orig.apply(this, a); };
+      setTimeout(() => { Storage.prototype.setItem = orig; res(written); }, 1500);
+    }));
+    await button('■ STOP').click();
+    // It used to rewrite the whole drum library about 60 times a second
+    assert(keys.length <= 1, `storage writes during 1.5 s of AUDITION: ${keys.join(', ')}`);
+  });
+
+  await step('drum edits and tempo changes are undoable', async () => {
+    const stepBtn = page.getByRole('button', { name: /step 2$/ }).first();
+    const was = await stepBtn.getAttribute('aria-pressed');
+    await stepBtn.click();
+    assert(await stepBtn.getAttribute('aria-pressed') !== was, 'step did not toggle');
+    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    await page.waitForTimeout(150);
+    assert(await stepBtn.getAttribute('aria-pressed') === was, 'undo did not restore the drum step');
+
+    const bpm = page.locator('input[inputmode="decimal"]');
+    const before = await bpm.inputValue();
+    await bpm.fill('133');
+    await bpm.press('Enter');
+    await page.waitForTimeout(100);
+    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    await page.waitForTimeout(150);
+    assert(await bpm.inputValue() === before, `tempo not restored (${await bpm.inputValue()} vs ${before})`);
   });
 
   let playingLevel = 0;
@@ -343,6 +387,7 @@ try {
     const after = await page.evaluate(() => window.__level(400));
     assert(after < 0.003, `old notes kept sounding after seek (peak ${after.toFixed(4)})`);
     await button('■ STOP').click();
+    await button('▶ PLAY').waitFor({ timeout: 3000 });
     await length.fill('16');
   });
 
@@ -368,9 +413,40 @@ try {
     assert(back > full * 0.4, `volume did not come straight back (${back.toFixed(4)} vs ${full.toFixed(4)})`);
   });
 
+  await step('starting inside a held chord is heard at once (note chase)', async () => {
+    // Midnight Drive's intro is a pad holding one chord per bar. Stop halfway
+    // into a chord, then play from there: the chord must sound immediately,
+    // not only when the next bar starts.
+    await page.getByTitle('Return to start (Home)').click();
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(1200); // ≈ beat 2.4 of a 4-beat chord at 118 BPM
+    await button('■ STOP').click();
+    await page.waitForTimeout(300);
+    await button('▶ PLAY').click();
+    const level = await page.evaluate(() => window.__level(350));
+    await button('■ STOP').click();
+    assert(level > 0.02, `silent after starting mid-chord (peak ${level.toFixed(4)})`);
+  });
+
+  await step('the header stays one row on a 1024 px laptop and fits a phone', async () => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.waitForTimeout(200);
+    const h1024 = await page.evaluate(() => document.querySelector('header').getBoundingClientRect().height);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(200);
+    const phone = await page.evaluate(() => ({
+      h: document.querySelector('header').getBoundingClientRect().height,
+      overflow: document.documentElement.scrollWidth > innerWidth,
+    }));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.waitForTimeout(200);
+    assert(h1024 < 50, `header is ${h1024}px tall at 1024px`);
+    assert(phone.h < 110 && !phone.overflow, `phone header ${phone.h}px, page overflow ${phone.overflow}`);
+  });
+
   await step('mixer, instruments and FX tabs render', async () => {
     await page.getByRole('tab', { name: 'MIXER' }).click();
-    await page.getByLabel('Master volume').waitFor({ timeout: 2000 });
+    await page.getByLabel('Master fader').waitFor({ timeout: 2000 });
     const strips = await page.getByLabel(/ fader$/).count();
     assert(strips >= 5, `expected a channel strip per track, saw ${strips}`);
     await page.getByRole('tab', { name: 'INSTRUMENTS' }).click();
@@ -383,6 +459,13 @@ try {
     await button('OSC LAB').click();
     await page.waitForTimeout(300);
     assert(await page.getByText('OVERLAY').count() > 0, 'lab did not open');
+    // Its play button follows the tone
+    await page.getByRole('button', { name: 'Start audio' }).click();
+    await page.getByRole('button', { name: 'Stop audio' }).waitFor({ timeout: 2000 });
+    const tone = await page.evaluate(() => window.__level(300));
+    await page.getByRole('button', { name: 'Stop audio' }).click();
+    await page.getByRole('button', { name: 'Start audio' }).waitFor({ timeout: 2000 });
+    assert(tone > 0.05, `lab tone silent (peak ${tone.toFixed(4)})`);
     await button('ARRANGE').click();
     await page.waitForSelector('[data-lane-track]');
   });
@@ -411,13 +494,15 @@ try {
   const SECTION_SECONDS = 16 / (118 / 60);  // Midnight Drive's Intro: 4 bars at 118 BPM
   const SONG_SECONDS = 64 / (118 / 60);
 
+  let racksBeforeExport = 0;
   await step('opens the export dialog from the transport', async () => {
+    racksBeforeExport = await page.evaluate(() => window.__liveRacks);
     // Make sure Midnight Drive is loaded — the export checks below depend on it
     await page.getByRole('button', { name: 'OSC ▾' }).click();
     await page.getByRole('menuitem', { name: /Open example/ }).hover();
     await page.getByRole('menu').getByRole('button', { name: 'midnight drive', exact: true }).click();
     await page.waitForTimeout(300);
-    await button('⤓ EXPORT').click();
+    await button('Export').click();
     await dialog().waitFor({ timeout: 3000 });
     await pick('Off', 'Normalize');  // settings persist between runs
   });
@@ -513,12 +598,21 @@ try {
     await dialog().getByRole('button', { name: 'Done', exact: true }).click();
   });
 
+  await step('exporting leaves the live audio graph alone (no leaked effect racks)', async () => {
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(400);
+    await button('■ STOP').click();
+    // Several exports and stems later, live playback still uses its one rack
+    const now = await page.evaluate(() => window.__liveRacks);
+    assert(racksBeforeExport === 1 && now === 1, `live effect racks: ${racksBeforeExport} before exporting, ${now} after`);
+  });
+
   await step('live recording is captured losslessly and exports as 32-bit float', async () => {
     await page.locator('main').click({ position: { x: 5, y: 5 } });
     await page.keyboard.press('Home');
-    await button('REC').click();                     // starts playback too
+    await button('Record').click();                  // starts playback too
     await page.waitForTimeout(1800);
-    await page.getByRole('button', { name: /^\d+:\d\d$/ }).click();   // the running REC button
+    await page.getByRole('button', { name: /^Stop recording/ }).click();   // the running REC button
     await page.getByRole('dialog', { name: 'Export' }).waitFor({ timeout: 4000 });
     assert(await page.getByText('EXPORT RECORDING').count() === 1, 'dialog did not open with the take');
     const f = await exportFile(async () => { await pick('WAV'); await pick('32-bit float'); });

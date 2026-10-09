@@ -66,6 +66,20 @@ export function ArrangementView({ onSeek, openDock }: Props) {
   }, [seq.tracks]);
   const anySolo = seq.tracks.some((t) => t.solo);
 
+  // The patterns each lane draws. A lane redraws when one of its own patterns
+  // changes — editing a note on one track no longer repaints every lane.
+  const lanePatternsRef = useRef(new Map<string, unknown[]>());
+  const lanePatterns = useMemo(() => {
+    const out = new Map<string, unknown[]>();
+    for (const t of seq.tracks) {
+      const list = t.clips.map((c) => (t.source.type === 'drums' ? drumPatterns.get(c.patternId) : seq.patterns[c.patternId]));
+      const prev = lanePatternsRef.current.get(t.id);
+      out.set(t.id, prev && prev.length === list.length && prev.every((p, i) => p === list[i]) ? prev : list);
+    }
+    lanePatternsRef.current = out;
+    return out;
+  }, [seq.tracks, seq.patterns, drumPatterns]);
+
   // Lanes column width drives every canvas
   useLayoutEffect(() => {
     const el = lanesRef.current;
@@ -352,7 +366,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
                     selectedClipId: seq.selectedClipId, isSelectedTrack: selected, dim,
                   })}
                   deps={[track, view, laneW, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat,
-                    seq.patterns, drumPatterns, patternUse, seq.selectedClipId, selected, dim, seq.beatsPerBar]}
+                    lanePatterns.get(track.id), patternUse, seq.selectedClipId, selected, dim, seq.beatsPerBar]}
                   view={view}
                 />
               </div>

@@ -326,6 +326,8 @@ interface ControlPanelProps {
   state: OscillatorState;
   advanced: AdvancedSettings;
   accentColor?: string;   // tab color, overrides advanced.colorTheme-derived color
+  /** The tab is sounding — drives the PLAY/STOP button. */
+  isPlaying: boolean;
   isMuted: boolean;
   isSolo: boolean;
   onStateChange: (s: OscillatorState) => void;
@@ -336,7 +338,7 @@ interface ControlPanelProps {
 }
 
 export function ControlPanel({
-  state, advanced, accentColor, isMuted, isSolo,
+  state, advanced, accentColor, isPlaying, isMuted, isSolo,
   onStateChange, onAdvancedChange, onTogglePlay, onToggleMute, onToggleSolo,
 }: ControlPanelProps) {
   const themeMap: Record<string, string> = {
@@ -406,7 +408,7 @@ export function ControlPanel({
           onChange={(v) => set('masterVolume', v)}
         />
         <div className="mt-4">
-          <PlayStopButton isPlaying={state.isPlaying} onToggle={onTogglePlay} color={color} />
+          <PlayStopButton isPlaying={isPlaying} onToggle={onTogglePlay} color={color} />
         </div>
       </div>
 

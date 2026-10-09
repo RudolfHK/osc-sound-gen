@@ -27,15 +27,14 @@ For a detailed setup walkthrough see [QUICKSTART.md](QUICKSTART.md). For full fe
 
 ## Quick Start (Desktop — Electron)
 
-The repo ships with an Electron main process at `electron/main.cjs`. To run the app as a native desktop window:
+The repo ships with an Electron main process at `electron/main.cjs` and the tooling to package it —
+`npm install` installs Electron and electron-builder along with everything else.
 
-### 1. Install Electron (one-time)
+The desktop window runs sandboxed: context isolation on, no Node access in the page, a small
+preload (`electron/preload.cjs`), a Content-Security-Policy that only allows the app's own files,
+no navigation away from the app, and permission requests denied by default.
 
-```bash
-npm install --save-dev electron electron-builder
-```
-
-### 2. Run in dev mode (hot-reload)
+### 1. Run in dev mode (hot-reload)
 
 Open two terminals:
 
@@ -47,10 +46,18 @@ npm run dev
 npm run electron:dev
 ```
 
-### 3. Build a distributable installer
+### 2. Build a distributable installer
 
 ```bash
-npm run electron:build
+npm run electron:build      # installer for this platform
+npm run electron:pack       # unpacked app only (quicker, for testing)
+```
+
+On Linux you can check a packaged build end to end — it launches the real app, plays an example
+and exports an MP3:
+
+```bash
+npm run electron:pack && xvfb-run -a npm run test:electron
 ```
 
 Output is placed in `release/`:
@@ -61,7 +68,12 @@ Output is placed in `release/`:
 | macOS    | `OSC Synthesizer-1.0.0.dmg` |
 | Linux    | `OSC Synthesizer-1.0.0.AppImage` |
 
-> **Icon files**: electron-builder needs `assets/icon.ico` (Windows), `assets/icon.icns` (macOS), `assets/icon.png` (Linux) before building. See [assets/ICONS.md](assets/ICONS.md) for conversion instructions.
+> **Icon**: `assets/icon.png` (1024×1024) is used for every platform; electron-builder derives the
+> Windows `.ico` and macOS `.icns` from it. See [assets/ICONS.md](assets/ICONS.md) to replace it.
+>
+> **`npm audit`** reports a moderate advisory in `sprintf-js`, pulled in by electron-builder's
+> download helper. It is a build-time tool only (nothing from it ships in the app) and no fixed
+> version of `sprintf-js` exists.
 
 For the complete Electron packaging guide including code signing and auto-updater, see [SHIPPING_PLAN.md](SHIPPING_PLAN.md).
 
@@ -80,9 +92,12 @@ For the complete Electron packaging guide including code signing and auto-update
 - Bar ruler: click to seek, drag to set the loop; a loop only engages when the playhead reaches it
 - Ctrl+wheel zoom around the cursor, Shift+wheel to scroll time, FIT to see the whole song
 - Track headers with rename, colour, volume, mute/solo (additive), automation toggle and a ⋯ menu
-- Undo/redo (↶/↷ in the transport, Ctrl+Z / Ctrl+Shift+Z) covers the whole document: clips, patterns,
-  sections, automation, instruments and every mixer control. A fader drag counts as one step
+- Undo/redo (↶/↷ in the transport, Ctrl+Z / Ctrl+Shift+Z) covers the whole song: clips, patterns,
+  sections, automation, instruments and their per-track settings, every mixer control, drum patterns,
+  master effects, tempo, meter, song length and loop. A fader drag counts as one step
 - Stop and seek are immediate: held notes, queued notes and reverb/delay tails are cut within ~4 ms
+- Starting or seeking into a held chord plays it straight away (note chase) instead of waiting for
+  the next note
 
 ### Editor dock
 - Arrange above, editor below — the Ableton/Logic/Bitwig layout. Tabs for **Editor**, **Mixer**, **Instruments**

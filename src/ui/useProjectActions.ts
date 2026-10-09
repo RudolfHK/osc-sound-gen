@@ -1,6 +1,9 @@
 import { useCallback } from 'react';
 import { useAppStore } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
+import { useEffectsStore, effectsSettingsOf } from '../store/effectsStore';
+import { useInstrumentStore } from '../store/instrumentStore';
+import { DEFAULT_EFFECTS } from '../engine/effects';
 import { parseProject, serializeProject, ProjectError } from '../utils/project';
 import { downloadBlob } from '../utils/wav';
 import { getSequencerEngine } from '../engine/sequencer';
@@ -26,6 +29,8 @@ export const EXAMPLES = Object.keys(EXAMPLE_FILES)
 export function useProjectActions() {
   const { state, dispatch } = useAppStore();
   const { state: drumState, dispatch: drumDispatch } = useDrumStore();
+  const { state: fxState, dispatch: fxDispatch } = useEffectsStore();
+  const { state: instState } = useInstrumentStore();
   const seq = state.sequencer;
 
   const stopTransport = useCallback(() => {
@@ -42,6 +47,7 @@ export function useProjectActions() {
         drumDispatch({ type: 'DRUM_IMPORT_PATTERNS', patterns: project.drumPatterns });
       }
       dispatch({ type: 'LOAD_PROJECT', project });
+      fxDispatch({ type: 'FX_LOAD', settings: project.effects });
       notify(`Loaded “${project.name}”.`);
       for (const w of project.warnings) notify(w, 'warn');
     } catch (err) {
@@ -51,7 +57,7 @@ export function useProjectActions() {
       notify(msg, 'error');
       console.error(err);
     }
-  }, [dispatch, drumDispatch, stopTransport]);
+  }, [dispatch, drumDispatch, fxDispatch, stopTransport]);
 
   const saveProject = useCallback(() => {
     const project = serializeProject({
@@ -64,11 +70,13 @@ export function useProjectActions() {
       doc: { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers },
       allDrumPatterns: drumState.patterns,
       allOscillators: state.tabs,
+      effects: effectsSettingsOf(fxState),
+      libraryOverrides: instState.overrides,
     });
     const safe = state.projectName.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'project';
     downloadBlob(new Blob([JSON.stringify(project, null, 1)], { type: 'application/json' }), `${safe}.oscproject`);
     notify(`Saved ${safe}.oscproject`);
-  }, [state, seq, drumState.patterns]);
+  }, [state, seq, drumState.patterns, fxState, instState.overrides]);
 
   const openProject = useCallback(() => {
     const input = document.createElement('input');
@@ -92,7 +100,8 @@ export function useProjectActions() {
     if (hasContent && !window.confirm('Start a new project? Unsaved changes to this one will be lost.')) return;
     stopTransport();
     dispatch({ type: 'NEW_PROJECT' });
-  }, [seq.tracks, dispatch, stopTransport]);
+    fxDispatch({ type: 'FX_LOAD', settings: DEFAULT_EFFECTS });
+  }, [seq.tracks, dispatch, fxDispatch, stopTransport]);
 
   return { saveProject, openProject, loadExample, newProject };
 }

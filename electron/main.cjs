@@ -1,7 +1,10 @@
 'use strict';
 
-const { app, BrowserWindow, shell, Menu } = require('electron');
+const { app, BrowserWindow, shell, Menu, session } = require('electron');
 const path = require('path');
+
+/** Only these permission requests are granted; everything else is denied. */
+const ALLOWED_PERMISSIONS = new Set(['clipboard-sanitized-write']);
 
 // True when running from source with `electron .`; false when installed
 const isDev = !app.isPackaged;
@@ -14,15 +17,14 @@ function createWindow() {
     minHeight: 600,
     backgroundColor: '#0a0a0a',
     title: 'OSC — Digital Oscillator Synthesizer',
-    // Use icon from assets/ dir when packaged; fallback to favicon in public/
-    ...(process.platform !== 'darwin' && {
-      icon: isDev
-        ? path.join(__dirname, '../public/favicon.svg')
-        : path.join(__dirname, '../dist/favicon.svg'),
-    }),
+    // macOS takes the icon from the app bundle
+    ...(process.platform !== 'darwin' && { icon: path.join(__dirname, '../assets/icon.png') }),
     webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
+      webSecurity: true,
     },
     show: false,  // show once ready to avoid white flash
   });
@@ -43,10 +45,16 @@ function createWindow() {
     win.show();
   });
 
-  // Open any <a target="_blank"> links in the system browser
+  // Open web links in the system browser; never open app windows from content
   win.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    if (/^https?:\/\//.test(url)) shell.openExternal(url);
     return { action: 'deny' };
+  });
+
+  // The app is a single page: it never navigates away from itself
+  win.webContents.on('will-navigate', (event, url) => {
+    const own = url.startsWith('file://') || (isDev && url.startsWith('http://localhost:5173'));
+    if (!own) event.preventDefault();
   });
 }
 
@@ -80,6 +88,9 @@ function buildMenu() {
 }
 
 app.whenReady().then(() => {
+  session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => {
+    callback(ALLOWED_PERMISSIONS.has(permission));
+  });
   buildMenu();
   createWindow();
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAppStore } from '../store/appStore';
 import {
   SEMITONE_H, KEY_W, RULER_H, MIN_NOTE_W, SNAP_BEATS,
@@ -40,7 +40,7 @@ const KEY_MIDI: Record<string, number> = {
 export function previewNote(track: Track, tabs: OscillatorTab[], midi: number, velocity = 100): void {
   void getAudioEngine().getOrCreateAudioContext().then((ctx) => {
     const t = ctx.currentTime + 0.01;
-    const opts = { trackId: track.id };
+    const opts = { trackId: track.id, patch: track.patch };
     const src = track.source;
     if (src.type === 'preset') {
       getInstrumentEngine().playNote(src.presetId, midi, velocity, t, 0.45, opts);
@@ -224,12 +224,12 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
   const [selRect, setSelRect] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const dragRef = useRef<Drag | null>(null);
 
-  const vp: ViewParams = {
+  const vp: ViewParams = useMemo(() => ({
     pxPerBeat: seq.pxPerBeat,
     viewStartBeat: seq.viewStartBeat,
     viewLowNote: seq.viewLowNote,
     viewHighNote: seq.viewHighNote,
-  };
+  }), [seq.pxPerBeat, seq.viewStartBeat, seq.viewLowNote, seq.viewHighNote]);
   const gridH = (vp.viewHighNote - vp.viewLowNote + 1) * SEMITONE_H;
   const totalH = Math.max(height, RULER_H + gridH) + (seq.showVelocityLane ? VEL_LANE_H : 0);
   const canvasH = RULER_H + gridH + (seq.showVelocityLane ? VEL_LANE_H : 0);
@@ -249,8 +249,12 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
   }, []);
 
   // ── Draw (data changes only — the playhead is a separate overlay) ──
-  const selectedSet = new Set(seq.selectedNoteIds);
+  // Only this editor's inputs trigger a redraw, not every change elsewhere in
+  // the app (scrolling the arrangement, moving a fader).
+  const selectedNoteIds = seq.selectedNoteIds;
+  const { beatsPerBar, showVelocityLane } = seq;
   useLayoutEffect(() => {
+    const selectedSet = new Set(selectedNoteIds);
     const c = canvasRef.current;
     if (!c) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -262,8 +266,8 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawPianoRoll(ctx, width, canvasH, pattern, track.color, vp, selectedSet,
-      { beatsPerBar: seq.beatsPerBar, showVelocityLane: seq.showVelocityLane }, selRect);
-  }); // cheap; runs only when this component re-renders
+      { beatsPerBar, showVelocityLane }, selRect);
+  }, [width, canvasH, pattern, track.color, vp, selectedNoteIds, beatsPerBar, showVelocityLane, selRect]);
 
   // ── Playhead overlay: the song position mapped into this pattern ──
   useEffect(() => {

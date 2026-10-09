@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAppStore, useAccent } from '../store/appStore';
 import { sectionsFromMarkers, SECTION_COLORS, type Marker } from '../utils/music';
 import { ContextMenu, type MenuItem } from '../ui/ContextMenu';
@@ -32,7 +32,7 @@ export function Ruler({ view, width, onSeek }: Props) {
   const [renaming, setRenaming] = useState<{ id: string; x: number; value: string } | null>(null);
 
   const songEnd = seq.songLengthBars * seq.beatsPerBar;
-  const sections = sectionsFromMarkers(seq.markers, songEnd);
+  const sections = useMemo(() => sectionsFromMarkers(seq.markers, songEnd), [seq.markers, songEnd]);
   const bar = seq.beatsPerBar;
 
   // ── Render ──

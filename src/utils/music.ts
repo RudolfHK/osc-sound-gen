@@ -121,6 +121,30 @@ export interface Pattern {
   notes: SequencerNote[];
 }
 
+/**
+ * A track's own instrument settings, layered over its preset (and over any
+ * library-wide edits to that preset). Keys match the instrument library's
+ * parameter editor; anything not set comes from the preset.
+ */
+export interface InstrumentPatch {
+  volume?: number;
+  pan?: number;
+  attack?: number;
+  decay?: number;
+  sustain?: number;
+  release?: number;
+  cutoff?: number;
+  resonance?: number;
+  drive?: number;
+  detune?: number;
+  octave?: number;
+  glide?: number;
+  width?: number;
+  reverbSend?: number;
+  delaySend?: number;
+  chorusSend?: number;
+}
+
 export interface Track {
   id: string;
   name: string;
@@ -133,6 +157,8 @@ export interface Track {
   arp: ArpSettings;
   channel: ChannelSettings;
   lanes: AutomationLane[];
+  /** Instrument settings for this track only (preset tracks). */
+  patch: InstrumentPatch;
   /** Arrangement UI: automation lane expanded under the track, and which lane. */
   showAutomation: boolean;
   activeLaneId: string | null;
@@ -144,6 +170,26 @@ export interface Marker {
   beat: number;
   name: string;
   color: string;
+}
+
+/** Song-wide settings that undo restores along with the document. */
+export interface SongSettings {
+  bpm: number;
+  beatsPerBar: number;
+  songLengthBars: number;
+  loopEnabled: boolean;
+  loopStartBeat: number;
+  loopEndBeat: number;
+}
+
+/**
+ * One undo step: the document, the song settings, and the undoable state of
+ * the other stores (drum patterns, master effects), keyed by store.
+ */
+export interface UndoEntry {
+  doc: DocSnapshot;
+  song: SongSettings;
+  extras: Record<string, unknown>;
 }
 
 /** The undoable part of the sequencer — what a project file is made of. */
@@ -190,6 +236,7 @@ export function makeTrack(opts: {
     arp: makeDefaultArp(),
     channel: makeDefaultChannel(),
     lanes: [],
+    patch: {},
     showAutomation: false,
     activeLaneId: null,
   };
@@ -227,9 +274,20 @@ export function normalizeTrack(t: Partial<Track> & { id: string }, index = 0): T
       ...l,
       points: [...(l.points ?? [])].sort((a, b) => a.beat - b.beat),
     })),
+    patch: normalizePatch(t.patch),
     showAutomation: !!t.showAutomation,
     activeLaneId: t.activeLaneId ?? null,
   };
+}
+
+/** Keep only finite numbers — a patch comes from saved files. */
+export function normalizePatch(p: unknown): InstrumentPatch {
+  if (!p || typeof p !== 'object') return {};
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(p as Record<string, unknown>)) {
+    if (typeof v === 'number' && Number.isFinite(v)) out[k] = v;
+  }
+  return out as InstrumentPatch;
 }
 
 /** Effective mute for each track, honouring solo. */
@@ -290,8 +348,13 @@ export interface SequencerState {
   // Arrangement view
   arrStartBeat: number;
   arrPxPerBeat: number;
-  undoStack: DocSnapshot[];
-  redoStack: DocSnapshot[];
+  undoStack: UndoEntry[];
+  redoStack: UndoEntry[];
+  /**
+   * Set by undo/redo: the other stores' state to put back. Applied by an
+   * effect, since a reducer can't reach into another store.
+   */
+  pendingRestore: { id: number; extras: Record<string, unknown> } | null;
 }
 
 export function makeDefaultSequencerState(): SequencerState {
@@ -325,6 +388,7 @@ export function makeDefaultSequencerState(): SequencerState {
     arrPxPerBeat: 18,
     undoStack: [],
     redoStack: [],
+    pendingRestore: null,
   };
 }
 
@@ -351,37 +415,11 @@ export function beatsToSeconds(beats: number, bpm: number): number {
   return beats * (60 / bpm);
 }
 
-export function secondsToBeats(seconds: number, bpm: number): number {
-  return seconds * (bpm / 60);
-}
-
 /** Snap a beat position to the nearest grid line. Returns raw beat if shift held. */
 export function snapBeat(beat: number, snap: SnapValue, shiftHeld = false): number {
   if (shiftHeld) return beat;
   const grid = SNAP_BEATS[snap];
   return Math.round(beat / grid) * grid;
-}
-
-/** Format beat position as MM:SS.d */
-export function formatBeatsAsTime(beats: number, bpm: number): string {
-  const total = beatsToSeconds(beats, bpm);
-  const m = Math.floor(total / 60);
-  const s = Math.floor(total % 60);
-  const d = Math.floor((total * 10) % 10);
-  return `${m}:${String(s).padStart(2, '0')}.${d}`;
-}
-
-/** Beat → bar and beat-within-bar (1-based display). */
-export function beatToBarBeat(beat: number, bpb: number): { bar: number; beat: number } {
-  const b = Math.max(0, beat);
-  return { bar: Math.floor(b / bpb) + 1, beat: Math.floor(b % bpb) + 1 };
-}
-
-// ─── Note ID generator ────────────────────────────────────────────────────────
-
-let _nid = 0;
-export function makeNoteId(): string {
-  return `n-${Date.now()}-${_nid++}`;
 }
 
 // ─── Piano grid constants (used by PianoRoll and SequencerEngine) ─────────────

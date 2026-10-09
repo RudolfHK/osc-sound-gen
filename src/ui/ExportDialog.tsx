@@ -45,7 +45,7 @@ export function ExportDialog() {
 
 function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
   const { state, dispatch } = useAppStore();
-  const { state: drumState } = useDrumStore();
+  const { state: drumState, dispatch: drumDispatch } = useDrumStore();
   const { state: effects } = useEffectsStore();
   const { take } = useExportState();
   const accent = useAccent();
@@ -110,10 +110,12 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
         res = await exportTake(take!, settings, `${state.projectName}-recording`, setProgress, ac.signal);
       } else {
         // The renderer borrows the audio engine; live playback has to stop first
+        // (and so does the drum editor's AUDITION loop)
         if (seq.isPlaying) {
           getSequencerEngine().stop();
           dispatch({ type: 'SEQ_SET_PLAYING', playing: false });
         }
+        if (drumState.isPlaying) drumDispatch({ type: 'DRUM_SET_PLAYING', playing: false });
         res = await exportArrangement(
           { seq, tabs: state.tabs, drumPatterns: drumState.patterns, effects, masterVolume: state.masterVolume },
           settings, { startBeat: range.startBeat, endBeat: range.endBeat, label: range.file },

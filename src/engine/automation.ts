@@ -12,6 +12,8 @@ interface TargetSpec {
   format: (real: number) => string;
   /** Lane value used where no automation exists. */
   neutral: number;
+  /** `toReal` is exponential in the lane value, so straight lane segments are exponential ramps. */
+  exponential?: boolean;
 }
 
 /** Cutoff sweeps must be exponential or the top octave eats the whole lane. */
@@ -33,6 +35,7 @@ export const AUTOMATION_TARGETS: Record<AutomationTarget, TargetSpec> = {
   },
   cutoff: {
     label: 'Filter Cutoff', color: '#f43f5e', neutral: 1,
+    exponential: true,
     toReal: (v) => CUTOFF_MIN * Math.pow(CUTOFF_RATIO, v),
     toNorm: (r) => Math.log(Math.max(CUTOFF_MIN, r) / CUTOFF_MIN) / Math.log(CUTOFF_RATIO),
     format: (r) => r >= 1000 ? `${(r / 1000).toFixed(2)} kHz` : `${Math.round(r)} Hz`,
@@ -83,9 +86,6 @@ export const AUTOMATION_TARGETS: Record<AutomationTarget, TargetSpec> = {
 
 export const AUTOMATION_TARGET_LIST = Object.keys(AUTOMATION_TARGETS) as AutomationTarget[];
 
-/** Targets that shape an individual voice, so they are baked in at note start. */
-export const VOICE_TARGETS: AutomationTarget[] = ['cutoff', 'resonance', 'drive'];
-
 /** Targets that live on the track's channel strip and move continuously. */
 export const CHANNEL_TARGETS: AutomationTarget[] = [
   'volume', 'pan', 'sendReverb', 'sendDelay', 'sendChorus', 'eqLow', 'eqMid', 'eqHigh',
@@ -133,16 +133,13 @@ export function findLane(
 
 // ─── Scheduling onto AudioParams ──────────────────────────────────────────────
 
-/** How finely a lane is sampled when written onto an AudioParam. */
-const RAMP_STEPS_PER_BEAT = 8;
-const MAX_RAMP_POINTS = 400;
-
 /**
  * Write a lane onto an AudioParam across a time span.
  *
- * Sampling rather than mapping breakpoints one-to-one keeps a long sustained
- * note moving even when the lane's points are far apart, which is the whole
- * point of automating a filter under a held chord.
+ * A lane is straight between its points, so it is written exactly as one ramp
+ * per point: linear ramps for linear targets, exponential ramps for cutoff
+ * (whose lane is linear in octaves). A long sustained note keeps moving with
+ * the lane for its whole length, at a handful of events instead of hundreds.
  */
 export function scheduleLaneOnParam(
   param: AudioParam,
@@ -151,24 +148,22 @@ export function scheduleLaneOnParam(
   durationS: number,
   startBeat: number,
   bpm: number,
-  transform?: (real: number) => number,
 ): void {
   const spec = AUTOMATION_TARGETS[lane.target];
-  const beatsPerSecond = bpm / 60;
-  const beats = durationS * beatsPerSecond;
-  const steps = Math.max(1, Math.min(MAX_RAMP_POINTS, Math.ceil(beats * RAMP_STEPS_PER_BEAT)));
-
-  const valueAt = (i: number) => {
-    const frac = i / steps;
-    const real = spec.toReal(laneValueAt(lane, startBeat + beats * frac));
-    return transform ? transform(real) : real;
+  const bps = bpm / 60;
+  const endBeat = startBeat + Math.max(0, durationS) * bps;
+  const at = (beat: number) => startTime + (beat - startBeat) / bps;
+  const ramp = (value: number, time: number) => {
+    if (spec.exponential) param.exponentialRampToValueAtTime(Math.max(1e-4, value), time);
+    else param.linearRampToValueAtTime(value, time);
   };
 
   param.cancelScheduledValues(startTime);
-  param.setValueAtTime(valueAt(0), startTime);
-  for (let i = 1; i <= steps; i++) {
-    param.linearRampToValueAtTime(valueAt(i), startTime + durationS * (i / steps));
+  param.setValueAtTime(spec.toReal(laneValueAt(lane, startBeat)), startTime);
+  for (const p of lane.points) {
+    if (p.beat > startBeat && p.beat < endBeat) ramp(spec.toReal(p.value), at(p.beat));
   }
+  ramp(spec.toReal(laneValueAt(lane, endBeat)), startTime + Math.max(0, durationS));
 }
 
 // ─── Point helpers used by the editor ─────────────────────────────────────────

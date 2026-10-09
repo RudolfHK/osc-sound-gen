@@ -16,6 +16,8 @@ export const HARD_STOP_FADE_S = 0.004;
 interface Voice {
   gate: GainNode;
   sources: AudioScheduledSourceNode[];
+  /** Context time the voice starts. */
+  start: number;
   /** Context time after which the voice is certainly silent. */
   end: number;
 }
@@ -23,11 +25,11 @@ interface Voice {
 export class VoicePool {
   private voices = new Set<Voice>();
 
-  add(gate: GainNode, sources: AudioScheduledSourceNode[], end: number): Voice {
+  add(gate: GainNode, sources: AudioScheduledSourceNode[], start: number, end: number): Voice {
     // Voices that end on their own are removed by the owner; ones that never
     // report back (drum hits) are pruned here once they've finished.
     if (this.voices.size > 256) this.prune(gate.context.currentTime);
-    const v: Voice = { gate, sources, end };
+    const v: Voice = { gate, sources, start, end };
     this.voices.add(v);
     return v;
   }
@@ -48,17 +50,38 @@ export class VoicePool {
   silence(fadeS = HARD_STOP_FADE_S): void {
     for (const v of this.voices) {
       const now = v.gate.context.currentTime;
-      if (v.end <= now) continue;
-      const g = v.gate.gain;
-      holdAt(g, now);
-      g.linearRampToValueAtTime(0, now + fadeS);
-      for (const s of v.sources) {
-        // A later stop() replaces the earlier one; stopping before the start
-        // time means the source never sounds at all.
-        try { s.stop(now + fadeS + 0.002); } catch { /* not started or already stopped */ }
-      }
+      if (v.end > now) this.cut(v, now, fadeS);
     }
     this.voices.clear();
+  }
+
+  /**
+   * Make room at the polyphony limit by fading out the voice that started
+   * first — what hardware synths do. Dropping the new note instead would lose
+   * exactly the note the listener is waiting for.
+   */
+  stealOldest(ctx: BaseAudioContext, fadeS = 0.015): boolean {
+    const now = ctx.currentTime;
+    let oldest: Voice | null = null;
+    for (const v of this.voices) {
+      if (v.gate.context !== ctx || v.end <= now) continue;
+      if (!oldest || v.start < oldest.start) oldest = v;
+    }
+    if (!oldest) return false;
+    this.cut(oldest, now, fadeS);
+    this.voices.delete(oldest);
+    return true;
+  }
+
+  private cut(v: Voice, now: number, fadeS: number): void {
+    const g = v.gate.gain;
+    holdAt(g, now);
+    g.linearRampToValueAtTime(0, now + fadeS);
+    for (const s of v.sources) {
+      // A later stop() replaces the earlier one; stopping before the start
+      // time means the source never sounds at all.
+      try { s.stop(now + fadeS + 0.002); } catch { /* not started or already stopped */ }
+    }
   }
 
   private prune(now: number): void {

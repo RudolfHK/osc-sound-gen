@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  windowSegments, monoToSong, loopEngaged, occurrences, eventsInWindow,
+  windowSegments, monoToSong, loopEngaged, occurrences, eventsInWindow, heldNotesAt, eventTime,
   type LoopConfig, type TimelineInput, type TimelineEvent,
 } from './timeline';
 import { makeTrack, makePattern, makeClip, type SequencerNote } from '../utils/music';
@@ -99,7 +99,7 @@ describe('eventsInWindow', () => {
   it('finds note repeats and truncates notes at the clip end', () => {
     const ev = eventsInWindow(buildInput(), 0, 6, { enabled: false, start: 0, end: 0 }, false)
       .filter((e) => e.kind === 'note');
-    expect(ev.map((e) => e.songBeat)).toEqual([0, 2, 4, 1.5, 3.5, 5.5]);
+    expect(ev.map((e) => e.songBeat)).toEqual([0, 1.5, 2, 3.5, 4, 5.5]);
     const last = ev.find((e) => e.songBeat === 5.5)!;
     // A 3-beat note starting at 5.5 in a clip ending at 6 sounds for half a beat
     expect(last.kind === 'note' && last.durationBeats).toBeCloseTo(0.5);
@@ -114,6 +114,14 @@ describe('eventsInWindow', () => {
     expect(kicks.every((e) => e.kind === 'drum' && e.swingBeats === 0)).toBe(true);
     const snare = ev.find((e) => e.kind === 'drum' && e.voice.id === 'snare')!;
     expect(snare.kind === 'drum' && snare.swingBeats).toBeCloseTo(0.4 * 0.25 * 0.5);
+  });
+
+  it('returns events in the order they sound, swing included', () => {
+    // A kick's sidechain duck rewrites the envelope from its own time onward,
+    // so an earlier event emitted after a later one would erase it
+    const ev = eventsInWindow(buildInput(true), 0, 8, { enabled: true, start: 0, end: 4 }, true);
+    const times = ev.map(eventTime);
+    expect(times).toEqual([...times].sort((x, y) => x - y));
   });
 
   it('emits accented metronome clicks on the bar', () => {
@@ -144,4 +152,67 @@ describe('eventsInWindow', () => {
       expect(new Set(pieces).size).toBe(pieces.length);
     });
   }
+});
+
+describe('note chase', () => {
+  it('finds notes still held at the start position, with their remaining length', () => {
+    const held = heldNotesAt(buildInput(), 2.5);
+    const byNote = Object.fromEntries(held.map((e) => [e.midiNote, e]));
+    // 60 started at 2 (1 beat long), 64 started at 1.5 (3 beats long)
+    expect(Object.keys(byNote).sort()).toEqual(['60', '64']);
+    expect(byNote[60].durationBeats).toBeCloseTo(0.5);
+    expect(byNote[60].intoBeats).toBeCloseTo(0.5);
+    expect(byNote[64].durationBeats).toBeCloseTo(2);
+    expect(byNote[64].intoBeats).toBeCloseTo(1);
+    expect(held.every((e) => e.songBeat === 2.5 && e.monoBeat === 2.5)).toBe(true);
+  });
+
+  it('leaves notes starting exactly at the position to the normal scheduler', () => {
+    const held = heldNotesAt(buildInput(), 2);
+    expect(held.map((e) => e.midiNote)).toEqual([64]);
+  });
+
+  it('respects the clip end and skips nearly finished notes', () => {
+    // 64 is three beats long in a two-beat pattern, so the repeats from 3.5
+    // and 5.5 overlap there — and both are cut at the clip end (6)
+    expect(heldNotesAt(buildInput(), 5.75).map((e) => [e.intoBeats, e.durationBeats])).toEqual([[2.25, 0.25], [0.25, 0.25]]);
+    expect(heldNotesAt(buildInput(), 5.8)).toEqual([]);
+    // Outside any clip
+    expect(heldNotesAt(buildInput(), 7)).toEqual([]);
+  });
+});
+
+describe('indexed note lookup', () => {
+  // Deterministic pseudo-random numbers so a failure is reproducible
+  let seed = 12345;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+
+  it('finds exactly the notes the per-note search finds', () => {
+    for (let trial = 0; trial < 300; trial++) {
+      const P = [1, 2, 3, 4, 4.5, 8][Math.floor(rnd() * 6)];
+      const notes: SequencerNote[] = Array.from({ length: 1 + Math.floor(rnd() * 12) }, (_, i) => ({
+        id: `n${i}`,
+        midiNote: 60 + i,
+        // Some notes sit on the grid, some off it, some past the pattern end
+        startBeat: rnd() < 0.5 ? Math.floor(rnd() * P * 4) / 4 : rnd() * P * 1.2,
+        durationBeats: 0.25 + rnd() * 2,
+        velocity: 100,
+      }));
+      const pat = makePattern('R', P, notes);
+      const track = makeTrack({ name: 'R', source: { type: 'preset', presetId: 'keys-epiano' } });
+      const clip = { ...makeClip(pat.id, Math.floor(rnd() * 8), 0.5 + rnd() * 20), offsetBeats: rnd() * P * 2 };
+      track.clips = [clip];
+      const input: TimelineInput = {
+        tracks: [track], patterns: { [pat.id]: pat }, drumPatterns: new Map(),
+        notesFor: (_t, p) => p.notes, metronome: false, beatsPerBar: 4,
+      };
+      const a = rnd() * 30;
+      const b = a + rnd() * 3;
+      const got = eventsInWindow(input, a, b, { enabled: false, start: 0, end: 0 }, false)
+        .map((e) => (e.kind === 'note' ? `${e.midiNote}@${e.songBeat.toFixed(6)}` : '')).sort();
+      const expected = notes.flatMap((n) => occurrences(clip, P, n.startBeat, a, b)
+        .map((at) => `${n.midiNote}@${at.toFixed(6)}`)).sort();
+      expect(got, `trial ${trial}`).toEqual(expected);
+    }
+  });
 });

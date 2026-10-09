@@ -3,21 +3,29 @@ import { getChannelRack } from './channelStrip';
 import { getInstrumentEngine } from './instruments';
 import { getDrumSynth } from './sampler';
 import { getEffectsBus } from './effects';
-import { emitEvent } from './emit';
-import { expandArpCached } from './arpeggiator';
+import { emitEvent, worthChasing } from './emit';
+import { expandArpCached, pruneArpCache } from './arpeggiator';
+import { Ticker } from './ticker';
 import { AUTOMATION_TARGETS, CHANNEL_TARGETS, laneValueAt } from './automation';
 import { setPlayhead } from './playhead';
 import {
-  eventsInWindow, loopEngaged, monoToSong,
+  eventsInWindow, heldNotesAt, loopEngaged, monoToSong,
   type LoopConfig, type TimelineEvent, type TimelineInput,
 } from './timeline';
-import { SNAP_BEATS, effectiveTrackMutes } from '../utils/music';
-import type { SequencerState, SnapValue, Track } from '../utils/music';
+import { effectiveTrackMutes } from '../utils/music';
+import type { SequencerState, Track } from '../utils/music';
 import type { OscillatorTab } from './oscillator';
 import type { DrumPattern } from '../store/drumStore';
 
-const SCHEDULE_AHEAD_S = 0.12; // schedule 120ms ahead
-const SCHEDULER_MS = 25;       // run scheduler every 25ms
+const SCHEDULER_MS = 25;       // run the scheduler every 25 ms
+/** Normal lookahead. Grows when ticks arrive late (a busy or slow machine). */
+const LOOKAHEAD_MIN_S = 0.12;
+const LOOKAHEAD_MAX_S = 0.4;
+/**
+ * After a stall longer than this (the tab was frozen, the machine swapped),
+ * the notes that were missed are dropped rather than all fired at once.
+ */
+const MAX_OVERDUE_S = 0.05;
 /** Channel automation is written in chunks this many beats long. */
 const AUTOMATION_CHUNK_BEATS = 0.25;
 
@@ -53,7 +61,14 @@ export class SequencerEngine {
   /** Last mix state pushed, reapplied after a stop drops automation. */
   private lastSeq: SequencerState | null = null;
 
-  private schedulerTimer: ReturnType<typeof setTimeout> | null = null;
+  private ticker = new Ticker();
+  private lookahead = LOOKAHEAD_MIN_S;
+  private lastTickAt = 0;
+  /**
+   * Bumped by every play and stop. `play` awaits the audio context; if a stop
+   * (or another play) happens meanwhile, the stale play must not start.
+   */
+  private generation = 0;
   private rafId = 0;
 
   // ─── Configuration ──────────────────────────────────────────────────────────
@@ -61,6 +76,7 @@ export class SequencerEngine {
   private configure({ seq, tabs, drumPatterns }: EngineInput): void {
     this.tracks = seq.tracks;
     this.tabs = new Map(tabs.map((t) => [t.id, t]));
+    pruneArpCache(new Set(seq.tracks.flatMap((t) => t.clips.map((c) => `${t.id}:${c.patternId}`))));
     this.input = {
       tracks: seq.tracks,
       patterns: seq.patterns,
@@ -92,8 +108,10 @@ export class SequencerEngine {
   // ─── Transport ──────────────────────────────────────────────────────────────
 
   async play(startBeat: number, input: EngineInput): Promise<void> {
+    const gen = ++this.generation;
     const ctx = await getAudioEngine().getOrCreateAudioContext();
-    this.stop();
+    if (gen !== this.generation) return; // stopped (or restarted) while waiting
+    this.halt();
 
     const { seq } = input;
     this.bpm = seq.bpm;
@@ -106,19 +124,39 @@ export class SequencerEngine {
     this.scheduledUpTo = startBeat;
     this.chanSchedBeat.clear();
     this.isPlaying = true;
+    this.lookahead = LOOKAHEAD_MIN_S;
+    this.lastTickAt = performance.now();
 
-    this.schedulerLoop();
+    this.chase(startBeat, ctx);
+    this.ticker.start(SCHEDULER_MS, () => this.tick());
+    this.tick();
     this.rafLoop(ctx);
   }
 
   stop(): void {
+    this.generation++;
+    this.halt();
+  }
+
+  /** Stop the scheduler and cut everything that is sounding. */
+  private halt(): void {
     this.isPlaying = false;
-    if (this.schedulerTimer !== null) {
-      clearTimeout(this.schedulerTimer);
-      this.schedulerTimer = null;
-    }
+    this.ticker.stop();
     cancelAnimationFrame(this.rafId);
     this.silence();
+  }
+
+  /**
+   * Pick up notes already being held at the start position, so starting or
+   * seeking into a long chord is heard straight away rather than after it ends.
+   */
+  private chase(songBeat: number, ctx: AudioContext): void {
+    if (!this.input) return;
+    const bps = this.bpm / 60;
+    for (const e of heldNotesAt(this.input, songBeat)) {
+      if (!worthChasing(e, e.intoBeats / bps)) continue;
+      emitEvent(e, this.anchorTime, ctx, this.bpm, this.tabs);
+    }
   }
 
   /**
@@ -169,10 +207,6 @@ export class SequencerEngine {
     this.configure(input);
   }
 
-  get running(): boolean {
-    return this.isPlaying;
-  }
-
   /** Current song position, or null when stopped. */
   position(): number | null {
     const ctx = getAudioEngine().getAudioContext();
@@ -192,24 +226,38 @@ export class SequencerEngine {
 
   // ─── Scheduler ──────────────────────────────────────────────────────────────
 
-  private schedulerLoop(): void {
-    if (!this.isPlaying) return;
-    const ctx = getAudioEngine().getAudioContext();
-    if (!ctx || !this.input) return;
+  private tick(): void {
+    if (!this.isPlaying || !this.input) return;
+    const audio = getAudioEngine();
+    // While an export renders, "the" context is the offline one — wait it out
+    if (audio.isRenderingOffline) return;
+    const ctx = audio.getAudioContext();
+    if (!ctx) return;
 
-    const horizon = this.monoAt(ctx.currentTime + SCHEDULE_AHEAD_S);
+    // A tick that arrives late means the main thread is busy: look further
+    // ahead so notes are queued before they're due. Relax again slowly.
+    const now = performance.now();
+    const lateBy = (now - this.lastTickAt - SCHEDULER_MS) / 1000;
+    this.lastTickAt = now;
+    this.lookahead = lateBy > 0.02
+      ? Math.min(LOOKAHEAD_MAX_S, Math.max(this.lookahead, lateBy + LOOKAHEAD_MIN_S))
+      : Math.max(LOOKAHEAD_MIN_S, this.lookahead * 0.98);
+
+    // After a long stall, skip what was missed instead of firing it in a burst
+    const overdueFrom = this.monoAt(ctx.currentTime - MAX_OVERDUE_S);
+    if (this.scheduledUpTo < overdueFrom) this.scheduledUpTo = overdueFrom;
+
+    const horizon = this.monoAt(ctx.currentTime + this.lookahead);
     if (horizon > this.scheduledUpTo) {
       const events = eventsInWindow(this.input, this.scheduledUpTo, horizon, this.loop, this.engaged);
       for (const e of events) this.emit(e, ctx);
       this.scheduleChannelAutomation(horizon, ctx);
       this.scheduledUpTo = horizon;
     }
-
-    this.schedulerTimer = setTimeout(() => this.schedulerLoop(), SCHEDULER_MS);
   }
 
   private emit(e: TimelineEvent, ctx: AudioContext): void {
-    // Never schedule into the past — late events play immediately
+    // Never schedule into the past — a slightly late event plays immediately
     emitEvent(e, Math.max(ctx.currentTime, this.timeAt(e.monoBeat)), ctx, this.bpm, this.tabs);
   }
 
@@ -269,12 +317,4 @@ let _seq: SequencerEngine | null = null;
 export function getSequencerEngine(): SequencerEngine {
   if (!_seq) _seq = new SequencerEngine();
   return _seq;
-}
-
-// ─── Snap helper ──────────────────────────────────────────────────────────────
-
-export function snapToBeat(beat: number, snap: SnapValue, shift = false): number {
-  if (shift) return beat;
-  const g = SNAP_BEATS[snap];
-  return Math.round(beat / g) * g;
 }

@@ -5,7 +5,7 @@ import { findLane, laneRealAt, scheduleLaneOnParam } from './automation';
 import { noiseSource, startNoise } from './sampler';
 import { VoicePool } from './voices';
 import { midiToFreq } from '../utils/music';
-import type { AutomationLane } from '../utils/music';
+import type { AutomationLane, InstrumentPatch } from '../utils/music';
 import type { OscillatorState, AdvancedSettings } from './oscillator';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -101,25 +101,8 @@ export interface InstrumentPreset {
   glide: number;        // portamento seconds
 }
 
-/** User-adjustable overrides layered on top of a preset. */
-export interface InstrumentOverride {
-  volume?: number;
-  pan?: number;
-  attack?: number;
-  decay?: number;
-  sustain?: number;
-  release?: number;
-  cutoff?: number;
-  resonance?: number;
-  drive?: number;
-  detune?: number;   // extra cents spread across layers
-  octave?: number;
-  glide?: number;
-  width?: number;
-  reverbSend?: number;
-  delaySend?: number;
-  chorusSend?: number;
-}
+/** User-adjustable overrides layered on top of a preset (library-wide or per track). */
+export type InstrumentOverride = InstrumentPatch;
 
 export const OVERRIDE_FIELDS: {
   key: keyof InstrumentOverride; label: string; group: 'TONE' | 'ENVELOPE' | 'MIX';
@@ -2522,12 +2505,20 @@ export interface NoteContext {
   /** Song position of the note, needed to look up lane values. */
   startBeat?: number;
   bpm?: number;
+  /** The track's own instrument settings, on top of the preset. */
+  patch?: InstrumentPatch;
 }
 
 export class InstrumentEngine {
-  private output: GainNode | null = null;
+  /** Fallback output (no track strip) per audio context — the live one survives exports. */
+  private outputs = new WeakMap<BaseAudioContext, GainNode>();
   private overrides = new Map<string, InstrumentOverride>();
-  private lastFreq = new Map<string, number>();      // presetId → last note freq (glide)
+  /**
+   * Glide memory per track (and preset): the pitch of the last note and the
+   * pitch before it. Notes that start together — a chord — all glide from the
+   * pitch before the chord instead of from each other.
+   */
+  private glide = new Map<string, { freq: number; time: number; from: number }>();
   /** Every voice that is sounding or scheduled — lets the transport cut them off. */
   private voices = new VoicePool();
   /** Lifted during offline export, where every note is scheduled ahead of time. */
@@ -2536,8 +2527,11 @@ export class InstrumentEngine {
   /** Remove the polyphony cap (offline render) and return a function that restores it. */
   unlimitVoices(): () => void {
     const prev = this.voiceLimit;
+    const prevGlide = this.glide;
     this.voiceLimit = Number.POSITIVE_INFINITY;
-    return () => { this.voiceLimit = prev; };
+    // An export starts from a clean slate, not from whatever was played live
+    this.glide = new Map();
+    return () => { this.voiceLimit = prev; this.glide = prevGlide; };
   }
 
   /** Hard stop: silence every note now, including held and pre-scheduled ones. */
@@ -2559,20 +2553,18 @@ export class InstrumentEngine {
     this.overrides = new Map(Object.entries(all));
   }
 
-  clearOverride(presetId: string): void {
-    this.overrides.delete(presetId);
-  }
-
-  getOverride(presetId: string): InstrumentOverride {
-    return this.overrides.get(presetId) ?? {};
-  }
-
   /** Preset with the user's overrides folded in. */
-  resolve(presetId: string): InstrumentPreset | null {
+  /**
+   * Preset with edits folded in: library-wide edits first, then the track's
+   * own patch, so a track can sound different from the library default.
+   */
+  resolve(presetId: string, patch?: InstrumentPatch): InstrumentPreset | null {
     const base = PRESETS_BY_ID.get(presetId);
     if (!base) return null;
-    const o = this.overrides.get(presetId);
-    if (!o) return base;
+    const lib = this.overrides.get(presetId);
+    const hasPatch = !!patch && Object.keys(patch).length > 0;
+    if (!lib && !hasPatch) return base;
+    const o: InstrumentOverride = hasPatch ? { ...lib, ...patch } : lib!;
 
     const spread = o.detune ?? 0;
     return {
@@ -2612,13 +2604,14 @@ export class InstrumentEngine {
   // ─── Playback ───────────────────────────────────────────────────────────────
 
   private getOutput(ctx: AudioContext): GainNode {
-    if (!this.output || this.output.context !== ctx) {
-      this.output = ctx.createGain();
-      this.output.gain.value = 1;
+    let out = this.outputs.get(ctx);
+    if (!out) {
+      out = ctx.createGain();
       const master = getAudioEngine().getMasterGain();
-      if (master) this.output.connect(master);
+      if (master) out.connect(master);
+      this.outputs.set(ctx, out);
     }
-    return this.output;
+    return out;
   }
 
   /**
@@ -2634,9 +2627,9 @@ export class InstrumentEngine {
   ): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
-    const preset = this.resolve(presetId);
+    const preset = this.resolve(presetId, ctxOpts?.patch);
     if (!preset) return;
-    if (this.atVoiceLimit(ctx)) return;
+    if (this.atVoiceLimit(ctx)) this.voices.stealOldest(ctx);
 
     const opts = ctxOpts ?? {};
     const lanes = opts.lanes;
@@ -2778,7 +2771,10 @@ export class InstrumentEngine {
     }
 
     // ── Oscillator layers ──
-    const prevFreq = this.lastFreq.get(presetId);
+    const glideKey = `${opts.trackId ?? '~'}:${presetId}`;
+    const last = this.glide.get(glideKey);
+    const sameChord = !!last && Math.abs(last.time - time) < 0.005;
+    const prevFreq = last ? (sameChord ? last.from : last.freq) : undefined;
     const oscs: OscillatorNode[] = [];
     const extras: AudioNode[] = [];
     const layerCount = preset.layers.length;
@@ -2820,7 +2816,7 @@ export class InstrumentEngine {
       oscs.push(osc);
       extras.push(g);
     }
-    this.lastFreq.set(presetId, freq);
+    this.glide.set(glideKey, { freq, time, from: prevFreq ?? freq });
 
     // ── Attack transient (pick / breath noise) ──
     if (preset.noise > 0.01) {
@@ -2840,7 +2836,7 @@ export class InstrumentEngine {
     }
 
     // ── Cleanup ──
-    const voice = this.voices.add(amp, [...oscs, ...(lfo ? [lfo] : [])], end + 0.02);
+    const voice = this.voices.add(amp, [...oscs, ...(lfo ? [lfo] : [])], time, end + 0.02);
     const first = oscs[0];
     if (first) {
       first.onended = () => {
@@ -2873,7 +2869,7 @@ export class InstrumentEngine {
   ): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
-    if (this.atVoiceLimit(ctx)) return;
+    if (this.atVoiceLimit(ctx)) this.voices.stealOldest(ctx);
 
     // Headroom: unlike the single lab voice, several of these stack up
     const peak = (Math.max(0, Math.min(127, velocity)) / 127) * oscState.amplitude * 0.5;
@@ -2915,7 +2911,7 @@ export class InstrumentEngine {
     osc.start(time);
     osc.stop(end + 0.02);
 
-    const voice = this.voices.add(amp, [osc], end + 0.02);
+    const voice = this.voices.add(amp, [osc], time, end + 0.02);
     osc.onended = () => {
       this.voices.remove(voice);
       try { osc.disconnect(); filter.disconnect(); amp.disconnect(); } catch { /* ignore */ }
@@ -2923,15 +2919,15 @@ export class InstrumentEngine {
   }
 
   /** Audition a preset — plays a short phrase suited to its category. */
-  async preview(presetId: string): Promise<void> {
-    const preset = this.resolve(presetId);
+  async preview(presetId: string, patch?: InstrumentPatch): Promise<void> {
+    const preset = this.resolve(presetId, patch);
     if (!preset) return;
     const ctx = await getAudioEngine().getOrCreateAudioContext();
     const t = ctx.currentTime + 0.05;
 
     const phrase = PREVIEW_PHRASES[preset.category];
     for (const { note, at, dur, vel } of phrase) {
-      this.playNote(presetId, note, vel, t + at, dur);
+      this.playNote(presetId, note, vel, t + at, dur, { patch });
     }
   }
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, type Dispatch } from 'react';
+import { createContext, useContext, useEffect, useMemo, useReducer, type Dispatch } from 'react';
 import { DEFAULT_VISUALIZER, type VisualizerSettings } from '../visualizer/spectrum';
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -72,8 +72,11 @@ export function useVisualizerReducer(): VisualizerCtx {
   });
 
   useEffect(() => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota */ }
+    const id = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota */ }
+    }, 400);
+    return () => clearTimeout(id);
   }, [state]);
 
-  return { state, dispatch };
+  return useMemo(() => ({ state, dispatch }), [state]);
 }

@@ -14,6 +14,8 @@ import {
 } from './music';
 import type { DrumPattern } from '../store/drumStore';
 import type { OscillatorTab } from '../engine/oscillator';
+import { DEFAULT_EFFECTS, DELAY_DIVISIONS, type EffectsSettings } from '../engine/effects';
+import type { InstrumentPatch } from './music';
 
 // ─── Formats ──────────────────────────────────────────────────────────────────
 
@@ -34,6 +36,8 @@ export interface ProjectV2 {
   drumPatterns: DrumPattern[];
   /** Oscillator lab tabs referenced by oscillator-source tracks. */
   oscillators: OscillatorTab[];
+  /** Master effects. Files saved before this field existed use the defaults. */
+  effects?: EffectsSettings;
 }
 
 /** A track as v1 projects and pre-v2 sessions stored it. */
@@ -67,6 +71,8 @@ export interface LoadedProject {
   doc: DocSnapshot;
   drumPatterns: DrumPattern[];
   oscillators: OscillatorTab[];
+  /** Master effects the project was made with. */
+  effects: EffectsSettings;
   /** Human-readable notes about anything that needed migrating. */
   warnings: string[];
 }
@@ -132,8 +138,12 @@ export function serializeProject(input: {
   doc: DocSnapshot;
   allDrumPatterns: DrumPattern[];
   allOscillators: OscillatorTab[];
+  effects: EffectsSettings;
+  /** The instrument library's own edits, per preset (they apply to every track using it). */
+  libraryOverrides?: Record<string, InstrumentPatch>;
 }): ProjectV2 {
   const { doc } = input;
+  const lib = input.libraryOverrides ?? {};
 
   // Only ship what the arrangement actually uses
   const usedNotePatterns = new Set<string>();
@@ -156,7 +166,13 @@ export function serializeProject(input: {
     songLengthBars: input.songLengthBars,
     loop: input.loop,
     masterVolume: input.masterVolume,
-    tracks: doc.tracks.map((t) => ({ ...t, muted: t.muted, solo: false })),
+    // Library edits are folded into each track's patch, so the file sounds
+    // the same on a machine whose instrument library was never touched
+    tracks: doc.tracks.map((t) => ({
+      ...t,
+      solo: false,
+      patch: t.source.type === 'preset' ? { ...lib[t.source.presetId], ...t.patch } : t.patch,
+    })),
     patterns: Object.values(doc.patterns).filter((p) => usedNotePatterns.has(p.id)),
     markers: doc.markers,
     drumPatterns: input.allDrumPatterns
@@ -165,7 +181,30 @@ export function serializeProject(input: {
     oscillators: input.allOscillators
       .filter((t) => usedTabs.has(t.id))
       .map((t) => ({ ...t, isPlaying: false })),
+    effects: { ...input.effects },
   };
+}
+
+/**
+ * Effects from a file: known fields of the right type over the defaults, so a
+ * hand-edited or newer file can't put garbage into the audio graph.
+ */
+export function parseEffects(raw: unknown): EffectsSettings {
+  const out: EffectsSettings = { ...DEFAULT_EFFECTS };
+  if (!raw || typeof raw !== 'object') return out;
+  const src = raw as Record<string, unknown>;
+  for (const k of Object.keys(DEFAULT_EFFECTS) as (keyof EffectsSettings)[]) {
+    const v = src[k];
+    const def = DEFAULT_EFFECTS[k];
+    if (k === 'delayDivision') {
+      if (typeof v === 'string' && (DELAY_DIVISIONS as string[]).includes(v)) out.delayDivision = v as EffectsSettings['delayDivision'];
+    } else if (typeof def === 'number' && typeof v === 'number' && Number.isFinite(v)) {
+      (out as unknown as Record<string, number>)[k] = v;
+    } else if (typeof def === 'boolean' && typeof v === 'boolean') {
+      (out as unknown as Record<string, boolean>)[k] = v;
+    }
+  }
+  return out;
 }
 
 // ─── Loading ──────────────────────────────────────────────────────────────────
@@ -221,6 +260,7 @@ function loadV2(p: ProjectV2): LoadedProject {
     doc: { tracks, patterns, markers: (p.markers ?? []).map((m) => ({ ...m })) },
     drumPatterns: p.drumPatterns ?? [],
     oscillators: p.oscillators ?? [],
+    effects: parseEffects(p.effects),
     warnings,
   };
 }
@@ -253,6 +293,7 @@ function loadV1(p: LegacyProject): LoadedProject {
     doc: { tracks, patterns, markers: [] },
     drumPatterns: [],
     oscillators: [],
+    effects: { ...DEFAULT_EFFECTS },
     warnings: ['Converted from an older project format. Instruments were chosen from each part\'s range — change any of them from the track header.'],
   };
 }

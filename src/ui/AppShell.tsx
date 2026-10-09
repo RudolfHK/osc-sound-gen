@@ -12,12 +12,19 @@ import { Dock, type DockTab } from './Dock';
 import { OscLab } from './OscLab';
 import { ContextMenu, type MenuItem } from './ContextMenu';
 import { Notices } from './notices';
-import { ExportDialog } from './ExportDialog';
-import { openExport } from './exportState';
+import { openExport, useExportState } from './exportState';
 import { getFocusZone, isTypingTarget } from './focus';
 import { useProjectActions, EXAMPLES } from './useProjectActions';
 
 const VisualizerPanel = lazy(() => import('./VisualizerPanel').then((m) => ({ default: m.VisualizerPanel })));
+// The export pipeline (renderer, encoders, zip) loads the first time it's opened
+const ExportDialog = lazy(() => import('./ExportDialog').then((m) => ({ default: m.ExportDialog })));
+
+function ExportDialogGate() {
+  const { open } = useExportState();
+  if (!open) return null;
+  return <Suspense fallback={null}><ExportDialog /></Suspense>;
+}
 
 export function AppShell() {
   const { state, dispatch } = useAppStore();
@@ -149,22 +156,25 @@ export function AppShell() {
     })),
   });
 
-  const viewBtn = (v: 'arrange' | 'lab', label: string, title: string) => (
+  const viewBtn = (v: 'arrange' | 'lab', label: string, short: string, title: string) => (
     <button
       onClick={() => dispatch({ type: 'SET_VIEW', view: v })}
-      className="px-2.5 py-1 text-xs tracking-widest transition-colors"
+      className="px-2 xl:px-2.5 py-1 text-xs tracking-widest transition-colors whitespace-nowrap"
       style={state.view === v ? { backgroundColor: accent + '22', color: accent } : { color: '#737373' }}
       title={title}
+      aria-label={label}
       aria-pressed={state.view === v}
-    >{label}</button>
+    ><span className="xl:hidden">{short}</span><span className="hidden xl:inline">{label}</span></button>
   );
 
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a] select-none text-neutral-200">
       {/* ── Header ── */}
-      <header className="flex items-center gap-3 px-3 py-1.5 border-b border-neutral-800 shrink-0 flex-wrap"
+      {/* One row on a laptop or wider; below that the transport gets its own
+          scrollable row instead of wrapping into a tall stack. */}
+      <header className="flex items-center gap-x-3 gap-y-1 px-3 py-1.5 border-b border-neutral-800 shrink-0 flex-wrap lg:flex-nowrap"
         style={{ borderBottomColor: accent + '33' }}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0 shrink">
           <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden>
             <polyline points="2,16 6,16 8,6 10,26 12,6 14,26 16,16 30,16"
               stroke={accent} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
@@ -178,22 +188,23 @@ export function AppShell() {
           <ProjectName />
         </div>
 
-        <div className="flex-1 flex justify-center min-w-0">
+        <div className="order-last lg:order-none w-full lg:w-auto lg:flex-1 flex lg:justify-center-safe min-w-0 overflow-x-auto">
           <Transport />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto lg:ml-0 shrink-0">
           <label className="flex items-center gap-1.5" title="Master volume">
-            <span className="text-xs text-neutral-600 tracking-widest">MASTER</span>
+            <span className="hidden min-[1600px]:inline text-xs text-neutral-600 tracking-widest">MASTER</span>
             <input
               type="range" min={0} max={1} step={0.01} value={state.masterVolume}
-              className="w-16" style={{ accentColor: accent }}
+              aria-label="Master volume"
+              className="w-14 xl:w-16" style={{ accentColor: accent }}
               onChange={(e) => dispatch({ type: 'SET_MASTER_VOLUME', volume: parseFloat(e.target.value) })}
             />
           </label>
           <div className="flex border border-neutral-800" role="group" aria-label="Main view">
-            {viewBtn('arrange', 'ARRANGE', 'Arrangement — tracks, clips and sections')}
-            {viewBtn('lab', 'OSC LAB', 'Oscillator lab — optional waveform synthesis with a scope')}
+            {viewBtn('arrange', 'ARRANGE', 'ARR', 'Arrangement — tracks, clips and sections')}
+            {viewBtn('lab', 'OSC LAB', 'LAB', 'Oscillator lab — optional waveform synthesis with a scope')}
           </div>
           <button
             onClick={() => vizDispatch({ type: 'VIZ_ENABLE', enabled: !vizState.enabled })}
@@ -238,7 +249,7 @@ export function AppShell() {
       )}
 
       {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
-      <ExportDialog />
+      <ExportDialogGate />
       <Notices />
     </div>
   );
@@ -269,7 +280,7 @@ function ProjectName() {
   return (
     <button
       onClick={() => setEditing(true)}
-      className="text-xs text-neutral-400 hover:text-neutral-100 max-w-[180px] truncate"
+      className="text-xs text-neutral-400 hover:text-neutral-100 max-w-[110px] xl:max-w-[180px] truncate"
       title="Rename project"
     >{state.projectName}</button>
   );

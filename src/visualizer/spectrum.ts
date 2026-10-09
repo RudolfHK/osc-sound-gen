@@ -92,6 +92,7 @@ export class Visualizer {
   private attach(): boolean {
     if (this.analyser) return true;
     const engine = getAudioEngine();
+    if (engine.isRenderingOffline) return false; // never tap an export's graph
     const ctx = engine.getAudioContext();
     const master = engine.getMasterGain();
     if (!ctx || !master) return false;

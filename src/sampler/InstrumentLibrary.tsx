@@ -8,16 +8,25 @@ import {
 
 // ─── Parameter editor (right-click menu) ──────────────────────────────────────
 
+/** What the editor changes: one track's own sound, or the library default for every track. */
+type EditScope = 'track' | 'library';
+
 interface ParamMenuProps {
   preset: InstrumentPreset;
+  /** Values to show: the edits in effect for the chosen scope. */
   override: InstrumentOverride;
   x: number; y: number;
+  /** The selected track, when it plays this preset — enables track scope. */
+  trackName: string | null;
+  scope: EditScope;
+  onScope: (s: EditScope) => void;
   onChange: (patch: InstrumentOverride) => void;
   onReset: () => void;
+  onAudition: () => void;
   onClose: () => void;
 }
 
-function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: ParamMenuProps) {
+function ParamMenu({ preset, override, x, y, trackName, scope, onScope, onChange, onReset, onAudition, onClose }: ParamMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,8 +59,25 @@ function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: Param
         <button
           onClick={onReset}
           className="text-xs text-neutral-600 hover:text-neutral-300 border border-neutral-700 px-1"
-          title="Restore factory settings"
+          title={scope === 'track' ? 'Clear this track\'s own settings' : 'Restore factory settings'}
         >RESET</button>
+      </div>
+
+      {/* Scope: a track can sound different from the library default */}
+      <div className="flex text-[10px] tracking-widest border border-neutral-800 mb-2" role="group" aria-label="Edit scope">
+        <button
+          disabled={!trackName}
+          onClick={() => onScope('track')}
+          className={`flex-1 py-0.5 truncate disabled:opacity-30 ${scope === 'track' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-500'}`}
+          aria-pressed={scope === 'track'}
+          title={trackName ? `Change only the ${trackName} track` : 'Select a track that uses this sound to give it its own settings'}
+        >{trackName ? `TRACK: ${trackName.toUpperCase()}` : 'TRACK'}</button>
+        <button
+          onClick={() => onScope('library')}
+          className={`flex-1 py-0.5 ${scope === 'library' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-500'}`}
+          aria-pressed={scope === 'library'}
+          title="Change the library default — every track using this sound without its own settings"
+        >LIBRARY</button>
       </div>
 
       {(['TONE', 'ENVELOPE', 'MIX'] as const).map((group) => (
@@ -82,7 +108,7 @@ function ParamMenu({ preset, override, x, y, onChange, onReset, onClose }: Param
       ))}
 
       <button
-        onClick={() => void getInstrumentEngine().preview(preset.id)}
+        onClick={onAudition}
         className="w-full mt-1 py-1 text-xs border tracking-widest transition-colors"
         style={{ borderColor: preset.color, color: preset.color }}
       >
@@ -150,7 +176,7 @@ function PresetCard({ preset, assignedTo, current, canAssign, edited, onAudition
 export function InstrumentLibrary() {
   const { state, dispatch } = useInstrumentStore();
   const { state: appState, dispatch: appDispatch } = useAppStore();
-  const [menu, setMenu] = useState<{ preset: InstrumentPreset; x: number; y: number } | null>(null);
+  const [menu, setMenu] = useState<{ preset: InstrumentPreset; x: number; y: number; scope: EditScope } | null>(null);
 
   const tracks = appState.sequencer.tracks;
   // Presets go on note tracks; drum tracks have their own kit
@@ -188,6 +214,14 @@ export function InstrumentLibrary() {
   }, [target, appDispatch]);
 
   const currentPreset = target?.source.type === 'preset' ? target.source.presetId : null;
+
+  // Parameter editor: the selected track's own settings when it plays this
+  // preset, otherwise the library default
+  const menuTrack = menu && currentPreset === menu.preset.id ? target : null;
+  const libEdits = menu ? state.overrides[menu.preset.id] ?? {} : {};
+  const menuValues = menuTrack && menu?.scope === 'track' ? { ...libEdits, ...menuTrack.patch } : libEdits;
+  const openMenu = (preset: InstrumentPreset, x: number, y: number) =>
+    setMenu({ preset, x, y, scope: currentPreset === preset.id ? 'track' : 'library' });
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-[#0d0d0d]">
@@ -250,10 +284,10 @@ export function InstrumentLibrary() {
                 assignedTo={usedBy.get(preset.id) ?? []}
                 current={preset.id === currentPreset}
                 canAssign={!!target}
-                edited={!!state.overrides[preset.id]}
+                edited={!!state.overrides[preset.id] || (preset.id === currentPreset && Object.keys(target?.patch ?? {}).length > 0)}
                 onAudition={() => audition(preset.id)}
                 onAssign={() => assign(preset.id)}
-                onContext={(x, y) => setMenu({ preset, x, y })}
+                onContext={(x, y) => openMenu(preset, x, y)}
               />
             ))}
           </div>
@@ -268,10 +302,19 @@ export function InstrumentLibrary() {
       {menu && (
         <ParamMenu
           preset={menu.preset}
-          override={state.overrides[menu.preset.id] ?? {}}
+          override={menuValues}
           x={menu.x} y={menu.y}
-          onChange={(patch) => dispatch({ type: 'INST_SET_OVERRIDE', presetId: menu.preset.id, patch })}
-          onReset={() => dispatch({ type: 'INST_RESET_OVERRIDE', presetId: menu.preset.id })}
+          trackName={menuTrack?.name ?? null}
+          scope={menuTrack ? menu.scope : 'library'}
+          onScope={(scope) => setMenu({ ...menu, scope })}
+          onChange={(patch) => (menuTrack && menu.scope === 'track'
+            ? appDispatch({ type: 'TRACK_SET_PATCH', trackId: menuTrack.id, patch })
+            : dispatch({ type: 'INST_SET_OVERRIDE', presetId: menu.preset.id, patch }))}
+          onReset={() => (menuTrack && menu.scope === 'track'
+            ? appDispatch({ type: 'TRACK_SET_PATCH', trackId: menuTrack.id, patch: null })
+            : dispatch({ type: 'INST_RESET_OVERRIDE', presetId: menu.preset.id }))}
+          onAudition={() => void getInstrumentEngine().preview(
+            menu.preset.id, menuTrack && menu.scope === 'track' ? menuTrack.patch : undefined)}
           onClose={() => setMenu(null)}
         />
       )}

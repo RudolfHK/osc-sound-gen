@@ -112,34 +112,29 @@ export function expandArp(notes: SequencerNote[], arp: ArpSettings): SequencerNo
 }
 
 /**
- * Cached expansion. The sequencer calls this every time it reconfigures, and
- * re-expanding a dense 32-bar part on each call would show up as jitter.
+ * Cached expansion, one slot per track and pattern. The scheduler asks for a
+ * clip's notes on every tick, so a hit must be cheap: patterns and arp settings
+ * are immutable in the store (an edit makes new objects), which means object
+ * identity is the cache key. That also keeps 'random' mode stable — it re-rolls
+ * when the part or the settings change, not on every scheduler tick.
  */
-const cache = new Map<string, { key: string; notes: SequencerNote[] }>();
+const cache = new Map<string, { notes: SequencerNote[]; arp: ArpSettings; expanded: SequencerNote[] }>();
 
 export function expandArpCached(
   /** Cache slot — one per track and pattern. */
-  trackId: string,
+  slot: string,
   notes: SequencerNote[],
   arp: ArpSettings,
 ): SequencerNote[] {
   if (!arp.enabled) return notes;
-
-  // Note identity plus the arp settings fully determine the output, except for
-  // 'random' mode which must re-roll each time.
-  const key = arp.mode === 'random'
-    ? `random-${Math.random()}`
-    : `${notes.length}:${arp.rate}:${arp.mode}:${arp.octaves}:${arp.gate}:` +
-      notes.map((n) => `${n.midiNote},${n.startBeat},${n.durationBeats},${n.velocity}`).join('|');
-
-  const hit = cache.get(trackId);
-  if (hit && hit.key === key) return hit.notes;
-
+  const hit = cache.get(slot);
+  if (hit && hit.notes === notes && hit.arp === arp) return hit.expanded;
   const expanded = expandArp(notes, arp);
-  cache.set(trackId, { key, notes: expanded });
+  cache.set(slot, { notes, arp, expanded });
   return expanded;
 }
 
-export function clearArpCache(): void {
-  cache.clear();
+/** Drop slots for tracks and patterns that no longer exist. */
+export function pruneArpCache(liveSlots: Set<string>): void {
+  for (const slot of cache.keys()) if (!liveSlots.has(slot)) cache.delete(slot);
 }

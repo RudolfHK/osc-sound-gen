@@ -77,11 +77,11 @@ function Position({ bpm, beatsPerBar }: { bpm: number; beatsPerBar: number }) {
   const s = Math.floor(secs % 60);
   const t = Math.floor((secs * 10) % 10);
   return (
-    <div className="flex items-baseline gap-2 font-mono bg-neutral-950 border border-neutral-800 px-2 py-0.5 min-w-[150px]" aria-label="Song position">
+    <div className="flex items-baseline gap-2 font-mono bg-neutral-950 border border-neutral-800 px-2 py-0.5 min-w-[72px] xl:min-w-[150px]" aria-label="Song position">
       <span className="text-sm text-neutral-100 tabular-nums">
         {bar}.{inBar}.{sixteenth}
       </span>
-      <span className="text-xs text-neutral-500 tabular-nums">{m}:{String(s).padStart(2, '0')}.{t}</span>
+      <span className="hidden xl:inline text-xs text-neutral-500 tabular-nums">{m}:{String(s).padStart(2, '0')}.{t}</span>
     </div>
   );
 }
@@ -150,6 +150,7 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
         onClick={toggle}
         disabled={busy}
         title="Record the master output live, losslessly (starts playback if stopped)"
+        aria-label={state.isRecording ? `Stop recording ${fmt(elapsed)}` : 'Record'}
         className={`flex items-center gap-1.5 px-2 py-1 text-xs font-bold border tracking-widest transition-colors disabled:opacity-40 ${
           state.isRecording
             ? 'border-red-500 text-red-300 bg-red-900/30 animate-pulse'
@@ -157,14 +158,15 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
         }`}
       >
         <span className={`w-2 h-2 rounded-full ${state.isRecording ? 'bg-red-500' : 'bg-red-900'}`} />
-        {state.isRecording ? fmt(elapsed) : 'REC'}
+        {state.isRecording ? fmt(elapsed) : <span className="hidden min-[1600px]:inline">REC</span>}
       </button>
       {take && !state.isRecording && (
         <button
           onClick={() => openExport('take')}
           className="px-1.5 py-1 text-xs border border-neutral-700 text-neutral-400 hover:text-neutral-100"
           title="Export the last recording"
-        >↓ TAKE</button>
+          aria-label="Export the last recording"
+        >↓<span className="hidden min-[1600px]:inline"> TAKE</span></button>
       )}
     </div>
   );
@@ -192,7 +194,7 @@ export function Transport() {
   const on = { borderColor: accent, color: accent, backgroundColor: accent + '18' };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex items-center gap-1.5 min-[1600px]:gap-2 whitespace-nowrap">
       <div className="flex gap-0.5">
         <button onClick={returnToStart} className={`${btn} ${off}`} title="Return to start (Home)">⏮</button>
         <button
@@ -232,14 +234,16 @@ export function Transport() {
         onClick={() => openExport('song')}
         className={`${btn} ${off} tracking-widest`}
         title="Export the arrangement — WAV, MP3, stems or MIDI (Ctrl+Shift+E)"
-      >⤓ EXPORT</button>
+        aria-label="Export"
+      >⤓<span className="hidden min-[1600px]:inline"> EXPORT</span></button>
 
       <Position bpm={seq.bpm} beatsPerBar={seq.beatsPerBar} />
 
       <label className="flex items-center gap-1" title="Tempo">
-        <span className="text-xs text-neutral-600 tracking-widest">BPM</span>
+        <span className="hidden min-[1600px]:inline text-xs text-neutral-600 tracking-widest">BPM</span>
         <input
           type="text" inputMode="decimal" value={bpmText}
+          aria-label="Tempo in BPM"
           onChange={(e) => setBpmText(e.target.value)}
           onBlur={commitBpm}
           onKeyDown={(e) => {
@@ -257,6 +261,7 @@ export function Transport() {
         <select
           value={seq.beatsPerBar}
           onChange={(e) => dispatch({ type: 'SEQ_SET_BEATS_PER_BAR', bpb: parseInt(e.target.value, 10) })}
+          aria-label="Beats per bar"
           className="bg-neutral-950 border border-neutral-700 text-xs text-neutral-200 px-1 py-0.5"
         >
           {[2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n}/4</option>)}
@@ -268,14 +273,18 @@ export function Transport() {
         className={`${btn} tracking-widest ${seq.loopEnabled ? '' : off}`}
         style={seq.loopEnabled ? on : {}}
         title="Loop the range shown on the ruler (L). Drag on the ruler to set it."
-      >↻ LOOP</button>
+        aria-label="Loop"
+        aria-pressed={seq.loopEnabled}
+      >↻<span className="hidden min-[1600px]:inline"> LOOP</span></button>
 
       <button
         onClick={() => dispatch({ type: 'SEQ_TOGGLE_METRONOME' })}
         className={`${btn} tracking-widest ${seq.metronome ? '' : off}`}
         style={seq.metronome ? on : {}}
         title="Metronome click (K)"
-      >♩ CLICK</button>
+        aria-label="Metronome"
+        aria-pressed={seq.metronome}
+      >♩<span className="hidden min-[1600px]:inline"> CLICK</span></button>
     </div>
   );
 }

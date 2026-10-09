@@ -3,7 +3,7 @@
  * Chosen because the project has no third-party state library — zero extra deps.
  */
 
-import { createContext, useCallback, useContext, useEffect, useReducer, useRef, type Dispatch } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type Dispatch } from 'react';
 import type { OscillatorState, AdvancedSettings, OscillatorTab, AppState, MainView } from '../engine/oscillator';
 import { DEFAULT_STATE, DEFAULT_ADVANCED } from '../engine/oscillator';
 import { getTabColor } from '../utils/colors';
@@ -32,7 +32,12 @@ import {
   type Pattern,
   type Marker,
   type DocSnapshot,
+  type InstrumentPatch,
+  type SongSettings,
+  type UndoEntry,
 } from '../utils/music';
+import { restoreParticipants, setUndoStepRequester, snapshotParticipants } from './history';
+import { notify } from '../ui/notices';
 import { makeLaneId, makePointId, withPoint } from '../engine/automation';
 import {
   isLegacyTrackList, makeStarterDoc, migrateLegacySequencer,
@@ -91,6 +96,8 @@ export type Action =
   | { type: 'TRACK_SELECT'; trackId: string | null }
   | { type: 'SEQ_SET_ARP'; trackId: string; arp: Partial<ArpSettings> }
   | { type: 'SEQ_SET_CHANNEL'; trackId: string; channel: Partial<ChannelSettings> }
+  /** Edit a track's own instrument settings; `null` clears them back to the preset. */
+  | { type: 'TRACK_SET_PATCH'; trackId: string; patch: InstrumentPatch | null }
   // ── Clips & patterns ─────────────────────────────────────────────────────────
   | { type: 'CLIP_ADD'; trackId: string; startBeat: number; lengthBeats: number; patternId?: string }
   | { type: 'CLIP_MOVE'; clipId: string; trackId: string; startBeat: number }
@@ -132,9 +139,11 @@ export type Action =
   | { type: 'SECTION_DUPLICATE'; markerId: string }
   | { type: 'SECTION_DELETE'; markerId: string }
   // ── Undo/Redo ────────────────────────────────────────────────────────────────
-  | { type: 'SEQ_PUSH_UNDO' }
-  | { type: 'SEQ_UNDO' }
-  | { type: 'SEQ_REDO' }
+  // `extras` (the other stores' undoable state) is filled in by the store's
+  // dispatch; components dispatch these without it.
+  | { type: 'SEQ_PUSH_UNDO'; extras?: Record<string, unknown> }
+  | { type: 'SEQ_UNDO'; extras?: Record<string, unknown> }
+  | { type: 'SEQ_REDO'; extras?: Record<string, unknown> }
   // ── Project ──────────────────────────────────────────────────────────────────
   | { type: 'LOAD_PROJECT'; project: LoadedProject }
   | { type: 'NEW_PROJECT' };
@@ -233,6 +242,39 @@ function docOf(seq: SequencerState): DocSnapshot {
   return { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers };
 }
 
+function songOf(seq: SequencerState): SongSettings {
+  return {
+    bpm: seq.bpm, beatsPerBar: seq.beatsPerBar, songLengthBars: seq.songLengthBars,
+    loopEnabled: seq.loopEnabled, loopStartBeat: seq.loopStartBeat, loopEndBeat: seq.loopEndBeat,
+  };
+}
+
+function entryOf(seq: SequencerState, extras: Record<string, unknown> = {}): UndoEntry {
+  return { doc: docOf(seq), song: songOf(seq), extras };
+}
+
+/** Would recording `b` after `a` undo nothing? */
+function sameEntry(a: UndoEntry, b: UndoEntry): boolean {
+  if (a.doc.tracks !== b.doc.tracks || a.doc.patterns !== b.doc.patterns || a.doc.markers !== b.doc.markers) return false;
+  for (const k of Object.keys(a.song) as (keyof SongSettings)[]) if (a.song[k] !== b.song[k]) return false;
+  const keys = new Set([...Object.keys(a.extras), ...Object.keys(b.extras)]);
+  for (const k of keys) if (a.extras[k] !== b.extras[k]) return false;
+  return true;
+}
+
+let restoreId = 0;
+
+/** Put an undo entry back: document and song settings here, the rest via an effect. */
+function applyEntry(state: AppState, entry: UndoEntry, stacks: Pick<SequencerState, 'undoStack' | 'redoStack'>): AppState {
+  const next = seqUpdate(state, {
+    ...entry.doc,
+    ...entry.song,
+    ...stacks,
+    pendingRestore: Object.keys(entry.extras).length ? { id: ++restoreId, extras: entry.extras } : null,
+  });
+  return seqUpdate(next, sanitizeSelection(next.sequencer));
+}
+
 /** After undo/redo or deletes, drop selections that point at nothing. */
 function sanitizeSelection(seq: SequencerState): Partial<SequencerState> {
   const trackOk = seq.tracks.some((t) => t.id === seq.selectedTrackId);
@@ -284,7 +326,7 @@ export function reducer(state: AppState, action: Action): AppState {
         id: uid('tab'),
         label: `OSC ${idx + 1}`,
         color: getTabColor(idx),
-        oscillator: { ...DEFAULT_STATE, isPlaying: false },
+        oscillator: { ...DEFAULT_STATE },
         advanced: { ...DEFAULT_ADVANCED },
         isPlaying: false,
         isMuted: false,
@@ -492,8 +534,17 @@ export function reducer(state: AppState, action: Action): AppState {
         // Drum clips point at drum patterns and note clips at note patterns, so a
         // track can't keep its clips across that boundary.
         const crossesKind = isDrumTrack(t) !== (action.source.type === 'drums');
-        return { ...t, source: action.source, clips: crossesKind ? [] : t.clips };
+        // A patch tweaks one particular preset; a new sound starts clean
+        const samePreset = t.source.type === 'preset' && action.source.type === 'preset'
+          && t.source.presetId === action.source.presetId;
+        return { ...t, source: action.source, clips: crossesKind ? [] : t.clips, patch: samePreset ? t.patch : {} };
       });
+
+    case 'TRACK_SET_PATCH':
+      return patchTrack(state, action.trackId, (t) => ({
+        ...t,
+        patch: action.patch === null ? {} : { ...t.patch, ...action.patch },
+      }));
 
     case 'TRACK_SELECT':
       return seqUpdate(state, { selectedTrackId: action.trackId });
@@ -875,36 +926,30 @@ export function reducer(state: AppState, action: Action): AppState {
     // ── Undo / Redo ─────────────────────────────────────────────────────────────
 
     case 'SEQ_PUSH_UNDO': {
-      const doc = docOf(seq);
+      const entry = entryOf(seq, action.extras);
       const top = seq.undoStack[seq.undoStack.length - 1];
       // A click that changed nothing shouldn't cost an undo step
-      if (top && top.tracks === doc.tracks && top.patterns === doc.patterns && top.markers === doc.markers) {
-        return state;
-      }
-      return seqUpdate(state, { undoStack: [...seq.undoStack, doc].slice(-MAX_UNDO), redoStack: [] });
+      if (top && sameEntry(top, entry)) return state;
+      return seqUpdate(state, { undoStack: [...seq.undoStack, entry].slice(-MAX_UNDO), redoStack: [] });
     }
 
     case 'SEQ_UNDO': {
       if (seq.undoStack.length === 0) return state;
       const stack = [...seq.undoStack];
       const prev = stack.pop()!;
-      const next = seqUpdate(state, {
-        ...prev,
+      return applyEntry(state, prev, {
         undoStack: stack,
-        redoStack: [docOf(seq), ...seq.redoStack].slice(0, MAX_UNDO),
+        redoStack: [entryOf(seq, action.extras), ...seq.redoStack].slice(0, MAX_UNDO),
       });
-      return seqUpdate(next, sanitizeSelection(next.sequencer));
     }
 
     case 'SEQ_REDO': {
       if (seq.redoStack.length === 0) return state;
-      const [nextDoc, ...rest] = seq.redoStack;
-      const next = seqUpdate(state, {
-        ...nextDoc,
-        undoStack: [...seq.undoStack, docOf(seq)].slice(-MAX_UNDO),
+      const [nextEntry, ...rest] = seq.redoStack;
+      return applyEntry(state, nextEntry, {
+        undoStack: [...seq.undoStack, entryOf(seq, action.extras)].slice(-MAX_UNDO),
         redoStack: rest,
       });
-      return seqUpdate(next, sanitizeSelection(next.sequencer));
     }
 
     // ── Project ─────────────────────────────────────────────────────────────────
@@ -936,6 +981,7 @@ export function reducer(state: AppState, action: Action): AppState {
           arrStartBeat: 0,
           undoStack: [],
           redoStack: [],
+          pendingRestore: null,
         },
       };
     }
@@ -1009,16 +1055,43 @@ const SCHEMA = 2;
 /** Writes are coalesced: one JSON.stringify per burst of edits, not per action. */
 const PERSIST_DEBOUNCE_MS = 400;
 
-/** Strip runtime-only and bulky fields before writing. */
+/** Note patterns some clip still plays. The rest are orphans left by deletes. */
+export function referencedPatterns(seq: Pick<SequencerState, 'tracks' | 'patterns'>): Record<string, Pattern> {
+  const used = new Set<string>();
+  for (const t of seq.tracks) if (t.source.type !== 'drums') for (const c of t.clips) used.add(c.patternId);
+  const out: Record<string, Pattern> = {};
+  for (const [id, p] of Object.entries(seq.patterns)) if (used.has(id)) out[id] = p;
+  return out;
+}
+
+/**
+ * Strip runtime-only and bulky fields before writing. Orphaned note patterns
+ * are dropped here — they stay in memory while undo might still need them,
+ * but they no longer accumulate in storage.
+ */
 function persistable(state: AppState) {
-  const { undoStack: _u, redoStack: _r, copiedNotes: _c, isPlaying: _p, ...seq } = state.sequencer;
+  const { undoStack: _u, redoStack: _r, copiedNotes: _c, isPlaying: _p, pendingRestore: _pr, ...seq } = state.sequencer;
   return {
     schema: SCHEMA,
     ...state,
     isRecording: false,
     tabs: state.tabs.map((t) => ({ ...t, isPlaying: false })),
-    sequencer: seq,
+    sequencer: { ...seq, patterns: referencedPatterns(seq) },
   };
+}
+
+/** Write the session; tell the user (once) if storage is full rather than failing silently. */
+let warnedQuota = false;
+function writeSession(state: AppState): void {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(persistable(state)));
+    warnedQuota = false;
+  } catch {
+    if (!warnedQuota) {
+      warnedQuota = true;
+      notify('Browser storage is full — this session is no longer being saved. Use OSC ▾ → Save to keep your work.', 'error');
+    }
+  }
 }
 
 /**
@@ -1070,6 +1143,7 @@ export function restoreState(raw: string | null, legacyAssignmentsRaw: string | 
     isPlaying: false,
     undoStack: [],
     redoStack: [],
+    pendingRestore: null,
     copiedNotes: null,
   };
 
@@ -1116,6 +1190,11 @@ export function autoUndoKey(action: Action): string | null | undefined {
     case 'SEQ_SET_CHANNEL': return `channel:${action.trackId}:${keys(action.channel)}`;
     case 'SEQ_SET_ARP': return `arp:${action.trackId}:${keys(action.arp)}`;
     case 'MARKER_UPDATE': return `marker:${action.id}:${keys(action.patch)}`;
+    case 'TRACK_SET_PATCH': return action.patch === null ? null : `patch:${action.trackId}:${keys(action.patch)}`;
+    case 'SEQ_SET_BPM': return 'bpm';
+    case 'SEQ_SET_SONG_LENGTH': return 'song-length';
+    case 'SEQ_SET_LOOP': return 'loop';
+    case 'SEQ_SET_BEATS_PER_BAR': return null;
     case 'PATTERN_RENAME': return `pattern-name:${action.patternId}`;
     case 'TRACK_ADD':
     case 'TRACK_REMOVE':
@@ -1152,38 +1231,52 @@ export function useAppReducer(): StoreCtx {
   latest.current = state;
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      try { localStorage.setItem(LS_KEY, JSON.stringify(persistable(state))); } catch { /* quota exceeded */ }
-    }, PERSIST_DEBOUNCE_MS);
+    const id = setTimeout(() => writeSession(state), PERSIST_DEBOUNCE_MS);
     return () => clearTimeout(id);
   }, [state]);
 
   // Don't lose the last few hundred milliseconds of edits on close
   useEffect(() => {
-    const flush = () => {
-      try { localStorage.setItem(LS_KEY, JSON.stringify(persistable(latest.current))); } catch { /* ignore */ }
-    };
+    const flush = () => writeSession(latest.current);
     window.addEventListener('beforeunload', flush);
     return () => window.removeEventListener('beforeunload', flush);
   }, []);
 
   // Record an undo step ahead of song edits that don't push their own. A push
   // that changes nothing is dropped by the reducer, so explicit pushes from
-  // components and this one never double up.
+  // components and this one never double up. Other stores (drums, effects)
+  // ask for steps through the history module.
   const lastGesture = useRef<{ key: string; at: number } | null>(null);
+  const requestStep = useCallback((key: string | null) => {
+    const now = performance.now();
+    const last = lastGesture.current;
+    const sameGesture = key !== null && last?.key === key && now - last.at < UNDO_COALESCE_MS;
+    if (!sameGesture) rawDispatch({ type: 'SEQ_PUSH_UNDO', extras: snapshotParticipants() });
+    lastGesture.current = key === null ? null : { key, at: now };
+  }, []);
+
   const dispatch = useCallback<Dispatch<Action>>((action) => {
     const key = autoUndoKey(action);
     if (key !== undefined) {
-      const now = performance.now();
-      const last = lastGesture.current;
-      const sameGesture = key !== null && last?.key === key && now - last.at < UNDO_COALESCE_MS;
-      if (!sameGesture) rawDispatch({ type: 'SEQ_PUSH_UNDO' });
-      lastGesture.current = key === null ? null : { key, at: now };
+      requestStep(key);
     } else if (action.type === 'SEQ_PUSH_UNDO' || action.type === 'SEQ_UNDO' || action.type === 'SEQ_REDO') {
       lastGesture.current = null;
+      rawDispatch({ ...action, extras: snapshotParticipants() });
+      return;
     }
     rawDispatch(action);
-  }, []);
+  }, [requestStep]);
 
-  return { state, dispatch };
+  useEffect(() => {
+    setUndoStepRequester(requestStep);
+    return () => setUndoStepRequester(null);
+  }, [requestStep]);
+
+  // Undo/redo restored the other stores' part of the song
+  const pending = state.sequencer.pendingRestore;
+  useEffect(() => {
+    if (pending) restoreParticipants(pending.extras);
+  }, [pending]);
+
+  return useMemo(() => ({ state, dispatch }), [state, dispatch]);
 }

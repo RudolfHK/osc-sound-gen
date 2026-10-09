@@ -255,10 +255,17 @@ doesn't fade out after you press stop. Seeking while playing (clicking the ruler
 name) works the same way: the old notes stop and playback continues from the new spot. Volume
 changes from the master slider and the mixer faders also take effect at once.
 
+Starting playback (or seeking) in the middle of a held chord plays that chord straight away — the
+notes already held at that point are picked up ("note chase"), the way a DAW does. Sounds that
+have mostly decayed by then, like a piano struck two beats earlier, are left out rather than
+re-struck.
+
 **What undo covers:** everything in the song, including clips, notes, patterns, sections, automation,
-track names and colours, instruments, the arpeggiator and the whole mixer (faders, pan, EQ, sends,
-sidechain, mute and solo). One continuous movement of a fader or knob is a single undo step.
-The tempo, loop range and view (zoom, scroll) are not part of the undo history.
+track names and colours, instruments and their per-track settings, the arpeggiator, the whole mixer
+(faders, pan, EQ, sends, sidechain, mute and solo), drum patterns, the master effects, and the
+tempo, meter, song length and loop. One continuous movement of a fader or knob is a single undo
+step. Deleting a drum pattern removes the clips that use it, and one undo brings both back. The
+view (zoom, scroll) and the instrument library's own defaults are not part of the undo history.
 
 ---
 
@@ -390,7 +397,13 @@ track's ⋯ menu → **Choose instrument…**.
 
 ### Editing instrument parameters
 
-**Right-click a preset card** to open its editor:
+**Right-click a preset card** to open its editor. At the top, choose what you are changing:
+
+- **TRACK** — only the selected track. Two tracks can use the same preset and sound different (a
+  bright lead and a dark one). Available when the selected track plays this preset, and chosen by
+  default then. These settings are part of the song: they are undoable and saved in the project.
+- **LIBRARY** — the default for every track that uses this preset without its own settings. These
+  edits belong to your copy of the app, not to a song.
 
 | Parameter | Effect |
 |-----------|--------|
@@ -410,7 +423,9 @@ track's ⋯ menu → **Choose instrument…**.
 | **REVERB / DELAY / CHORUS** | How much of this instrument is sent to each master effect |
 
 Parameters are grouped into **TONE**, **ENVELOPE** and **MIX**. Changes apply immediately and
-persist across reloads. **RESET** restores the factory settings for that preset.
+persist across reloads. **RESET** clears the track's own settings (TRACK) or restores the factory
+settings for that preset (LIBRARY). When you save a project, library edits are written into each
+track that uses them, so the file sounds the same on any machine.
 **▶ AUDITION** at the bottom of the editor replays the preview so you can hear your edits.
 
 ### Why the instruments respond to how hard you play
@@ -795,7 +810,8 @@ live interaction, exporting the song is faster and exact.
 
 Everything — tracks, clips, patterns, sections, mixer, lab oscillators, drum patterns, effects — is
 kept in the browser and restored when you come back. Saving is batched and skipped during playback,
-so it costs nothing while you work.
+so it costs nothing while you work. If the browser's storage ever fills up, a notice says so — the
+session is then no longer being saved, so use **Save** to keep a file.
 
 ### Project files
 
@@ -811,9 +827,11 @@ so it costs nothing while you work.
 
 Click the project name next to the logo to rename it.
 
-A project file contains the complete song: tracks and their sounds, clips, patterns, sections,
-automation, mixer settings, tempo and loop — plus the drum patterns and lab oscillators it uses, so it
-opens the same way on another computer. Patterns no clip uses are left out.
+A project file contains the complete song: tracks and their sounds (including each track's own
+instrument settings), clips, patterns, sections, automation, mixer settings, the master effects,
+tempo and loop — plus the drum patterns and lab oscillators it uses, so it opens and sounds the same
+on another computer. Patterns no clip uses are left out. Files saved before the master effects were
+included open with the default effects.
 
 ### Older project files
 

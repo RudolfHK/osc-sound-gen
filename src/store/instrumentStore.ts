@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, type Dispatch } from 'react';
+import { createContext, useContext, useEffect, useMemo, useReducer, type Dispatch } from 'react';
 import { getInstrumentEngine, type InstrumentOverride, type InstrumentCategory } from '../engine/instruments';
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -92,9 +92,14 @@ export function useInstrumentReducer(): InstrumentCtx {
     return init;
   });
 
+  // Debounced, and only for what is worth keeping (not the search box)
+  const { isOpen, category, overrides } = state;
   useEffect(() => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) { /* quota */ }
-  }, [state]);
+    const id = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify({ isOpen, category, overrides })); } catch (_) { /* quota */ }
+    }, 400);
+    return () => clearTimeout(id);
+  }, [isOpen, category, overrides]);
 
   // Push overrides into the audio engine so the sequencer sees them whether or
   // not the library panel is mounted. (Which preset a track plays now lives on
@@ -103,5 +108,5 @@ export function useInstrumentReducer(): InstrumentCtx {
     getInstrumentEngine().setOverrides(state.overrides);
   }, [state.overrides]);
 
-  return { state, dispatch };
+  return useMemo(() => ({ state, dispatch }), [state]);
 }

@@ -149,6 +149,65 @@ export interface TimelineInput {
 
 const STEP_BEATS = 0.25;
 
+/**
+ * Notes sorted by start, cached per notes array (patterns are immutable, so an
+ * edit makes a new array). The scheduler asks for a few tenths of a beat at a
+ * time; with the notes sorted it finds that slice by binary search instead of
+ * testing every note in every pattern on every tick.
+ */
+const sortedCache = new WeakMap<SequencerNote[], SequencerNote[]>();
+
+function sortedByStart(notes: SequencerNote[]): SequencerNote[] {
+  let s = sortedCache.get(notes);
+  if (!s) {
+    s = [...notes].sort((a, b) => a.startBeat - b.startBeat);
+    sortedCache.set(notes, s);
+  }
+  return s;
+}
+
+/** First index whose start is >= q (with the same tolerance as `occurrences`). */
+function lowerBound(sorted: SequencerNote[], q: number): number {
+  let lo = 0, hi = sorted.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (sorted[mid].startBeat < q - 1e-9) lo = mid + 1; else hi = mid;
+  }
+  return lo;
+}
+
+/**
+ * Song positions of every note starting in song range [s0, s1) inside a clip
+ * — `occurrences` for a whole pattern at once. The clip-relative window is cut
+ * into one range per pattern repeat, and each range is looked up by search.
+ */
+function noteStartsInClip(
+  clip: Pick<Clip, 'startBeat' | 'lengthBeats' | 'offsetBeats'>,
+  P: number,
+  notes: SequencerNote[],
+  s0: number,
+  s1: number,
+  visit: (n: SequencerNote, at: number) => void,
+): void {
+  if (P <= 0) return;
+  const ua = Math.max(0, s0 - clip.startBeat);
+  const ub = Math.min(clip.lengthBeats, s1 - clip.startBeat);
+  if (ub <= ua) return;
+  const off = clip.offsetBeats % P;
+  const sorted = sortedByStart(notes);
+  // Pattern-time window [ua + off, ub + off), split at every repeat boundary
+  for (let rep = Math.floor((ua + off) / P) * P; rep < ub + off - 1e-9; rep += P) {
+    const lo = Math.max(ua + off, rep) - rep;
+    const hi = Math.min(ub + off, rep + P) - rep;
+    for (let i = lowerBound(sorted, lo); i < sorted.length; i++) {
+      const q = sorted[i].startBeat;
+      if (q >= hi - 1e-9 || q >= P) break;
+      if (q < 0) continue;
+      visit(sorted[i], clip.startBeat + rep + q - off);
+    }
+  }
+}
+
 /** Every event whose start falls in song range [s0, s1). */
 export function eventsInSegment(input: TimelineInput, seg: Segment): TimelineEvent[] {
   const { songStart: s0, songEnd: s1, offset } = seg;
@@ -182,17 +241,14 @@ export function eventsInSegment(input: TimelineInput, seg: Segment): TimelineEve
       } else {
         const pattern = input.patterns[clip.patternId];
         if (!pattern) continue;
-        const notes = input.notesFor(track, pattern);
-        for (const n of notes) {
-          for (const at of occurrences(clip, pattern.lengthBeats, n.startBeat, s0, s1)) {
-            out.push({
-              kind: 'note', track,
-              songBeat: at, monoBeat: at + offset,
-              midiNote: n.midiNote, velocity: n.velocity,
-              durationBeats: Math.max(0.01, Math.min(n.durationBeats, clipEnd - at)),
-            });
-          }
-        }
+        noteStartsInClip(clip, pattern.lengthBeats, input.notesFor(track, pattern), s0, s1, (n, at) => {
+          out.push({
+            kind: 'note', track,
+            songBeat: at, monoBeat: at + offset,
+            midiNote: n.midiNote, velocity: n.velocity,
+            durationBeats: Math.max(0.01, Math.min(n.durationBeats, clipEnd - at)),
+          });
+        });
       }
     }
   }
@@ -206,8 +262,63 @@ export function eventsInSegment(input: TimelineInput, seg: Segment): TimelineEve
   return out;
 }
 
+/** When an event actually sounds, in mono beats (drum swing delays the hit). */
+export function eventTime(e: TimelineEvent): number {
+  return e.kind === 'drum' ? e.monoBeat + e.swingBeats : e.monoBeat;
+}
+
+/**
+ * Every event that starts in mono window [a, b), in time order. Order matters
+ * beyond tidiness: a kick's sidechain duck rewrites the duck envelope from its
+ * own time onward, so an earlier kick scheduled after a later one would erase it.
+ */
 export function eventsInWindow(
   input: TimelineInput, a: number, b: number, loop: LoopConfig, engaged: boolean,
 ): TimelineEvent[] {
-  return windowSegments(a, b, loop, engaged).flatMap((seg) => eventsInSegment(input, seg));
+  const events = windowSegments(a, b, loop, engaged).flatMap((seg) => eventsInSegment(input, seg));
+  return events.sort((x, y) => eventTime(x) - eventTime(y));
+}
+
+/** A held note picked up partway through — see `heldNotesAt`. */
+export interface ChasedNote extends NoteEvent {
+  /** How far into the note playback starts, in beats. */
+  intoBeats: number;
+}
+
+/**
+ * Notes that started before `songBeat` and are still sounding there ("note
+ * chase"). Without this, starting playback in the middle of a held chord is
+ * silent until the next note begins. Returned events start at `songBeat` with
+ * their remaining length; notes with less than `minRemaining` beats left are
+ * skipped, since restarting a nearly finished note sounds like a glitch.
+ */
+export function heldNotesAt(input: TimelineInput, songBeat: number, minRemaining = 0.25): ChasedNote[] {
+  const out: ChasedNote[] = [];
+  for (const track of input.tracks) {
+    if (track.source.type === 'drums') continue;
+    for (const clip of track.clips) {
+      if (clip.muted) continue;
+      const clipEnd = clip.startBeat + clip.lengthBeats;
+      if (songBeat <= clip.startBeat || songBeat >= clipEnd) continue;
+      const pattern = input.patterns[clip.patternId];
+      if (!pattern) continue;
+      for (const n of input.notesFor(track, pattern)) {
+        // Starts in [songBeat - duration, songBeat): the occurrence that covers songBeat
+        const from = Math.max(clip.startBeat, songBeat - n.durationBeats);
+        for (const at of occurrences(clip, pattern.lengthBeats, n.startBeat, from, songBeat)) {
+          const end = Math.min(at + n.durationBeats, clipEnd);
+          const remaining = end - songBeat;
+          if (remaining < minRemaining) continue;
+          out.push({
+            kind: 'note', track,
+            songBeat, monoBeat: songBeat,
+            midiNote: n.midiNote, velocity: n.velocity,
+            durationBeats: remaining,
+            intoBeats: songBeat - at,
+          });
+        }
+      }
+    }
+  }
+  return out;
 }
