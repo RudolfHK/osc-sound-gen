@@ -25,10 +25,24 @@ const EQ_HIGH_HZ = 4000;
  *                                                       ├→ reverb send
  *                                                       ├→ delay send
  *                                                       └→ chorus send
+ *
+ * Instruments also have effect sends of their own (a pad's built-in reverb).
+ * Those enter at `instSends` and pass through the same mute and fader, so a
+ * fader, a volume lane, mute and solo control the whole sound of the track,
+ * wet and dry — not just the dry part. One ConstantSource per control drives
+ * every gain that follows it, so automation still writes a single parameter.
  */
 interface Strip {
   ctx: AudioContext;
   input: GainNode;
+  /** Drives the fader gain and the instrument-send faders together. */
+  faderCtl: ConstantSourceNode;
+  /** Drives the mute gains of the dry path and the instrument sends together. */
+  muteCtl: ConstantSourceNode;
+  /** Where voices send their own reverb/delay/chorus — post mute and fader. */
+  instSends: { reverb: GainNode; delay: GainNode; chorus: GainNode };
+  /** Every node owned by the instrument-send paths, for teardown. */
+  instNodes: AudioNode[];
   duck: GainNode;
   eqLow: BiquadFilterNode;
   eqMid: BiquadFilterNode;
@@ -45,6 +59,12 @@ interface Strip {
 }
 
 /** What the mixer last asked of a track's strip. */
+/** Where a track's voices connect: the dry input and the instrument-send inputs. */
+export interface StripRoute {
+  input: GainNode;
+  sends: { reverb: GainNode; delay: GainNode; chorus: GainNode };
+}
+
 interface Desired {
   settings: ChannelSettings;
   pan: number;
@@ -103,6 +123,19 @@ export class ChannelStripRack {
     eqHigh.frequency.value = EQ_HIGH_HZ;
     eqHigh.gain.value = 0;
 
+    // Fader and mute are driven by control sources so the instrument sends can
+    // follow them exactly (see the comment on Strip)
+    const faderCtl = ctx.createConstantSource();
+    const muteCtl = ctx.createConstantSource();
+    faderCtl.offset.value = 1;
+    muteCtl.offset.value = 1;
+    faderCtl.start();
+    muteCtl.start();
+    gain.gain.value = 0;
+    input.gain.value = 0;
+    faderCtl.connect(gain.gain);
+    muteCtl.connect(input.gain);
+
     input.connect(duck);
     duck.connect(eqLow);
     eqLow.connect(eqMid);
@@ -128,8 +161,30 @@ export class ChannelStripRack {
       sendChorus.connect(buses.chorus);
     }
 
+    // Instrument sends: in → mute → fader → bus
+    const instNodes: AudioNode[] = [];
+    const instPath = (bus: AudioNode | undefined): GainNode => {
+      const sendIn = ctx.createGain();
+      const mute = ctx.createGain();
+      const fader = ctx.createGain();
+      mute.gain.value = 0;
+      fader.gain.value = 0;
+      muteCtl.connect(mute.gain);
+      faderCtl.connect(fader.gain);
+      sendIn.connect(mute);
+      mute.connect(fader);
+      if (bus) fader.connect(bus);
+      instNodes.push(sendIn, mute, fader);
+      return sendIn;
+    };
+    const instSends = {
+      reverb: instPath(buses?.reverb),
+      delay: instPath(buses?.delay),
+      chorus: instPath(buses?.chorus),
+    };
+
     const strip: Strip = {
-      ctx, input, duck, eqLow, eqMid, eqHigh, gain, panner,
+      ctx, input, faderCtl, muteCtl, instSends, instNodes, duck, eqLow, eqMid, eqHigh, gain, panner,
       sendReverb, sendDelay, sendChorus, sidechain: 0, analyser: null,
     };
     strips.set(tabId, strip);
@@ -139,14 +194,15 @@ export class ChannelStripRack {
     const d = this.desired.get(tabId);
     if (d) {
       this.write(strip, d, (param, value) => { param.value = value; });
-      input.gain.value = d.muted ? 0 : 1;
+      muteCtl.offset.value = d.muted ? 0 : 1;
     }
     return strip;
   }
 
-  /** The node a track's voices should connect to. */
-  getInput(tabId: string): GainNode | null {
-    return this.get(tabId)?.input ?? null;
+  /** Where a track's voices connect: dry signal and their own effect sends. */
+  getRoute(tabId: string): StripRoute | null {
+    const s = this.get(tabId);
+    return s ? { input: s.input, sends: s.instSends } : null;
   }
 
   // ─── Settings ───────────────────────────────────────────────────────────────
@@ -177,7 +233,7 @@ export class ChannelStripRack {
       if (!automated.has(name)) to(param, value);
     };
 
-    set('volume', s.gain.gain, settings.gain);
+    set('volume', s.faderCtl.offset, settings.gain);
     set('pan', s.panner.pan, Math.max(-1, Math.min(1, pan)));
     set('eqLow', s.eqLow.gain, settings.eqLow);
     set('eqMid', s.eqMid.gain, settings.eqMid);
@@ -197,7 +253,7 @@ export class ChannelStripRack {
     const s = this.get(tabId);
     if (!s) return null;
     return {
-      volume: s.gain.gain,
+      volume: s.faderCtl.offset,
       pan: s.panner.pan,
       eqLow: s.eqLow.gain,
       eqMid: s.eqMid.gain,
@@ -237,7 +293,7 @@ export class ChannelStripRack {
   haltAutomation(): void {
     for (const s of this.strips.values()) {
       const now = s.ctx.currentTime;
-      for (const p of [s.gain.gain, s.panner.pan, s.eqLow.gain, s.eqMid.gain, s.eqHigh.gain,
+      for (const p of [s.faderCtl.offset, s.panner.pan, s.eqLow.gain, s.eqMid.gain, s.eqHigh.gain,
                        s.sendReverb.gain, s.sendDelay.gain, s.sendChorus.gain]) {
         holdAt(p, now);
       }
@@ -272,7 +328,7 @@ export class ChannelStripRack {
     if (d) d.muted = muted;
     const s = this.get(trackId);
     if (!s) return;
-    s.input.gain.setTargetAtTime(muted ? 0 : 1, s.ctx.currentTime, TC);
+    s.muteCtl.offset.setTargetAtTime(muted ? 0 : 1, s.ctx.currentTime, TC);
   }
 
   /** Release strips for tracks that no longer exist. */
@@ -296,8 +352,11 @@ export class ChannelStripRack {
   release(tabId: string): void {
     const s = this.strips.get(tabId);
     if (!s) return;
-    for (const n of [s.input, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
-                     s.sendReverb, s.sendDelay, s.sendChorus, s.analyser]) {
+    for (const c of [s.faderCtl, s.muteCtl]) {
+      try { c.stop(); } catch (_) { /* already stopped */ }
+    }
+    for (const n of [s.input, s.faderCtl, s.muteCtl, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
+                     s.sendReverb, s.sendDelay, s.sendChorus, s.analyser, ...s.instNodes]) {
       try { n?.disconnect(); } catch (_) { /* already gone */ }
     }
     this.strips.delete(tabId);

@@ -1,6 +1,6 @@
 # OSC — Digital Oscillator Synthesizer
 
-A browser-based (and optionally desktop) music production app: an arrangement of tracks, clips and song sections; a piano roll and drum step sequencer; 219 synthesized instruments; a mixer with per-track EQ, sends and sidechain; master effects; automation; and an optional oscillator lab with a live oscilloscope. Everything is synthesized in real time by the Web Audio API — no sample files.
+A browser-based (and optionally desktop) music production app: an arrangement of tracks, clips and song sections; a piano roll and drum step sequencer; 223 synthesized instruments; a mixer with per-track EQ, sends and sidechain; master effects; automation; and an optional oscillator lab with a live oscilloscope. Everything is synthesized in real time by the Web Audio API — no sample files.
 
 ---
 
@@ -124,16 +124,16 @@ For the complete Electron packaging guide including code signing and auto-update
 - Per-voice mute/solo; BPM syncs to the sequencer
 
 ### Instrument Library
-- **219 subtractive-synthesis presets** across eighteen categories:
+- **223 subtractive-synthesis presets** across eighteen categories:
 
   | Group | Categories |
   |-------|-----------|
-  | Keyboards | Piano (6), Keys (12), Organ (9) |
-  | Synths | Synth Lead (16), Synth Pad (16), Synth Bass (13), Synth Pluck (9) |
+  | Keyboards | Piano (6), Keys (12), Organ (10) |
+  | Synths | Synth Lead (16), Synth Pad (16), Synth Bass (14), Synth Pluck (9) |
   | Guitars | Electric (14), Acoustic (9), Bass Guitar (8) |
   | Orchestral | Strings (15), Brass (13), Woodwind (17) |
-  | Tuned percussion | Mallets (11), Plucked (15) |
-  | Other | Vocal (10), World (15), FX (11) |
+  | Tuned percussion | Mallets (12), Plucked (15) |
+  | Other | Vocal (10), World (15), FX (12) |
 
 - Acoustic pianos, Rhodes/Wurlitzer, harmonium, tape flute and tape choir; church, drawbar,
   theatre, gospel and calliope organs
@@ -149,6 +149,8 @@ For the complete Electron packaging guide including code signing and auto-update
   sitar, banjo, mandolin, ukulele, kalimba; erhu, sarangi, oud, bouzouki, shamisen, kora,
   santoor, charango, duduk, ney, dizi, gamelan, hang drum, didgeridoo, bagpipe
 - Choirs: aahs, oohs, boys, male, breath and doo choirs, soprano, vocal pad, vocoder
+- Genre essentials: **808 Cowbell** (the drift-phonk lead, playable as notes), **808 Glide** bass,
+  **House Organ** stab, and a **Trap Hat** you play from the piano roll for 1/32 and triplet rolls
 - Guitars span clean, jazz, jangle, crunch, overdrive, distortion, shoegaze, palm mute, funk
   wah, surf tremolo, slide, e-bow, harmonics and power chord (electric); steel, nylon,
   12-string, folk, bright, picked, parlor, muted and resonator (acoustic)
@@ -240,13 +242,14 @@ For the complete Electron packaging guide including code signing and auto-update
 - Older project files and saved sessions migrate automatically
 
 ### Example projects
-Eight compositions ship with the app — open them from **OSC ▾ → Open example**, or find the files in
+Fifteen compositions ship with the app — open them from **OSC ▾ → Open example**, or find the files in
 [`examples/`](examples/README.md). They include `midnight-drive`, an original French-touch study that uses
 sections, looping clips, the arpeggiator, filter/resonance automation and sidechain together;
 `midnight-drive-extended`, the same material grown into a full 98-bar song with builds, a breakdown,
-a drop, a bridge with its own chord progression and an outro; four
-Minecraft/C418-style pieces; an ambient pad study; and a fast arpeggio over techno drums. All are original
-compositions.
+a drop, a bridge with its own chord progression and an outro; seven Minecraft/C418-style pieces
+(three of them full 1½-minute songs); two phonk tracks (808 cowbell lead, gliding 808, 1/32 hat
+rolls); two deep-house tracks (minor-ninth Rhodes, organ stabs, swung hats); an ambient pad study; and a
+fast arpeggio over techno drums. All are original compositions — genre and style studies, not covers.
 
 ---
 
@@ -319,7 +322,7 @@ src/
 │   ├── playhead.ts          live position outside React state
 │   ├── emit.ts              timeline events → sound, shared by playback and export
 │   ├── pcmRecorder.ts       lossless live recording (with pcm-tap.worklet.js)
-│   ├── instruments.ts       219 presets, polyphonic preset + oscillator voices
+│   ├── instruments.ts       223 presets, polyphonic preset + oscillator voices
 │   ├── sampler.ts           33 synthesized drum voices
 │   ├── channelStrip.ts      per-track EQ, fader, pan, sends, mute, sidechain, meters
 │   ├── effects.ts           master reverb, delay, chorus

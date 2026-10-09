@@ -1,0 +1,3749 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Velvet Hours",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 122,
+ "beatsPerBar": 4,
+ "songLengthBars": 64,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 256
+ },
+ "masterVolume": 0.8,
+ "tracks": [
+  {
+   "id": "trk-velvethours-270",
+   "name": "Drums",
+   "color": "#f59e0b",
+   "source": {
+    "type": "drums"
+   },
+   "clips": [
+    {
+     "id": "clip-velvethours-263",
+     "patternId": "dp-velvethours-259",
+     "startBeat": 0,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-264",
+     "patternId": "dp-velvethours-260",
+     "startBeat": 64,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-265",
+     "patternId": "dp-velvethours-261",
+     "startBeat": 128,
+     "lengthBeats": 28,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-266",
+     "patternId": "dp-velvethours-262",
+     "startBeat": 156,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-267",
+     "patternId": "dp-velvethours-260",
+     "startBeat": 160,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-268",
+     "patternId": "dp-velvethours-260",
+     "startBeat": 224,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-269",
+     "patternId": "dp-velvethours-259",
+     "startBeat": 240,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.4,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.04,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-velvethours-280",
+   "name": "Bass",
+   "color": "#0ea5e9",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-house"
+   },
+   "clips": [
+    {
+     "id": "clip-velvethours-271",
+     "patternId": "pat-velvethours-200",
+     "startBeat": 32,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-272",
+     "patternId": "pat-velvethours-200",
+     "startBeat": 160,
+     "lengthBeats": 80,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.55
+   },
+   "lanes": [
+    {
+     "id": "lane-velvethours-273",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-velvethours-274",
+       "beat": 32,
+       "value": 0.25
+      },
+      {
+       "id": "pt-velvethours-275",
+       "beat": 64,
+       "value": 0.5
+      },
+      {
+       "id": "pt-velvethours-276",
+       "beat": 128,
+       "value": 0.55
+      },
+      {
+       "id": "pt-velvethours-277",
+       "beat": 160,
+       "value": 0.62
+      },
+      {
+       "id": "pt-velvethours-278",
+       "beat": 224,
+       "value": 0.58
+      },
+      {
+       "id": "pt-velvethours-279",
+       "beat": 240,
+       "value": 0.3
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": "lane-velvethours-273"
+  },
+  {
+   "id": "trk-velvethours-289",
+   "name": "Rhodes",
+   "color": "#fbbf24",
+   "source": {
+    "type": "preset",
+    "presetId": "keys-rhodes"
+   },
+   "clips": [
+    {
+     "id": "clip-velvethours-281",
+     "patternId": "pat-velvethours-151",
+     "startBeat": 64,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-282",
+     "patternId": "pat-velvethours-151",
+     "startBeat": 160,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.12,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.6,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.2,
+    "sendDelay": 0.08,
+    "sendChorus": 0.2,
+    "sidechain": 0.35
+   },
+   "lanes": [
+    {
+     "id": "lane-velvethours-283",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-velvethours-284",
+       "beat": 64,
+       "value": 0.45
+      },
+      {
+       "id": "pt-velvethours-285",
+       "beat": 128,
+       "value": 0.62
+      },
+      {
+       "id": "pt-velvethours-286",
+       "beat": 136,
+       "value": 0.4
+      },
+      {
+       "id": "pt-velvethours-287",
+       "beat": 156,
+       "value": 0.62
+      },
+      {
+       "id": "pt-velvethours-288",
+       "beat": 224,
+       "value": 0.65
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": true,
+   "activeLaneId": "lane-velvethours-283"
+  },
+  {
+   "id": "trk-velvethours-291",
+   "name": "Pad",
+   "color": "#8b5cf6",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-warm"
+   },
+   "clips": [
+    {
+     "id": "clip-velvethours-290",
+     "patternId": "pat-velvethours-220",
+     "startBeat": 96,
+     "lengthBeats": 128,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.4,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.6
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-velvethours-294",
+   "name": "Vocal",
+   "color": "#f472b6",
+   "source": {
+    "type": "preset",
+    "presetId": "voc-ooh"
+   },
+   "clips": [
+    {
+     "id": "clip-velvethours-292",
+     "patternId": "pat-velvethours-233",
+     "startBeat": 128,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-velvethours-293",
+     "patternId": "pat-velvethours-233",
+     "startBeat": 192,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.15,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.4
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-velvethours-296",
+   "name": "Hook",
+   "color": "#22d3ee",
+   "source": {
+    "type": "preset",
+    "presetId": "pluck-glass-syn"
+   },
+   "clips": [
+    {
+     "id": "clip-velvethours-295",
+     "patternId": "pat-velvethours-258",
+     "startBeat": 160,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.2,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.5,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.25,
+    "sendDelay": 0.3,
+    "sendChorus": 0.0,
+    "sidechain": 0.2
+   },
+   "lanes": [],
+   "patch": {
+    "volume": 0.9
+   },
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-velvethours-151",
+   "name": "Rhodes \u00b7 stabs",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-velvethours-1",
+     "midiNote": 59,
+     "startBeat": 0.0093,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-2",
+     "midiNote": 60,
+     "startBeat": 0.0053,
+     "durationBeats": 0.45,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-3",
+     "midiNote": 64,
+     "startBeat": 0.0036,
+     "durationBeats": 0.45,
+     "velocity": 91
+    },
+    {
+     "id": "n-velvethours-4",
+     "midiNote": 67,
+     "startBeat": 0.0087,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-5",
+     "midiNote": 59,
+     "startBeat": 0.7535,
+     "durationBeats": 0.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-6",
+     "midiNote": 60,
+     "startBeat": 0.7599,
+     "durationBeats": 0.5,
+     "velocity": 75
+    },
+    {
+     "id": "n-velvethours-7",
+     "midiNote": 64,
+     "startBeat": 0.7586,
+     "durationBeats": 0.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-8",
+     "midiNote": 67,
+     "startBeat": 0.7589,
+     "durationBeats": 0.5,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-9",
+     "midiNote": 59,
+     "startBeat": 1.5084,
+     "durationBeats": 0.4,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-10",
+     "midiNote": 60,
+     "startBeat": 1.5064,
+     "durationBeats": 0.4,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-11",
+     "midiNote": 64,
+     "startBeat": 1.5041,
+     "durationBeats": 0.4,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-12",
+     "midiNote": 67,
+     "startBeat": 1.5026,
+     "durationBeats": 0.4,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-13",
+     "midiNote": 59,
+     "startBeat": 2.5081,
+     "durationBeats": 0.45,
+     "velocity": 74
+    },
+    {
+     "id": "n-velvethours-14",
+     "midiNote": 60,
+     "startBeat": 2.5092,
+     "durationBeats": 0.45,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-15",
+     "midiNote": 64,
+     "startBeat": 2.5008,
+     "durationBeats": 0.45,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-16",
+     "midiNote": 67,
+     "startBeat": 2.5075,
+     "durationBeats": 0.45,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-17",
+     "midiNote": 59,
+     "startBeat": 3.2593,
+     "durationBeats": 0.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-18",
+     "midiNote": 60,
+     "startBeat": 3.2596,
+     "durationBeats": 0.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-19",
+     "midiNote": 64,
+     "startBeat": 3.2551,
+     "durationBeats": 0.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-20",
+     "midiNote": 67,
+     "startBeat": 3.2523,
+     "durationBeats": 0.6,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-21",
+     "midiNote": 59,
+     "startBeat": 4.006,
+     "durationBeats": 0.45,
+     "velocity": 89
+    },
+    {
+     "id": "n-velvethours-22",
+     "midiNote": 60,
+     "startBeat": 4.0081,
+     "durationBeats": 0.45,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-23",
+     "midiNote": 64,
+     "startBeat": 4.0072,
+     "durationBeats": 0.45,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-24",
+     "midiNote": 67,
+     "startBeat": 4.0031,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-25",
+     "midiNote": 59,
+     "startBeat": 4.7527,
+     "durationBeats": 0.5,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-26",
+     "midiNote": 60,
+     "startBeat": 4.7512,
+     "durationBeats": 0.5,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-27",
+     "midiNote": 64,
+     "startBeat": 4.7576,
+     "durationBeats": 0.5,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-28",
+     "midiNote": 67,
+     "startBeat": 4.7593,
+     "durationBeats": 0.5,
+     "velocity": 74
+    },
+    {
+     "id": "n-velvethours-29",
+     "midiNote": 59,
+     "startBeat": 5.5038,
+     "durationBeats": 0.4,
+     "velocity": 84
+    },
+    {
+     "id": "n-velvethours-30",
+     "midiNote": 60,
+     "startBeat": 5.5072,
+     "durationBeats": 0.4,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-31",
+     "midiNote": 64,
+     "startBeat": 5.5,
+     "durationBeats": 0.4,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-32",
+     "midiNote": 67,
+     "startBeat": 5.5077,
+     "durationBeats": 0.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-33",
+     "midiNote": 59,
+     "startBeat": 6.5028,
+     "durationBeats": 0.45,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-34",
+     "midiNote": 60,
+     "startBeat": 6.5023,
+     "durationBeats": 0.45,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-35",
+     "midiNote": 64,
+     "startBeat": 6.5083,
+     "durationBeats": 0.45,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-36",
+     "midiNote": 67,
+     "startBeat": 6.5063,
+     "durationBeats": 0.45,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-37",
+     "midiNote": 59,
+     "startBeat": 7.2582,
+     "durationBeats": 0.6,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-38",
+     "midiNote": 60,
+     "startBeat": 7.2578,
+     "durationBeats": 0.6,
+     "velocity": 70
+    },
+    {
+     "id": "n-velvethours-39",
+     "midiNote": 64,
+     "startBeat": 7.254,
+     "durationBeats": 0.6,
+     "velocity": 70
+    },
+    {
+     "id": "n-velvethours-40",
+     "midiNote": 67,
+     "startBeat": 7.2516,
+     "durationBeats": 0.6,
+     "velocity": 67
+    },
+    {
+     "id": "n-velvethours-41",
+     "midiNote": 60,
+     "startBeat": 8.0086,
+     "durationBeats": 0.45,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-42",
+     "midiNote": 64,
+     "startBeat": 8.0097,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-43",
+     "midiNote": 67,
+     "startBeat": 8.0007,
+     "durationBeats": 0.45,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-44",
+     "midiNote": 69,
+     "startBeat": 8.0073,
+     "durationBeats": 0.45,
+     "velocity": 84
+    },
+    {
+     "id": "n-velvethours-45",
+     "midiNote": 60,
+     "startBeat": 8.7516,
+     "durationBeats": 0.5,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-46",
+     "midiNote": 64,
+     "startBeat": 8.7581,
+     "durationBeats": 0.5,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-47",
+     "midiNote": 67,
+     "startBeat": 8.752,
+     "durationBeats": 0.5,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-48",
+     "midiNote": 69,
+     "startBeat": 8.7559,
+     "durationBeats": 0.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-49",
+     "midiNote": 60,
+     "startBeat": 9.5064,
+     "durationBeats": 0.4,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-50",
+     "midiNote": 64,
+     "startBeat": 9.5077,
+     "durationBeats": 0.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-51",
+     "midiNote": 67,
+     "startBeat": 9.5033,
+     "durationBeats": 0.4,
+     "velocity": 84
+    },
+    {
+     "id": "n-velvethours-52",
+     "midiNote": 69,
+     "startBeat": 9.5099,
+     "durationBeats": 0.4,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-53",
+     "midiNote": 60,
+     "startBeat": 10.5026,
+     "durationBeats": 0.45,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-54",
+     "midiNote": 64,
+     "startBeat": 10.5047,
+     "durationBeats": 0.45,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-55",
+     "midiNote": 67,
+     "startBeat": 10.502,
+     "durationBeats": 0.45,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-56",
+     "midiNote": 69,
+     "startBeat": 10.5043,
+     "durationBeats": 0.45,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-57",
+     "midiNote": 60,
+     "startBeat": 11.2575,
+     "durationBeats": 0.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-58",
+     "midiNote": 64,
+     "startBeat": 11.2572,
+     "durationBeats": 0.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-59",
+     "midiNote": 67,
+     "startBeat": 11.2568,
+     "durationBeats": 0.6,
+     "velocity": 74
+    },
+    {
+     "id": "n-velvethours-60",
+     "midiNote": 69,
+     "startBeat": 11.2538,
+     "durationBeats": 0.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-61",
+     "midiNote": 60,
+     "startBeat": 12.0086,
+     "durationBeats": 0.45,
+     "velocity": 84
+    },
+    {
+     "id": "n-velvethours-62",
+     "midiNote": 64,
+     "startBeat": 12.0019,
+     "durationBeats": 0.45,
+     "velocity": 89
+    },
+    {
+     "id": "n-velvethours-63",
+     "midiNote": 67,
+     "startBeat": 12.0075,
+     "durationBeats": 0.45,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-64",
+     "midiNote": 69,
+     "startBeat": 12.007,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-65",
+     "midiNote": 60,
+     "startBeat": 12.7592,
+     "durationBeats": 0.5,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-66",
+     "midiNote": 64,
+     "startBeat": 12.753,
+     "durationBeats": 0.5,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-67",
+     "midiNote": 67,
+     "startBeat": 12.7578,
+     "durationBeats": 0.5,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-68",
+     "midiNote": 69,
+     "startBeat": 12.7523,
+     "durationBeats": 0.5,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-69",
+     "midiNote": 60,
+     "startBeat": 13.5058,
+     "durationBeats": 0.4,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-70",
+     "midiNote": 64,
+     "startBeat": 13.5087,
+     "durationBeats": 0.4,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-71",
+     "midiNote": 67,
+     "startBeat": 13.5072,
+     "durationBeats": 0.4,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-72",
+     "midiNote": 69,
+     "startBeat": 13.5033,
+     "durationBeats": 0.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-73",
+     "midiNote": 60,
+     "startBeat": 14.5082,
+     "durationBeats": 0.45,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-74",
+     "midiNote": 64,
+     "startBeat": 14.5091,
+     "durationBeats": 0.45,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-75",
+     "midiNote": 67,
+     "startBeat": 14.5022,
+     "durationBeats": 0.45,
+     "velocity": 74
+    },
+    {
+     "id": "n-velvethours-76",
+     "midiNote": 69,
+     "startBeat": 14.5096,
+     "durationBeats": 0.45,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-77",
+     "midiNote": 60,
+     "startBeat": 15.2525,
+     "durationBeats": 0.6,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-78",
+     "midiNote": 64,
+     "startBeat": 15.2558,
+     "durationBeats": 0.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-79",
+     "midiNote": 67,
+     "startBeat": 15.255,
+     "durationBeats": 0.6,
+     "velocity": 71
+    },
+    {
+     "id": "n-velvethours-80",
+     "midiNote": 69,
+     "startBeat": 15.2513,
+     "durationBeats": 0.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-81",
+     "midiNote": 60,
+     "startBeat": 16.0083,
+     "durationBeats": 0.45,
+     "velocity": 87
+    },
+    {
+     "id": "n-velvethours-82",
+     "midiNote": 64,
+     "startBeat": 16.0094,
+     "durationBeats": 0.45,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-83",
+     "midiNote": 65,
+     "startBeat": 16.0093,
+     "durationBeats": 0.45,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-84",
+     "midiNote": 69,
+     "startBeat": 16.005,
+     "durationBeats": 0.45,
+     "velocity": 85
+    },
+    {
+     "id": "n-velvethours-85",
+     "midiNote": 60,
+     "startBeat": 16.7502,
+     "durationBeats": 0.5,
+     "velocity": 75
+    },
+    {
+     "id": "n-velvethours-86",
+     "midiNote": 64,
+     "startBeat": 16.7556,
+     "durationBeats": 0.5,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-87",
+     "midiNote": 65,
+     "startBeat": 16.7501,
+     "durationBeats": 0.5,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-88",
+     "midiNote": 69,
+     "startBeat": 16.7591,
+     "durationBeats": 0.5,
+     "velocity": 71
+    },
+    {
+     "id": "n-velvethours-89",
+     "midiNote": 60,
+     "startBeat": 17.5035,
+     "durationBeats": 0.4,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-90",
+     "midiNote": 64,
+     "startBeat": 17.5036,
+     "durationBeats": 0.4,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-91",
+     "midiNote": 65,
+     "startBeat": 17.5048,
+     "durationBeats": 0.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-92",
+     "midiNote": 69,
+     "startBeat": 17.5032,
+     "durationBeats": 0.4,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-93",
+     "midiNote": 60,
+     "startBeat": 18.5077,
+     "durationBeats": 0.45,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-94",
+     "midiNote": 64,
+     "startBeat": 18.5063,
+     "durationBeats": 0.45,
+     "velocity": 75
+    },
+    {
+     "id": "n-velvethours-95",
+     "midiNote": 65,
+     "startBeat": 18.5054,
+     "durationBeats": 0.45,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-96",
+     "midiNote": 69,
+     "startBeat": 18.5009,
+     "durationBeats": 0.45,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-97",
+     "midiNote": 60,
+     "startBeat": 19.2559,
+     "durationBeats": 0.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-velvethours-98",
+     "midiNote": 64,
+     "startBeat": 19.2564,
+     "durationBeats": 0.6,
+     "velocity": 71
+    },
+    {
+     "id": "n-velvethours-99",
+     "midiNote": 65,
+     "startBeat": 19.2506,
+     "durationBeats": 0.6,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-100",
+     "midiNote": 69,
+     "startBeat": 19.2534,
+     "durationBeats": 0.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-velvethours-101",
+     "midiNote": 60,
+     "startBeat": 20.0063,
+     "durationBeats": 0.45,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-102",
+     "midiNote": 64,
+     "startBeat": 20.0062,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-103",
+     "midiNote": 65,
+     "startBeat": 20.0097,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-104",
+     "midiNote": 69,
+     "startBeat": 20.0046,
+     "durationBeats": 0.45,
+     "velocity": 88
+    },
+    {
+     "id": "n-velvethours-105",
+     "midiNote": 60,
+     "startBeat": 20.7588,
+     "durationBeats": 0.5,
+     "velocity": 70
+    },
+    {
+     "id": "n-velvethours-106",
+     "midiNote": 64,
+     "startBeat": 20.7548,
+     "durationBeats": 0.5,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-107",
+     "midiNote": 65,
+     "startBeat": 20.759,
+     "durationBeats": 0.5,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-108",
+     "midiNote": 69,
+     "startBeat": 20.7547,
+     "durationBeats": 0.5,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-109",
+     "midiNote": 60,
+     "startBeat": 21.5043,
+     "durationBeats": 0.4,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-110",
+     "midiNote": 64,
+     "startBeat": 21.5059,
+     "durationBeats": 0.4,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-111",
+     "midiNote": 65,
+     "startBeat": 21.5084,
+     "durationBeats": 0.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-112",
+     "midiNote": 69,
+     "startBeat": 21.5055,
+     "durationBeats": 0.4,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-113",
+     "midiNote": 60,
+     "startBeat": 22.5,
+     "durationBeats": 0.45,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-114",
+     "midiNote": 64,
+     "startBeat": 22.5069,
+     "durationBeats": 0.45,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-115",
+     "midiNote": 65,
+     "startBeat": 22.5059,
+     "durationBeats": 0.45,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-116",
+     "midiNote": 69,
+     "startBeat": 22.5095,
+     "durationBeats": 0.45,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-117",
+     "midiNote": 60,
+     "startBeat": 23.2573,
+     "durationBeats": 0.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-118",
+     "midiNote": 64,
+     "startBeat": 23.2518,
+     "durationBeats": 0.6,
+     "velocity": 75
+    },
+    {
+     "id": "n-velvethours-119",
+     "midiNote": 65,
+     "startBeat": 23.2523,
+     "durationBeats": 0.6,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-120",
+     "midiNote": 69,
+     "startBeat": 23.2569,
+     "durationBeats": 0.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-velvethours-121",
+     "midiNote": 59,
+     "startBeat": 24.003,
+     "durationBeats": 0.45,
+     "velocity": 84
+    },
+    {
+     "id": "n-velvethours-122",
+     "midiNote": 62,
+     "startBeat": 24.0017,
+     "durationBeats": 0.45,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-123",
+     "midiNote": 67,
+     "startBeat": 24.0045,
+     "durationBeats": 0.45,
+     "velocity": 88
+    },
+    {
+     "id": "n-velvethours-124",
+     "midiNote": 59,
+     "startBeat": 24.7546,
+     "durationBeats": 0.5,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-125",
+     "midiNote": 62,
+     "startBeat": 24.7515,
+     "durationBeats": 0.5,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-126",
+     "midiNote": 67,
+     "startBeat": 24.7565,
+     "durationBeats": 0.5,
+     "velocity": 71
+    },
+    {
+     "id": "n-velvethours-127",
+     "midiNote": 59,
+     "startBeat": 25.5088,
+     "durationBeats": 0.4,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-128",
+     "midiNote": 62,
+     "startBeat": 25.5037,
+     "durationBeats": 0.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-129",
+     "midiNote": 67,
+     "startBeat": 25.5077,
+     "durationBeats": 0.4,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-130",
+     "midiNote": 59,
+     "startBeat": 26.5067,
+     "durationBeats": 0.45,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-131",
+     "midiNote": 62,
+     "startBeat": 26.5,
+     "durationBeats": 0.45,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-132",
+     "midiNote": 67,
+     "startBeat": 26.5059,
+     "durationBeats": 0.45,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-133",
+     "midiNote": 59,
+     "startBeat": 27.2504,
+     "durationBeats": 0.6,
+     "velocity": 71
+    },
+    {
+     "id": "n-velvethours-134",
+     "midiNote": 62,
+     "startBeat": 27.2569,
+     "durationBeats": 0.6,
+     "velocity": 67
+    },
+    {
+     "id": "n-velvethours-135",
+     "midiNote": 67,
+     "startBeat": 27.2525,
+     "durationBeats": 0.6,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-136",
+     "midiNote": 59,
+     "startBeat": 28.0085,
+     "durationBeats": 0.45,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-137",
+     "midiNote": 62,
+     "startBeat": 28.0027,
+     "durationBeats": 0.45,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-138",
+     "midiNote": 67,
+     "startBeat": 28.0095,
+     "durationBeats": 0.45,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-139",
+     "midiNote": 59,
+     "startBeat": 28.7527,
+     "durationBeats": 0.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-140",
+     "midiNote": 62,
+     "startBeat": 28.7526,
+     "durationBeats": 0.5,
+     "velocity": 68
+    },
+    {
+     "id": "n-velvethours-141",
+     "midiNote": 67,
+     "startBeat": 28.7524,
+     "durationBeats": 0.5,
+     "velocity": 75
+    },
+    {
+     "id": "n-velvethours-142",
+     "midiNote": 59,
+     "startBeat": 29.5086,
+     "durationBeats": 0.4,
+     "velocity": 84
+    },
+    {
+     "id": "n-velvethours-143",
+     "midiNote": 62,
+     "startBeat": 29.5016,
+     "durationBeats": 0.4,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-144",
+     "midiNote": 67,
+     "startBeat": 29.5088,
+     "durationBeats": 0.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-145",
+     "midiNote": 59,
+     "startBeat": 30.5057,
+     "durationBeats": 0.45,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-146",
+     "midiNote": 62,
+     "startBeat": 30.5013,
+     "durationBeats": 0.45,
+     "velocity": 72
+    },
+    {
+     "id": "n-velvethours-147",
+     "midiNote": 67,
+     "startBeat": 30.5037,
+     "durationBeats": 0.45,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-148",
+     "midiNote": 59,
+     "startBeat": 31.2555,
+     "durationBeats": 0.6,
+     "velocity": 67
+    },
+    {
+     "id": "n-velvethours-149",
+     "midiNote": 62,
+     "startBeat": 31.2519,
+     "durationBeats": 0.6,
+     "velocity": 71
+    },
+    {
+     "id": "n-velvethours-150",
+     "midiNote": 67,
+     "startBeat": 31.2585,
+     "durationBeats": 0.6,
+     "velocity": 72
+    }
+   ]
+  },
+  {
+   "id": "pat-velvethours-200",
+   "name": "Bass \u00b7 rolling",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-velvethours-152",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 0.35,
+     "velocity": 101
+    },
+    {
+     "id": "n-velvethours-153",
+     "midiNote": 45,
+     "startBeat": 0.75,
+     "durationBeats": 0.2,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-154",
+     "midiNote": 57,
+     "startBeat": 1.5,
+     "durationBeats": 0.3,
+     "velocity": 95
+    },
+    {
+     "id": "n-velvethours-155",
+     "midiNote": 45,
+     "startBeat": 2.25,
+     "durationBeats": 0.2,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-156",
+     "midiNote": 52,
+     "startBeat": 2.5,
+     "durationBeats": 0.4,
+     "velocity": 85
+    },
+    {
+     "id": "n-velvethours-157",
+     "midiNote": 45,
+     "startBeat": 3.5,
+     "durationBeats": 0.35,
+     "velocity": 100
+    },
+    {
+     "id": "n-velvethours-158",
+     "midiNote": 45,
+     "startBeat": 4,
+     "durationBeats": 0.35,
+     "velocity": 105
+    },
+    {
+     "id": "n-velvethours-159",
+     "midiNote": 45,
+     "startBeat": 4.75,
+     "durationBeats": 0.2,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-160",
+     "midiNote": 57,
+     "startBeat": 5.5,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-velvethours-161",
+     "midiNote": 45,
+     "startBeat": 6.25,
+     "durationBeats": 0.2,
+     "velocity": 73
+    },
+    {
+     "id": "n-velvethours-162",
+     "midiNote": 52,
+     "startBeat": 6.5,
+     "durationBeats": 0.4,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-163",
+     "midiNote": 45,
+     "startBeat": 7.5,
+     "durationBeats": 0.35,
+     "velocity": 99
+    },
+    {
+     "id": "n-velvethours-164",
+     "midiNote": 41,
+     "startBeat": 8,
+     "durationBeats": 0.35,
+     "velocity": 106
+    },
+    {
+     "id": "n-velvethours-165",
+     "midiNote": 41,
+     "startBeat": 8.75,
+     "durationBeats": 0.2,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-166",
+     "midiNote": 53,
+     "startBeat": 9.5,
+     "durationBeats": 0.3,
+     "velocity": 91
+    },
+    {
+     "id": "n-velvethours-167",
+     "midiNote": 41,
+     "startBeat": 10.25,
+     "durationBeats": 0.2,
+     "velocity": 76
+    },
+    {
+     "id": "n-velvethours-168",
+     "midiNote": 48,
+     "startBeat": 10.5,
+     "durationBeats": 0.4,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-169",
+     "midiNote": 41,
+     "startBeat": 11.5,
+     "durationBeats": 0.35,
+     "velocity": 95
+    },
+    {
+     "id": "n-velvethours-170",
+     "midiNote": 41,
+     "startBeat": 12,
+     "durationBeats": 0.35,
+     "velocity": 108
+    },
+    {
+     "id": "n-velvethours-171",
+     "midiNote": 41,
+     "startBeat": 12.75,
+     "durationBeats": 0.2,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-172",
+     "midiNote": 53,
+     "startBeat": 13.5,
+     "durationBeats": 0.3,
+     "velocity": 93
+    },
+    {
+     "id": "n-velvethours-173",
+     "midiNote": 41,
+     "startBeat": 14.25,
+     "durationBeats": 0.2,
+     "velocity": 74
+    },
+    {
+     "id": "n-velvethours-174",
+     "midiNote": 48,
+     "startBeat": 14.5,
+     "durationBeats": 0.4,
+     "velocity": 85
+    },
+    {
+     "id": "n-velvethours-175",
+     "midiNote": 41,
+     "startBeat": 15.5,
+     "durationBeats": 0.35,
+     "velocity": 100
+    },
+    {
+     "id": "n-velvethours-176",
+     "midiNote": 50,
+     "startBeat": 16,
+     "durationBeats": 0.35,
+     "velocity": 104
+    },
+    {
+     "id": "n-velvethours-177",
+     "midiNote": 50,
+     "startBeat": 16.75,
+     "durationBeats": 0.2,
+     "velocity": 83
+    },
+    {
+     "id": "n-velvethours-178",
+     "midiNote": 62,
+     "startBeat": 17.5,
+     "durationBeats": 0.3,
+     "velocity": 92
+    },
+    {
+     "id": "n-velvethours-179",
+     "midiNote": 50,
+     "startBeat": 18.25,
+     "durationBeats": 0.2,
+     "velocity": 75
+    },
+    {
+     "id": "n-velvethours-180",
+     "midiNote": 57,
+     "startBeat": 18.5,
+     "durationBeats": 0.4,
+     "velocity": 91
+    },
+    {
+     "id": "n-velvethours-181",
+     "midiNote": 50,
+     "startBeat": 19.5,
+     "durationBeats": 0.35,
+     "velocity": 99
+    },
+    {
+     "id": "n-velvethours-182",
+     "midiNote": 50,
+     "startBeat": 20,
+     "durationBeats": 0.35,
+     "velocity": 107
+    },
+    {
+     "id": "n-velvethours-183",
+     "midiNote": 50,
+     "startBeat": 20.75,
+     "durationBeats": 0.2,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-184",
+     "midiNote": 62,
+     "startBeat": 21.5,
+     "durationBeats": 0.3,
+     "velocity": 94
+    },
+    {
+     "id": "n-velvethours-185",
+     "midiNote": 50,
+     "startBeat": 22.25,
+     "durationBeats": 0.2,
+     "velocity": 77
+    },
+    {
+     "id": "n-velvethours-186",
+     "midiNote": 57,
+     "startBeat": 22.5,
+     "durationBeats": 0.4,
+     "velocity": 89
+    },
+    {
+     "id": "n-velvethours-187",
+     "midiNote": 50,
+     "startBeat": 23.5,
+     "durationBeats": 0.35,
+     "velocity": 98
+    },
+    {
+     "id": "n-velvethours-188",
+     "midiNote": 40,
+     "startBeat": 24,
+     "durationBeats": 0.35,
+     "velocity": 102
+    },
+    {
+     "id": "n-velvethours-189",
+     "midiNote": 40,
+     "startBeat": 24.75,
+     "durationBeats": 0.2,
+     "velocity": 78
+    },
+    {
+     "id": "n-velvethours-190",
+     "midiNote": 52,
+     "startBeat": 25.5,
+     "durationBeats": 0.3,
+     "velocity": 91
+    },
+    {
+     "id": "n-velvethours-191",
+     "midiNote": 40,
+     "startBeat": 26.25,
+     "durationBeats": 0.2,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-192",
+     "midiNote": 47,
+     "startBeat": 26.5,
+     "durationBeats": 0.4,
+     "velocity": 88
+    },
+    {
+     "id": "n-velvethours-193",
+     "midiNote": 40,
+     "startBeat": 27.5,
+     "durationBeats": 0.35,
+     "velocity": 100
+    },
+    {
+     "id": "n-velvethours-194",
+     "midiNote": 40,
+     "startBeat": 28,
+     "durationBeats": 0.35,
+     "velocity": 107
+    },
+    {
+     "id": "n-velvethours-195",
+     "midiNote": 40,
+     "startBeat": 28.75,
+     "durationBeats": 0.2,
+     "velocity": 80
+    },
+    {
+     "id": "n-velvethours-196",
+     "midiNote": 52,
+     "startBeat": 29.5,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-velvethours-197",
+     "midiNote": 40,
+     "startBeat": 30.25,
+     "durationBeats": 0.2,
+     "velocity": 79
+    },
+    {
+     "id": "n-velvethours-198",
+     "midiNote": 47,
+     "startBeat": 30.5,
+     "durationBeats": 0.4,
+     "velocity": 88
+    },
+    {
+     "id": "n-velvethours-199",
+     "midiNote": 40,
+     "startBeat": 31.5,
+     "durationBeats": 0.35,
+     "velocity": 94
+    }
+   ]
+  },
+  {
+   "id": "pat-velvethours-220",
+   "name": "Pad \u00b7 long chords",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-velvethours-201",
+     "midiNote": 55,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-202",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-203",
+     "midiNote": 59,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 59
+    },
+    {
+     "id": "n-velvethours-204",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-205",
+     "midiNote": 64,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-206",
+     "midiNote": 55,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-velvethours-207",
+     "midiNote": 57,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-velvethours-208",
+     "midiNote": 60,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-209",
+     "midiNote": 64,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 57
+    },
+    {
+     "id": "n-velvethours-210",
+     "midiNote": 65,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-velvethours-211",
+     "midiNote": 57,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 59
+    },
+    {
+     "id": "n-velvethours-212",
+     "midiNote": 60,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 59
+    },
+    {
+     "id": "n-velvethours-213",
+     "midiNote": 62,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-velvethours-214",
+     "midiNote": 64,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-215",
+     "midiNote": 65,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-velvethours-216",
+     "midiNote": 55,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-velvethours-217",
+     "midiNote": 59,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-velvethours-218",
+     "midiNote": 62,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-velvethours-219",
+     "midiNote": 64,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 60
+    }
+   ]
+  },
+  {
+   "id": "pat-velvethours-233",
+   "name": "Vocal \u00b7 ooh",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-velvethours-221",
+     "midiNote": 67,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-velvethours-222",
+     "midiNote": 71,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-velvethours-223",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-velvethours-224",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-velvethours-225",
+     "midiNote": 69,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-velvethours-226",
+     "midiNote": 72,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-velvethours-227",
+     "midiNote": 69,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-velvethours-228",
+     "midiNote": 72,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-velvethours-229",
+     "midiNote": 76,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-velvethours-230",
+     "midiNote": 67,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-velvethours-231",
+     "midiNote": 71,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-velvethours-232",
+     "midiNote": 74,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 65
+    }
+   ]
+  },
+  {
+   "id": "pat-velvethours-258",
+   "name": "Hook \u00b7 glass pluck",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-velvethours-234",
+     "midiNote": 76,
+     "startBeat": 0.5,
+     "durationBeats": 0.4,
+     "velocity": 91
+    },
+    {
+     "id": "n-velvethours-235",
+     "midiNote": 79,
+     "startBeat": 1.0,
+     "durationBeats": 0.4,
+     "velocity": 85
+    },
+    {
+     "id": "n-velvethours-236",
+     "midiNote": 81,
+     "startBeat": 1.75,
+     "durationBeats": 0.6,
+     "velocity": 102
+    },
+    {
+     "id": "n-velvethours-237",
+     "midiNote": 76,
+     "startBeat": 2.75,
+     "durationBeats": 0.4,
+     "velocity": 88
+    },
+    {
+     "id": "n-velvethours-238",
+     "midiNote": 74,
+     "startBeat": 3.5,
+     "durationBeats": 0.4,
+     "velocity": 87
+    },
+    {
+     "id": "n-velvethours-239",
+     "midiNote": 76,
+     "startBeat": 4.5,
+     "durationBeats": 1.2,
+     "velocity": 92
+    },
+    {
+     "id": "n-velvethours-240",
+     "midiNote": 76,
+     "startBeat": 8.5,
+     "durationBeats": 0.4,
+     "velocity": 89
+    },
+    {
+     "id": "n-velvethours-241",
+     "midiNote": 79,
+     "startBeat": 9.0,
+     "durationBeats": 0.4,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-242",
+     "midiNote": 81,
+     "startBeat": 9.75,
+     "durationBeats": 0.6,
+     "velocity": 99
+    },
+    {
+     "id": "n-velvethours-243",
+     "midiNote": 84,
+     "startBeat": 10.75,
+     "durationBeats": 0.4,
+     "velocity": 93
+    },
+    {
+     "id": "n-velvethours-244",
+     "midiNote": 81,
+     "startBeat": 11.5,
+     "durationBeats": 0.4,
+     "velocity": 86
+    },
+    {
+     "id": "n-velvethours-245",
+     "midiNote": 79,
+     "startBeat": 12.5,
+     "durationBeats": 1.2,
+     "velocity": 98
+    },
+    {
+     "id": "n-velvethours-246",
+     "midiNote": 77,
+     "startBeat": 16.5,
+     "durationBeats": 0.4,
+     "velocity": 89
+    },
+    {
+     "id": "n-velvethours-247",
+     "midiNote": 81,
+     "startBeat": 17.0,
+     "durationBeats": 0.4,
+     "velocity": 85
+    },
+    {
+     "id": "n-velvethours-248",
+     "midiNote": 84,
+     "startBeat": 17.75,
+     "durationBeats": 0.6,
+     "velocity": 103
+    },
+    {
+     "id": "n-velvethours-249",
+     "midiNote": 81,
+     "startBeat": 18.75,
+     "durationBeats": 0.4,
+     "velocity": 90
+    },
+    {
+     "id": "n-velvethours-250",
+     "midiNote": 79,
+     "startBeat": 19.5,
+     "durationBeats": 0.4,
+     "velocity": 81
+    },
+    {
+     "id": "n-velvethours-251",
+     "midiNote": 76,
+     "startBeat": 20.5,
+     "durationBeats": 1.2,
+     "velocity": 94
+    },
+    {
+     "id": "n-velvethours-252",
+     "midiNote": 74,
+     "startBeat": 24.5,
+     "durationBeats": 0.4,
+     "velocity": 89
+    },
+    {
+     "id": "n-velvethours-253",
+     "midiNote": 76,
+     "startBeat": 25.0,
+     "durationBeats": 0.4,
+     "velocity": 85
+    },
+    {
+     "id": "n-velvethours-254",
+     "midiNote": 79,
+     "startBeat": 25.75,
+     "durationBeats": 0.6,
+     "velocity": 102
+    },
+    {
+     "id": "n-velvethours-255",
+     "midiNote": 83,
+     "startBeat": 26.75,
+     "durationBeats": 0.4,
+     "velocity": 93
+    },
+    {
+     "id": "n-velvethours-256",
+     "midiNote": 81,
+     "startBeat": 27.5,
+     "durationBeats": 0.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-velvethours-257",
+     "midiNote": 79,
+     "startBeat": 28.5,
+     "durationBeats": 1.5,
+     "velocity": 93
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-velvethours-297",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-velvethours-298",
+   "beat": 64,
+   "name": "Groove",
+   "color": "#f59e0b"
+  },
+  {
+   "id": "mk-velvethours-299",
+   "beat": 128,
+   "name": "Break",
+   "color": "#8b5cf6"
+  },
+  {
+   "id": "mk-velvethours-300",
+   "beat": 160,
+   "name": "Main",
+   "color": "#d97706"
+  },
+  {
+   "id": "mk-velvethours-301",
+   "beat": 224,
+   "name": "Outro",
+   "color": "#64748b"
+  }
+ ],
+ "drumPatterns": [
+  {
+   "id": "dp-velvethours-259",
+   "name": "VH Intro",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.18,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.35,
+     "pan": 0.25,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-velvethours-260",
+   "name": "VH Groove",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.18,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.35,
+     "pan": 0.25,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "rim",
+     "name": "rim",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": -0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-velvethours-261",
+   "name": "VH Break",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.18,
+   "voices": [
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.35,
+     "pan": 0.25,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-velvethours-262",
+   "name": "VH Fill",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.18,
+   "voices": [
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 118,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  }
+ ],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 2.4,
+  "reverbDamp": 0.5,
+  "reverbMix": 0.7,
+  "delayEnabled": true,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.35,
+  "delayMix": 0.6,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/8.",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.6,
+  "limiterEnabled": true,
+  "limiterThreshold": -5,
+  "drumReverbSend": 0.06,
+  "drumDelaySend": 0.02
+ }
+}

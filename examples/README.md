@@ -1,11 +1,18 @@
 # Example Projects
 
-Eight projects ship with the app. Open them from **OSC ▾ → Open example**, or load a file from this
+Fifteen projects ship with the app. Open them from **OSC ▾ → Open example**, or load a file from this
 folder with **OSC ▾ → Open…**. Each one carries its own tracks, instruments, sections, mixer settings and
 drum patterns, so it plays exactly as written — just press **Space**.
 
 All of them are original compositions. The Minecraft-style pieces are written *in the style of* C418's
-soundtrack — similar mood, keys and phrasing — not transcriptions of the recordings.
+soundtrack — similar mood, instruments and phrasing — not transcriptions or arrangements of his
+recordings, which are copyrighted. The same goes for the phonk and deep-house tracks: genre studies
+with their own melodies and chord progressions.
+
+The seven newest examples — three Minecraft-style pieces, two phonk and two deep-house tracks — are
+full songs of 1½ to 2 minutes with intros, sections, endings and a finished mix. A test checks each
+one: at least a minute long, at least four sections, every track heard, and the bass always inside
+the chord the pads or keys are holding.
 
 ---
 
@@ -63,9 +70,40 @@ always play the pad's chord.
 
 ---
 
-## Minecraft-style studies
+## Minecraft-style pieces
 
-No drums — the style doesn't use them. Each has an **A** and **B** section (or theme and variation).
+Slow, sparse and spacious: felt piano or music box over soft pads and a quiet sub, major-seventh and
+suspended harmony, rubato-like timing (every note is a few milliseconds late, never early), long
+reverb. No drums — the style doesn't use them.
+
+### minecraft-style-morning-meadow
+**5 tracks · 72 BPM · D major · 32 bars (≈ 1:47) · Intro → A → B → A again → Outro**
+
+A felt piano plays a left-hand broken chord (root, fifth, seventh, tenth) under a singing right-hand
+melody. The B section climbs to the high point through Em7 – A7sus4 – F#m7 – Bm7; the return of A
+adds a celesta an octave up and string harmonics. Look at the **Pad** track's open volume lane: it
+fades in under the intro and recedes at the end. The 8th bar of A borrows **Gm6** from D minor, the
+bittersweet turn this style is known for.
+
+### minecraft-style-lanterns-below
+**8 tracks · 64 BPM · A minor/Dorian · 24 bars (≈ 1:30) · Cave → Theme → Deeper → Coda**
+
+The cave piece. A dark drone and a harp arpeggio in eighth notes run under everything; the piano
+theme is answered by vibraphone, a cello section and a breath choir in the deeper section, which
+ends on **E major** (the harmonic-minor dominant) before the coda. The drone's cutoff lane opens and
+closes with the piece; a few wind chimes catch the light. Reverb is the biggest of any example.
+
+### minecraft-style-snowfall
+**6 tracks · 84 BPM · G major · 3/4 · 40 bars (≈ 1:26) · Intro → A → A again → B → A last → Outro**
+
+A waltz: the piano's flowing 1-5-10-12-10-5 eighth notes carry a music-box melody, joined by
+glockenspiel when A returns and by legato violins at the end. The **Music Box** track has its own
+instrument settings (louder, longer release) — open its parameter editor in the **INSTRUMENTS** tab
+with the track selected to see the **TRACK** scope.
+
+### Shorter studies
+
+No drums. Each has an **A** and **B** section (or theme and variation).
 
 | Project | Tempo · key | Tracks |
 |---------|-------------|--------|
@@ -78,6 +116,43 @@ Good ones for trying other sounds: select a track and pick something else in the
 *Music Box* or *Celesta* on a melody, *Chamber Strings* under the chords.
 
 ---
+
+## Phonk
+
+### phonk-neon-drift
+**8 tracks · 140 BPM · F# minor · 52 bars (≈ 1:29) · Intro → Build → Drop → Break → Drop B → Outro**
+
+Drift phonk. The lead is the **808 Cowbell** played as notes in the genre's syncopated figure over
+i – VI – iv – V (F#m, D, Bm, C#7). Under it: the **808 Glide** bass sliding between roots and octaves,
+half-time drums (snare and clap on beat 3), and **hi-hat rolls in 1/32 and triplets** played on the
+**Trap Hat (playable)** instrument, because the 16-step drum grid can't express them. The cowbell's
+EQ lane keeps it muffled in the intro and opens it for the drops; the second drop answers an octave
+higher with a choir underneath.
+
+### phonk-memphis-fog
+**7 tracks · 70 BPM (felt as 140) · C minor · 32 bars (≈ 1:50) · Intro → Verse → Hook → Verse 2 → Outro**
+
+The older, darker Memphis side: an eerie bell loop over Cm – Ab – Fm – G7, detuned dark keys (the
+**Keys** track's own settings lower the cutoff and add detune), the 808, rolling hats in sixteenths
+with sextuplet and 1/32 runs, and a male choir with cowbell stabs in the hook.
+
+## Deep house
+
+### deep-house-velvet-hours
+**6 tracks · 122 BPM · A minor · 64 bars (≈ 2:06) · Intro → Groove → Break → Main → Outro**
+
+Rootless **minor-ninth Rhodes stabs** (Am9 – Fmaj9 – Dm9 – Em7) in an off-beat rhythm, a rolling
+bass that answers the kick, swung hats with an open hat on every off-beat, claps on 2 and 4. The
+bass filter opens over the first sixteen bars; the break drops the kick for pad and "ooh" vocals,
+and the main section adds a glass-pluck hook with dotted-eighth delay. Pads, bass and keys are
+sidechained to the kick.
+
+### deep-house-low-tide
+**6 tracks · 120 BPM · F minor · 48 bars (≈ 1:36) · Intro → A → Break → B**
+
+Early-90s organ house: the **House Organ** stab (Fm9 – Dbmaj7 – Eb6) in a syncopated pattern with
+the bass locked to it, congas and a ride joining for the last section. The organ's cutoff lane
+closes for the break and opens wider than before for B.
 
 ## Other styles
 

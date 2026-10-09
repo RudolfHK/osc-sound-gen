@@ -1,0 +1,2815 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Memphis Fog",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 70,
+ "beatsPerBar": 4,
+ "songLengthBars": 32,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 128
+ },
+ "masterVolume": 0.72,
+ "tracks": [
+  {
+   "id": "trk-memphisfog-202",
+   "name": "Drums",
+   "color": "#ef4444",
+   "source": {
+    "type": "drums"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-199",
+     "patternId": "dp-memphisfog-197",
+     "startBeat": 16,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-memphisfog-200",
+     "patternId": "dp-memphisfog-198",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-memphisfog-201",
+     "patternId": "dp-memphisfog-197",
+     "startBeat": 80,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-memphisfog-204",
+   "name": "808",
+   "color": "#f97316",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-808-glide"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-203",
+     "patternId": "pat-memphisfog-94",
+     "startBeat": 16,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.95,
+    "eqLow": 1.5,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-memphisfog-213",
+   "name": "Bells",
+   "color": "#a5b4fc",
+   "source": {
+    "type": "preset",
+    "presetId": "pluck-bell-syn"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-205",
+     "patternId": "pat-memphisfog-23",
+     "startBeat": 0,
+     "lengthBeats": 128,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.15,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "lane-memphisfog-206",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-memphisfog-207",
+       "beat": 0,
+       "value": 0.5
+      },
+      {
+       "id": "pt-memphisfog-208",
+       "beat": 16,
+       "value": 0.42
+      },
+      {
+       "id": "pt-memphisfog-209",
+       "beat": 48,
+       "value": 0.36
+      },
+      {
+       "id": "pt-memphisfog-210",
+       "beat": 80,
+       "value": 0.42
+      },
+      {
+       "id": "pt-memphisfog-211",
+       "beat": 112,
+       "value": 0.5
+      },
+      {
+       "id": "pt-memphisfog-212",
+       "beat": 128,
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": "lane-memphisfog-206"
+  },
+  {
+   "id": "trk-memphisfog-215",
+   "name": "Keys",
+   "color": "#6366f1",
+   "source": {
+    "type": "preset",
+    "presetId": "keys-rhodes"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-214",
+     "patternId": "pat-memphisfog-63",
+     "startBeat": 16,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.6,
+    "eqLow": -3,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.2,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {
+    "cutoff": 1500,
+    "release": 0.6,
+    "detune": 12
+   },
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-memphisfog-217",
+   "name": "Choir",
+   "color": "#e879f9",
+   "source": {
+    "type": "preset",
+    "presetId": "voc-male-choir"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-216",
+     "patternId": "pat-memphisfog-77",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.9,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-memphisfog-219",
+   "name": "Cowbell",
+   "color": "#facc15",
+   "source": {
+    "type": "preset",
+    "presetId": "mal-cowbell-808"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-218",
+     "patternId": "pat-memphisfog-111",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.4,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.1,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {
+    "decay": 0.38
+   },
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-memphisfog-221",
+   "name": "Hats",
+   "color": "#a3a3a3",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-trap-hat"
+   },
+   "clips": [
+    {
+     "id": "clip-memphisfog-220",
+     "patternId": "pat-memphisfog-196",
+     "startBeat": 16,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.5,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-memphisfog-23",
+   "name": "Bells \u00b7 loop",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-memphisfog-1",
+     "midiNote": 79,
+     "startBeat": 0,
+     "durationBeats": 0.5,
+     "velocity": 98
+    },
+    {
+     "id": "n-memphisfog-2",
+     "midiNote": 84,
+     "startBeat": 0.5,
+     "durationBeats": 0.5,
+     "velocity": 90
+    },
+    {
+     "id": "n-memphisfog-3",
+     "midiNote": 87,
+     "startBeat": 1,
+     "durationBeats": 1,
+     "velocity": 108
+    },
+    {
+     "id": "n-memphisfog-4",
+     "midiNote": 86,
+     "startBeat": 2,
+     "durationBeats": 0.5,
+     "velocity": 90
+    },
+    {
+     "id": "n-memphisfog-5",
+     "midiNote": 84,
+     "startBeat": 2.5,
+     "durationBeats": 0.5,
+     "velocity": 86
+    },
+    {
+     "id": "n-memphisfog-6",
+     "midiNote": 79,
+     "startBeat": 3,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-memphisfog-7",
+     "midiNote": 80,
+     "startBeat": 4,
+     "durationBeats": 0.5,
+     "velocity": 98
+    },
+    {
+     "id": "n-memphisfog-8",
+     "midiNote": 84,
+     "startBeat": 4.5,
+     "durationBeats": 0.5,
+     "velocity": 86
+    },
+    {
+     "id": "n-memphisfog-9",
+     "midiNote": 87,
+     "startBeat": 5,
+     "durationBeats": 1,
+     "velocity": 101
+    },
+    {
+     "id": "n-memphisfog-10",
+     "midiNote": 84,
+     "startBeat": 6,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "n-memphisfog-11",
+     "midiNote": 80,
+     "startBeat": 7,
+     "durationBeats": 1,
+     "velocity": 87
+    },
+    {
+     "id": "n-memphisfog-12",
+     "midiNote": 77,
+     "startBeat": 8,
+     "durationBeats": 0.5,
+     "velocity": 94
+    },
+    {
+     "id": "n-memphisfog-13",
+     "midiNote": 80,
+     "startBeat": 8.5,
+     "durationBeats": 0.5,
+     "velocity": 92
+    },
+    {
+     "id": "n-memphisfog-14",
+     "midiNote": 84,
+     "startBeat": 9,
+     "durationBeats": 1,
+     "velocity": 98
+    },
+    {
+     "id": "n-memphisfog-15",
+     "midiNote": 82,
+     "startBeat": 10,
+     "durationBeats": 0.5,
+     "velocity": 90
+    },
+    {
+     "id": "n-memphisfog-16",
+     "midiNote": 80,
+     "startBeat": 10.5,
+     "durationBeats": 0.5,
+     "velocity": 84
+    },
+    {
+     "id": "n-memphisfog-17",
+     "midiNote": 77,
+     "startBeat": 11,
+     "durationBeats": 1,
+     "velocity": 90
+    },
+    {
+     "id": "n-memphisfog-18",
+     "midiNote": 79,
+     "startBeat": 12,
+     "durationBeats": 0.5,
+     "velocity": 96
+    },
+    {
+     "id": "n-memphisfog-19",
+     "midiNote": 83,
+     "startBeat": 12.5,
+     "durationBeats": 0.5,
+     "velocity": 93
+    },
+    {
+     "id": "n-memphisfog-20",
+     "midiNote": 86,
+     "startBeat": 13,
+     "durationBeats": 1,
+     "velocity": 100
+    },
+    {
+     "id": "n-memphisfog-21",
+     "midiNote": 89,
+     "startBeat": 14,
+     "durationBeats": 1,
+     "velocity": 103
+    },
+    {
+     "id": "n-memphisfog-22",
+     "midiNote": 86,
+     "startBeat": 15,
+     "durationBeats": 1,
+     "velocity": 91
+    }
+   ]
+  },
+  {
+   "id": "pat-memphisfog-63",
+   "name": "Keys \u00b7 fog chords",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-memphisfog-24",
+     "midiNote": 55,
+     "startBeat": 0,
+     "durationBeats": 1.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-25",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 1.4,
+     "velocity": 77
+    },
+    {
+     "id": "n-memphisfog-26",
+     "midiNote": 63,
+     "startBeat": 0,
+     "durationBeats": 1.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-27",
+     "midiNote": 55,
+     "startBeat": 1.5,
+     "durationBeats": 0.4,
+     "velocity": 65
+    },
+    {
+     "id": "n-memphisfog-28",
+     "midiNote": 60,
+     "startBeat": 1.5,
+     "durationBeats": 0.4,
+     "velocity": 67
+    },
+    {
+     "id": "n-memphisfog-29",
+     "midiNote": 63,
+     "startBeat": 1.5,
+     "durationBeats": 0.4,
+     "velocity": 67
+    },
+    {
+     "id": "n-memphisfog-30",
+     "midiNote": 55,
+     "startBeat": 2.5,
+     "durationBeats": 1.3,
+     "velocity": 74
+    },
+    {
+     "id": "n-memphisfog-31",
+     "midiNote": 60,
+     "startBeat": 2.5,
+     "durationBeats": 1.3,
+     "velocity": 69
+    },
+    {
+     "id": "n-memphisfog-32",
+     "midiNote": 63,
+     "startBeat": 2.5,
+     "durationBeats": 1.3,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-33",
+     "midiNote": 56,
+     "startBeat": 4,
+     "durationBeats": 1.4,
+     "velocity": 74
+    },
+    {
+     "id": "n-memphisfog-34",
+     "midiNote": 60,
+     "startBeat": 4,
+     "durationBeats": 1.4,
+     "velocity": 79
+    },
+    {
+     "id": "n-memphisfog-35",
+     "midiNote": 63,
+     "startBeat": 4,
+     "durationBeats": 1.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-36",
+     "midiNote": 56,
+     "startBeat": 5.5,
+     "durationBeats": 0.4,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-37",
+     "midiNote": 60,
+     "startBeat": 5.5,
+     "durationBeats": 0.4,
+     "velocity": 61
+    },
+    {
+     "id": "n-memphisfog-38",
+     "midiNote": 63,
+     "startBeat": 5.5,
+     "durationBeats": 0.4,
+     "velocity": 65
+    },
+    {
+     "id": "n-memphisfog-39",
+     "midiNote": 56,
+     "startBeat": 6.5,
+     "durationBeats": 1.3,
+     "velocity": 71
+    },
+    {
+     "id": "n-memphisfog-40",
+     "midiNote": 60,
+     "startBeat": 6.5,
+     "durationBeats": 1.3,
+     "velocity": 68
+    },
+    {
+     "id": "n-memphisfog-41",
+     "midiNote": 63,
+     "startBeat": 6.5,
+     "durationBeats": 1.3,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-42",
+     "midiNote": 56,
+     "startBeat": 8,
+     "durationBeats": 1.4,
+     "velocity": 78
+    },
+    {
+     "id": "n-memphisfog-43",
+     "midiNote": 60,
+     "startBeat": 8,
+     "durationBeats": 1.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-memphisfog-44",
+     "midiNote": 65,
+     "startBeat": 8,
+     "durationBeats": 1.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-45",
+     "midiNote": 56,
+     "startBeat": 9.5,
+     "durationBeats": 0.4,
+     "velocity": 64
+    },
+    {
+     "id": "n-memphisfog-46",
+     "midiNote": 60,
+     "startBeat": 9.5,
+     "durationBeats": 0.4,
+     "velocity": 61
+    },
+    {
+     "id": "n-memphisfog-47",
+     "midiNote": 65,
+     "startBeat": 9.5,
+     "durationBeats": 0.4,
+     "velocity": 67
+    },
+    {
+     "id": "n-memphisfog-48",
+     "midiNote": 56,
+     "startBeat": 10.5,
+     "durationBeats": 1.3,
+     "velocity": 70
+    },
+    {
+     "id": "n-memphisfog-49",
+     "midiNote": 60,
+     "startBeat": 10.5,
+     "durationBeats": 1.3,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-50",
+     "midiNote": 65,
+     "startBeat": 10.5,
+     "durationBeats": 1.3,
+     "velocity": 67
+    },
+    {
+     "id": "n-memphisfog-51",
+     "midiNote": 55,
+     "startBeat": 12,
+     "durationBeats": 1.4,
+     "velocity": 74
+    },
+    {
+     "id": "n-memphisfog-52",
+     "midiNote": 59,
+     "startBeat": 12,
+     "durationBeats": 1.4,
+     "velocity": 82
+    },
+    {
+     "id": "n-memphisfog-53",
+     "midiNote": 62,
+     "startBeat": 12,
+     "durationBeats": 1.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-54",
+     "midiNote": 65,
+     "startBeat": 12,
+     "durationBeats": 1.4,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-55",
+     "midiNote": 55,
+     "startBeat": 13.5,
+     "durationBeats": 0.4,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-56",
+     "midiNote": 59,
+     "startBeat": 13.5,
+     "durationBeats": 0.4,
+     "velocity": 66
+    },
+    {
+     "id": "n-memphisfog-57",
+     "midiNote": 62,
+     "startBeat": 13.5,
+     "durationBeats": 0.4,
+     "velocity": 66
+    },
+    {
+     "id": "n-memphisfog-58",
+     "midiNote": 65,
+     "startBeat": 13.5,
+     "durationBeats": 0.4,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-59",
+     "midiNote": 55,
+     "startBeat": 14.5,
+     "durationBeats": 1.3,
+     "velocity": 70
+    },
+    {
+     "id": "n-memphisfog-60",
+     "midiNote": 59,
+     "startBeat": 14.5,
+     "durationBeats": 1.3,
+     "velocity": 70
+    },
+    {
+     "id": "n-memphisfog-61",
+     "midiNote": 62,
+     "startBeat": 14.5,
+     "durationBeats": 1.3,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-62",
+     "midiNote": 65,
+     "startBeat": 14.5,
+     "durationBeats": 1.3,
+     "velocity": 67
+    }
+   ]
+  },
+  {
+   "id": "pat-memphisfog-77",
+   "name": "Choir \u00b7 hook",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-memphisfog-64",
+     "midiNote": 51,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 68
+    },
+    {
+     "id": "n-memphisfog-65",
+     "midiNote": 55,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 72
+    },
+    {
+     "id": "n-memphisfog-66",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 68
+    },
+    {
+     "id": "n-memphisfog-67",
+     "midiNote": 51,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-68",
+     "midiNote": 56,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 68
+    },
+    {
+     "id": "n-memphisfog-69",
+     "midiNote": 60,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 69
+    },
+    {
+     "id": "n-memphisfog-70",
+     "midiNote": 53,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 68
+    },
+    {
+     "id": "n-memphisfog-71",
+     "midiNote": 56,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 70
+    },
+    {
+     "id": "n-memphisfog-72",
+     "midiNote": 60,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 71
+    },
+    {
+     "id": "n-memphisfog-73",
+     "midiNote": 50,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-74",
+     "midiNote": 53,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 70
+    },
+    {
+     "id": "n-memphisfog-75",
+     "midiNote": 55,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 72
+    },
+    {
+     "id": "n-memphisfog-76",
+     "midiNote": 59,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 68
+    }
+   ]
+  },
+  {
+   "id": "pat-memphisfog-94",
+   "name": "808 \u00b7 verse",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-memphisfog-78",
+     "midiNote": 36,
+     "startBeat": 0,
+     "durationBeats": 1.3,
+     "velocity": 120
+    },
+    {
+     "id": "n-memphisfog-79",
+     "midiNote": 36,
+     "startBeat": 1.5,
+     "durationBeats": 0.45,
+     "velocity": 100
+    },
+    {
+     "id": "n-memphisfog-80",
+     "midiNote": 36,
+     "startBeat": 2.75,
+     "durationBeats": 1.1,
+     "velocity": 109
+    },
+    {
+     "id": "n-memphisfog-81",
+     "midiNote": 48,
+     "startBeat": 3.75,
+     "durationBeats": 0.25,
+     "velocity": 90
+    },
+    {
+     "id": "n-memphisfog-82",
+     "midiNote": 32,
+     "startBeat": 4,
+     "durationBeats": 1.3,
+     "velocity": 118
+    },
+    {
+     "id": "n-memphisfog-83",
+     "midiNote": 32,
+     "startBeat": 5.5,
+     "durationBeats": 0.45,
+     "velocity": 99
+    },
+    {
+     "id": "n-memphisfog-84",
+     "midiNote": 32,
+     "startBeat": 6.75,
+     "durationBeats": 1.1,
+     "velocity": 109
+    },
+    {
+     "id": "n-memphisfog-85",
+     "midiNote": 44,
+     "startBeat": 7.75,
+     "durationBeats": 0.25,
+     "velocity": 90
+    },
+    {
+     "id": "n-memphisfog-86",
+     "midiNote": 29,
+     "startBeat": 8,
+     "durationBeats": 1.3,
+     "velocity": 118
+    },
+    {
+     "id": "n-memphisfog-87",
+     "midiNote": 29,
+     "startBeat": 9.5,
+     "durationBeats": 0.45,
+     "velocity": 92
+    },
+    {
+     "id": "n-memphisfog-88",
+     "midiNote": 29,
+     "startBeat": 10.75,
+     "durationBeats": 1.1,
+     "velocity": 108
+    },
+    {
+     "id": "n-memphisfog-89",
+     "midiNote": 41,
+     "startBeat": 11.75,
+     "durationBeats": 0.25,
+     "velocity": 86
+    },
+    {
+     "id": "n-memphisfog-90",
+     "midiNote": 31,
+     "startBeat": 12,
+     "durationBeats": 1.3,
+     "velocity": 116
+    },
+    {
+     "id": "n-memphisfog-91",
+     "midiNote": 31,
+     "startBeat": 13.5,
+     "durationBeats": 0.45,
+     "velocity": 99
+    },
+    {
+     "id": "n-memphisfog-92",
+     "midiNote": 31,
+     "startBeat": 14.75,
+     "durationBeats": 1.1,
+     "velocity": 111
+    },
+    {
+     "id": "n-memphisfog-93",
+     "midiNote": 43,
+     "startBeat": 15.75,
+     "durationBeats": 0.25,
+     "velocity": 89
+    }
+   ]
+  },
+  {
+   "id": "pat-memphisfog-111",
+   "name": "Cowbell \u00b7 hook stabs",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-memphisfog-95",
+     "midiNote": 79,
+     "startBeat": 0.75,
+     "durationBeats": 0.25,
+     "velocity": 96
+    },
+    {
+     "id": "n-memphisfog-96",
+     "midiNote": 84,
+     "startBeat": 1.5,
+     "durationBeats": 0.25,
+     "velocity": 101
+    },
+    {
+     "id": "n-memphisfog-97",
+     "midiNote": 79,
+     "startBeat": 2.75,
+     "durationBeats": 0.25,
+     "velocity": 93
+    },
+    {
+     "id": "n-memphisfog-98",
+     "midiNote": 87,
+     "startBeat": 3.5,
+     "durationBeats": 0.25,
+     "velocity": 97
+    },
+    {
+     "id": "n-memphisfog-99",
+     "midiNote": 80,
+     "startBeat": 4.75,
+     "durationBeats": 0.25,
+     "velocity": 92
+    },
+    {
+     "id": "n-memphisfog-100",
+     "midiNote": 84,
+     "startBeat": 5.5,
+     "durationBeats": 0.25,
+     "velocity": 103
+    },
+    {
+     "id": "n-memphisfog-101",
+     "midiNote": 80,
+     "startBeat": 6.75,
+     "durationBeats": 0.25,
+     "velocity": 89
+    },
+    {
+     "id": "n-memphisfog-102",
+     "midiNote": 87,
+     "startBeat": 7.5,
+     "durationBeats": 0.25,
+     "velocity": 100
+    },
+    {
+     "id": "n-memphisfog-103",
+     "midiNote": 77,
+     "startBeat": 8.75,
+     "durationBeats": 0.25,
+     "velocity": 99
+    },
+    {
+     "id": "n-memphisfog-104",
+     "midiNote": 84,
+     "startBeat": 9.5,
+     "durationBeats": 0.25,
+     "velocity": 108
+    },
+    {
+     "id": "n-memphisfog-105",
+     "midiNote": 77,
+     "startBeat": 10.75,
+     "durationBeats": 0.25,
+     "velocity": 88
+    },
+    {
+     "id": "n-memphisfog-106",
+     "midiNote": 80,
+     "startBeat": 11.5,
+     "durationBeats": 0.25,
+     "velocity": 103
+    },
+    {
+     "id": "n-memphisfog-107",
+     "midiNote": 79,
+     "startBeat": 12.75,
+     "durationBeats": 0.25,
+     "velocity": 99
+    },
+    {
+     "id": "n-memphisfog-108",
+     "midiNote": 83,
+     "startBeat": 13.5,
+     "durationBeats": 0.25,
+     "velocity": 102
+    },
+    {
+     "id": "n-memphisfog-109",
+     "midiNote": 86,
+     "startBeat": 14.75,
+     "durationBeats": 0.25,
+     "velocity": 93
+    },
+    {
+     "id": "n-memphisfog-110",
+     "midiNote": 89,
+     "startBeat": 15.5,
+     "durationBeats": 0.25,
+     "velocity": 105
+    }
+   ]
+  },
+  {
+   "id": "pat-memphisfog-196",
+   "name": "Hats \u00b7 rolls",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-memphisfog-112",
+     "midiNote": 84,
+     "startBeat": 0.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-memphisfog-113",
+     "midiNote": 84,
+     "startBeat": 0.25,
+     "durationBeats": 0.05,
+     "velocity": 56
+    },
+    {
+     "id": "n-memphisfog-114",
+     "midiNote": 84,
+     "startBeat": 0.5,
+     "durationBeats": 0.05,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-115",
+     "midiNote": 84,
+     "startBeat": 0.75,
+     "durationBeats": 0.05,
+     "velocity": 52
+    },
+    {
+     "id": "n-memphisfog-116",
+     "midiNote": 84,
+     "startBeat": 1.0,
+     "durationBeats": 0.05,
+     "velocity": 77
+    },
+    {
+     "id": "n-memphisfog-117",
+     "midiNote": 84,
+     "startBeat": 1.25,
+     "durationBeats": 0.05,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-118",
+     "midiNote": 84,
+     "startBeat": 1.5,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-memphisfog-119",
+     "midiNote": 84,
+     "startBeat": 1.75,
+     "durationBeats": 0.05,
+     "velocity": 58
+    },
+    {
+     "id": "n-memphisfog-120",
+     "midiNote": 84,
+     "startBeat": 2.0,
+     "durationBeats": 0.05,
+     "velocity": 79
+    },
+    {
+     "id": "n-memphisfog-121",
+     "midiNote": 84,
+     "startBeat": 2.25,
+     "durationBeats": 0.05,
+     "velocity": 54
+    },
+    {
+     "id": "n-memphisfog-122",
+     "midiNote": 84,
+     "startBeat": 2.5,
+     "durationBeats": 0.05,
+     "velocity": 52
+    },
+    {
+     "id": "n-memphisfog-123",
+     "midiNote": 84,
+     "startBeat": 2.75,
+     "durationBeats": 0.05,
+     "velocity": 61
+    },
+    {
+     "id": "n-memphisfog-124",
+     "midiNote": 84,
+     "startBeat": 3.0,
+     "durationBeats": 0.05,
+     "velocity": 80
+    },
+    {
+     "id": "n-memphisfog-125",
+     "midiNote": 84,
+     "startBeat": 3.25,
+     "durationBeats": 0.05,
+     "velocity": 53
+    },
+    {
+     "id": "n-memphisfog-126",
+     "midiNote": 84,
+     "startBeat": 3.5,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-memphisfog-127",
+     "midiNote": 84,
+     "startBeat": 3.75,
+     "durationBeats": 0.05,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-128",
+     "midiNote": 84,
+     "startBeat": 4.0,
+     "durationBeats": 0.05,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-129",
+     "midiNote": 84,
+     "startBeat": 4.25,
+     "durationBeats": 0.05,
+     "velocity": 59
+    },
+    {
+     "id": "n-memphisfog-130",
+     "midiNote": 84,
+     "startBeat": 4.5,
+     "durationBeats": 0.05,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-131",
+     "midiNote": 84,
+     "startBeat": 4.75,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-memphisfog-132",
+     "midiNote": 84,
+     "startBeat": 5.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-memphisfog-133",
+     "midiNote": 84,
+     "startBeat": 5.25,
+     "durationBeats": 0.05,
+     "velocity": 63
+    },
+    {
+     "id": "n-memphisfog-134",
+     "midiNote": 84,
+     "startBeat": 5.5,
+     "durationBeats": 0.05,
+     "velocity": 55
+    },
+    {
+     "id": "n-memphisfog-135",
+     "midiNote": 84,
+     "startBeat": 5.75,
+     "durationBeats": 0.05,
+     "velocity": 64
+    },
+    {
+     "id": "n-memphisfog-136",
+     "midiNote": 84,
+     "startBeat": 6.0,
+     "durationBeats": 0.05,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-137",
+     "midiNote": 84,
+     "startBeat": 6.25,
+     "durationBeats": 0.05,
+     "velocity": 63
+    },
+    {
+     "id": "n-memphisfog-138",
+     "midiNote": 84,
+     "startBeat": 6.5,
+     "durationBeats": 0.05,
+     "velocity": 53
+    },
+    {
+     "id": "n-memphisfog-139",
+     "midiNote": 84,
+     "startBeat": 6.75,
+     "durationBeats": 0.05,
+     "velocity": 55
+    },
+    {
+     "id": "n-memphisfog-140",
+     "midiNote": 84,
+     "startBeat": 7.0,
+     "durationBeats": 0.05,
+     "velocity": 83
+    },
+    {
+     "id": "n-memphisfog-141",
+     "midiNote": 84,
+     "startBeat": 7.25,
+     "durationBeats": 0.05,
+     "velocity": 61
+    },
+    {
+     "id": "n-memphisfog-142",
+     "midiNote": 84,
+     "startBeat": 7.5,
+     "durationBeats": 0.05,
+     "velocity": 55
+    },
+    {
+     "id": "n-memphisfog-143",
+     "midiNote": 84,
+     "startBeat": 7.75,
+     "durationBeats": 0.05,
+     "velocity": 55
+    },
+    {
+     "id": "n-memphisfog-144",
+     "midiNote": 84,
+     "startBeat": 7.0,
+     "durationBeats": 0.05,
+     "velocity": 47
+    },
+    {
+     "id": "n-memphisfog-145",
+     "midiNote": 84,
+     "startBeat": 7.1667,
+     "durationBeats": 0.05,
+     "velocity": 59
+    },
+    {
+     "id": "n-memphisfog-146",
+     "midiNote": 84,
+     "startBeat": 7.3333,
+     "durationBeats": 0.05,
+     "velocity": 70
+    },
+    {
+     "id": "n-memphisfog-147",
+     "midiNote": 84,
+     "startBeat": 7.5,
+     "durationBeats": 0.05,
+     "velocity": 76
+    },
+    {
+     "id": "n-memphisfog-148",
+     "midiNote": 84,
+     "startBeat": 7.6667,
+     "durationBeats": 0.05,
+     "velocity": 85
+    },
+    {
+     "id": "n-memphisfog-149",
+     "midiNote": 84,
+     "startBeat": 7.8333,
+     "durationBeats": 0.05,
+     "velocity": 92
+    },
+    {
+     "id": "n-memphisfog-150",
+     "midiNote": 84,
+     "startBeat": 8.0,
+     "durationBeats": 0.05,
+     "velocity": 72
+    },
+    {
+     "id": "n-memphisfog-151",
+     "midiNote": 84,
+     "startBeat": 8.25,
+     "durationBeats": 0.05,
+     "velocity": 56
+    },
+    {
+     "id": "n-memphisfog-152",
+     "midiNote": 84,
+     "startBeat": 8.5,
+     "durationBeats": 0.05,
+     "velocity": 57
+    },
+    {
+     "id": "n-memphisfog-153",
+     "midiNote": 84,
+     "startBeat": 8.75,
+     "durationBeats": 0.05,
+     "velocity": 64
+    },
+    {
+     "id": "n-memphisfog-154",
+     "midiNote": 84,
+     "startBeat": 9.0,
+     "durationBeats": 0.05,
+     "velocity": 74
+    },
+    {
+     "id": "n-memphisfog-155",
+     "midiNote": 84,
+     "startBeat": 9.25,
+     "durationBeats": 0.05,
+     "velocity": 63
+    },
+    {
+     "id": "n-memphisfog-156",
+     "midiNote": 84,
+     "startBeat": 9.5,
+     "durationBeats": 0.05,
+     "velocity": 60
+    },
+    {
+     "id": "n-memphisfog-157",
+     "midiNote": 84,
+     "startBeat": 9.75,
+     "durationBeats": 0.05,
+     "velocity": 58
+    },
+    {
+     "id": "n-memphisfog-158",
+     "midiNote": 84,
+     "startBeat": 10.0,
+     "durationBeats": 0.05,
+     "velocity": 82
+    },
+    {
+     "id": "n-memphisfog-159",
+     "midiNote": 84,
+     "startBeat": 10.25,
+     "durationBeats": 0.05,
+     "velocity": 59
+    },
+    {
+     "id": "n-memphisfog-160",
+     "midiNote": 84,
+     "startBeat": 10.5,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-memphisfog-161",
+     "midiNote": 84,
+     "startBeat": 10.75,
+     "durationBeats": 0.05,
+     "velocity": 64
+    },
+    {
+     "id": "n-memphisfog-162",
+     "midiNote": 84,
+     "startBeat": 11.0,
+     "durationBeats": 0.05,
+     "velocity": 80
+    },
+    {
+     "id": "n-memphisfog-163",
+     "midiNote": 84,
+     "startBeat": 11.25,
+     "durationBeats": 0.05,
+     "velocity": 59
+    },
+    {
+     "id": "n-memphisfog-164",
+     "midiNote": 84,
+     "startBeat": 11.5,
+     "durationBeats": 0.05,
+     "velocity": 58
+    },
+    {
+     "id": "n-memphisfog-165",
+     "midiNote": 84,
+     "startBeat": 11.75,
+     "durationBeats": 0.05,
+     "velocity": 54
+    },
+    {
+     "id": "n-memphisfog-166",
+     "midiNote": 84,
+     "startBeat": 9.5,
+     "durationBeats": 0.05,
+     "velocity": 47
+    },
+    {
+     "id": "n-memphisfog-167",
+     "midiNote": 84,
+     "startBeat": 9.5625,
+     "durationBeats": 0.05,
+     "velocity": 50
+    },
+    {
+     "id": "n-memphisfog-168",
+     "midiNote": 84,
+     "startBeat": 9.625,
+     "durationBeats": 0.05,
+     "velocity": 58
+    },
+    {
+     "id": "n-memphisfog-169",
+     "midiNote": 84,
+     "startBeat": 9.6875,
+     "durationBeats": 0.05,
+     "velocity": 68
+    },
+    {
+     "id": "n-memphisfog-170",
+     "midiNote": 84,
+     "startBeat": 9.75,
+     "durationBeats": 0.05,
+     "velocity": 78
+    },
+    {
+     "id": "n-memphisfog-171",
+     "midiNote": 84,
+     "startBeat": 9.8125,
+     "durationBeats": 0.05,
+     "velocity": 84
+    },
+    {
+     "id": "n-memphisfog-172",
+     "midiNote": 84,
+     "startBeat": 9.875,
+     "durationBeats": 0.05,
+     "velocity": 92
+    },
+    {
+     "id": "n-memphisfog-173",
+     "midiNote": 84,
+     "startBeat": 9.9375,
+     "durationBeats": 0.05,
+     "velocity": 98
+    },
+    {
+     "id": "n-memphisfog-174",
+     "midiNote": 84,
+     "startBeat": 12.0,
+     "durationBeats": 0.05,
+     "velocity": 78
+    },
+    {
+     "id": "n-memphisfog-175",
+     "midiNote": 84,
+     "startBeat": 12.25,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-memphisfog-176",
+     "midiNote": 84,
+     "startBeat": 12.5,
+     "durationBeats": 0.05,
+     "velocity": 57
+    },
+    {
+     "id": "n-memphisfog-177",
+     "midiNote": 84,
+     "startBeat": 12.75,
+     "durationBeats": 0.05,
+     "velocity": 58
+    },
+    {
+     "id": "n-memphisfog-178",
+     "midiNote": 84,
+     "startBeat": 13.0,
+     "durationBeats": 0.05,
+     "velocity": 73
+    },
+    {
+     "id": "n-memphisfog-179",
+     "midiNote": 84,
+     "startBeat": 13.25,
+     "durationBeats": 0.05,
+     "velocity": 53
+    },
+    {
+     "id": "n-memphisfog-180",
+     "midiNote": 84,
+     "startBeat": 13.5,
+     "durationBeats": 0.05,
+     "velocity": 53
+    },
+    {
+     "id": "n-memphisfog-181",
+     "midiNote": 84,
+     "startBeat": 13.75,
+     "durationBeats": 0.05,
+     "velocity": 57
+    },
+    {
+     "id": "n-memphisfog-182",
+     "midiNote": 84,
+     "startBeat": 14.0,
+     "durationBeats": 0.05,
+     "velocity": 72
+    },
+    {
+     "id": "n-memphisfog-183",
+     "midiNote": 84,
+     "startBeat": 14.25,
+     "durationBeats": 0.05,
+     "velocity": 53
+    },
+    {
+     "id": "n-memphisfog-184",
+     "midiNote": 84,
+     "startBeat": 14.5,
+     "durationBeats": 0.05,
+     "velocity": 59
+    },
+    {
+     "id": "n-memphisfog-185",
+     "midiNote": 84,
+     "startBeat": 14.75,
+     "durationBeats": 0.05,
+     "velocity": 54
+    },
+    {
+     "id": "n-memphisfog-186",
+     "midiNote": 84,
+     "startBeat": 15.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-memphisfog-187",
+     "midiNote": 84,
+     "startBeat": 15.25,
+     "durationBeats": 0.05,
+     "velocity": 56
+    },
+    {
+     "id": "n-memphisfog-188",
+     "midiNote": 84,
+     "startBeat": 15.5,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-memphisfog-189",
+     "midiNote": 84,
+     "startBeat": 15.75,
+     "durationBeats": 0.05,
+     "velocity": 54
+    },
+    {
+     "id": "n-memphisfog-190",
+     "midiNote": 84,
+     "startBeat": 15.0,
+     "durationBeats": 0.05,
+     "velocity": 49
+    },
+    {
+     "id": "n-memphisfog-191",
+     "midiNote": 84,
+     "startBeat": 15.1667,
+     "durationBeats": 0.05,
+     "velocity": 58
+    },
+    {
+     "id": "n-memphisfog-192",
+     "midiNote": 84,
+     "startBeat": 15.3333,
+     "durationBeats": 0.05,
+     "velocity": 69
+    },
+    {
+     "id": "n-memphisfog-193",
+     "midiNote": 84,
+     "startBeat": 15.5,
+     "durationBeats": 0.05,
+     "velocity": 75
+    },
+    {
+     "id": "n-memphisfog-194",
+     "midiNote": 84,
+     "startBeat": 15.6667,
+     "durationBeats": 0.05,
+     "velocity": 89
+    },
+    {
+     "id": "n-memphisfog-195",
+     "midiNote": 84,
+     "startBeat": 15.8333,
+     "durationBeats": 0.05,
+     "velocity": 95
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-memphisfog-222",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-memphisfog-223",
+   "beat": 16,
+   "name": "Verse",
+   "color": "#7c3aed"
+  },
+  {
+   "id": "mk-memphisfog-224",
+   "beat": 48,
+   "name": "Hook",
+   "color": "#db2777"
+  },
+  {
+   "id": "mk-memphisfog-225",
+   "beat": 80,
+   "name": "Verse 2",
+   "color": "#6d28d9"
+  },
+  {
+   "id": "mk-memphisfog-226",
+   "beat": 112,
+   "name": "Outro",
+   "color": "#64748b"
+  }
+ ],
+ "drumPatterns": [
+  {
+   "id": "dp-memphisfog-197",
+   "name": "MF Verse",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.0,
+   "voices": [
+    {
+     "id": "kick-808",
+     "name": "kick-808",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.95,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1.3,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.8,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.6,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-memphisfog-198",
+   "name": "MF Hook",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.0,
+   "voices": [
+    {
+     "id": "kick-808",
+     "name": "kick-808",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.95,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1.3,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.85,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "cowbell",
+     "name": "cowbell",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.4,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  }
+ ],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 2.8,
+  "reverbDamp": 0.7,
+  "reverbMix": 0.7,
+  "delayEnabled": true,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.35,
+  "delayMix": 0.55,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/8.",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.4,
+  "limiterEnabled": true,
+  "limiterThreshold": -5,
+  "drumReverbSend": 0.06,
+  "drumDelaySend": 0.05
+ }
+}

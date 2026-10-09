@@ -1,0 +1,3559 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Neon Drift",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 140,
+ "beatsPerBar": 4,
+ "songLengthBars": 52,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 208
+ },
+ "masterVolume": 0.6,
+ "tracks": [
+  {
+   "id": "trk-neondrift-193",
+   "name": "Drums",
+   "color": "#ef4444",
+   "source": {
+    "type": "drums"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-187",
+     "patternId": "dp-neondrift-185",
+     "startBeat": 0,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-188",
+     "patternId": "dp-neondrift-185",
+     "startBeat": 32,
+     "lengthBeats": 12,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-189",
+     "patternId": "dp-neondrift-186",
+     "startBeat": 44,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-190",
+     "patternId": "dp-neondrift-184",
+     "startBeat": 48,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-191",
+     "patternId": "dp-neondrift-184",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-192",
+     "patternId": "dp-neondrift-185",
+     "startBeat": 192,
+     "lengthBeats": 8,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.03,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-neondrift-196",
+   "name": "808",
+   "color": "#f97316",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-808-glide"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-194",
+     "patternId": "pat-neondrift-99",
+     "startBeat": 48,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-195",
+     "patternId": "pat-neondrift-99",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.95,
+    "eqLow": 1.5,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-neondrift-210",
+   "name": "Cowbell",
+   "color": "#facc15",
+   "source": {
+    "type": "preset",
+    "presetId": "mal-cowbell-808"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-197",
+     "patternId": "pat-neondrift-41",
+     "startBeat": 0,
+     "lengthBeats": 112,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-198",
+     "patternId": "pat-neondrift-82",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-199",
+     "patternId": "pat-neondrift-41",
+     "startBeat": 192,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.05,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.4,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.1,
+    "sendDelay": 0.12,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "lane-neondrift-200",
+     "target": "eqHigh",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-neondrift-201",
+       "beat": 0,
+       "value": 0.05
+      },
+      {
+       "id": "pt-neondrift-202",
+       "beat": 28,
+       "value": 0.2
+      },
+      {
+       "id": "pt-neondrift-203",
+       "beat": 32,
+       "value": 0.35
+      },
+      {
+       "id": "pt-neondrift-204",
+       "beat": 44,
+       "value": 0.5
+      },
+      {
+       "id": "pt-neondrift-205",
+       "beat": 48,
+       "value": 0.55
+      },
+      {
+       "id": "pt-neondrift-206",
+       "beat": 112,
+       "value": 0.5
+      },
+      {
+       "id": "pt-neondrift-207",
+       "beat": 128,
+       "value": 0.58
+      },
+      {
+       "id": "pt-neondrift-208",
+       "beat": 192,
+       "value": 0.55
+      },
+      {
+       "id": "pt-neondrift-209",
+       "beat": 208,
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "patch": {
+    "decay": 0.38
+   },
+   "showAutomation": true,
+   "activeLaneId": "lane-neondrift-200"
+  },
+  {
+   "id": "trk-neondrift-213",
+   "name": "Hats",
+   "color": "#a3a3a3",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-trap-hat"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-211",
+     "patternId": "pat-neondrift-178",
+     "startBeat": 48,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-neondrift-212",
+     "patternId": "pat-neondrift-178",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.5,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-neondrift-222",
+   "name": "Pad",
+   "color": "#7c3aed",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-dark"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-214",
+     "patternId": "pat-neondrift-113",
+     "startBeat": 0,
+     "lengthBeats": 208,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.45,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.25,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.6
+   },
+   "lanes": [
+    {
+     "id": "lane-neondrift-215",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-neondrift-216",
+       "beat": 0,
+       "value": 0.25
+      },
+      {
+       "id": "pt-neondrift-217",
+       "beat": 44,
+       "value": 0.5
+      },
+      {
+       "id": "pt-neondrift-218",
+       "beat": 48,
+       "value": 0.62
+      },
+      {
+       "id": "pt-neondrift-219",
+       "beat": 112,
+       "value": 0.4
+      },
+      {
+       "id": "pt-neondrift-220",
+       "beat": 128,
+       "value": 0.55
+      },
+      {
+       "id": "pt-neondrift-221",
+       "beat": 208,
+       "value": 0.2
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": "lane-neondrift-215"
+  },
+  {
+   "id": "trk-neondrift-224",
+   "name": "Choir",
+   "color": "#e879f9",
+   "source": {
+    "type": "preset",
+    "presetId": "voc-aah"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-223",
+     "patternId": "pat-neondrift-123",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.5
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-neondrift-226",
+   "name": "FX",
+   "color": "#94a3b8",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-riser"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-225",
+     "patternId": "pat-neondrift-180",
+     "startBeat": 32,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.5,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-neondrift-228",
+   "name": "Swell",
+   "color": "#64748b",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-reverse-swell"
+   },
+   "clips": [
+    {
+     "id": "clip-neondrift-227",
+     "patternId": "pat-neondrift-183",
+     "startBeat": 124,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.6,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-neondrift-41",
+   "name": "Cowbell \u00b7 phrase",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-1",
+     "midiNote": 78,
+     "startBeat": 0,
+     "durationBeats": 0.22,
+     "velocity": 112
+    },
+    {
+     "id": "n-neondrift-2",
+     "midiNote": 78,
+     "startBeat": 0.5,
+     "durationBeats": 0.22,
+     "velocity": 93
+    },
+    {
+     "id": "n-neondrift-3",
+     "midiNote": 81,
+     "startBeat": 0.75,
+     "durationBeats": 0.22,
+     "velocity": 102
+    },
+    {
+     "id": "n-neondrift-4",
+     "midiNote": 78,
+     "startBeat": 1.25,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-5",
+     "midiNote": 85,
+     "startBeat": 1.5,
+     "durationBeats": 0.22,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-6",
+     "midiNote": 85,
+     "startBeat": 2,
+     "durationBeats": 0.22,
+     "velocity": 107
+    },
+    {
+     "id": "n-neondrift-7",
+     "midiNote": 83,
+     "startBeat": 2.5,
+     "durationBeats": 0.22,
+     "velocity": 94
+    },
+    {
+     "id": "n-neondrift-8",
+     "midiNote": 81,
+     "startBeat": 2.75,
+     "durationBeats": 0.22,
+     "velocity": 102
+    },
+    {
+     "id": "n-neondrift-9",
+     "midiNote": 80,
+     "startBeat": 3.25,
+     "durationBeats": 0.22,
+     "velocity": 93
+    },
+    {
+     "id": "n-neondrift-10",
+     "midiNote": 78,
+     "startBeat": 3.5,
+     "durationBeats": 0.22,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-11",
+     "midiNote": 86,
+     "startBeat": 4,
+     "durationBeats": 0.22,
+     "velocity": 111
+    },
+    {
+     "id": "n-neondrift-12",
+     "midiNote": 86,
+     "startBeat": 4.5,
+     "durationBeats": 0.22,
+     "velocity": 94
+    },
+    {
+     "id": "n-neondrift-13",
+     "midiNote": 85,
+     "startBeat": 4.75,
+     "durationBeats": 0.22,
+     "velocity": 102
+    },
+    {
+     "id": "n-neondrift-14",
+     "midiNote": 81,
+     "startBeat": 5.25,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-15",
+     "midiNote": 78,
+     "startBeat": 5.5,
+     "durationBeats": 0.22,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-16",
+     "midiNote": 81,
+     "startBeat": 6,
+     "durationBeats": 0.22,
+     "velocity": 108
+    },
+    {
+     "id": "n-neondrift-17",
+     "midiNote": 85,
+     "startBeat": 6.5,
+     "durationBeats": 0.22,
+     "velocity": 91
+    },
+    {
+     "id": "n-neondrift-18",
+     "midiNote": 86,
+     "startBeat": 6.75,
+     "durationBeats": 0.22,
+     "velocity": 99
+    },
+    {
+     "id": "n-neondrift-19",
+     "midiNote": 85,
+     "startBeat": 7.25,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-20",
+     "midiNote": 81,
+     "startBeat": 7.5,
+     "durationBeats": 0.22,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-21",
+     "midiNote": 83,
+     "startBeat": 8,
+     "durationBeats": 0.22,
+     "velocity": 113
+    },
+    {
+     "id": "n-neondrift-22",
+     "midiNote": 83,
+     "startBeat": 8.5,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-23",
+     "midiNote": 86,
+     "startBeat": 8.75,
+     "durationBeats": 0.22,
+     "velocity": 98
+    },
+    {
+     "id": "n-neondrift-24",
+     "midiNote": 83,
+     "startBeat": 9.25,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-25",
+     "midiNote": 78,
+     "startBeat": 9.5,
+     "durationBeats": 0.22,
+     "velocity": 106
+    },
+    {
+     "id": "n-neondrift-26",
+     "midiNote": 78,
+     "startBeat": 10,
+     "durationBeats": 0.22,
+     "velocity": 108
+    },
+    {
+     "id": "n-neondrift-27",
+     "midiNote": 81,
+     "startBeat": 10.5,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-28",
+     "midiNote": 83,
+     "startBeat": 10.75,
+     "durationBeats": 0.22,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-29",
+     "midiNote": 81,
+     "startBeat": 11.25,
+     "durationBeats": 0.22,
+     "velocity": 87
+    },
+    {
+     "id": "n-neondrift-30",
+     "midiNote": 78,
+     "startBeat": 11.5,
+     "durationBeats": 0.22,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-31",
+     "midiNote": 77,
+     "startBeat": 12,
+     "durationBeats": 0.22,
+     "velocity": 115
+    },
+    {
+     "id": "n-neondrift-32",
+     "midiNote": 77,
+     "startBeat": 12.5,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-33",
+     "midiNote": 80,
+     "startBeat": 12.75,
+     "durationBeats": 0.22,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-34",
+     "midiNote": 85,
+     "startBeat": 13.25,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-35",
+     "midiNote": 77,
+     "startBeat": 13.5,
+     "durationBeats": 0.22,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-36",
+     "midiNote": 80,
+     "startBeat": 14,
+     "durationBeats": 0.22,
+     "velocity": 107
+    },
+    {
+     "id": "n-neondrift-37",
+     "midiNote": 83,
+     "startBeat": 14.5,
+     "durationBeats": 0.22,
+     "velocity": 92
+    },
+    {
+     "id": "n-neondrift-38",
+     "midiNote": 80,
+     "startBeat": 14.75,
+     "durationBeats": 0.22,
+     "velocity": 96
+    },
+    {
+     "id": "n-neondrift-39",
+     "midiNote": 77,
+     "startBeat": 15.25,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-40",
+     "midiNote": 73,
+     "startBeat": 15.5,
+     "durationBeats": 0.22,
+     "velocity": 102
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-82",
+   "name": "Cowbell \u00b7 phrase B",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-42",
+     "midiNote": 78,
+     "startBeat": 0,
+     "durationBeats": 0.22,
+     "velocity": 115
+    },
+    {
+     "id": "n-neondrift-43",
+     "midiNote": 78,
+     "startBeat": 0.5,
+     "durationBeats": 0.22,
+     "velocity": 96
+    },
+    {
+     "id": "n-neondrift-44",
+     "midiNote": 81,
+     "startBeat": 0.75,
+     "durationBeats": 0.22,
+     "velocity": 96
+    },
+    {
+     "id": "n-neondrift-45",
+     "midiNote": 78,
+     "startBeat": 1.25,
+     "durationBeats": 0.22,
+     "velocity": 96
+    },
+    {
+     "id": "n-neondrift-46",
+     "midiNote": 85,
+     "startBeat": 1.5,
+     "durationBeats": 0.22,
+     "velocity": 108
+    },
+    {
+     "id": "n-neondrift-47",
+     "midiNote": 85,
+     "startBeat": 2,
+     "durationBeats": 0.22,
+     "velocity": 112
+    },
+    {
+     "id": "n-neondrift-48",
+     "midiNote": 83,
+     "startBeat": 2.5,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-49",
+     "midiNote": 81,
+     "startBeat": 2.75,
+     "durationBeats": 0.22,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-50",
+     "midiNote": 80,
+     "startBeat": 3.25,
+     "durationBeats": 0.22,
+     "velocity": 93
+    },
+    {
+     "id": "n-neondrift-51",
+     "midiNote": 78,
+     "startBeat": 3.5,
+     "durationBeats": 0.22,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-52",
+     "midiNote": 86,
+     "startBeat": 4,
+     "durationBeats": 0.22,
+     "velocity": 115
+    },
+    {
+     "id": "n-neondrift-53",
+     "midiNote": 86,
+     "startBeat": 4.5,
+     "durationBeats": 0.22,
+     "velocity": 93
+    },
+    {
+     "id": "n-neondrift-54",
+     "midiNote": 85,
+     "startBeat": 4.75,
+     "durationBeats": 0.22,
+     "velocity": 104
+    },
+    {
+     "id": "n-neondrift-55",
+     "midiNote": 81,
+     "startBeat": 5.25,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-56",
+     "midiNote": 78,
+     "startBeat": 5.5,
+     "durationBeats": 0.22,
+     "velocity": 106
+    },
+    {
+     "id": "n-neondrift-57",
+     "midiNote": 81,
+     "startBeat": 6,
+     "durationBeats": 0.22,
+     "velocity": 104
+    },
+    {
+     "id": "n-neondrift-58",
+     "midiNote": 85,
+     "startBeat": 6.5,
+     "durationBeats": 0.22,
+     "velocity": 93
+    },
+    {
+     "id": "n-neondrift-59",
+     "midiNote": 86,
+     "startBeat": 6.75,
+     "durationBeats": 0.22,
+     "velocity": 98
+    },
+    {
+     "id": "n-neondrift-60",
+     "midiNote": 85,
+     "startBeat": 7.25,
+     "durationBeats": 0.22,
+     "velocity": 90
+    },
+    {
+     "id": "n-neondrift-61",
+     "midiNote": 81,
+     "startBeat": 7.5,
+     "durationBeats": 0.22,
+     "velocity": 98
+    },
+    {
+     "id": "n-neondrift-62",
+     "midiNote": 83,
+     "startBeat": 8,
+     "durationBeats": 0.22,
+     "velocity": 115
+    },
+    {
+     "id": "n-neondrift-63",
+     "midiNote": 86,
+     "startBeat": 8.5,
+     "durationBeats": 0.22,
+     "velocity": 94
+    },
+    {
+     "id": "n-neondrift-64",
+     "midiNote": 90,
+     "startBeat": 8.75,
+     "durationBeats": 0.22,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-65",
+     "midiNote": 86,
+     "startBeat": 9.25,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-66",
+     "midiNote": 83,
+     "startBeat": 9.5,
+     "durationBeats": 0.22,
+     "velocity": 107
+    },
+    {
+     "id": "n-neondrift-67",
+     "midiNote": 85,
+     "startBeat": 10,
+     "durationBeats": 0.22,
+     "velocity": 110
+    },
+    {
+     "id": "n-neondrift-68",
+     "midiNote": 86,
+     "startBeat": 10.5,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-69",
+     "midiNote": 90,
+     "startBeat": 10.75,
+     "durationBeats": 0.22,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-70",
+     "midiNote": 88,
+     "startBeat": 11.25,
+     "durationBeats": 0.22,
+     "velocity": 93
+    },
+    {
+     "id": "n-neondrift-71",
+     "midiNote": 86,
+     "startBeat": 11.5,
+     "durationBeats": 0.22,
+     "velocity": 94
+    },
+    {
+     "id": "n-neondrift-72",
+     "midiNote": 85,
+     "startBeat": 12,
+     "durationBeats": 0.22,
+     "velocity": 113
+    },
+    {
+     "id": "n-neondrift-73",
+     "midiNote": 89,
+     "startBeat": 12.5,
+     "durationBeats": 0.22,
+     "velocity": 88
+    },
+    {
+     "id": "n-neondrift-74",
+     "midiNote": 92,
+     "startBeat": 12.75,
+     "durationBeats": 0.22,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-75",
+     "midiNote": 89,
+     "startBeat": 13.25,
+     "durationBeats": 0.22,
+     "velocity": 88
+    },
+    {
+     "id": "n-neondrift-76",
+     "midiNote": 85,
+     "startBeat": 13.5,
+     "durationBeats": 0.22,
+     "velocity": 105
+    },
+    {
+     "id": "n-neondrift-77",
+     "midiNote": 83,
+     "startBeat": 14,
+     "durationBeats": 0.22,
+     "velocity": 108
+    },
+    {
+     "id": "n-neondrift-78",
+     "midiNote": 80,
+     "startBeat": 14.5,
+     "durationBeats": 0.22,
+     "velocity": 95
+    },
+    {
+     "id": "n-neondrift-79",
+     "midiNote": 77,
+     "startBeat": 14.75,
+     "durationBeats": 0.22,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-80",
+     "midiNote": 80,
+     "startBeat": 15.25,
+     "durationBeats": 0.22,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-81",
+     "midiNote": 85,
+     "startBeat": 15.5,
+     "durationBeats": 0.22,
+     "velocity": 97
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-99",
+   "name": "808 \u00b7 drop",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-83",
+     "midiNote": 30,
+     "startBeat": 0,
+     "durationBeats": 1.4,
+     "velocity": 120
+    },
+    {
+     "id": "n-neondrift-84",
+     "midiNote": 30,
+     "startBeat": 1.75,
+     "durationBeats": 0.6,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-85",
+     "midiNote": 42,
+     "startBeat": 2.5,
+     "durationBeats": 0.45,
+     "velocity": 99
+    },
+    {
+     "id": "n-neondrift-86",
+     "midiNote": 30,
+     "startBeat": 3,
+     "durationBeats": 0.9,
+     "velocity": 107
+    },
+    {
+     "id": "n-neondrift-87",
+     "midiNote": 38,
+     "startBeat": 4,
+     "durationBeats": 1.4,
+     "velocity": 121
+    },
+    {
+     "id": "n-neondrift-88",
+     "midiNote": 38,
+     "startBeat": 5.75,
+     "durationBeats": 0.6,
+     "velocity": 94
+    },
+    {
+     "id": "n-neondrift-89",
+     "midiNote": 50,
+     "startBeat": 6.5,
+     "durationBeats": 0.45,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-90",
+     "midiNote": 38,
+     "startBeat": 7,
+     "durationBeats": 0.9,
+     "velocity": 112
+    },
+    {
+     "id": "n-neondrift-91",
+     "midiNote": 35,
+     "startBeat": 8,
+     "durationBeats": 1.4,
+     "velocity": 118
+    },
+    {
+     "id": "n-neondrift-92",
+     "midiNote": 35,
+     "startBeat": 9.75,
+     "durationBeats": 0.6,
+     "velocity": 95
+    },
+    {
+     "id": "n-neondrift-93",
+     "midiNote": 47,
+     "startBeat": 10.5,
+     "durationBeats": 0.45,
+     "velocity": 101
+    },
+    {
+     "id": "n-neondrift-94",
+     "midiNote": 35,
+     "startBeat": 11,
+     "durationBeats": 0.9,
+     "velocity": 107
+    },
+    {
+     "id": "n-neondrift-95",
+     "midiNote": 37,
+     "startBeat": 12,
+     "durationBeats": 1.4,
+     "velocity": 121
+    },
+    {
+     "id": "n-neondrift-96",
+     "midiNote": 37,
+     "startBeat": 13.75,
+     "durationBeats": 0.6,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-97",
+     "midiNote": 49,
+     "startBeat": 14.5,
+     "durationBeats": 0.45,
+     "velocity": 103
+    },
+    {
+     "id": "n-neondrift-98",
+     "midiNote": 37,
+     "startBeat": 15,
+     "durationBeats": 0.9,
+     "velocity": 110
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-113",
+   "name": "Pad \u00b7 dark chords",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-100",
+     "midiNote": 54,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 70
+    },
+    {
+     "id": "n-neondrift-101",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 70
+    },
+    {
+     "id": "n-neondrift-102",
+     "midiNote": 61,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 67
+    },
+    {
+     "id": "n-neondrift-103",
+     "midiNote": 54,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 68
+    },
+    {
+     "id": "n-neondrift-104",
+     "midiNote": 57,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 72
+    },
+    {
+     "id": "n-neondrift-105",
+     "midiNote": 62,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 71
+    },
+    {
+     "id": "n-neondrift-106",
+     "midiNote": 54,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 67
+    },
+    {
+     "id": "n-neondrift-107",
+     "midiNote": 59,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 72
+    },
+    {
+     "id": "n-neondrift-108",
+     "midiNote": 62,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 71
+    },
+    {
+     "id": "n-neondrift-109",
+     "midiNote": 53,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 73
+    },
+    {
+     "id": "n-neondrift-110",
+     "midiNote": 56,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 71
+    },
+    {
+     "id": "n-neondrift-111",
+     "midiNote": 59,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 69
+    },
+    {
+     "id": "n-neondrift-112",
+     "midiNote": 61,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 67
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-123",
+   "name": "Choir \u00b7 drop B",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-114",
+     "midiNote": 69,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 63
+    },
+    {
+     "id": "n-neondrift-115",
+     "midiNote": 73,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 63
+    },
+    {
+     "id": "n-neondrift-116",
+     "midiNote": 66,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 59
+    },
+    {
+     "id": "n-neondrift-117",
+     "midiNote": 69,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 62
+    },
+    {
+     "id": "n-neondrift-118",
+     "midiNote": 66,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 64
+    },
+    {
+     "id": "n-neondrift-119",
+     "midiNote": 74,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 62
+    },
+    {
+     "id": "n-neondrift-120",
+     "midiNote": 65,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 65
+    },
+    {
+     "id": "n-neondrift-121",
+     "midiNote": 68,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 65
+    },
+    {
+     "id": "n-neondrift-122",
+     "midiNote": 71,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 63
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-178",
+   "name": "Hats \u00b7 rolls",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-124",
+     "midiNote": 90,
+     "startBeat": 0.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-neondrift-125",
+     "midiNote": 90,
+     "startBeat": 0.5,
+     "durationBeats": 0.05,
+     "velocity": 72
+    },
+    {
+     "id": "n-neondrift-126",
+     "midiNote": 90,
+     "startBeat": 1.0,
+     "durationBeats": 0.05,
+     "velocity": 84
+    },
+    {
+     "id": "n-neondrift-127",
+     "midiNote": 90,
+     "startBeat": 1.5,
+     "durationBeats": 0.05,
+     "velocity": 73
+    },
+    {
+     "id": "n-neondrift-128",
+     "midiNote": 90,
+     "startBeat": 2.0,
+     "durationBeats": 0.05,
+     "velocity": 80
+    },
+    {
+     "id": "n-neondrift-129",
+     "midiNote": 90,
+     "startBeat": 2.5,
+     "durationBeats": 0.05,
+     "velocity": 76
+    },
+    {
+     "id": "n-neondrift-130",
+     "midiNote": 90,
+     "startBeat": 3.0,
+     "durationBeats": 0.05,
+     "velocity": 80
+    },
+    {
+     "id": "n-neondrift-131",
+     "midiNote": 90,
+     "startBeat": 3.5,
+     "durationBeats": 0.05,
+     "velocity": 72
+    },
+    {
+     "id": "n-neondrift-132",
+     "midiNote": 90,
+     "startBeat": 4.0,
+     "durationBeats": 0.05,
+     "velocity": 80
+    },
+    {
+     "id": "n-neondrift-133",
+     "midiNote": 90,
+     "startBeat": 4.5,
+     "durationBeats": 0.05,
+     "velocity": 73
+    },
+    {
+     "id": "n-neondrift-134",
+     "midiNote": 90,
+     "startBeat": 5.0,
+     "durationBeats": 0.05,
+     "velocity": 86
+    },
+    {
+     "id": "n-neondrift-135",
+     "midiNote": 90,
+     "startBeat": 5.5,
+     "durationBeats": 0.05,
+     "velocity": 76
+    },
+    {
+     "id": "n-neondrift-136",
+     "midiNote": 90,
+     "startBeat": 6.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-neondrift-137",
+     "midiNote": 90,
+     "startBeat": 6.5,
+     "durationBeats": 0.05,
+     "velocity": 71
+    },
+    {
+     "id": "n-neondrift-138",
+     "midiNote": 90,
+     "startBeat": 7.0,
+     "durationBeats": 0.05,
+     "velocity": 79
+    },
+    {
+     "id": "n-neondrift-139",
+     "midiNote": 90,
+     "startBeat": 7.5,
+     "durationBeats": 0.05,
+     "velocity": 70
+    },
+    {
+     "id": "n-neondrift-140",
+     "midiNote": 90,
+     "startBeat": 5.5,
+     "durationBeats": 0.05,
+     "velocity": 47
+    },
+    {
+     "id": "n-neondrift-141",
+     "midiNote": 90,
+     "startBeat": 5.625,
+     "durationBeats": 0.05,
+     "velocity": 55
+    },
+    {
+     "id": "n-neondrift-142",
+     "midiNote": 90,
+     "startBeat": 5.75,
+     "durationBeats": 0.05,
+     "velocity": 63
+    },
+    {
+     "id": "n-neondrift-143",
+     "midiNote": 90,
+     "startBeat": 5.875,
+     "durationBeats": 0.05,
+     "velocity": 67
+    },
+    {
+     "id": "n-neondrift-144",
+     "midiNote": 90,
+     "startBeat": 6.0,
+     "durationBeats": 0.05,
+     "velocity": 78
+    },
+    {
+     "id": "n-neondrift-145",
+     "midiNote": 90,
+     "startBeat": 6.125,
+     "durationBeats": 0.05,
+     "velocity": 85
+    },
+    {
+     "id": "n-neondrift-146",
+     "midiNote": 90,
+     "startBeat": 6.25,
+     "durationBeats": 0.05,
+     "velocity": 89
+    },
+    {
+     "id": "n-neondrift-147",
+     "midiNote": 90,
+     "startBeat": 6.375,
+     "durationBeats": 0.05,
+     "velocity": 97
+    },
+    {
+     "id": "n-neondrift-148",
+     "midiNote": 90,
+     "startBeat": 8.0,
+     "durationBeats": 0.05,
+     "velocity": 88
+    },
+    {
+     "id": "n-neondrift-149",
+     "midiNote": 90,
+     "startBeat": 8.5,
+     "durationBeats": 0.05,
+     "velocity": 68
+    },
+    {
+     "id": "n-neondrift-150",
+     "midiNote": 90,
+     "startBeat": 9.0,
+     "durationBeats": 0.05,
+     "velocity": 88
+    },
+    {
+     "id": "n-neondrift-151",
+     "midiNote": 90,
+     "startBeat": 9.5,
+     "durationBeats": 0.05,
+     "velocity": 65
+    },
+    {
+     "id": "n-neondrift-152",
+     "midiNote": 90,
+     "startBeat": 10.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-neondrift-153",
+     "midiNote": 90,
+     "startBeat": 10.5,
+     "durationBeats": 0.05,
+     "velocity": 74
+    },
+    {
+     "id": "n-neondrift-154",
+     "midiNote": 90,
+     "startBeat": 11.0,
+     "durationBeats": 0.05,
+     "velocity": 87
+    },
+    {
+     "id": "n-neondrift-155",
+     "midiNote": 90,
+     "startBeat": 11.5,
+     "durationBeats": 0.05,
+     "velocity": 69
+    },
+    {
+     "id": "n-neondrift-156",
+     "midiNote": 90,
+     "startBeat": 12.0,
+     "durationBeats": 0.05,
+     "velocity": 87
+    },
+    {
+     "id": "n-neondrift-157",
+     "midiNote": 90,
+     "startBeat": 12.5,
+     "durationBeats": 0.05,
+     "velocity": 69
+    },
+    {
+     "id": "n-neondrift-158",
+     "midiNote": 90,
+     "startBeat": 13.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-neondrift-159",
+     "midiNote": 90,
+     "startBeat": 13.5,
+     "durationBeats": 0.05,
+     "velocity": 66
+    },
+    {
+     "id": "n-neondrift-160",
+     "midiNote": 90,
+     "startBeat": 14.0,
+     "durationBeats": 0.05,
+     "velocity": 88
+    },
+    {
+     "id": "n-neondrift-161",
+     "midiNote": 90,
+     "startBeat": 14.5,
+     "durationBeats": 0.05,
+     "velocity": 69
+    },
+    {
+     "id": "n-neondrift-162",
+     "midiNote": 90,
+     "startBeat": 15.0,
+     "durationBeats": 0.05,
+     "velocity": 81
+    },
+    {
+     "id": "n-neondrift-163",
+     "midiNote": 90,
+     "startBeat": 15.5,
+     "durationBeats": 0.05,
+     "velocity": 71
+    },
+    {
+     "id": "n-neondrift-164",
+     "midiNote": 90,
+     "startBeat": 13.5,
+     "durationBeats": 0.05,
+     "velocity": 46
+    },
+    {
+     "id": "n-neondrift-165",
+     "midiNote": 90,
+     "startBeat": 13.625,
+     "durationBeats": 0.05,
+     "velocity": 54
+    },
+    {
+     "id": "n-neondrift-166",
+     "midiNote": 90,
+     "startBeat": 13.75,
+     "durationBeats": 0.05,
+     "velocity": 63
+    },
+    {
+     "id": "n-neondrift-167",
+     "midiNote": 90,
+     "startBeat": 13.875,
+     "durationBeats": 0.05,
+     "velocity": 68
+    },
+    {
+     "id": "n-neondrift-168",
+     "midiNote": 90,
+     "startBeat": 14.0,
+     "durationBeats": 0.05,
+     "velocity": 74
+    },
+    {
+     "id": "n-neondrift-169",
+     "midiNote": 90,
+     "startBeat": 14.125,
+     "durationBeats": 0.05,
+     "velocity": 85
+    },
+    {
+     "id": "n-neondrift-170",
+     "midiNote": 90,
+     "startBeat": 14.25,
+     "durationBeats": 0.05,
+     "velocity": 88
+    },
+    {
+     "id": "n-neondrift-171",
+     "midiNote": 90,
+     "startBeat": 14.375,
+     "durationBeats": 0.05,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-172",
+     "midiNote": 90,
+     "startBeat": 15.0,
+     "durationBeats": 0.05,
+     "velocity": 62
+    },
+    {
+     "id": "n-neondrift-173",
+     "midiNote": 90,
+     "startBeat": 15.1667,
+     "durationBeats": 0.05,
+     "velocity": 69
+    },
+    {
+     "id": "n-neondrift-174",
+     "midiNote": 90,
+     "startBeat": 15.3333,
+     "durationBeats": 0.05,
+     "velocity": 78
+    },
+    {
+     "id": "n-neondrift-175",
+     "midiNote": 90,
+     "startBeat": 15.5,
+     "durationBeats": 0.05,
+     "velocity": 82
+    },
+    {
+     "id": "n-neondrift-176",
+     "midiNote": 90,
+     "startBeat": 15.6667,
+     "durationBeats": 0.05,
+     "velocity": 91
+    },
+    {
+     "id": "n-neondrift-177",
+     "midiNote": 90,
+     "startBeat": 15.8333,
+     "durationBeats": 0.05,
+     "velocity": 101
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-180",
+   "name": "Riser",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-neondrift-179",
+     "midiNote": 54,
+     "startBeat": 0,
+     "durationBeats": 15.5,
+     "velocity": 100
+    }
+   ]
+  },
+  {
+   "id": "pat-neondrift-183",
+   "name": "Swell",
+   "lengthBeats": 4,
+   "notes": [
+    {
+     "id": "n-neondrift-181",
+     "midiNote": 66,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 100
+    },
+    {
+     "id": "n-neondrift-182",
+     "midiNote": 73,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 96
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-neondrift-229",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-neondrift-230",
+   "beat": 32,
+   "name": "Build",
+   "color": "#a855f7"
+  },
+  {
+   "id": "mk-neondrift-231",
+   "beat": 48,
+   "name": "Drop",
+   "color": "#ef4444"
+  },
+  {
+   "id": "mk-neondrift-232",
+   "beat": 112,
+   "name": "Break",
+   "color": "#475569"
+  },
+  {
+   "id": "mk-neondrift-233",
+   "beat": 128,
+   "name": "Drop B",
+   "color": "#dc2626"
+  },
+  {
+   "id": "mk-neondrift-234",
+   "beat": 192,
+   "name": "Outro",
+   "color": "#64748b"
+  }
+ ],
+ "drumPatterns": [
+  {
+   "id": "dp-neondrift-184",
+   "name": "ND Drop",
+   "genre": "Examples",
+   "stepCount": 32,
+   "swing": 0.0,
+   "voices": [
+    {
+     "id": "kick-808",
+     "name": "kick-808",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.95,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1.2,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.8,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.75,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "rim",
+     "name": "rim",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-neondrift-185",
+   "name": "ND Intro",
+   "genre": "Examples",
+   "stepCount": 32,
+   "swing": 0.0,
+   "voices": [
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "rim",
+     "name": "rim",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.4,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-neondrift-186",
+   "name": "ND Roll",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.0,
+   "voices": [
+    {
+     "id": "snare",
+     "name": "snare",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 118,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 118,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.75,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "kick-808",
+     "name": "kick-808",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  }
+ ],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 1.6,
+  "reverbDamp": 0.5,
+  "reverbMix": 0.6,
+  "delayEnabled": true,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.3,
+  "delayMix": 0.5,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/8.",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.3,
+  "limiterEnabled": true,
+  "limiterThreshold": -5,
+  "drumReverbSend": 0.05,
+  "drumDelaySend": 0.0
+ }
+}

@@ -1,0 +1,3476 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Snowfall",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 84,
+ "beatsPerBar": 3,
+ "songLengthBars": 40,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 120
+ },
+ "masterVolume": 0.8,
+ "tracks": [
+  {
+   "id": "trk-snowfall-438",
+   "name": "Piano",
+   "color": "#f5d0a9",
+   "source": {
+    "type": "preset",
+    "presetId": "piano-felt"
+   },
+   "clips": [
+    {
+     "id": "clip-snowfall-432",
+     "patternId": "pat-snowfall-25",
+     "startBeat": 0,
+     "lengthBeats": 12,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-433",
+     "patternId": "pat-snowfall-74",
+     "startBeat": 12,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-434",
+     "patternId": "pat-snowfall-74",
+     "startBeat": 36,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-435",
+     "patternId": "pat-snowfall-123",
+     "startBeat": 60,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-436",
+     "patternId": "pat-snowfall-74",
+     "startBeat": 84,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-437",
+     "patternId": "pat-snowfall-148",
+     "startBeat": 108,
+     "lengthBeats": 12,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.5,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.25,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-snowfall-444",
+   "name": "Music Box",
+   "color": "#fbcfe8",
+   "source": {
+    "type": "preset",
+    "presetId": "keys-musicbox"
+   },
+   "clips": [
+    {
+     "id": "clip-snowfall-439",
+     "patternId": "pat-snowfall-171",
+     "startBeat": 12,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-440",
+     "patternId": "pat-snowfall-194",
+     "startBeat": 36,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-441",
+     "patternId": "pat-snowfall-217",
+     "startBeat": 60,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-442",
+     "patternId": "pat-snowfall-194",
+     "startBeat": 84,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-443",
+     "patternId": "pat-snowfall-225",
+     "startBeat": 108,
+     "lengthBeats": 12,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.2,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.08,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {
+    "volume": 1.0,
+    "release": 1.4
+   },
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-snowfall-447",
+   "name": "Glockenspiel",
+   "color": "#fef08a",
+   "source": {
+    "type": "preset",
+    "presetId": "mal-glockenspiel"
+   },
+   "clips": [
+    {
+     "id": "clip-snowfall-445",
+     "patternId": "pat-snowfall-248",
+     "startBeat": 36,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-snowfall-446",
+     "patternId": "pat-snowfall-248",
+     "startBeat": 84,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.35,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.8,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.4,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-snowfall-456",
+   "name": "Pad",
+   "color": "#bae6fd",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-glass"
+   },
+   "clips": [
+    {
+     "id": "clip-snowfall-448",
+     "patternId": "pat-snowfall-389",
+     "startBeat": 0,
+     "lengthBeats": 120,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.45,
+    "eqLow": -4,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "lane-snowfall-449",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-snowfall-450",
+       "beat": 0,
+       "value": 0.08
+      },
+      {
+       "id": "pt-snowfall-451",
+       "beat": 12,
+       "value": 0.12
+      },
+      {
+       "id": "pt-snowfall-452",
+       "beat": 60,
+       "value": 0.15
+      },
+      {
+       "id": "pt-snowfall-453",
+       "beat": 84,
+       "value": 0.17
+      },
+      {
+       "id": "pt-snowfall-454",
+       "beat": 108,
+       "value": 0.13
+      },
+      {
+       "id": "pt-snowfall-455",
+       "beat": 120,
+       "value": 0.05
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": "lane-snowfall-449"
+  },
+  {
+   "id": "trk-snowfall-458",
+   "name": "Violins",
+   "color": "#93c5fd",
+   "source": {
+    "type": "preset",
+    "presetId": "str-legato-violins"
+   },
+   "clips": [
+    {
+     "id": "clip-snowfall-457",
+     "patternId": "pat-snowfall-431",
+     "startBeat": 84,
+     "lengthBeats": 24,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.2,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.65,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.4,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-snowfall-460",
+   "name": "Sub",
+   "color": "#1e3a8a",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-sub"
+   },
+   "clips": [
+    {
+     "id": "clip-snowfall-459",
+     "patternId": "pat-snowfall-422",
+     "startBeat": 12,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.45,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-snowfall-25",
+   "name": "Piano \u00b7 intro",
+   "lengthBeats": 12,
+   "notes": [
+    {
+     "id": "n-snowfall-1",
+     "midiNote": 43,
+     "startBeat": 0.0038,
+     "durationBeats": 2.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-2",
+     "midiNote": 50,
+     "startBeat": 0.5076,
+     "durationBeats": 2.4,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-3",
+     "midiNote": 59,
+     "startBeat": 1.0023,
+     "durationBeats": 1.9,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-4",
+     "midiNote": 62,
+     "startBeat": 1.5059,
+     "durationBeats": 1.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-5",
+     "midiNote": 59,
+     "startBeat": 2.0115,
+     "durationBeats": 0.9,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-6",
+     "midiNote": 50,
+     "startBeat": 2.506,
+     "durationBeats": 0.4,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-7",
+     "midiNote": 43,
+     "startBeat": 3.0085,
+     "durationBeats": 2.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-8",
+     "midiNote": 48,
+     "startBeat": 3.5016,
+     "durationBeats": 2.4,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-9",
+     "midiNote": 52,
+     "startBeat": 4.0008,
+     "durationBeats": 1.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-10",
+     "midiNote": 55,
+     "startBeat": 4.5012,
+     "durationBeats": 1.4,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-11",
+     "midiNote": 52,
+     "startBeat": 5.0103,
+     "durationBeats": 0.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-12",
+     "midiNote": 48,
+     "startBeat": 5.5078,
+     "durationBeats": 0.4,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-13",
+     "midiNote": 43,
+     "startBeat": 6.0011,
+     "durationBeats": 2.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-14",
+     "midiNote": 50,
+     "startBeat": 6.5068,
+     "durationBeats": 2.4,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-15",
+     "midiNote": 59,
+     "startBeat": 7.0096,
+     "durationBeats": 1.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-16",
+     "midiNote": 62,
+     "startBeat": 7.5063,
+     "durationBeats": 1.4,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-17",
+     "midiNote": 59,
+     "startBeat": 8.0072,
+     "durationBeats": 0.9,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-18",
+     "midiNote": 50,
+     "startBeat": 8.5117,
+     "durationBeats": 0.4,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-19",
+     "midiNote": 50,
+     "startBeat": 9.0031,
+     "durationBeats": 2.9,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-20",
+     "midiNote": 57,
+     "startBeat": 9.5103,
+     "durationBeats": 2.4,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-21",
+     "midiNote": 67,
+     "startBeat": 10.0035,
+     "durationBeats": 1.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-22",
+     "midiNote": 69,
+     "startBeat": 10.5115,
+     "durationBeats": 1.4,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-23",
+     "midiNote": 67,
+     "startBeat": 11.0042,
+     "durationBeats": 0.9,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-24",
+     "midiNote": 57,
+     "startBeat": 11.5077,
+     "durationBeats": 0.4,
+     "velocity": 50
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-74",
+   "name": "Piano \u00b7 A",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-26",
+     "midiNote": 43,
+     "startBeat": 0.0064,
+     "durationBeats": 2.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-27",
+     "midiNote": 50,
+     "startBeat": 0.5029,
+     "durationBeats": 2.4,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-28",
+     "midiNote": 59,
+     "startBeat": 1.007,
+     "durationBeats": 1.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-29",
+     "midiNote": 62,
+     "startBeat": 1.508,
+     "durationBeats": 1.4,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-30",
+     "midiNote": 59,
+     "startBeat": 2.0013,
+     "durationBeats": 0.9,
+     "velocity": 54
+    },
+    {
+     "id": "n-snowfall-31",
+     "midiNote": 50,
+     "startBeat": 2.5075,
+     "durationBeats": 0.4,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-32",
+     "midiNote": 52,
+     "startBeat": 3.0119,
+     "durationBeats": 2.9,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-33",
+     "midiNote": 59,
+     "startBeat": 3.5065,
+     "durationBeats": 2.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-34",
+     "midiNote": 67,
+     "startBeat": 4.0027,
+     "durationBeats": 1.9,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-35",
+     "midiNote": 71,
+     "startBeat": 4.507,
+     "durationBeats": 1.4,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-36",
+     "midiNote": 67,
+     "startBeat": 5.0104,
+     "durationBeats": 0.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-37",
+     "midiNote": 59,
+     "startBeat": 5.5073,
+     "durationBeats": 0.4,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-38",
+     "midiNote": 48,
+     "startBeat": 6.0056,
+     "durationBeats": 2.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-39",
+     "midiNote": 55,
+     "startBeat": 6.5032,
+     "durationBeats": 2.4,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-40",
+     "midiNote": 64,
+     "startBeat": 7.0003,
+     "durationBeats": 1.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-41",
+     "midiNote": 67,
+     "startBeat": 7.5018,
+     "durationBeats": 1.4,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-42",
+     "midiNote": 64,
+     "startBeat": 8.0043,
+     "durationBeats": 0.9,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-43",
+     "midiNote": 55,
+     "startBeat": 8.5068,
+     "durationBeats": 0.4,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-44",
+     "midiNote": 50,
+     "startBeat": 9.0048,
+     "durationBeats": 2.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-snowfall-45",
+     "midiNote": 57,
+     "startBeat": 9.5012,
+     "durationBeats": 2.4,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-46",
+     "midiNote": 66,
+     "startBeat": 10.0062,
+     "durationBeats": 1.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-47",
+     "midiNote": 69,
+     "startBeat": 10.5072,
+     "durationBeats": 1.4,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-48",
+     "midiNote": 66,
+     "startBeat": 11.0003,
+     "durationBeats": 0.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-49",
+     "midiNote": 57,
+     "startBeat": 11.5092,
+     "durationBeats": 0.4,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-50",
+     "midiNote": 47,
+     "startBeat": 12.0031,
+     "durationBeats": 2.9,
+     "velocity": 56
+    },
+    {
+     "id": "n-snowfall-51",
+     "midiNote": 55,
+     "startBeat": 12.5099,
+     "durationBeats": 2.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-52",
+     "midiNote": 59,
+     "startBeat": 13.0001,
+     "durationBeats": 1.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-53",
+     "midiNote": 62,
+     "startBeat": 13.5024,
+     "durationBeats": 1.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-54",
+     "midiNote": 59,
+     "startBeat": 14.0105,
+     "durationBeats": 0.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-55",
+     "midiNote": 55,
+     "startBeat": 14.505,
+     "durationBeats": 0.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-56",
+     "midiNote": 45,
+     "startBeat": 15.0118,
+     "durationBeats": 2.9,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-57",
+     "midiNote": 52,
+     "startBeat": 15.5114,
+     "durationBeats": 2.4,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-58",
+     "midiNote": 60,
+     "startBeat": 16.0088,
+     "durationBeats": 1.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-59",
+     "midiNote": 64,
+     "startBeat": 16.5096,
+     "durationBeats": 1.4,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-60",
+     "midiNote": 60,
+     "startBeat": 17.0014,
+     "durationBeats": 0.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-61",
+     "midiNote": 52,
+     "startBeat": 17.5117,
+     "durationBeats": 0.4,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-62",
+     "midiNote": 48,
+     "startBeat": 18.0007,
+     "durationBeats": 2.9,
+     "velocity": 56
+    },
+    {
+     "id": "n-snowfall-63",
+     "midiNote": 55,
+     "startBeat": 18.5022,
+     "durationBeats": 2.4,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-64",
+     "midiNote": 64,
+     "startBeat": 19.0111,
+     "durationBeats": 1.9,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-65",
+     "midiNote": 67,
+     "startBeat": 19.5062,
+     "durationBeats": 1.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-66",
+     "midiNote": 64,
+     "startBeat": 20.0027,
+     "durationBeats": 0.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-67",
+     "midiNote": 55,
+     "startBeat": 20.5022,
+     "durationBeats": 0.4,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-68",
+     "midiNote": 50,
+     "startBeat": 21.0077,
+     "durationBeats": 2.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-69",
+     "midiNote": 57,
+     "startBeat": 21.5035,
+     "durationBeats": 2.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-70",
+     "midiNote": 67,
+     "startBeat": 22.005,
+     "durationBeats": 1.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-71",
+     "midiNote": 69,
+     "startBeat": 22.5027,
+     "durationBeats": 1.4,
+     "velocity": 59
+    },
+    {
+     "id": "n-snowfall-72",
+     "midiNote": 66,
+     "startBeat": 23.0027,
+     "durationBeats": 0.9,
+     "velocity": 54
+    },
+    {
+     "id": "n-snowfall-73",
+     "midiNote": 57,
+     "startBeat": 23.5086,
+     "durationBeats": 0.4,
+     "velocity": 49
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-123",
+   "name": "Piano \u00b7 B",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-75",
+     "midiNote": 52,
+     "startBeat": 0.01,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-76",
+     "midiNote": 59,
+     "startBeat": 0.5034,
+     "durationBeats": 2.4,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-77",
+     "midiNote": 67,
+     "startBeat": 1.0011,
+     "durationBeats": 1.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-78",
+     "midiNote": 71,
+     "startBeat": 1.5054,
+     "durationBeats": 1.4,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-79",
+     "midiNote": 67,
+     "startBeat": 2.0101,
+     "durationBeats": 0.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-80",
+     "midiNote": 59,
+     "startBeat": 2.5103,
+     "durationBeats": 0.4,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-81",
+     "midiNote": 47,
+     "startBeat": 3.0095,
+     "durationBeats": 2.9,
+     "velocity": 59
+    },
+    {
+     "id": "n-snowfall-82",
+     "midiNote": 54,
+     "startBeat": 3.5044,
+     "durationBeats": 2.4,
+     "velocity": 54
+    },
+    {
+     "id": "n-snowfall-83",
+     "midiNote": 62,
+     "startBeat": 4.0038,
+     "durationBeats": 1.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-84",
+     "midiNote": 66,
+     "startBeat": 4.5111,
+     "durationBeats": 1.4,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-85",
+     "midiNote": 62,
+     "startBeat": 5.0014,
+     "durationBeats": 0.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-86",
+     "midiNote": 54,
+     "startBeat": 5.5026,
+     "durationBeats": 0.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-87",
+     "midiNote": 48,
+     "startBeat": 6.0097,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-88",
+     "midiNote": 55,
+     "startBeat": 6.5013,
+     "durationBeats": 2.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-89",
+     "midiNote": 64,
+     "startBeat": 7.0009,
+     "durationBeats": 1.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-90",
+     "midiNote": 67,
+     "startBeat": 7.5006,
+     "durationBeats": 1.4,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-91",
+     "midiNote": 64,
+     "startBeat": 8.0052,
+     "durationBeats": 0.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-92",
+     "midiNote": 55,
+     "startBeat": 8.5067,
+     "durationBeats": 0.4,
+     "velocity": 54
+    },
+    {
+     "id": "n-snowfall-93",
+     "midiNote": 47,
+     "startBeat": 9.0028,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-94",
+     "midiNote": 55,
+     "startBeat": 9.5011,
+     "durationBeats": 2.4,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-95",
+     "midiNote": 59,
+     "startBeat": 10.0006,
+     "durationBeats": 1.9,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-96",
+     "midiNote": 62,
+     "startBeat": 10.5082,
+     "durationBeats": 1.4,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-97",
+     "midiNote": 59,
+     "startBeat": 11.0006,
+     "durationBeats": 0.9,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-98",
+     "midiNote": 55,
+     "startBeat": 11.5027,
+     "durationBeats": 0.4,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-99",
+     "midiNote": 45,
+     "startBeat": 12.0112,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-100",
+     "midiNote": 52,
+     "startBeat": 12.5029,
+     "durationBeats": 2.4,
+     "velocity": 56
+    },
+    {
+     "id": "n-snowfall-101",
+     "midiNote": 60,
+     "startBeat": 13.0093,
+     "durationBeats": 1.9,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-102",
+     "midiNote": 64,
+     "startBeat": 13.5062,
+     "durationBeats": 1.4,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-103",
+     "midiNote": 60,
+     "startBeat": 14.0017,
+     "durationBeats": 0.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-104",
+     "midiNote": 52,
+     "startBeat": 14.5075,
+     "durationBeats": 0.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-105",
+     "midiNote": 54,
+     "startBeat": 15.0051,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-106",
+     "midiNote": 62,
+     "startBeat": 15.51,
+     "durationBeats": 2.4,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-107",
+     "midiNote": 66,
+     "startBeat": 16.0001,
+     "durationBeats": 1.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-108",
+     "midiNote": 69,
+     "startBeat": 16.5053,
+     "durationBeats": 1.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-109",
+     "midiNote": 66,
+     "startBeat": 17.0075,
+     "durationBeats": 0.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-110",
+     "midiNote": 62,
+     "startBeat": 17.5051,
+     "durationBeats": 0.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-111",
+     "midiNote": 52,
+     "startBeat": 18.0094,
+     "durationBeats": 2.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-snowfall-112",
+     "midiNote": 59,
+     "startBeat": 18.5002,
+     "durationBeats": 2.4,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-113",
+     "midiNote": 67,
+     "startBeat": 19.0101,
+     "durationBeats": 1.9,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-114",
+     "midiNote": 71,
+     "startBeat": 19.5077,
+     "durationBeats": 1.4,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-115",
+     "midiNote": 67,
+     "startBeat": 20.0098,
+     "durationBeats": 0.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-116",
+     "midiNote": 59,
+     "startBeat": 20.5047,
+     "durationBeats": 0.4,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-117",
+     "midiNote": 50,
+     "startBeat": 21.0019,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-118",
+     "midiNote": 57,
+     "startBeat": 21.5088,
+     "durationBeats": 2.4,
+     "velocity": 56
+    },
+    {
+     "id": "n-snowfall-119",
+     "midiNote": 67,
+     "startBeat": 22.0051,
+     "durationBeats": 1.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-120",
+     "midiNote": 69,
+     "startBeat": 22.5108,
+     "durationBeats": 1.4,
+     "velocity": 60
+    },
+    {
+     "id": "n-snowfall-121",
+     "midiNote": 66,
+     "startBeat": 23.0081,
+     "durationBeats": 0.9,
+     "velocity": 56
+    },
+    {
+     "id": "n-snowfall-122",
+     "midiNote": 57,
+     "startBeat": 23.5077,
+     "durationBeats": 0.4,
+     "velocity": 54
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-148",
+   "name": "Piano \u00b7 outro",
+   "lengthBeats": 12,
+   "notes": [
+    {
+     "id": "n-snowfall-124",
+     "midiNote": 43,
+     "startBeat": 0.0082,
+     "durationBeats": 2.9,
+     "velocity": 54
+    },
+    {
+     "id": "n-snowfall-125",
+     "midiNote": 50,
+     "startBeat": 0.5057,
+     "durationBeats": 2.4,
+     "velocity": 40
+    },
+    {
+     "id": "n-snowfall-126",
+     "midiNote": 59,
+     "startBeat": 1.0075,
+     "durationBeats": 1.9,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-127",
+     "midiNote": 62,
+     "startBeat": 1.5035,
+     "durationBeats": 1.4,
+     "velocity": 41
+    },
+    {
+     "id": "n-snowfall-128",
+     "midiNote": 59,
+     "startBeat": 2.0074,
+     "durationBeats": 0.9,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-129",
+     "midiNote": 50,
+     "startBeat": 2.5023,
+     "durationBeats": 0.4,
+     "velocity": 40
+    },
+    {
+     "id": "n-snowfall-130",
+     "midiNote": 48,
+     "startBeat": 3.0089,
+     "durationBeats": 2.9,
+     "velocity": 52
+    },
+    {
+     "id": "n-snowfall-131",
+     "midiNote": 55,
+     "startBeat": 3.5038,
+     "durationBeats": 2.4,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-132",
+     "midiNote": 64,
+     "startBeat": 4.0001,
+     "durationBeats": 1.9,
+     "velocity": 42
+    },
+    {
+     "id": "n-snowfall-133",
+     "midiNote": 67,
+     "startBeat": 4.5004,
+     "durationBeats": 1.4,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-134",
+     "midiNote": 64,
+     "startBeat": 5.0108,
+     "durationBeats": 0.9,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-135",
+     "midiNote": 55,
+     "startBeat": 5.5054,
+     "durationBeats": 0.4,
+     "velocity": 42
+    },
+    {
+     "id": "n-snowfall-136",
+     "midiNote": 43,
+     "startBeat": 6.0045,
+     "durationBeats": 2.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-137",
+     "midiNote": 50,
+     "startBeat": 6.5092,
+     "durationBeats": 2.4,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-138",
+     "midiNote": 59,
+     "startBeat": 7.0085,
+     "durationBeats": 1.9,
+     "velocity": 40
+    },
+    {
+     "id": "n-snowfall-139",
+     "midiNote": 62,
+     "startBeat": 7.5095,
+     "durationBeats": 1.4,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-140",
+     "midiNote": 59,
+     "startBeat": 8.0078,
+     "durationBeats": 0.9,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-141",
+     "midiNote": 50,
+     "startBeat": 8.506,
+     "durationBeats": 0.4,
+     "velocity": 42
+    },
+    {
+     "id": "n-snowfall-142",
+     "midiNote": 43,
+     "startBeat": 9.0045,
+     "durationBeats": 5.8,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-143",
+     "midiNote": 50,
+     "startBeat": 9.5091,
+     "durationBeats": 5.8,
+     "velocity": 41
+    },
+    {
+     "id": "n-snowfall-144",
+     "midiNote": 59,
+     "startBeat": 10.0001,
+     "durationBeats": 5.8,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-145",
+     "midiNote": 62,
+     "startBeat": 10.5002,
+     "durationBeats": 5.8,
+     "velocity": 42
+    },
+    {
+     "id": "n-snowfall-146",
+     "midiNote": 59,
+     "startBeat": 11.0052,
+     "durationBeats": 5.8,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-147",
+     "midiNote": 50,
+     "startBeat": 11.5108,
+     "durationBeats": 5.8,
+     "velocity": 48
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-171",
+   "name": "Music box \u00b7 A",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-149",
+     "midiNote": 83,
+     "startBeat": 0.0099,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "n-snowfall-150",
+     "midiNote": 81,
+     "startBeat": 1.004,
+     "durationBeats": 0.5,
+     "velocity": 84
+    },
+    {
+     "id": "n-snowfall-151",
+     "midiNote": 79,
+     "startBeat": 1.5078,
+     "durationBeats": 0.5,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-152",
+     "midiNote": 86,
+     "startBeat": 2.0037,
+     "durationBeats": 1,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-153",
+     "midiNote": 83,
+     "startBeat": 3.0062,
+     "durationBeats": 2,
+     "velocity": 84
+    },
+    {
+     "id": "n-snowfall-154",
+     "midiNote": 79,
+     "startBeat": 5.0042,
+     "durationBeats": 1,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-155",
+     "midiNote": 84,
+     "startBeat": 6.0044,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-156",
+     "midiNote": 83,
+     "startBeat": 7.0008,
+     "durationBeats": 1,
+     "velocity": 88
+    },
+    {
+     "id": "n-snowfall-157",
+     "midiNote": 79,
+     "startBeat": 8.0098,
+     "durationBeats": 1,
+     "velocity": 79
+    },
+    {
+     "id": "n-snowfall-158",
+     "midiNote": 81,
+     "startBeat": 9.0029,
+     "durationBeats": 2,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-159",
+     "midiNote": 78,
+     "startBeat": 11.0056,
+     "durationBeats": 1,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-160",
+     "midiNote": 79,
+     "startBeat": 12.0004,
+     "durationBeats": 1,
+     "velocity": 82
+    },
+    {
+     "id": "n-snowfall-161",
+     "midiNote": 83,
+     "startBeat": 13.0004,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-162",
+     "midiNote": 86,
+     "startBeat": 14.0038,
+     "durationBeats": 1,
+     "velocity": 86
+    },
+    {
+     "id": "n-snowfall-163",
+     "midiNote": 84,
+     "startBeat": 15.0096,
+     "durationBeats": 1.5,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-164",
+     "midiNote": 83,
+     "startBeat": 16.5005,
+     "durationBeats": 0.5,
+     "velocity": 79
+    },
+    {
+     "id": "n-snowfall-165",
+     "midiNote": 81,
+     "startBeat": 17.0041,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-166",
+     "midiNote": 79,
+     "startBeat": 18.0021,
+     "durationBeats": 1,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-167",
+     "midiNote": 76,
+     "startBeat": 19.0073,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "n-snowfall-168",
+     "midiNote": 83,
+     "startBeat": 20.0088,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "n-snowfall-169",
+     "midiNote": 79,
+     "startBeat": 21.0079,
+     "durationBeats": 1.5,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-170",
+     "midiNote": 78,
+     "startBeat": 22.507,
+     "durationBeats": 1.5,
+     "velocity": 84
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-194",
+   "name": "Music box \u00b7 A again",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-172",
+     "midiNote": 83,
+     "startBeat": 0.0047,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-173",
+     "midiNote": 81,
+     "startBeat": 1.0069,
+     "durationBeats": 0.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-snowfall-174",
+     "midiNote": 79,
+     "startBeat": 1.5076,
+     "durationBeats": 0.5,
+     "velocity": 81
+    },
+    {
+     "id": "n-snowfall-175",
+     "midiNote": 86,
+     "startBeat": 2.0014,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "n-snowfall-176",
+     "midiNote": 83,
+     "startBeat": 3.0008,
+     "durationBeats": 2,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-177",
+     "midiNote": 79,
+     "startBeat": 5.0015,
+     "durationBeats": 1,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-178",
+     "midiNote": 84,
+     "startBeat": 6.009,
+     "durationBeats": 1,
+     "velocity": 86
+    },
+    {
+     "id": "n-snowfall-179",
+     "midiNote": 83,
+     "startBeat": 7.0082,
+     "durationBeats": 1,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-180",
+     "midiNote": 79,
+     "startBeat": 8.0053,
+     "durationBeats": 1,
+     "velocity": 81
+    },
+    {
+     "id": "n-snowfall-181",
+     "midiNote": 81,
+     "startBeat": 9.0023,
+     "durationBeats": 2,
+     "velocity": 82
+    },
+    {
+     "id": "n-snowfall-182",
+     "midiNote": 78,
+     "startBeat": 11.0075,
+     "durationBeats": 1,
+     "velocity": 76
+    },
+    {
+     "id": "n-snowfall-183",
+     "midiNote": 79,
+     "startBeat": 12.0076,
+     "durationBeats": 1,
+     "velocity": 81
+    },
+    {
+     "id": "n-snowfall-184",
+     "midiNote": 83,
+     "startBeat": 13.0013,
+     "durationBeats": 1,
+     "velocity": 82
+    },
+    {
+     "id": "n-snowfall-185",
+     "midiNote": 86,
+     "startBeat": 14.0011,
+     "durationBeats": 1,
+     "velocity": 88
+    },
+    {
+     "id": "n-snowfall-186",
+     "midiNote": 84,
+     "startBeat": 15.0046,
+     "durationBeats": 1.5,
+     "velocity": 86
+    },
+    {
+     "id": "n-snowfall-187",
+     "midiNote": 83,
+     "startBeat": 16.5051,
+     "durationBeats": 0.5,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-188",
+     "midiNote": 81,
+     "startBeat": 17.0006,
+     "durationBeats": 1,
+     "velocity": 86
+    },
+    {
+     "id": "n-snowfall-189",
+     "midiNote": 79,
+     "startBeat": 18.0077,
+     "durationBeats": 1,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-190",
+     "midiNote": 76,
+     "startBeat": 19.0033,
+     "durationBeats": 1,
+     "velocity": 79
+    },
+    {
+     "id": "n-snowfall-191",
+     "midiNote": 84,
+     "startBeat": 20.001,
+     "durationBeats": 1,
+     "velocity": 84
+    },
+    {
+     "id": "n-snowfall-192",
+     "midiNote": 83,
+     "startBeat": 21.0064,
+     "durationBeats": 1.5,
+     "velocity": 83
+    },
+    {
+     "id": "n-snowfall-193",
+     "midiNote": 81,
+     "startBeat": 22.5098,
+     "durationBeats": 1.5,
+     "velocity": 78
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-217",
+   "name": "Music box \u00b7 B",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-195",
+     "midiNote": 88,
+     "startBeat": 0.0071,
+     "durationBeats": 1.5,
+     "velocity": 98
+    },
+    {
+     "id": "n-snowfall-196",
+     "midiNote": 86,
+     "startBeat": 1.506,
+     "durationBeats": 0.5,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-197",
+     "midiNote": 83,
+     "startBeat": 2.0097,
+     "durationBeats": 1,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-198",
+     "midiNote": 86,
+     "startBeat": 3.0081,
+     "durationBeats": 1,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-199",
+     "midiNote": 78,
+     "startBeat": 4.009,
+     "durationBeats": 1,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-200",
+     "midiNote": 81,
+     "startBeat": 5.0096,
+     "durationBeats": 1,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-201",
+     "midiNote": 79,
+     "startBeat": 6.0002,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-202",
+     "midiNote": 83,
+     "startBeat": 7.0033,
+     "durationBeats": 1,
+     "velocity": 97
+    },
+    {
+     "id": "n-snowfall-203",
+     "midiNote": 88,
+     "startBeat": 8.0074,
+     "durationBeats": 1,
+     "velocity": 95
+    },
+    {
+     "id": "n-snowfall-204",
+     "midiNote": 86,
+     "startBeat": 9.0039,
+     "durationBeats": 2,
+     "velocity": 94
+    },
+    {
+     "id": "n-snowfall-205",
+     "midiNote": 83,
+     "startBeat": 11.0015,
+     "durationBeats": 1,
+     "velocity": 87
+    },
+    {
+     "id": "n-snowfall-206",
+     "midiNote": 84,
+     "startBeat": 12.0098,
+     "durationBeats": 1,
+     "velocity": 96
+    },
+    {
+     "id": "n-snowfall-207",
+     "midiNote": 88,
+     "startBeat": 13.0051,
+     "durationBeats": 1,
+     "velocity": 98
+    },
+    {
+     "id": "n-snowfall-208",
+     "midiNote": 81,
+     "startBeat": 14.0057,
+     "durationBeats": 1,
+     "velocity": 94
+    },
+    {
+     "id": "n-snowfall-209",
+     "midiNote": 86,
+     "startBeat": 15.0077,
+     "durationBeats": 1.5,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-210",
+     "midiNote": 81,
+     "startBeat": 16.5023,
+     "durationBeats": 0.5,
+     "velocity": 89
+    },
+    {
+     "id": "n-snowfall-211",
+     "midiNote": 78,
+     "startBeat": 17.006,
+     "durationBeats": 1,
+     "velocity": 86
+    },
+    {
+     "id": "n-snowfall-212",
+     "midiNote": 79,
+     "startBeat": 18.0024,
+     "durationBeats": 1,
+     "velocity": 92
+    },
+    {
+     "id": "n-snowfall-213",
+     "midiNote": 83,
+     "startBeat": 19.0078,
+     "durationBeats": 1,
+     "velocity": 96
+    },
+    {
+     "id": "n-snowfall-214",
+     "midiNote": 86,
+     "startBeat": 20.004,
+     "durationBeats": 1,
+     "velocity": 91
+    },
+    {
+     "id": "n-snowfall-215",
+     "midiNote": 79,
+     "startBeat": 21.0059,
+     "durationBeats": 1.5,
+     "velocity": 85
+    },
+    {
+     "id": "n-snowfall-216",
+     "midiNote": 81,
+     "startBeat": 22.5027,
+     "durationBeats": 1.5,
+     "velocity": 89
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-225",
+   "name": "Music box \u00b7 outro",
+   "lengthBeats": 12,
+   "notes": [
+    {
+     "id": "n-snowfall-218",
+     "midiNote": 83,
+     "startBeat": 0.009,
+     "durationBeats": 1,
+     "velocity": 79
+    },
+    {
+     "id": "n-snowfall-219",
+     "midiNote": 86,
+     "startBeat": 1.0035,
+     "durationBeats": 2,
+     "velocity": 77
+    },
+    {
+     "id": "n-snowfall-220",
+     "midiNote": 88,
+     "startBeat": 3.0073,
+     "durationBeats": 1,
+     "velocity": 79
+    },
+    {
+     "id": "n-snowfall-221",
+     "midiNote": 86,
+     "startBeat": 4.0086,
+     "durationBeats": 1,
+     "velocity": 71
+    },
+    {
+     "id": "n-snowfall-222",
+     "midiNote": 83,
+     "startBeat": 5.0085,
+     "durationBeats": 1,
+     "velocity": 72
+    },
+    {
+     "id": "n-snowfall-223",
+     "midiNote": 81,
+     "startBeat": 6.0019,
+     "durationBeats": 2,
+     "velocity": 74
+    },
+    {
+     "id": "n-snowfall-224",
+     "midiNote": 79,
+     "startBeat": 8.0078,
+     "durationBeats": 4,
+     "velocity": 72
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-248",
+   "name": "Glockenspiel \u00b7 A again",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-226",
+     "midiNote": 95,
+     "startBeat": 0.0056,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-227",
+     "midiNote": 93,
+     "startBeat": 1.007,
+     "durationBeats": 0.5,
+     "velocity": 61
+    },
+    {
+     "id": "n-snowfall-228",
+     "midiNote": 91,
+     "startBeat": 1.5099,
+     "durationBeats": 0.5,
+     "velocity": 54
+    },
+    {
+     "id": "n-snowfall-229",
+     "midiNote": 98,
+     "startBeat": 2.009,
+     "durationBeats": 1,
+     "velocity": 63
+    },
+    {
+     "id": "n-snowfall-230",
+     "midiNote": 95,
+     "startBeat": 3.0083,
+     "durationBeats": 2,
+     "velocity": 63
+    },
+    {
+     "id": "n-snowfall-231",
+     "midiNote": 91,
+     "startBeat": 5.0094,
+     "durationBeats": 1,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-232",
+     "midiNote": 96,
+     "startBeat": 6.006,
+     "durationBeats": 1,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-233",
+     "midiNote": 95,
+     "startBeat": 7.002,
+     "durationBeats": 1,
+     "velocity": 60
+    },
+    {
+     "id": "n-snowfall-234",
+     "midiNote": 91,
+     "startBeat": 8.0008,
+     "durationBeats": 1,
+     "velocity": 58
+    },
+    {
+     "id": "n-snowfall-235",
+     "midiNote": 93,
+     "startBeat": 9.0048,
+     "durationBeats": 2,
+     "velocity": 59
+    },
+    {
+     "id": "n-snowfall-236",
+     "midiNote": 90,
+     "startBeat": 11.0057,
+     "durationBeats": 1,
+     "velocity": 60
+    },
+    {
+     "id": "n-snowfall-237",
+     "midiNote": 91,
+     "startBeat": 12.0029,
+     "durationBeats": 1,
+     "velocity": 61
+    },
+    {
+     "id": "n-snowfall-238",
+     "midiNote": 95,
+     "startBeat": 13.0098,
+     "durationBeats": 1,
+     "velocity": 59
+    },
+    {
+     "id": "n-snowfall-239",
+     "midiNote": 98,
+     "startBeat": 14.0027,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-240",
+     "midiNote": 96,
+     "startBeat": 15.0025,
+     "durationBeats": 1.5,
+     "velocity": 59
+    },
+    {
+     "id": "n-snowfall-241",
+     "midiNote": 95,
+     "startBeat": 16.503,
+     "durationBeats": 0.5,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-242",
+     "midiNote": 93,
+     "startBeat": 17.009,
+     "durationBeats": 1,
+     "velocity": 60
+    },
+    {
+     "id": "n-snowfall-243",
+     "midiNote": 91,
+     "startBeat": 18.0097,
+     "durationBeats": 1,
+     "velocity": 61
+    },
+    {
+     "id": "n-snowfall-244",
+     "midiNote": 88,
+     "startBeat": 19.0027,
+     "durationBeats": 1,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-245",
+     "midiNote": 96,
+     "startBeat": 20.0086,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-snowfall-246",
+     "midiNote": 95,
+     "startBeat": 21.01,
+     "durationBeats": 1.5,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-247",
+     "midiNote": 93,
+     "startBeat": 22.5085,
+     "durationBeats": 1.5,
+     "velocity": 58
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-389",
+   "name": "Pad \u00b7 whole song",
+   "lengthBeats": 120,
+   "notes": [
+    {
+     "id": "n-snowfall-249",
+     "midiNote": 59,
+     "startBeat": 0,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-250",
+     "midiNote": 62,
+     "startBeat": 0,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-251",
+     "midiNote": 67,
+     "startBeat": 0,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-252",
+     "midiNote": 59,
+     "startBeat": 3,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-253",
+     "midiNote": 60,
+     "startBeat": 3,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-254",
+     "midiNote": 64,
+     "startBeat": 3,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-255",
+     "midiNote": 67,
+     "startBeat": 3,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-256",
+     "midiNote": 59,
+     "startBeat": 6,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-257",
+     "midiNote": 62,
+     "startBeat": 6,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-258",
+     "midiNote": 67,
+     "startBeat": 6,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-259",
+     "midiNote": 62,
+     "startBeat": 9,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-260",
+     "midiNote": 67,
+     "startBeat": 9,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-261",
+     "midiNote": 69,
+     "startBeat": 9,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-262",
+     "midiNote": 59,
+     "startBeat": 12,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-263",
+     "midiNote": 62,
+     "startBeat": 12,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-264",
+     "midiNote": 67,
+     "startBeat": 12,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-265",
+     "midiNote": 59,
+     "startBeat": 15,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-266",
+     "midiNote": 62,
+     "startBeat": 15,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-267",
+     "midiNote": 64,
+     "startBeat": 15,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-268",
+     "midiNote": 67,
+     "startBeat": 15,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-269",
+     "midiNote": 59,
+     "startBeat": 18,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-270",
+     "midiNote": 60,
+     "startBeat": 18,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-271",
+     "midiNote": 64,
+     "startBeat": 18,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-272",
+     "midiNote": 67,
+     "startBeat": 18,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-273",
+     "midiNote": 62,
+     "startBeat": 21,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-274",
+     "midiNote": 66,
+     "startBeat": 21,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-275",
+     "midiNote": 69,
+     "startBeat": 21,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-276",
+     "midiNote": 59,
+     "startBeat": 24,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-277",
+     "midiNote": 62,
+     "startBeat": 24,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-278",
+     "midiNote": 67,
+     "startBeat": 24,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-279",
+     "midiNote": 60,
+     "startBeat": 27,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-280",
+     "midiNote": 64,
+     "startBeat": 27,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-281",
+     "midiNote": 67,
+     "startBeat": 27,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-282",
+     "midiNote": 69,
+     "startBeat": 27,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-283",
+     "midiNote": 59,
+     "startBeat": 30,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-284",
+     "midiNote": 60,
+     "startBeat": 30,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-285",
+     "midiNote": 64,
+     "startBeat": 30,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-286",
+     "midiNote": 67,
+     "startBeat": 30,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-287",
+     "midiNote": 62,
+     "startBeat": 33,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-288",
+     "midiNote": 66,
+     "startBeat": 33,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-289",
+     "midiNote": 69,
+     "startBeat": 33,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-290",
+     "midiNote": 59,
+     "startBeat": 36,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-291",
+     "midiNote": 62,
+     "startBeat": 36,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-292",
+     "midiNote": 67,
+     "startBeat": 36,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-293",
+     "midiNote": 59,
+     "startBeat": 39,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-294",
+     "midiNote": 62,
+     "startBeat": 39,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-295",
+     "midiNote": 64,
+     "startBeat": 39,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-296",
+     "midiNote": 67,
+     "startBeat": 39,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-297",
+     "midiNote": 59,
+     "startBeat": 42,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-298",
+     "midiNote": 60,
+     "startBeat": 42,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-299",
+     "midiNote": 64,
+     "startBeat": 42,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-300",
+     "midiNote": 67,
+     "startBeat": 42,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-301",
+     "midiNote": 62,
+     "startBeat": 45,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-302",
+     "midiNote": 66,
+     "startBeat": 45,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-303",
+     "midiNote": 69,
+     "startBeat": 45,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-304",
+     "midiNote": 59,
+     "startBeat": 48,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-305",
+     "midiNote": 62,
+     "startBeat": 48,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-306",
+     "midiNote": 67,
+     "startBeat": 48,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-307",
+     "midiNote": 60,
+     "startBeat": 51,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-308",
+     "midiNote": 64,
+     "startBeat": 51,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-309",
+     "midiNote": 67,
+     "startBeat": 51,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-310",
+     "midiNote": 69,
+     "startBeat": 51,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-311",
+     "midiNote": 59,
+     "startBeat": 54,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-312",
+     "midiNote": 60,
+     "startBeat": 54,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-313",
+     "midiNote": 64,
+     "startBeat": 54,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-314",
+     "midiNote": 67,
+     "startBeat": 54,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-315",
+     "midiNote": 62,
+     "startBeat": 57,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-316",
+     "midiNote": 66,
+     "startBeat": 57,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-317",
+     "midiNote": 69,
+     "startBeat": 57,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-318",
+     "midiNote": 59,
+     "startBeat": 60,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-319",
+     "midiNote": 64,
+     "startBeat": 60,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-320",
+     "midiNote": 67,
+     "startBeat": 60,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-321",
+     "midiNote": 59,
+     "startBeat": 63,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-322",
+     "midiNote": 62,
+     "startBeat": 63,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-323",
+     "midiNote": 66,
+     "startBeat": 63,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-324",
+     "midiNote": 69,
+     "startBeat": 63,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-325",
+     "midiNote": 59,
+     "startBeat": 66,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-326",
+     "midiNote": 60,
+     "startBeat": 66,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-327",
+     "midiNote": 64,
+     "startBeat": 66,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-328",
+     "midiNote": 67,
+     "startBeat": 66,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-329",
+     "midiNote": 59,
+     "startBeat": 69,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-330",
+     "midiNote": 62,
+     "startBeat": 69,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-331",
+     "midiNote": 67,
+     "startBeat": 69,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-332",
+     "midiNote": 60,
+     "startBeat": 72,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-333",
+     "midiNote": 64,
+     "startBeat": 72,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-334",
+     "midiNote": 67,
+     "startBeat": 72,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-335",
+     "midiNote": 69,
+     "startBeat": 72,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-336",
+     "midiNote": 62,
+     "startBeat": 75,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-337",
+     "midiNote": 66,
+     "startBeat": 75,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-338",
+     "midiNote": 69,
+     "startBeat": 75,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-339",
+     "midiNote": 59,
+     "startBeat": 78,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-340",
+     "midiNote": 62,
+     "startBeat": 78,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-341",
+     "midiNote": 64,
+     "startBeat": 78,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-342",
+     "midiNote": 67,
+     "startBeat": 78,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-343",
+     "midiNote": 62,
+     "startBeat": 81,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-344",
+     "midiNote": 66,
+     "startBeat": 81,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-345",
+     "midiNote": 69,
+     "startBeat": 81,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-346",
+     "midiNote": 59,
+     "startBeat": 84,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-347",
+     "midiNote": 62,
+     "startBeat": 84,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-348",
+     "midiNote": 67,
+     "startBeat": 84,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-349",
+     "midiNote": 59,
+     "startBeat": 87,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-350",
+     "midiNote": 62,
+     "startBeat": 87,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-351",
+     "midiNote": 64,
+     "startBeat": 87,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-352",
+     "midiNote": 67,
+     "startBeat": 87,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-353",
+     "midiNote": 59,
+     "startBeat": 90,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-354",
+     "midiNote": 60,
+     "startBeat": 90,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-355",
+     "midiNote": 64,
+     "startBeat": 90,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-356",
+     "midiNote": 67,
+     "startBeat": 90,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-357",
+     "midiNote": 62,
+     "startBeat": 93,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-358",
+     "midiNote": 66,
+     "startBeat": 93,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-359",
+     "midiNote": 69,
+     "startBeat": 93,
+     "durationBeats": 2.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-360",
+     "midiNote": 59,
+     "startBeat": 96,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-361",
+     "midiNote": 62,
+     "startBeat": 96,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-362",
+     "midiNote": 67,
+     "startBeat": 96,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-363",
+     "midiNote": 60,
+     "startBeat": 99,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-364",
+     "midiNote": 64,
+     "startBeat": 99,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-365",
+     "midiNote": 67,
+     "startBeat": 99,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-366",
+     "midiNote": 69,
+     "startBeat": 99,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-367",
+     "midiNote": 59,
+     "startBeat": 102,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-368",
+     "midiNote": 60,
+     "startBeat": 102,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-369",
+     "midiNote": 64,
+     "startBeat": 102,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-370",
+     "midiNote": 67,
+     "startBeat": 102,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-371",
+     "midiNote": 62,
+     "startBeat": 105,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-372",
+     "midiNote": 66,
+     "startBeat": 105,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-373",
+     "midiNote": 69,
+     "startBeat": 105,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-374",
+     "midiNote": 59,
+     "startBeat": 108,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-375",
+     "midiNote": 62,
+     "startBeat": 108,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-376",
+     "midiNote": 67,
+     "startBeat": 108,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-377",
+     "midiNote": 59,
+     "startBeat": 111,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-378",
+     "midiNote": 60,
+     "startBeat": 111,
+     "durationBeats": 2.95,
+     "velocity": 43
+    },
+    {
+     "id": "n-snowfall-379",
+     "midiNote": 64,
+     "startBeat": 111,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-380",
+     "midiNote": 67,
+     "startBeat": 111,
+     "durationBeats": 2.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-snowfall-381",
+     "midiNote": 59,
+     "startBeat": 114,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-382",
+     "midiNote": 62,
+     "startBeat": 114,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-383",
+     "midiNote": 67,
+     "startBeat": 114,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-384",
+     "midiNote": 69,
+     "startBeat": 114,
+     "durationBeats": 2.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-snowfall-385",
+     "midiNote": 59,
+     "startBeat": 117,
+     "durationBeats": 2.95,
+     "velocity": 46
+    },
+    {
+     "id": "n-snowfall-386",
+     "midiNote": 62,
+     "startBeat": 117,
+     "durationBeats": 2.95,
+     "velocity": 44
+    },
+    {
+     "id": "n-snowfall-387",
+     "midiNote": 67,
+     "startBeat": 117,
+     "durationBeats": 2.95,
+     "velocity": 45
+    },
+    {
+     "id": "n-snowfall-388",
+     "midiNote": 69,
+     "startBeat": 117,
+     "durationBeats": 2.95,
+     "velocity": 49
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-422",
+   "name": "Sub",
+   "lengthBeats": 96,
+   "notes": [
+    {
+     "id": "n-snowfall-390",
+     "midiNote": 43,
+     "startBeat": 0,
+     "durationBeats": 2.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-snowfall-391",
+     "midiNote": 40,
+     "startBeat": 3,
+     "durationBeats": 2.9,
+     "velocity": 67
+    },
+    {
+     "id": "n-snowfall-392",
+     "midiNote": 48,
+     "startBeat": 6,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-393",
+     "midiNote": 38,
+     "startBeat": 9,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-394",
+     "midiNote": 47,
+     "startBeat": 12,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-395",
+     "midiNote": 45,
+     "startBeat": 15,
+     "durationBeats": 2.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-snowfall-396",
+     "midiNote": 48,
+     "startBeat": 18,
+     "durationBeats": 2.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-snowfall-397",
+     "midiNote": 38,
+     "startBeat": 21,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-398",
+     "midiNote": 43,
+     "startBeat": 24,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-399",
+     "midiNote": 40,
+     "startBeat": 27,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-400",
+     "midiNote": 48,
+     "startBeat": 30,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-401",
+     "midiNote": 38,
+     "startBeat": 33,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-402",
+     "midiNote": 47,
+     "startBeat": 36,
+     "durationBeats": 2.9,
+     "velocity": 67
+    },
+    {
+     "id": "n-snowfall-403",
+     "midiNote": 45,
+     "startBeat": 39,
+     "durationBeats": 2.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-snowfall-404",
+     "midiNote": 48,
+     "startBeat": 42,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-405",
+     "midiNote": 38,
+     "startBeat": 45,
+     "durationBeats": 2.9,
+     "velocity": 67
+    },
+    {
+     "id": "n-snowfall-406",
+     "midiNote": 40,
+     "startBeat": 48,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-407",
+     "midiNote": 47,
+     "startBeat": 51,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-408",
+     "midiNote": 48,
+     "startBeat": 54,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-409",
+     "midiNote": 47,
+     "startBeat": 57,
+     "durationBeats": 2.9,
+     "velocity": 66
+    },
+    {
+     "id": "n-snowfall-410",
+     "midiNote": 45,
+     "startBeat": 60,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-411",
+     "midiNote": 42,
+     "startBeat": 63,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-412",
+     "midiNote": 40,
+     "startBeat": 66,
+     "durationBeats": 2.9,
+     "velocity": 67
+    },
+    {
+     "id": "n-snowfall-413",
+     "midiNote": 38,
+     "startBeat": 69,
+     "durationBeats": 2.9,
+     "velocity": 64
+    },
+    {
+     "id": "n-snowfall-414",
+     "midiNote": 43,
+     "startBeat": 72,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-415",
+     "midiNote": 40,
+     "startBeat": 75,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-416",
+     "midiNote": 48,
+     "startBeat": 78,
+     "durationBeats": 2.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-snowfall-417",
+     "midiNote": 38,
+     "startBeat": 81,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-418",
+     "midiNote": 47,
+     "startBeat": 84,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-419",
+     "midiNote": 45,
+     "startBeat": 87,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-420",
+     "midiNote": 48,
+     "startBeat": 90,
+     "durationBeats": 2.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-snowfall-421",
+     "midiNote": 38,
+     "startBeat": 93,
+     "durationBeats": 2.9,
+     "velocity": 62
+    }
+   ]
+  },
+  {
+   "id": "pat-snowfall-431",
+   "name": "Violins \u00b7 last A",
+   "lengthBeats": 24,
+   "notes": [
+    {
+     "id": "n-snowfall-423",
+     "midiNote": 74,
+     "startBeat": 0.0099,
+     "durationBeats": 3,
+     "velocity": 55
+    },
+    {
+     "id": "n-snowfall-424",
+     "midiNote": 76,
+     "startBeat": 3.0031,
+     "durationBeats": 3,
+     "velocity": 49
+    },
+    {
+     "id": "n-snowfall-425",
+     "midiNote": 76,
+     "startBeat": 6.0005,
+     "durationBeats": 3,
+     "velocity": 57
+    },
+    {
+     "id": "n-snowfall-426",
+     "midiNote": 78,
+     "startBeat": 9.0016,
+     "durationBeats": 3,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-427",
+     "midiNote": 74,
+     "startBeat": 12.0053,
+     "durationBeats": 3,
+     "velocity": 51
+    },
+    {
+     "id": "n-snowfall-428",
+     "midiNote": 72,
+     "startBeat": 15.0023,
+     "durationBeats": 3,
+     "velocity": 50
+    },
+    {
+     "id": "n-snowfall-429",
+     "midiNote": 76,
+     "startBeat": 18.0016,
+     "durationBeats": 3,
+     "velocity": 53
+    },
+    {
+     "id": "n-snowfall-430",
+     "midiNote": 74,
+     "startBeat": 21.0061,
+     "durationBeats": 3,
+     "velocity": 53
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-snowfall-461",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-snowfall-462",
+   "beat": 12,
+   "name": "A",
+   "color": "#22c55e"
+  },
+  {
+   "id": "mk-snowfall-463",
+   "beat": 36,
+   "name": "A again",
+   "color": "#16a34a"
+  },
+  {
+   "id": "mk-snowfall-464",
+   "beat": 60,
+   "name": "B",
+   "color": "#0ea5e9"
+  },
+  {
+   "id": "mk-snowfall-465",
+   "beat": 84,
+   "name": "A last",
+   "color": "#15803d"
+  },
+  {
+   "id": "mk-snowfall-466",
+   "beat": 108,
+   "name": "Outro",
+   "color": "#a3a3a3"
+  }
+ ],
+ "drumPatterns": [],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 3.8,
+  "reverbDamp": 0.45,
+  "reverbMix": 0.85,
+  "delayEnabled": true,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.3,
+  "delayMix": 0.5,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/4",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.4,
+  "limiterEnabled": true,
+  "limiterThreshold": -4,
+  "drumReverbSend": 0.12,
+  "drumDelaySend": 0.05
+ }
+}

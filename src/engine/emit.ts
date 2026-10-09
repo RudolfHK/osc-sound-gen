@@ -26,7 +26,7 @@ export function emitEvent(
   }
 
   const track = e.track;
-  const stripInput = getChannelRack().getInput(track.id) ?? undefined;
+  const route = getChannelRack().getRoute(track.id) ?? undefined;
   const bps = bpm / 60;
 
   if (e.kind === 'drum') {
@@ -39,7 +39,7 @@ export function emitEvent(
       decay: e.voice.decay * e.step.decay,
       tone: e.voice.tone,
       velocity: e.step.velocity,
-    }, time, stripInput);
+    }, time, route);
     return;
   }
 

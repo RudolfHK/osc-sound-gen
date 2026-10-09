@@ -77,4 +77,55 @@ describe('bundled examples', () => {
   it('midnight-drive-extended: every chord part agrees with the pad, bridge included', () => {
     expect(chordCheck('midnight-drive-extended.oscproject', ['Arp', 'Sub', 'Keys', 'Choir'])).toBeGreaterThan(150);
   });
+
+  // The long-form genre examples: real songs, not loops
+  const LONG = files.filter((f) => /^(minecraft-style|phonk|deep-house)-/.test(f));
+
+  it('ships the genre examples', () => {
+    expect(LONG.length).toBeGreaterThanOrEqual(7);
+  });
+
+  for (const file of LONG) {
+    it(`${file}: a full arrangement whose bass always sits in the chord`, () => {
+      const p = parseProject(JSON.parse(readFileSync(join(DIR, file), 'utf8')));
+      const seconds = p.songLengthBars * p.beatsPerBar * 60 / p.bpm;
+      expect(seconds, 'length').toBeGreaterThanOrEqual(60);
+      expect(p.doc.markers.length, 'sections').toBeGreaterThanOrEqual(4);
+
+      const input = {
+        tracks: p.doc.tracks,
+        patterns: p.doc.patterns,
+        drumPatterns: new Map<string, DrumPattern>(p.drumPatterns.map((d) => [d.id, d])),
+        notesFor: (_t: unknown, pat: { notes: { midiNote: number; startBeat: number; durationBeats: number; velocity: number; id: string }[] }) => pat.notes,
+        metronome: false,
+        beatsPerBar: p.beatsPerBar,
+      };
+      const end = p.songLengthBars * p.beatsPerBar;
+      const all = eventsInWindow(input, 0, end, { enabled: false, start: 0, end: 0 }, false);
+
+      // Every track is heard somewhere
+      for (const t of p.doc.tracks) {
+        expect(all.some((e) => e.kind !== 'click' && e.track.id === t.id), `${t.name} never plays`).toBe(true);
+      }
+
+      // Bar by bar: the lowest bass note belongs to the chord held by the pad/keys
+      const bassTrack = p.doc.tracks.find((t) => ['Sub', '808', 'Bass'].includes(t.name));
+      const chordTracks = p.doc.tracks.filter((t) => ['Pad', 'Keys'].includes(t.name));
+      let checked = 0;
+      for (let bar = 0; bar < p.songLengthBars; bar++) {
+        const a = bar * p.beatsPerBar;
+        const at = all.filter((e) => e.kind === 'note' && e.songBeat >= a && e.songBeat < a + 0.02);
+        const bass = at.filter((e) => e.kind === 'note' && e.track.id === bassTrack?.id);
+        for (const ct of chordTracks) {
+          const chord = new Set(at.filter((e) => e.kind === 'note' && e.track.id === ct.id)
+            .map((e) => (e.kind === 'note' ? e.midiNote % 12 : -1)));
+          if (chord.size < 3 || bass.length === 0) continue;
+          const low = Math.min(...bass.map((e) => (e.kind === 'note' ? e.midiNote : 999)));
+          expect(chord.has(low % 12), `${file} bar ${bar + 1}: bass ${low} not in ${ct.name}'s chord`).toBe(true);
+          checked++;
+        }
+      }
+      if (bassTrack && chordTracks.length) expect(checked, 'bars compared').toBeGreaterThan(4);
+    });
+  }
 });

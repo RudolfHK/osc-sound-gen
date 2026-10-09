@@ -1784,6 +1784,64 @@ export const INSTRUMENT_PRESETS: InstrumentPreset[] = [
     amp: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.08 },
     glide: 0.15, drive: 0.4, send: { reverb: 0.3, delay: 0.35 }, volume: 0.55,
   }),
+  // ══ Genre essentials: phonk and deep house ════════════════════════════════════
+  P('mal-cowbell-808', '808 Cowbell', 'Mallets', {
+    // The 808's cowbell is two square waves a fifth-and-a-bit apart (≈ 540 and
+    // 800 Hz) through a band-pass. Played as notes it becomes the drift-phonk lead.
+    layers: [
+      { wave: 'square', detune: 0, octave: 0, gain: 0.8 },
+      { wave: 'square', detune: 0, octave: 0.5884, gain: 0.75 },
+    ],
+    filter: { type: 'bandpass', cutoff: 1500, q: 0.8, envAmount: 0.5, envDecay: 0.05, keyTrack: 0.7, velTrack: 0.5 },
+    amp: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.1 },
+    noise: 0.06, noiseDecay: 0.005, noiseFreq: 5000,
+    humanize: 0.04, send: { reverb: 0.14, delay: 0.1 }, volume: 1,
+  }),
+  P('bass-808-glide', '808 Glide', 'Synth Bass', {
+    // A long sine 808 with a click, saturation for presence on small speakers,
+    // and a quick slide from note to note
+    layers: [
+      { wave: 'sine', detune: 0, octave: 0, gain: 1 },
+      { wave: 'triangle', detune: 0, octave: 1, gain: 0.15 },
+    ],
+    filter: { type: 'lowpass', cutoff: 1100, q: 0.8, envAmount: 1, envDecay: 0.08, keyTrack: 0.5, velTrack: 0.5 },
+    amp: { attack: 0.003, decay: 1.8, sustain: 0.5, release: 0.22 },
+    noise: 0.12, noiseDecay: 0.01, noiseFreq: 1800,
+    drive: 0.5, glide: 0.045, send: { reverb: 0 }, volume: 0.85,
+  }),
+  P('keys-house-organ', 'House Organ', 'Organ', {
+    // The bright, short organ stab of early-90s deep house
+    layers: [
+      { wave: 'square', detune: 0, octave: 0, gain: 0.45 },
+      { wave: 'sine', detune: 0, octave: 1, gain: 0.6 },
+      { wave: 'sine', detune: 3, octave: 1 + 7 / 12, gain: 0.3 },
+      { wave: 'triangle', detune: 0, octave: -1, gain: 0.3 },
+    ],
+    filter: { type: 'lowpass', cutoff: 2600, q: 1.4, envAmount: 1.6, envDecay: 0.12, keyTrack: 0.4, velTrack: 0.7 },
+    body: { freq: 900, gain: 3, q: 1 },
+    amp: { attack: 0.002, decay: 0.32, sustain: 0.3, release: 0.12 },
+    noise: 0.1, noiseDecay: 0.008, noiseFreq: 3000,
+    width: 0.3, send: { reverb: 0.18, delay: 0.12, chorus: 0.25 }, volume: 0.55,
+  }),
+  P('fx-trap-hat', 'Trap Hat (playable)', 'FX', {
+    // A closed hi-hat you play from the piano roll, for 1/32 and triplet rolls
+    // the 16-step drum grid can't express. Built like the 808's: six square
+    // oscillators at inharmonic ratios through a high-pass, plus a little noise.
+    // Play it around C5; pitch shifts the colour, velocity the bite.
+    layers: [
+      { wave: 'square', detune: 0, octave: 0, gain: 0.5 },
+      { wave: 'square', detune: 0, octave: 0.568, gain: 0.5 },
+      { wave: 'square', detune: 0, octave: 0.848, gain: 0.5 },
+      { wave: 'square', detune: 0, octave: 1.348, gain: 0.5 },
+      { wave: 'square', detune: 0, octave: 1.395, gain: 0.5 },
+      { wave: 'square', detune: 0, octave: 1.963, gain: 0.5 },
+    ],
+    filter: { type: 'highpass', cutoff: 7500, q: 0.9, envAmount: 0, envDecay: 0.05, keyTrack: 0, velTrack: 0 },
+    amp: { attack: 0.001, decay: 0.045, sustain: 0, release: 0.025 },
+    noise: 0.6, noiseDecay: 0.03, noiseFreq: 10000,
+    humanize: 0.12, send: { reverb: 0.04 }, volume: 0.8,
+  }),
+
   // ══ Expansion: orchestral, world, choir and texture instruments ═════════════
   // ── Strings ──
   P('str-legato-violins', 'Legato Violins', 'Strings', {
@@ -2648,9 +2706,11 @@ export class InstrumentEngine {
     if (peak < 0.001) return;
 
     // Voices land on the track's channel strip when the sequencer supplies one,
-    // so the fader, EQ, sends and sidechain apply to the whole part at once.
-    const stripInput = opts.trackId ? getChannelRack().getInput(opts.trackId) : null;
-    const out: AudioNode = stripInput ?? this.getOutput(ctx);
+    // so the fader, EQ, sends and sidechain apply to the whole part at once —
+    // including the instrument's own reverb/delay/chorus, which go in through
+    // the strip's instrument sends rather than straight to the effects.
+    const route = opts.trackId ? getChannelRack().getRoute(opts.trackId) : null;
+    const out: AudioNode = route?.input ?? this.getOutput(ctx);
 
     const freq = midiToFreq(midiNote + preset.octave * 12);
     const { attack, decay, sustain, release } = preset.amp;
@@ -2705,7 +2765,7 @@ export class InstrumentEngine {
     // ── FX sends tap the voice post-pan ──
     // These are the instrument's own character. The track's channel strip adds
     // its own sends downstream, which the mix engineer controls separately.
-    const sendNodes = getEffectsBus().connectSends(panner, preset.send);
+    const sendNodes = getEffectsBus().connectSends(panner, preset.send, route?.sends);
 
     // ── Filter: an automation lane replaces the per-note envelope ──
     const noteEnd = Math.max(time + attack + 0.005, time + dur) + release;
@@ -2875,8 +2935,8 @@ export class InstrumentEngine {
     const peak = (Math.max(0, Math.min(127, velocity)) / 127) * oscState.amplitude * 0.5;
     if (peak < 0.001) return;
 
-    const stripInput = ctxOpts.trackId ? getChannelRack().getInput(ctxOpts.trackId) : null;
-    const out: AudioNode = stripInput ?? this.getOutput(ctx);
+    const route = ctxOpts.trackId ? getChannelRack().getRoute(ctxOpts.trackId) : null;
+    const out: AudioNode = route?.input ?? this.getOutput(ctx);
     const startBeat = ctxOpts.startBeat ?? 0;
     const bpm = ctxOpts.bpm ?? 120;
 

@@ -1,0 +1,3166 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Morning Meadow",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 72,
+ "beatsPerBar": 4,
+ "songLengthBars": 32,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 128
+ },
+ "masterVolume": 0.8,
+ "tracks": [
+  {
+   "id": "trk-mmeadow-407",
+   "name": "Piano",
+   "color": "#f5d0a9",
+   "source": {
+    "type": "preset",
+    "presetId": "piano-felt"
+   },
+   "clips": [
+    {
+     "id": "clip-mmeadow-402",
+     "patternId": "pat-mmeadow-17",
+     "startBeat": 0,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mmeadow-403",
+     "patternId": "pat-mmeadow-74",
+     "startBeat": 16,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mmeadow-404",
+     "patternId": "pat-mmeadow-127",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mmeadow-405",
+     "patternId": "pat-mmeadow-185",
+     "startBeat": 80,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-mmeadow-406",
+     "patternId": "pat-mmeadow-208",
+     "startBeat": 112,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.25,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mmeadow-409",
+   "name": "Celesta",
+   "color": "#c4b5fd",
+   "source": {
+    "type": "preset",
+    "presetId": "keys-celesta"
+   },
+   "clips": [
+    {
+     "id": "clip-mmeadow-408",
+     "patternId": "pat-mmeadow-234",
+     "startBeat": 80,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.25,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.4,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mmeadow-418",
+   "name": "Pad",
+   "color": "#86efac",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-air"
+   },
+   "clips": [
+    {
+     "id": "clip-mmeadow-410",
+     "patternId": "pat-mmeadow-359",
+     "startBeat": 0,
+     "lengthBeats": 128,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.55,
+    "eqLow": -4,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "lane-mmeadow-411",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-mmeadow-412",
+       "beat": 0,
+       "value": 0.31
+      },
+      {
+       "id": "pt-mmeadow-413",
+       "beat": 16,
+       "value": 0.75
+      },
+      {
+       "id": "pt-mmeadow-414",
+       "beat": 48,
+       "value": 0.8
+      },
+      {
+       "id": "pt-mmeadow-415",
+       "beat": 80,
+       "value": 0.85
+      },
+      {
+       "id": "pt-mmeadow-416",
+       "beat": 112,
+       "value": 0.78
+      },
+      {
+       "id": "pt-mmeadow-417",
+       "beat": 128,
+       "value": 0.37
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": true,
+   "activeLaneId": "lane-mmeadow-411"
+  },
+  {
+   "id": "trk-mmeadow-420",
+   "name": "Strings",
+   "color": "#93c5fd",
+   "source": {
+    "type": "preset",
+    "presetId": "str-harmonics"
+   },
+   "clips": [
+    {
+     "id": "clip-mmeadow-419",
+     "patternId": "pat-mmeadow-401",
+     "startBeat": 48,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.5,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-mmeadow-422",
+   "name": "Sub",
+   "color": "#065f46",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-sub"
+   },
+   "clips": [
+    {
+     "id": "clip-mmeadow-421",
+     "patternId": "pat-mmeadow-384",
+     "startBeat": 16,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.55,
+    "eqLow": 1,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-mmeadow-17",
+   "name": "Piano \u00b7 intro",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-mmeadow-1",
+     "midiNote": 50,
+     "startBeat": 0.016,
+     "durationBeats": 3.92,
+     "velocity": 54
+    },
+    {
+     "id": "n-mmeadow-2",
+     "midiNote": 57,
+     "startBeat": 1.0126,
+     "durationBeats": 2.92,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-3",
+     "midiNote": 61,
+     "startBeat": 2.0026,
+     "durationBeats": 1.92,
+     "velocity": 41
+    },
+    {
+     "id": "n-mmeadow-4",
+     "midiNote": 66,
+     "startBeat": 3.0185,
+     "durationBeats": 0.92,
+     "velocity": 40
+    },
+    {
+     "id": "n-mmeadow-5",
+     "midiNote": 47,
+     "startBeat": 4.0054,
+     "durationBeats": 3.92,
+     "velocity": 54
+    },
+    {
+     "id": "n-mmeadow-6",
+     "midiNote": 54,
+     "startBeat": 5.0169,
+     "durationBeats": 2.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-7",
+     "midiNote": 57,
+     "startBeat": 6.0198,
+     "durationBeats": 1.92,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-8",
+     "midiNote": 62,
+     "startBeat": 7.0105,
+     "durationBeats": 0.92,
+     "velocity": 44
+    },
+    {
+     "id": "n-mmeadow-9",
+     "midiNote": 43,
+     "startBeat": 8.0199,
+     "durationBeats": 3.92,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-10",
+     "midiNote": 50,
+     "startBeat": 9.0185,
+     "durationBeats": 2.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-11",
+     "midiNote": 54,
+     "startBeat": 10.015,
+     "durationBeats": 1.92,
+     "velocity": 44
+    },
+    {
+     "id": "n-mmeadow-12",
+     "midiNote": 59,
+     "startBeat": 11.0005,
+     "durationBeats": 0.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-13",
+     "midiNote": 45,
+     "startBeat": 12.0142,
+     "durationBeats": 3.92,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-14",
+     "midiNote": 52,
+     "startBeat": 13.013,
+     "durationBeats": 2.92,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-15",
+     "midiNote": 57,
+     "startBeat": 14.0039,
+     "durationBeats": 1.92,
+     "velocity": 44
+    },
+    {
+     "id": "n-mmeadow-16",
+     "midiNote": 62,
+     "startBeat": 15.0026,
+     "durationBeats": 0.92,
+     "velocity": 40
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-74",
+   "name": "Piano \u00b7 A",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-mmeadow-18",
+     "midiNote": 50,
+     "startBeat": 0.0072,
+     "durationBeats": 3.92,
+     "velocity": 59
+    },
+    {
+     "id": "n-mmeadow-19",
+     "midiNote": 57,
+     "startBeat": 1.0016,
+     "durationBeats": 2.92,
+     "velocity": 55
+    },
+    {
+     "id": "n-mmeadow-20",
+     "midiNote": 61,
+     "startBeat": 2.0054,
+     "durationBeats": 1.92,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-21",
+     "midiNote": 66,
+     "startBeat": 3.0004,
+     "durationBeats": 0.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-22",
+     "midiNote": 47,
+     "startBeat": 4.0084,
+     "durationBeats": 3.92,
+     "velocity": 59
+    },
+    {
+     "id": "n-mmeadow-23",
+     "midiNote": 54,
+     "startBeat": 5.0072,
+     "durationBeats": 2.92,
+     "velocity": 55
+    },
+    {
+     "id": "n-mmeadow-24",
+     "midiNote": 57,
+     "startBeat": 6.0008,
+     "durationBeats": 1.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-25",
+     "midiNote": 62,
+     "startBeat": 7.015,
+     "durationBeats": 0.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-26",
+     "midiNote": 43,
+     "startBeat": 8.0087,
+     "durationBeats": 3.92,
+     "velocity": 58
+    },
+    {
+     "id": "n-mmeadow-27",
+     "midiNote": 50,
+     "startBeat": 9.0095,
+     "durationBeats": 2.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-28",
+     "midiNote": 54,
+     "startBeat": 10.0151,
+     "durationBeats": 1.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-29",
+     "midiNote": 59,
+     "startBeat": 11.0195,
+     "durationBeats": 0.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-30",
+     "midiNote": 45,
+     "startBeat": 12.0174,
+     "durationBeats": 3.92,
+     "velocity": 59
+    },
+    {
+     "id": "n-mmeadow-31",
+     "midiNote": 52,
+     "startBeat": 13.0117,
+     "durationBeats": 2.92,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-32",
+     "midiNote": 57,
+     "startBeat": 14.0187,
+     "durationBeats": 1.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-33",
+     "midiNote": 62,
+     "startBeat": 15.0014,
+     "durationBeats": 0.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-34",
+     "midiNote": 50,
+     "startBeat": 16.0106,
+     "durationBeats": 3.92,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-35",
+     "midiNote": 57,
+     "startBeat": 17.0089,
+     "durationBeats": 2.92,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-36",
+     "midiNote": 61,
+     "startBeat": 18.0182,
+     "durationBeats": 1.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-37",
+     "midiNote": 66,
+     "startBeat": 19.0137,
+     "durationBeats": 0.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-38",
+     "midiNote": 42,
+     "startBeat": 20.0088,
+     "durationBeats": 3.92,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-39",
+     "midiNote": 49,
+     "startBeat": 21.0187,
+     "durationBeats": 2.92,
+     "velocity": 55
+    },
+    {
+     "id": "n-mmeadow-40",
+     "midiNote": 52,
+     "startBeat": 22.0119,
+     "durationBeats": 1.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-41",
+     "midiNote": 57,
+     "startBeat": 23.0042,
+     "durationBeats": 0.92,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-42",
+     "midiNote": 43,
+     "startBeat": 24.0189,
+     "durationBeats": 3.92,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-43",
+     "midiNote": 50,
+     "startBeat": 25.0012,
+     "durationBeats": 2.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-44",
+     "midiNote": 54,
+     "startBeat": 26.0033,
+     "durationBeats": 1.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-45",
+     "midiNote": 59,
+     "startBeat": 27.0148,
+     "durationBeats": 0.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-46",
+     "midiNote": 43,
+     "startBeat": 28.0076,
+     "durationBeats": 3.92,
+     "velocity": 59
+    },
+    {
+     "id": "n-mmeadow-47",
+     "midiNote": 50,
+     "startBeat": 29.0051,
+     "durationBeats": 2.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-48",
+     "midiNote": 52,
+     "startBeat": 30.0038,
+     "durationBeats": 1.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-49",
+     "midiNote": 58,
+     "startBeat": 31.0109,
+     "durationBeats": 0.92,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-50",
+     "midiNote": 81,
+     "startBeat": 0.0102,
+     "durationBeats": 1.5,
+     "velocity": 78
+    },
+    {
+     "id": "n-mmeadow-51",
+     "midiNote": 78,
+     "startBeat": 1.5015,
+     "durationBeats": 0.5,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-52",
+     "midiNote": 76,
+     "startBeat": 2.0107,
+     "durationBeats": 1,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-53",
+     "midiNote": 73,
+     "startBeat": 3.0013,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-54",
+     "midiNote": 74,
+     "startBeat": 4.0033,
+     "durationBeats": 2,
+     "velocity": 75
+    },
+    {
+     "id": "n-mmeadow-55",
+     "midiNote": 78,
+     "startBeat": 6.001,
+     "durationBeats": 1,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-56",
+     "midiNote": 81,
+     "startBeat": 7.0016,
+     "durationBeats": 1,
+     "velocity": 75
+    },
+    {
+     "id": "n-mmeadow-57",
+     "midiNote": 83,
+     "startBeat": 8.0094,
+     "durationBeats": 2.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-mmeadow-58",
+     "midiNote": 81,
+     "startBeat": 10.5017,
+     "durationBeats": 0.5,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-59",
+     "midiNote": 78,
+     "startBeat": 11.0107,
+     "durationBeats": 1,
+     "velocity": 65
+    },
+    {
+     "id": "n-mmeadow-60",
+     "midiNote": 76,
+     "startBeat": 12.0043,
+     "durationBeats": 3.5,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-61",
+     "midiNote": 81,
+     "startBeat": 16.0041,
+     "durationBeats": 1,
+     "velocity": 75
+    },
+    {
+     "id": "n-mmeadow-62",
+     "midiNote": 83,
+     "startBeat": 17.0026,
+     "durationBeats": 0.5,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-63",
+     "midiNote": 81,
+     "startBeat": 17.5108,
+     "durationBeats": 0.5,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-64",
+     "midiNote": 78,
+     "startBeat": 18.0095,
+     "durationBeats": 2,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-65",
+     "midiNote": 85,
+     "startBeat": 20.0092,
+     "durationBeats": 1.5,
+     "velocity": 75
+    },
+    {
+     "id": "n-mmeadow-66",
+     "midiNote": 81,
+     "startBeat": 21.5027,
+     "durationBeats": 0.5,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-67",
+     "midiNote": 76,
+     "startBeat": 22.0099,
+     "durationBeats": 2,
+     "velocity": 66
+    },
+    {
+     "id": "n-mmeadow-68",
+     "midiNote": 86,
+     "startBeat": 24.008,
+     "durationBeats": 1,
+     "velocity": 74
+    },
+    {
+     "id": "n-mmeadow-69",
+     "midiNote": 83,
+     "startBeat": 25.0054,
+     "durationBeats": 1,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-70",
+     "midiNote": 81,
+     "startBeat": 26.011,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-71",
+     "midiNote": 78,
+     "startBeat": 27.0109,
+     "durationBeats": 1,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-72",
+     "midiNote": 76,
+     "startBeat": 28.0102,
+     "durationBeats": 2,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-73",
+     "midiNote": 74,
+     "startBeat": 30.0033,
+     "durationBeats": 2,
+     "velocity": 71
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-127",
+   "name": "Piano \u00b7 B",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-mmeadow-75",
+     "midiNote": 52,
+     "startBeat": 0.015,
+     "durationBeats": 3.92,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-76",
+     "midiNote": 59,
+     "startBeat": 1.0096,
+     "durationBeats": 2.92,
+     "velocity": 57
+    },
+    {
+     "id": "n-mmeadow-77",
+     "midiNote": 62,
+     "startBeat": 2.003,
+     "durationBeats": 1.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-78",
+     "midiNote": 67,
+     "startBeat": 3.0182,
+     "durationBeats": 0.92,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-79",
+     "midiNote": 45,
+     "startBeat": 4.0143,
+     "durationBeats": 3.92,
+     "velocity": 63
+    },
+    {
+     "id": "n-mmeadow-80",
+     "midiNote": 52,
+     "startBeat": 5.006,
+     "durationBeats": 2.92,
+     "velocity": 57
+    },
+    {
+     "id": "n-mmeadow-81",
+     "midiNote": 55,
+     "startBeat": 6.0172,
+     "durationBeats": 1.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-82",
+     "midiNote": 62,
+     "startBeat": 7.0036,
+     "durationBeats": 0.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-83",
+     "midiNote": 42,
+     "startBeat": 8.0045,
+     "durationBeats": 3.92,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-84",
+     "midiNote": 49,
+     "startBeat": 9.0042,
+     "durationBeats": 2.92,
+     "velocity": 55
+    },
+    {
+     "id": "n-mmeadow-85",
+     "midiNote": 52,
+     "startBeat": 10.0074,
+     "durationBeats": 1.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-86",
+     "midiNote": 57,
+     "startBeat": 11.0037,
+     "durationBeats": 0.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-87",
+     "midiNote": 47,
+     "startBeat": 12.0006,
+     "durationBeats": 3.92,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-88",
+     "midiNote": 54,
+     "startBeat": 13.0164,
+     "durationBeats": 2.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-89",
+     "midiNote": 57,
+     "startBeat": 14.0134,
+     "durationBeats": 1.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-90",
+     "midiNote": 62,
+     "startBeat": 15.0006,
+     "durationBeats": 0.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-91",
+     "midiNote": 43,
+     "startBeat": 16.0189,
+     "durationBeats": 3.92,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-92",
+     "midiNote": 50,
+     "startBeat": 17.0129,
+     "durationBeats": 2.92,
+     "velocity": 55
+    },
+    {
+     "id": "n-mmeadow-93",
+     "midiNote": 54,
+     "startBeat": 18.0076,
+     "durationBeats": 1.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-94",
+     "midiNote": 59,
+     "startBeat": 19.0123,
+     "durationBeats": 0.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-95",
+     "midiNote": 52,
+     "startBeat": 20.0163,
+     "durationBeats": 3.92,
+     "velocity": 61
+    },
+    {
+     "id": "n-mmeadow-96",
+     "midiNote": 59,
+     "startBeat": 21.0173,
+     "durationBeats": 2.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-97",
+     "midiNote": 62,
+     "startBeat": 22.003,
+     "durationBeats": 1.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-98",
+     "midiNote": 66,
+     "startBeat": 23.0192,
+     "durationBeats": 0.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-99",
+     "midiNote": 45,
+     "startBeat": 24.0032,
+     "durationBeats": 3.92,
+     "velocity": 66
+    },
+    {
+     "id": "n-mmeadow-100",
+     "midiNote": 52,
+     "startBeat": 25.001,
+     "durationBeats": 2.92,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-101",
+     "midiNote": 57,
+     "startBeat": 26.0108,
+     "durationBeats": 1.92,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-102",
+     "midiNote": 62,
+     "startBeat": 27.0123,
+     "durationBeats": 0.92,
+     "velocity": 54
+    },
+    {
+     "id": "n-mmeadow-103",
+     "midiNote": 45,
+     "startBeat": 28.0156,
+     "durationBeats": 3.92,
+     "velocity": 63
+    },
+    {
+     "id": "n-mmeadow-104",
+     "midiNote": 52,
+     "startBeat": 29.0032,
+     "durationBeats": 2.92,
+     "velocity": 54
+    },
+    {
+     "id": "n-mmeadow-105",
+     "midiNote": 57,
+     "startBeat": 30.0023,
+     "durationBeats": 1.92,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-106",
+     "midiNote": 61,
+     "startBeat": 31.005,
+     "durationBeats": 0.92,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-107",
+     "midiNote": 79,
+     "startBeat": 0.0027,
+     "durationBeats": 1,
+     "velocity": 77
+    },
+    {
+     "id": "n-mmeadow-108",
+     "midiNote": 83,
+     "startBeat": 1.0099,
+     "durationBeats": 1,
+     "velocity": 81
+    },
+    {
+     "id": "n-mmeadow-109",
+     "midiNote": 86,
+     "startBeat": 2.0088,
+     "durationBeats": 2,
+     "velocity": 78
+    },
+    {
+     "id": "n-mmeadow-110",
+     "midiNote": 86,
+     "startBeat": 4.0011,
+     "durationBeats": 1.5,
+     "velocity": 78
+    },
+    {
+     "id": "n-mmeadow-111",
+     "midiNote": 81,
+     "startBeat": 5.5101,
+     "durationBeats": 0.5,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-112",
+     "midiNote": 79,
+     "startBeat": 6.0008,
+     "durationBeats": 2,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-113",
+     "midiNote": 81,
+     "startBeat": 8.0057,
+     "durationBeats": 1,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-114",
+     "midiNote": 85,
+     "startBeat": 9.0012,
+     "durationBeats": 1,
+     "velocity": 79
+    },
+    {
+     "id": "n-mmeadow-115",
+     "midiNote": 88,
+     "startBeat": 10.0066,
+     "durationBeats": 2,
+     "velocity": 79
+    },
+    {
+     "id": "n-mmeadow-116",
+     "midiNote": 86,
+     "startBeat": 12.0032,
+     "durationBeats": 2,
+     "velocity": 83
+    },
+    {
+     "id": "n-mmeadow-117",
+     "midiNote": 83,
+     "startBeat": 14.0054,
+     "durationBeats": 1,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-118",
+     "midiNote": 81,
+     "startBeat": 15.0033,
+     "durationBeats": 1,
+     "velocity": 76
+    },
+    {
+     "id": "n-mmeadow-119",
+     "midiNote": 83,
+     "startBeat": 16.0048,
+     "durationBeats": 3,
+     "velocity": 78
+    },
+    {
+     "id": "n-mmeadow-120",
+     "midiNote": 81,
+     "startBeat": 19.0017,
+     "durationBeats": 1,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-121",
+     "midiNote": 78,
+     "startBeat": 20.0091,
+     "durationBeats": 1,
+     "velocity": 78
+    },
+    {
+     "id": "n-mmeadow-122",
+     "midiNote": 79,
+     "startBeat": 21.0025,
+     "durationBeats": 1,
+     "velocity": 79
+    },
+    {
+     "id": "n-mmeadow-123",
+     "midiNote": 83,
+     "startBeat": 22.006,
+     "durationBeats": 2,
+     "velocity": 79
+    },
+    {
+     "id": "n-mmeadow-124",
+     "midiNote": 81,
+     "startBeat": 24.0118,
+     "durationBeats": 2,
+     "velocity": 74
+    },
+    {
+     "id": "n-mmeadow-125",
+     "midiNote": 86,
+     "startBeat": 26.008,
+     "durationBeats": 2,
+     "velocity": 83
+    },
+    {
+     "id": "n-mmeadow-126",
+     "midiNote": 85,
+     "startBeat": 28.0046,
+     "durationBeats": 3.5,
+     "velocity": 82
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-185",
+   "name": "Piano \u00b7 A again",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-mmeadow-128",
+     "midiNote": 50,
+     "startBeat": 0.0083,
+     "durationBeats": 3.92,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-129",
+     "midiNote": 57,
+     "startBeat": 1.0064,
+     "durationBeats": 2.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-130",
+     "midiNote": 61,
+     "startBeat": 2.0163,
+     "durationBeats": 1.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-131",
+     "midiNote": 66,
+     "startBeat": 3.0195,
+     "durationBeats": 0.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-132",
+     "midiNote": 47,
+     "startBeat": 4.0075,
+     "durationBeats": 3.92,
+     "velocity": 58
+    },
+    {
+     "id": "n-mmeadow-133",
+     "midiNote": 54,
+     "startBeat": 5.0153,
+     "durationBeats": 2.92,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-134",
+     "midiNote": 57,
+     "startBeat": 6.0077,
+     "durationBeats": 1.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-135",
+     "midiNote": 62,
+     "startBeat": 7.0114,
+     "durationBeats": 0.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-136",
+     "midiNote": 43,
+     "startBeat": 8.0019,
+     "durationBeats": 3.92,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-137",
+     "midiNote": 50,
+     "startBeat": 9.0021,
+     "durationBeats": 2.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-138",
+     "midiNote": 54,
+     "startBeat": 10.0194,
+     "durationBeats": 1.92,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-139",
+     "midiNote": 59,
+     "startBeat": 11.0119,
+     "durationBeats": 0.92,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-140",
+     "midiNote": 45,
+     "startBeat": 12.005,
+     "durationBeats": 3.92,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-141",
+     "midiNote": 52,
+     "startBeat": 13.0188,
+     "durationBeats": 2.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-142",
+     "midiNote": 57,
+     "startBeat": 14.0174,
+     "durationBeats": 1.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-143",
+     "midiNote": 62,
+     "startBeat": 15.0065,
+     "durationBeats": 0.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-144",
+     "midiNote": 50,
+     "startBeat": 16.0156,
+     "durationBeats": 3.92,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-145",
+     "midiNote": 57,
+     "startBeat": 17.0161,
+     "durationBeats": 2.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-146",
+     "midiNote": 61,
+     "startBeat": 18.0191,
+     "durationBeats": 1.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-147",
+     "midiNote": 66,
+     "startBeat": 19.0186,
+     "durationBeats": 0.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-148",
+     "midiNote": 42,
+     "startBeat": 20.0155,
+     "durationBeats": 3.92,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-149",
+     "midiNote": 49,
+     "startBeat": 21.006,
+     "durationBeats": 2.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-150",
+     "midiNote": 52,
+     "startBeat": 22.0074,
+     "durationBeats": 1.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-151",
+     "midiNote": 57,
+     "startBeat": 23.0029,
+     "durationBeats": 0.92,
+     "velocity": 44
+    },
+    {
+     "id": "n-mmeadow-152",
+     "midiNote": 43,
+     "startBeat": 24.0189,
+     "durationBeats": 3.92,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-153",
+     "midiNote": 50,
+     "startBeat": 25.0046,
+     "durationBeats": 2.92,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-154",
+     "midiNote": 54,
+     "startBeat": 26.0063,
+     "durationBeats": 1.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-155",
+     "midiNote": 59,
+     "startBeat": 27.0106,
+     "durationBeats": 0.92,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-156",
+     "midiNote": 43,
+     "startBeat": 28.0037,
+     "durationBeats": 3.92,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-157",
+     "midiNote": 50,
+     "startBeat": 29.0115,
+     "durationBeats": 2.92,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-158",
+     "midiNote": 52,
+     "startBeat": 30.0135,
+     "durationBeats": 1.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-159",
+     "midiNote": 58,
+     "startBeat": 31.016,
+     "durationBeats": 0.92,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-160",
+     "midiNote": 81,
+     "startBeat": 0.0113,
+     "durationBeats": 1.5,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-161",
+     "midiNote": 78,
+     "startBeat": 1.5103,
+     "durationBeats": 0.5,
+     "velocity": 65
+    },
+    {
+     "id": "n-mmeadow-162",
+     "midiNote": 76,
+     "startBeat": 2.0048,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-163",
+     "midiNote": 73,
+     "startBeat": 3.0063,
+     "durationBeats": 1,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-164",
+     "midiNote": 74,
+     "startBeat": 4.0037,
+     "durationBeats": 2,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-165",
+     "midiNote": 78,
+     "startBeat": 6.0033,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-166",
+     "midiNote": 81,
+     "startBeat": 7.0086,
+     "durationBeats": 1,
+     "velocity": 65
+    },
+    {
+     "id": "n-mmeadow-167",
+     "midiNote": 83,
+     "startBeat": 8.0021,
+     "durationBeats": 2.5,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-168",
+     "midiNote": 81,
+     "startBeat": 10.506,
+     "durationBeats": 0.5,
+     "velocity": 61
+    },
+    {
+     "id": "n-mmeadow-169",
+     "midiNote": 78,
+     "startBeat": 11.0057,
+     "durationBeats": 1,
+     "velocity": 63
+    },
+    {
+     "id": "n-mmeadow-170",
+     "midiNote": 76,
+     "startBeat": 12.0076,
+     "durationBeats": 3.5,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-171",
+     "midiNote": 81,
+     "startBeat": 16.0104,
+     "durationBeats": 1,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-172",
+     "midiNote": 83,
+     "startBeat": 17.0098,
+     "durationBeats": 0.5,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-173",
+     "midiNote": 81,
+     "startBeat": 17.5094,
+     "durationBeats": 0.5,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-174",
+     "midiNote": 78,
+     "startBeat": 18.0023,
+     "durationBeats": 2,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-175",
+     "midiNote": 85,
+     "startBeat": 20.0038,
+     "durationBeats": 1.5,
+     "velocity": 76
+    },
+    {
+     "id": "n-mmeadow-176",
+     "midiNote": 81,
+     "startBeat": 21.5095,
+     "durationBeats": 0.5,
+     "velocity": 66
+    },
+    {
+     "id": "n-mmeadow-177",
+     "midiNote": 76,
+     "startBeat": 22.0069,
+     "durationBeats": 2,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-178",
+     "midiNote": 86,
+     "startBeat": 24.0082,
+     "durationBeats": 1,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-179",
+     "midiNote": 83,
+     "startBeat": 25.0081,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-180",
+     "midiNote": 81,
+     "startBeat": 26.0119,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-181",
+     "midiNote": 78,
+     "startBeat": 27.003,
+     "durationBeats": 1,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-182",
+     "midiNote": 76,
+     "startBeat": 28.011,
+     "durationBeats": 1,
+     "velocity": 68
+    },
+    {
+     "id": "n-mmeadow-183",
+     "midiNote": 74,
+     "startBeat": 29.0098,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-184",
+     "midiNote": 76,
+     "startBeat": 30.0088,
+     "durationBeats": 2,
+     "velocity": 66
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-208",
+   "name": "Piano \u00b7 outro",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-mmeadow-186",
+     "midiNote": 50,
+     "startBeat": 0.0132,
+     "durationBeats": 3.92,
+     "velocity": 55
+    },
+    {
+     "id": "n-mmeadow-187",
+     "midiNote": 57,
+     "startBeat": 1.0108,
+     "durationBeats": 2.92,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-188",
+     "midiNote": 64,
+     "startBeat": 2.0152,
+     "durationBeats": 1.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-189",
+     "midiNote": 66,
+     "startBeat": 3.0169,
+     "durationBeats": 0.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-190",
+     "midiNote": 50,
+     "startBeat": 4.0094,
+     "durationBeats": 3.92,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-191",
+     "midiNote": 59,
+     "startBeat": 5.0093,
+     "durationBeats": 2.92,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-192",
+     "midiNote": 62,
+     "startBeat": 6.018,
+     "durationBeats": 1.92,
+     "velocity": 40
+    },
+    {
+     "id": "n-mmeadow-193",
+     "midiNote": 66,
+     "startBeat": 7.0125,
+     "durationBeats": 0.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-194",
+     "midiNote": 50,
+     "startBeat": 8.0137,
+     "durationBeats": 3.92,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-195",
+     "midiNote": 57,
+     "startBeat": 9.005,
+     "durationBeats": 2.92,
+     "velocity": 42
+    },
+    {
+     "id": "n-mmeadow-196",
+     "midiNote": 64,
+     "startBeat": 10.0005,
+     "durationBeats": 1.92,
+     "velocity": 39
+    },
+    {
+     "id": "n-mmeadow-197",
+     "midiNote": 66,
+     "startBeat": 11.0036,
+     "durationBeats": 0.92,
+     "velocity": 38
+    },
+    {
+     "id": "n-mmeadow-198",
+     "midiNote": 50,
+     "startBeat": 12.0169,
+     "durationBeats": 7.5,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-199",
+     "midiNote": 57,
+     "startBeat": 13.0161,
+     "durationBeats": 6.5,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-200",
+     "midiNote": 64,
+     "startBeat": 14.0195,
+     "durationBeats": 5.5,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-201",
+     "midiNote": 66,
+     "startBeat": 15.0112,
+     "durationBeats": 4.5,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-202",
+     "midiNote": 78,
+     "startBeat": 0.0109,
+     "durationBeats": 1,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-203",
+     "midiNote": 76,
+     "startBeat": 1.0011,
+     "durationBeats": 1,
+     "velocity": 57
+    },
+    {
+     "id": "n-mmeadow-204",
+     "midiNote": 81,
+     "startBeat": 2.0045,
+     "durationBeats": 2,
+     "velocity": 61
+    },
+    {
+     "id": "n-mmeadow-205",
+     "midiNote": 83,
+     "startBeat": 4.0091,
+     "durationBeats": 2,
+     "velocity": 56
+    },
+    {
+     "id": "n-mmeadow-206",
+     "midiNote": 81,
+     "startBeat": 6.0028,
+     "durationBeats": 2,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-207",
+     "midiNote": 78,
+     "startBeat": 8.0054,
+     "durationBeats": 6,
+     "velocity": 59
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-234",
+   "name": "Celesta \u00b7 A again",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-mmeadow-209",
+     "midiNote": 93,
+     "startBeat": 0.0064,
+     "durationBeats": 1.5,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-210",
+     "midiNote": 90,
+     "startBeat": 1.5014,
+     "durationBeats": 0.5,
+     "velocity": 58
+    },
+    {
+     "id": "n-mmeadow-211",
+     "midiNote": 88,
+     "startBeat": 2.007,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-212",
+     "midiNote": 85,
+     "startBeat": 3.001,
+     "durationBeats": 1,
+     "velocity": 58
+    },
+    {
+     "id": "n-mmeadow-213",
+     "midiNote": 86,
+     "startBeat": 4.0079,
+     "durationBeats": 2,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-214",
+     "midiNote": 90,
+     "startBeat": 6.0091,
+     "durationBeats": 1,
+     "velocity": 66
+    },
+    {
+     "id": "n-mmeadow-215",
+     "midiNote": 93,
+     "startBeat": 7.0111,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-216",
+     "midiNote": 95,
+     "startBeat": 8.0073,
+     "durationBeats": 2.5,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-217",
+     "midiNote": 93,
+     "startBeat": 10.5089,
+     "durationBeats": 0.5,
+     "velocity": 54
+    },
+    {
+     "id": "n-mmeadow-218",
+     "midiNote": 90,
+     "startBeat": 11.0032,
+     "durationBeats": 1,
+     "velocity": 61
+    },
+    {
+     "id": "n-mmeadow-219",
+     "midiNote": 88,
+     "startBeat": 12.0064,
+     "durationBeats": 3.5,
+     "velocity": 60
+    },
+    {
+     "id": "n-mmeadow-220",
+     "midiNote": 93,
+     "startBeat": 16.0051,
+     "durationBeats": 1,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-221",
+     "midiNote": 95,
+     "startBeat": 17.0002,
+     "durationBeats": 0.5,
+     "velocity": 58
+    },
+    {
+     "id": "n-mmeadow-222",
+     "midiNote": 93,
+     "startBeat": 17.5108,
+     "durationBeats": 0.5,
+     "velocity": 58
+    },
+    {
+     "id": "n-mmeadow-223",
+     "midiNote": 90,
+     "startBeat": 18.0033,
+     "durationBeats": 2,
+     "velocity": 65
+    },
+    {
+     "id": "n-mmeadow-224",
+     "midiNote": 97,
+     "startBeat": 20.008,
+     "durationBeats": 1.5,
+     "velocity": 65
+    },
+    {
+     "id": "n-mmeadow-225",
+     "midiNote": 93,
+     "startBeat": 21.5056,
+     "durationBeats": 0.5,
+     "velocity": 62
+    },
+    {
+     "id": "n-mmeadow-226",
+     "midiNote": 88,
+     "startBeat": 22.0059,
+     "durationBeats": 2,
+     "velocity": 67
+    },
+    {
+     "id": "n-mmeadow-227",
+     "midiNote": 98,
+     "startBeat": 24.0054,
+     "durationBeats": 1,
+     "velocity": 66
+    },
+    {
+     "id": "n-mmeadow-228",
+     "midiNote": 95,
+     "startBeat": 25.0061,
+     "durationBeats": 1,
+     "velocity": 57
+    },
+    {
+     "id": "n-mmeadow-229",
+     "midiNote": 93,
+     "startBeat": 26.0086,
+     "durationBeats": 1,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-230",
+     "midiNote": 90,
+     "startBeat": 27.0037,
+     "durationBeats": 1,
+     "velocity": 64
+    },
+    {
+     "id": "n-mmeadow-231",
+     "midiNote": 88,
+     "startBeat": 28.0023,
+     "durationBeats": 1,
+     "velocity": 66
+    },
+    {
+     "id": "n-mmeadow-232",
+     "midiNote": 86,
+     "startBeat": 29.0025,
+     "durationBeats": 1,
+     "velocity": 65
+    },
+    {
+     "id": "n-mmeadow-233",
+     "midiNote": 88,
+     "startBeat": 30.0054,
+     "durationBeats": 2,
+     "velocity": 57
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-359",
+   "name": "Pad \u00b7 whole song",
+   "lengthBeats": 128,
+   "notes": [
+    {
+     "id": "n-mmeadow-235",
+     "midiNote": 57,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-236",
+     "midiNote": 61,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-237",
+     "midiNote": 62,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-238",
+     "midiNote": 66,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-239",
+     "midiNote": 57,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-240",
+     "midiNote": 59,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-241",
+     "midiNote": 62,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-242",
+     "midiNote": 66,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-243",
+     "midiNote": 59,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-244",
+     "midiNote": 62,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-245",
+     "midiNote": 66,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-246",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-247",
+     "midiNote": 57,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-248",
+     "midiNote": 62,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-249",
+     "midiNote": 64,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-250",
+     "midiNote": 57,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-251",
+     "midiNote": 61,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-252",
+     "midiNote": 62,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-253",
+     "midiNote": 66,
+     "startBeat": 16,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-254",
+     "midiNote": 57,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-255",
+     "midiNote": 59,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-256",
+     "midiNote": 62,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-257",
+     "midiNote": 66,
+     "startBeat": 20,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-258",
+     "midiNote": 59,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-259",
+     "midiNote": 62,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-260",
+     "midiNote": 66,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-261",
+     "midiNote": 67,
+     "startBeat": 24,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-262",
+     "midiNote": 57,
+     "startBeat": 28,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-263",
+     "midiNote": 62,
+     "startBeat": 28,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-264",
+     "midiNote": 64,
+     "startBeat": 28,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-265",
+     "midiNote": 57,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-266",
+     "midiNote": 61,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-267",
+     "midiNote": 62,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-268",
+     "midiNote": 66,
+     "startBeat": 32,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-269",
+     "midiNote": 57,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-270",
+     "midiNote": 61,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-271",
+     "midiNote": 64,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-272",
+     "midiNote": 66,
+     "startBeat": 36,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-273",
+     "midiNote": 59,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-274",
+     "midiNote": 62,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-275",
+     "midiNote": 66,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-276",
+     "midiNote": 67,
+     "startBeat": 40,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-277",
+     "midiNote": 58,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-278",
+     "midiNote": 62,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-279",
+     "midiNote": 64,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-280",
+     "midiNote": 67,
+     "startBeat": 44,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-281",
+     "midiNote": 59,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-282",
+     "midiNote": 62,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-283",
+     "midiNote": 64,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-284",
+     "midiNote": 67,
+     "startBeat": 48,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-285",
+     "midiNote": 57,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-286",
+     "midiNote": 62,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-287",
+     "midiNote": 64,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-288",
+     "midiNote": 67,
+     "startBeat": 52,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-289",
+     "midiNote": 57,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-290",
+     "midiNote": 61,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-291",
+     "midiNote": 64,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-292",
+     "midiNote": 66,
+     "startBeat": 56,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-293",
+     "midiNote": 57,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-294",
+     "midiNote": 59,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-295",
+     "midiNote": 62,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-296",
+     "midiNote": 66,
+     "startBeat": 60,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-297",
+     "midiNote": 59,
+     "startBeat": 64,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-298",
+     "midiNote": 62,
+     "startBeat": 64,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-299",
+     "midiNote": 66,
+     "startBeat": 64,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-300",
+     "midiNote": 67,
+     "startBeat": 64,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-301",
+     "midiNote": 59,
+     "startBeat": 68,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-302",
+     "midiNote": 62,
+     "startBeat": 68,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-303",
+     "midiNote": 64,
+     "startBeat": 68,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-304",
+     "midiNote": 66,
+     "startBeat": 68,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-305",
+     "midiNote": 67,
+     "startBeat": 68,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-306",
+     "midiNote": 57,
+     "startBeat": 72,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-307",
+     "midiNote": 62,
+     "startBeat": 72,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-308",
+     "midiNote": 64,
+     "startBeat": 72,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-309",
+     "midiNote": 57,
+     "startBeat": 76,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-310",
+     "midiNote": 61,
+     "startBeat": 76,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-311",
+     "midiNote": 64,
+     "startBeat": 76,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-312",
+     "midiNote": 57,
+     "startBeat": 80,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-313",
+     "midiNote": 61,
+     "startBeat": 80,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-314",
+     "midiNote": 62,
+     "startBeat": 80,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-315",
+     "midiNote": 66,
+     "startBeat": 80,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-316",
+     "midiNote": 57,
+     "startBeat": 84,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-317",
+     "midiNote": 59,
+     "startBeat": 84,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-318",
+     "midiNote": 62,
+     "startBeat": 84,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-319",
+     "midiNote": 66,
+     "startBeat": 84,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-320",
+     "midiNote": 59,
+     "startBeat": 88,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-321",
+     "midiNote": 62,
+     "startBeat": 88,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-322",
+     "midiNote": 66,
+     "startBeat": 88,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-323",
+     "midiNote": 67,
+     "startBeat": 88,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-324",
+     "midiNote": 57,
+     "startBeat": 92,
+     "durationBeats": 3.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-325",
+     "midiNote": 62,
+     "startBeat": 92,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-326",
+     "midiNote": 64,
+     "startBeat": 92,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-327",
+     "midiNote": 57,
+     "startBeat": 96,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-328",
+     "midiNote": 61,
+     "startBeat": 96,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-329",
+     "midiNote": 62,
+     "startBeat": 96,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-330",
+     "midiNote": 66,
+     "startBeat": 96,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-331",
+     "midiNote": 57,
+     "startBeat": 100,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-332",
+     "midiNote": 61,
+     "startBeat": 100,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-333",
+     "midiNote": 64,
+     "startBeat": 100,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-334",
+     "midiNote": 66,
+     "startBeat": 100,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-335",
+     "midiNote": 59,
+     "startBeat": 104,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-336",
+     "midiNote": 62,
+     "startBeat": 104,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-337",
+     "midiNote": 66,
+     "startBeat": 104,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-338",
+     "midiNote": 67,
+     "startBeat": 104,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-339",
+     "midiNote": 58,
+     "startBeat": 108,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-340",
+     "midiNote": 62,
+     "startBeat": 108,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-341",
+     "midiNote": 64,
+     "startBeat": 108,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-342",
+     "midiNote": 67,
+     "startBeat": 108,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-343",
+     "midiNote": 57,
+     "startBeat": 112,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-344",
+     "midiNote": 62,
+     "startBeat": 112,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-345",
+     "midiNote": 64,
+     "startBeat": 112,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-346",
+     "midiNote": 66,
+     "startBeat": 112,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-347",
+     "midiNote": 59,
+     "startBeat": 116,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-348",
+     "midiNote": 62,
+     "startBeat": 116,
+     "durationBeats": 3.95,
+     "velocity": 53
+    },
+    {
+     "id": "n-mmeadow-349",
+     "midiNote": 66,
+     "startBeat": 116,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-350",
+     "midiNote": 67,
+     "startBeat": 116,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-351",
+     "midiNote": 57,
+     "startBeat": 120,
+     "durationBeats": 3.95,
+     "velocity": 52
+    },
+    {
+     "id": "n-mmeadow-352",
+     "midiNote": 62,
+     "startBeat": 120,
+     "durationBeats": 3.95,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-353",
+     "midiNote": 64,
+     "startBeat": 120,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-354",
+     "midiNote": 66,
+     "startBeat": 120,
+     "durationBeats": 3.95,
+     "velocity": 50
+    },
+    {
+     "id": "n-mmeadow-355",
+     "midiNote": 57,
+     "startBeat": 124,
+     "durationBeats": 3.95,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-356",
+     "midiNote": 62,
+     "startBeat": 124,
+     "durationBeats": 3.95,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-357",
+     "midiNote": 64,
+     "startBeat": 124,
+     "durationBeats": 3.95,
+     "velocity": 51
+    },
+    {
+     "id": "n-mmeadow-358",
+     "midiNote": 66,
+     "startBeat": 124,
+     "durationBeats": 3.95,
+     "velocity": 50
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-384",
+   "name": "Sub \u00b7 A B A",
+   "lengthBeats": 96,
+   "notes": [
+    {
+     "id": "n-mmeadow-360",
+     "midiNote": 38,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-361",
+     "midiNote": 47,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-362",
+     "midiNote": 43,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-363",
+     "midiNote": 45,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-364",
+     "midiNote": 38,
+     "startBeat": 16,
+     "durationBeats": 3.9,
+     "velocity": 74
+    },
+    {
+     "id": "n-mmeadow-365",
+     "midiNote": 42,
+     "startBeat": 20,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-366",
+     "midiNote": 43,
+     "startBeat": 24,
+     "durationBeats": 3.9,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-367",
+     "midiNote": 43,
+     "startBeat": 28,
+     "durationBeats": 3.9,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-368",
+     "midiNote": 40,
+     "startBeat": 32,
+     "durationBeats": 3.9,
+     "velocity": 74
+    },
+    {
+     "id": "n-mmeadow-369",
+     "midiNote": 45,
+     "startBeat": 36,
+     "durationBeats": 3.9,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-370",
+     "midiNote": 42,
+     "startBeat": 40,
+     "durationBeats": 3.9,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-371",
+     "midiNote": 47,
+     "startBeat": 44,
+     "durationBeats": 3.9,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-372",
+     "midiNote": 43,
+     "startBeat": 48,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-373",
+     "midiNote": 40,
+     "startBeat": 52,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-374",
+     "midiNote": 45,
+     "startBeat": 56,
+     "durationBeats": 3.9,
+     "velocity": 69
+    },
+    {
+     "id": "n-mmeadow-375",
+     "midiNote": 45,
+     "startBeat": 60,
+     "durationBeats": 3.9,
+     "velocity": 70
+    },
+    {
+     "id": "n-mmeadow-376",
+     "midiNote": 38,
+     "startBeat": 64,
+     "durationBeats": 3.9,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-377",
+     "midiNote": 47,
+     "startBeat": 68,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-378",
+     "midiNote": 43,
+     "startBeat": 72,
+     "durationBeats": 3.9,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-379",
+     "midiNote": 45,
+     "startBeat": 76,
+     "durationBeats": 3.9,
+     "velocity": 71
+    },
+    {
+     "id": "n-mmeadow-380",
+     "midiNote": 38,
+     "startBeat": 80,
+     "durationBeats": 3.9,
+     "velocity": 72
+    },
+    {
+     "id": "n-mmeadow-381",
+     "midiNote": 42,
+     "startBeat": 84,
+     "durationBeats": 3.9,
+     "velocity": 73
+    },
+    {
+     "id": "n-mmeadow-382",
+     "midiNote": 43,
+     "startBeat": 88,
+     "durationBeats": 3.9,
+     "velocity": 75
+    },
+    {
+     "id": "n-mmeadow-383",
+     "midiNote": 43,
+     "startBeat": 92,
+     "durationBeats": 3.9,
+     "velocity": 70
+    }
+   ]
+  },
+  {
+   "id": "pat-mmeadow-401",
+   "name": "Strings \u00b7 B and A again",
+   "lengthBeats": 64,
+   "notes": [
+    {
+     "id": "n-mmeadow-385",
+     "midiNote": 79,
+     "startBeat": 0,
+     "durationBeats": 3.9,
+     "velocity": 44
+    },
+    {
+     "id": "n-mmeadow-386",
+     "midiNote": 79,
+     "startBeat": 4,
+     "durationBeats": 3.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-387",
+     "midiNote": 81,
+     "startBeat": 8,
+     "durationBeats": 3.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-388",
+     "midiNote": 81,
+     "startBeat": 12,
+     "durationBeats": 3.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-389",
+     "midiNote": 83,
+     "startBeat": 16,
+     "durationBeats": 3.9,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-390",
+     "midiNote": 83,
+     "startBeat": 20,
+     "durationBeats": 3.9,
+     "velocity": 46
+    },
+    {
+     "id": "n-mmeadow-391",
+     "midiNote": 86,
+     "startBeat": 24,
+     "durationBeats": 3.9,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-392",
+     "midiNote": 85,
+     "startBeat": 28,
+     "durationBeats": 3.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-393",
+     "midiNote": 85,
+     "startBeat": 32,
+     "durationBeats": 3.9,
+     "velocity": 45
+    },
+    {
+     "id": "n-mmeadow-394",
+     "midiNote": 86,
+     "startBeat": 36,
+     "durationBeats": 3.9,
+     "velocity": 43
+    },
+    {
+     "id": "n-mmeadow-395",
+     "midiNote": 86,
+     "startBeat": 40,
+     "durationBeats": 3.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-mmeadow-396",
+     "midiNote": 86,
+     "startBeat": 44,
+     "durationBeats": 3.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-397",
+     "midiNote": 85,
+     "startBeat": 48,
+     "durationBeats": 3.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-mmeadow-398",
+     "midiNote": 85,
+     "startBeat": 52,
+     "durationBeats": 3.9,
+     "velocity": 44
+    },
+    {
+     "id": "n-mmeadow-399",
+     "midiNote": 86,
+     "startBeat": 56,
+     "durationBeats": 3.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-mmeadow-400",
+     "midiNote": 86,
+     "startBeat": 60,
+     "durationBeats": 3.9,
+     "velocity": 47
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-mmeadow-423",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-mmeadow-424",
+   "beat": 16,
+   "name": "A",
+   "color": "#22c55e"
+  },
+  {
+   "id": "mk-mmeadow-425",
+   "beat": 48,
+   "name": "B",
+   "color": "#0ea5e9"
+  },
+  {
+   "id": "mk-mmeadow-426",
+   "beat": 80,
+   "name": "A again",
+   "color": "#16a34a"
+  },
+  {
+   "id": "mk-mmeadow-427",
+   "beat": 112,
+   "name": "Outro",
+   "color": "#a3a3a3"
+  }
+ ],
+ "drumPatterns": [],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 4.5,
+  "reverbDamp": 0.55,
+  "reverbMix": 0.9,
+  "delayEnabled": false,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.35,
+  "delayMix": 0.8,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/8",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.5,
+  "limiterEnabled": true,
+  "limiterThreshold": -4,
+  "drumReverbSend": 0.12,
+  "drumDelaySend": 0.05
+ }
+}

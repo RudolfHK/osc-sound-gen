@@ -1,0 +1,3664 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Low Tide",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 120,
+ "beatsPerBar": 4,
+ "songLengthBars": 48,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 192
+ },
+ "masterVolume": 0.68,
+ "tracks": [
+  {
+   "id": "trk-lowtide-149",
+   "name": "Drums",
+   "color": "#22c55e",
+   "source": {
+    "type": "drums"
+   },
+   "clips": [
+    {
+     "id": "clip-lowtide-144",
+     "patternId": "dp-lowtide-137",
+     "startBeat": 0,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-145",
+     "patternId": "dp-lowtide-138",
+     "startBeat": 32,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-146",
+     "patternId": "dp-lowtide-140",
+     "startBeat": 96,
+     "lengthBeats": 28,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-147",
+     "patternId": "dp-lowtide-141",
+     "startBeat": 124,
+     "lengthBeats": 4,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-148",
+     "patternId": "dp-lowtide-139",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.4,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.04,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lowtide-158",
+   "name": "Bass",
+   "color": "#0284c7",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-house"
+   },
+   "clips": [
+    {
+     "id": "clip-lowtide-150",
+     "patternId": "pat-lowtide-110",
+     "startBeat": 0,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-151",
+     "patternId": "pat-lowtide-110",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.65,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.55
+   },
+   "lanes": [
+    {
+     "id": "lane-lowtide-152",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-lowtide-153",
+       "beat": 0,
+       "value": 0.3
+      },
+      {
+       "id": "pt-lowtide-154",
+       "beat": 32,
+       "value": 0.55
+      },
+      {
+       "id": "pt-lowtide-155",
+       "beat": 96,
+       "value": 0.6
+      },
+      {
+       "id": "pt-lowtide-156",
+       "beat": 128,
+       "value": 0.6
+      },
+      {
+       "id": "pt-lowtide-157",
+       "beat": 192,
+       "value": 0.62
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": "lane-lowtide-152"
+  },
+  {
+   "id": "trk-lowtide-167",
+   "name": "Organ",
+   "color": "#fb923c",
+   "source": {
+    "type": "preset",
+    "presetId": "keys-house-organ"
+   },
+   "clips": [
+    {
+     "id": "clip-lowtide-159",
+     "patternId": "pat-lowtide-85",
+     "startBeat": 32,
+     "lengthBeats": 160,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.15,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.15,
+    "sendDelay": 0.1,
+    "sendChorus": 0.0,
+    "sidechain": 0.35
+   },
+   "lanes": [
+    {
+     "id": "lane-lowtide-160",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-lowtide-161",
+       "beat": 32,
+       "value": 0.5
+      },
+      {
+       "id": "pt-lowtide-162",
+       "beat": 96,
+       "value": 0.58
+      },
+      {
+       "id": "pt-lowtide-163",
+       "beat": 100,
+       "value": 0.3
+      },
+      {
+       "id": "pt-lowtide-164",
+       "beat": 124,
+       "value": 0.45
+      },
+      {
+       "id": "pt-lowtide-165",
+       "beat": 128,
+       "value": 0.68
+      },
+      {
+       "id": "pt-lowtide-166",
+       "beat": 192,
+       "value": 0.7
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": true,
+   "activeLaneId": "lane-lowtide-160"
+  },
+  {
+   "id": "trk-lowtide-170",
+   "name": "Pad",
+   "color": "#a78bfa",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-warm"
+   },
+   "clips": [
+    {
+     "id": "clip-lowtide-168",
+     "patternId": "pat-lowtide-129",
+     "startBeat": 96,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-169",
+     "patternId": "pat-lowtide-129",
+     "startBeat": 128,
+     "lengthBeats": 64,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.4,
+    "eqLow": -6,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.6
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lowtide-173",
+   "name": "Vocal",
+   "color": "#f472b6",
+   "source": {
+    "type": "preset",
+    "presetId": "voc-ooh"
+   },
+   "clips": [
+    {
+     "id": "clip-lowtide-171",
+     "patternId": "pat-lowtide-136",
+     "startBeat": 96,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lowtide-172",
+     "patternId": "pat-lowtide-136",
+     "startBeat": 160,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.12,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.4
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lowtide-175",
+   "name": "FX",
+   "color": "#94a3b8",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-riser"
+   },
+   "clips": [
+    {
+     "id": "clip-lowtide-174",
+     "patternId": "pat-lowtide-143",
+     "startBeat": 112,
+     "lengthBeats": 16,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.45,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-lowtide-85",
+   "name": "Organ \u00b7 stabs",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-lowtide-1",
+     "midiNote": 60,
+     "startBeat": 0.0,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-lowtide-2",
+     "midiNote": 63,
+     "startBeat": 0.0,
+     "durationBeats": 0.3,
+     "velocity": 95
+    },
+    {
+     "id": "n-lowtide-3",
+     "midiNote": 67,
+     "startBeat": 0.0,
+     "durationBeats": 0.3,
+     "velocity": 97
+    },
+    {
+     "id": "n-lowtide-4",
+     "midiNote": 68,
+     "startBeat": 0.0,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-lowtide-5",
+     "midiNote": 60,
+     "startBeat": 0.75,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-6",
+     "midiNote": 63,
+     "startBeat": 0.75,
+     "durationBeats": 0.25,
+     "velocity": 86
+    },
+    {
+     "id": "n-lowtide-7",
+     "midiNote": 67,
+     "startBeat": 0.75,
+     "durationBeats": 0.25,
+     "velocity": 80
+    },
+    {
+     "id": "n-lowtide-8",
+     "midiNote": 68,
+     "startBeat": 0.75,
+     "durationBeats": 0.25,
+     "velocity": 88
+    },
+    {
+     "id": "n-lowtide-9",
+     "midiNote": 60,
+     "startBeat": 1.5,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-10",
+     "midiNote": 63,
+     "startBeat": 1.5,
+     "durationBeats": 0.3,
+     "velocity": 92
+    },
+    {
+     "id": "n-lowtide-11",
+     "midiNote": 67,
+     "startBeat": 1.5,
+     "durationBeats": 0.3,
+     "velocity": 89
+    },
+    {
+     "id": "n-lowtide-12",
+     "midiNote": 68,
+     "startBeat": 1.5,
+     "durationBeats": 0.3,
+     "velocity": 97
+    },
+    {
+     "id": "n-lowtide-13",
+     "midiNote": 60,
+     "startBeat": 2.25,
+     "durationBeats": 0.25,
+     "velocity": 81
+    },
+    {
+     "id": "n-lowtide-14",
+     "midiNote": 63,
+     "startBeat": 2.25,
+     "durationBeats": 0.25,
+     "velocity": 81
+    },
+    {
+     "id": "n-lowtide-15",
+     "midiNote": 67,
+     "startBeat": 2.25,
+     "durationBeats": 0.25,
+     "velocity": 81
+    },
+    {
+     "id": "n-lowtide-16",
+     "midiNote": 68,
+     "startBeat": 2.25,
+     "durationBeats": 0.25,
+     "velocity": 84
+    },
+    {
+     "id": "n-lowtide-17",
+     "midiNote": 60,
+     "startBeat": 3.0,
+     "durationBeats": 0.3,
+     "velocity": 94
+    },
+    {
+     "id": "n-lowtide-18",
+     "midiNote": 63,
+     "startBeat": 3.0,
+     "durationBeats": 0.3,
+     "velocity": 92
+    },
+    {
+     "id": "n-lowtide-19",
+     "midiNote": 67,
+     "startBeat": 3.0,
+     "durationBeats": 0.3,
+     "velocity": 98
+    },
+    {
+     "id": "n-lowtide-20",
+     "midiNote": 68,
+     "startBeat": 3.0,
+     "durationBeats": 0.3,
+     "velocity": 92
+    },
+    {
+     "id": "n-lowtide-21",
+     "midiNote": 60,
+     "startBeat": 3.5,
+     "durationBeats": 0.25,
+     "velocity": 77
+    },
+    {
+     "id": "n-lowtide-22",
+     "midiNote": 63,
+     "startBeat": 3.5,
+     "durationBeats": 0.25,
+     "velocity": 80
+    },
+    {
+     "id": "n-lowtide-23",
+     "midiNote": 67,
+     "startBeat": 3.5,
+     "durationBeats": 0.25,
+     "velocity": 79
+    },
+    {
+     "id": "n-lowtide-24",
+     "midiNote": 68,
+     "startBeat": 3.5,
+     "durationBeats": 0.25,
+     "velocity": 81
+    },
+    {
+     "id": "n-lowtide-25",
+     "midiNote": 60,
+     "startBeat": 4.0,
+     "durationBeats": 0.3,
+     "velocity": 103
+    },
+    {
+     "id": "n-lowtide-26",
+     "midiNote": 63,
+     "startBeat": 4.0,
+     "durationBeats": 0.3,
+     "velocity": 101
+    },
+    {
+     "id": "n-lowtide-27",
+     "midiNote": 67,
+     "startBeat": 4.0,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-lowtide-28",
+     "midiNote": 68,
+     "startBeat": 4.0,
+     "durationBeats": 0.3,
+     "velocity": 97
+    },
+    {
+     "id": "n-lowtide-29",
+     "midiNote": 60,
+     "startBeat": 4.75,
+     "durationBeats": 0.25,
+     "velocity": 86
+    },
+    {
+     "id": "n-lowtide-30",
+     "midiNote": 63,
+     "startBeat": 4.75,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-31",
+     "midiNote": 67,
+     "startBeat": 4.75,
+     "durationBeats": 0.25,
+     "velocity": 80
+    },
+    {
+     "id": "n-lowtide-32",
+     "midiNote": 68,
+     "startBeat": 4.75,
+     "durationBeats": 0.25,
+     "velocity": 84
+    },
+    {
+     "id": "n-lowtide-33",
+     "midiNote": 60,
+     "startBeat": 5.5,
+     "durationBeats": 0.3,
+     "velocity": 98
+    },
+    {
+     "id": "n-lowtide-34",
+     "midiNote": 63,
+     "startBeat": 5.5,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-lowtide-35",
+     "midiNote": 67,
+     "startBeat": 5.5,
+     "durationBeats": 0.3,
+     "velocity": 94
+    },
+    {
+     "id": "n-lowtide-36",
+     "midiNote": 68,
+     "startBeat": 5.5,
+     "durationBeats": 0.3,
+     "velocity": 94
+    },
+    {
+     "id": "n-lowtide-37",
+     "midiNote": 60,
+     "startBeat": 6.25,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-38",
+     "midiNote": 63,
+     "startBeat": 6.25,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-39",
+     "midiNote": 67,
+     "startBeat": 6.25,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-40",
+     "midiNote": 68,
+     "startBeat": 6.25,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-41",
+     "midiNote": 60,
+     "startBeat": 7.0,
+     "durationBeats": 0.3,
+     "velocity": 95
+    },
+    {
+     "id": "n-lowtide-42",
+     "midiNote": 63,
+     "startBeat": 7.0,
+     "durationBeats": 0.3,
+     "velocity": 91
+    },
+    {
+     "id": "n-lowtide-43",
+     "midiNote": 67,
+     "startBeat": 7.0,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-44",
+     "midiNote": 68,
+     "startBeat": 7.0,
+     "durationBeats": 0.3,
+     "velocity": 92
+    },
+    {
+     "id": "n-lowtide-45",
+     "midiNote": 60,
+     "startBeat": 7.5,
+     "durationBeats": 0.25,
+     "velocity": 76
+    },
+    {
+     "id": "n-lowtide-46",
+     "midiNote": 63,
+     "startBeat": 7.5,
+     "durationBeats": 0.25,
+     "velocity": 75
+    },
+    {
+     "id": "n-lowtide-47",
+     "midiNote": 67,
+     "startBeat": 7.5,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-48",
+     "midiNote": 68,
+     "startBeat": 7.5,
+     "durationBeats": 0.25,
+     "velocity": 76
+    },
+    {
+     "id": "n-lowtide-49",
+     "midiNote": 60,
+     "startBeat": 8.0,
+     "durationBeats": 0.3,
+     "velocity": 102
+    },
+    {
+     "id": "n-lowtide-50",
+     "midiNote": 65,
+     "startBeat": 8.0,
+     "durationBeats": 0.3,
+     "velocity": 97
+    },
+    {
+     "id": "n-lowtide-51",
+     "midiNote": 68,
+     "startBeat": 8.0,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-52",
+     "midiNote": 60,
+     "startBeat": 8.75,
+     "durationBeats": 0.25,
+     "velocity": 79
+    },
+    {
+     "id": "n-lowtide-53",
+     "midiNote": 65,
+     "startBeat": 8.75,
+     "durationBeats": 0.25,
+     "velocity": 88
+    },
+    {
+     "id": "n-lowtide-54",
+     "midiNote": 68,
+     "startBeat": 8.75,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-55",
+     "midiNote": 60,
+     "startBeat": 9.5,
+     "durationBeats": 0.3,
+     "velocity": 93
+    },
+    {
+     "id": "n-lowtide-56",
+     "midiNote": 65,
+     "startBeat": 9.5,
+     "durationBeats": 0.3,
+     "velocity": 98
+    },
+    {
+     "id": "n-lowtide-57",
+     "midiNote": 68,
+     "startBeat": 9.5,
+     "durationBeats": 0.3,
+     "velocity": 92
+    },
+    {
+     "id": "n-lowtide-58",
+     "midiNote": 60,
+     "startBeat": 10.25,
+     "durationBeats": 0.25,
+     "velocity": 84
+    },
+    {
+     "id": "n-lowtide-59",
+     "midiNote": 65,
+     "startBeat": 10.25,
+     "durationBeats": 0.25,
+     "velocity": 87
+    },
+    {
+     "id": "n-lowtide-60",
+     "midiNote": 68,
+     "startBeat": 10.25,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-61",
+     "midiNote": 60,
+     "startBeat": 11.0,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-lowtide-62",
+     "midiNote": 65,
+     "startBeat": 11.0,
+     "durationBeats": 0.3,
+     "velocity": 98
+    },
+    {
+     "id": "n-lowtide-63",
+     "midiNote": 68,
+     "startBeat": 11.0,
+     "durationBeats": 0.3,
+     "velocity": 98
+    },
+    {
+     "id": "n-lowtide-64",
+     "midiNote": 60,
+     "startBeat": 11.5,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-65",
+     "midiNote": 65,
+     "startBeat": 11.5,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-66",
+     "midiNote": 68,
+     "startBeat": 11.5,
+     "durationBeats": 0.25,
+     "velocity": 85
+    },
+    {
+     "id": "n-lowtide-67",
+     "midiNote": 58,
+     "startBeat": 12.0,
+     "durationBeats": 0.3,
+     "velocity": 103
+    },
+    {
+     "id": "n-lowtide-68",
+     "midiNote": 60,
+     "startBeat": 12.0,
+     "durationBeats": 0.3,
+     "velocity": 104
+    },
+    {
+     "id": "n-lowtide-69",
+     "midiNote": 67,
+     "startBeat": 12.0,
+     "durationBeats": 0.3,
+     "velocity": 103
+    },
+    {
+     "id": "n-lowtide-70",
+     "midiNote": 58,
+     "startBeat": 12.75,
+     "durationBeats": 0.25,
+     "velocity": 81
+    },
+    {
+     "id": "n-lowtide-71",
+     "midiNote": 60,
+     "startBeat": 12.75,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-72",
+     "midiNote": 67,
+     "startBeat": 12.75,
+     "durationBeats": 0.25,
+     "velocity": 85
+    },
+    {
+     "id": "n-lowtide-73",
+     "midiNote": 58,
+     "startBeat": 13.5,
+     "durationBeats": 0.3,
+     "velocity": 94
+    },
+    {
+     "id": "n-lowtide-74",
+     "midiNote": 60,
+     "startBeat": 13.5,
+     "durationBeats": 0.3,
+     "velocity": 94
+    },
+    {
+     "id": "n-lowtide-75",
+     "midiNote": 67,
+     "startBeat": 13.5,
+     "durationBeats": 0.3,
+     "velocity": 97
+    },
+    {
+     "id": "n-lowtide-76",
+     "midiNote": 58,
+     "startBeat": 14.25,
+     "durationBeats": 0.25,
+     "velocity": 78
+    },
+    {
+     "id": "n-lowtide-77",
+     "midiNote": 60,
+     "startBeat": 14.25,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-78",
+     "midiNote": 67,
+     "startBeat": 14.25,
+     "durationBeats": 0.25,
+     "velocity": 81
+    },
+    {
+     "id": "n-lowtide-79",
+     "midiNote": 58,
+     "startBeat": 15.0,
+     "durationBeats": 0.3,
+     "velocity": 91
+    },
+    {
+     "id": "n-lowtide-80",
+     "midiNote": 60,
+     "startBeat": 15.0,
+     "durationBeats": 0.3,
+     "velocity": 96
+    },
+    {
+     "id": "n-lowtide-81",
+     "midiNote": 67,
+     "startBeat": 15.0,
+     "durationBeats": 0.3,
+     "velocity": 100
+    },
+    {
+     "id": "n-lowtide-82",
+     "midiNote": 58,
+     "startBeat": 15.5,
+     "durationBeats": 0.25,
+     "velocity": 84
+    },
+    {
+     "id": "n-lowtide-83",
+     "midiNote": 60,
+     "startBeat": 15.5,
+     "durationBeats": 0.25,
+     "velocity": 84
+    },
+    {
+     "id": "n-lowtide-84",
+     "midiNote": 67,
+     "startBeat": 15.5,
+     "durationBeats": 0.25,
+     "velocity": 82
+    }
+   ]
+  },
+  {
+   "id": "pat-lowtide-110",
+   "name": "Bass \u00b7 organ-locked",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-lowtide-86",
+     "midiNote": 41,
+     "startBeat": 0,
+     "durationBeats": 0.3,
+     "velocity": 102
+    },
+    {
+     "id": "n-lowtide-87",
+     "midiNote": 41,
+     "startBeat": 0.75,
+     "durationBeats": 0.25,
+     "velocity": 87
+    },
+    {
+     "id": "n-lowtide-88",
+     "midiNote": 41,
+     "startBeat": 1.5,
+     "durationBeats": 0.3,
+     "velocity": 98
+    },
+    {
+     "id": "n-lowtide-89",
+     "midiNote": 53,
+     "startBeat": 2.25,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-90",
+     "midiNote": 41,
+     "startBeat": 3.0,
+     "durationBeats": 0.3,
+     "velocity": 102
+    },
+    {
+     "id": "n-lowtide-91",
+     "midiNote": 48,
+     "startBeat": 3.5,
+     "durationBeats": 0.25,
+     "velocity": 82
+    },
+    {
+     "id": "n-lowtide-92",
+     "midiNote": 41,
+     "startBeat": 4,
+     "durationBeats": 0.3,
+     "velocity": 105
+    },
+    {
+     "id": "n-lowtide-93",
+     "midiNote": 41,
+     "startBeat": 4.75,
+     "durationBeats": 0.25,
+     "velocity": 85
+    },
+    {
+     "id": "n-lowtide-94",
+     "midiNote": 41,
+     "startBeat": 5.5,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-95",
+     "midiNote": 53,
+     "startBeat": 6.25,
+     "durationBeats": 0.25,
+     "velocity": 80
+    },
+    {
+     "id": "n-lowtide-96",
+     "midiNote": 41,
+     "startBeat": 7.0,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-97",
+     "midiNote": 48,
+     "startBeat": 7.5,
+     "durationBeats": 0.25,
+     "velocity": 83
+    },
+    {
+     "id": "n-lowtide-98",
+     "midiNote": 49,
+     "startBeat": 8,
+     "durationBeats": 0.3,
+     "velocity": 100
+    },
+    {
+     "id": "n-lowtide-99",
+     "midiNote": 49,
+     "startBeat": 8.75,
+     "durationBeats": 0.25,
+     "velocity": 87
+    },
+    {
+     "id": "n-lowtide-100",
+     "midiNote": 49,
+     "startBeat": 9.5,
+     "durationBeats": 0.3,
+     "velocity": 95
+    },
+    {
+     "id": "n-lowtide-101",
+     "midiNote": 61,
+     "startBeat": 10.25,
+     "durationBeats": 0.25,
+     "velocity": 86
+    },
+    {
+     "id": "n-lowtide-102",
+     "midiNote": 49,
+     "startBeat": 11.0,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-103",
+     "midiNote": 56,
+     "startBeat": 11.5,
+     "durationBeats": 0.25,
+     "velocity": 86
+    },
+    {
+     "id": "n-lowtide-104",
+     "midiNote": 51,
+     "startBeat": 12,
+     "durationBeats": 0.3,
+     "velocity": 104
+    },
+    {
+     "id": "n-lowtide-105",
+     "midiNote": 51,
+     "startBeat": 12.75,
+     "durationBeats": 0.25,
+     "velocity": 90
+    },
+    {
+     "id": "n-lowtide-106",
+     "midiNote": 51,
+     "startBeat": 13.5,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-107",
+     "midiNote": 63,
+     "startBeat": 14.25,
+     "durationBeats": 0.25,
+     "velocity": 87
+    },
+    {
+     "id": "n-lowtide-108",
+     "midiNote": 51,
+     "startBeat": 15.0,
+     "durationBeats": 0.3,
+     "velocity": 99
+    },
+    {
+     "id": "n-lowtide-109",
+     "midiNote": 58,
+     "startBeat": 15.5,
+     "durationBeats": 0.25,
+     "velocity": 79
+    }
+   ]
+  },
+  {
+   "id": "pat-lowtide-129",
+   "name": "Pad \u00b7 break",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-lowtide-111",
+     "midiNote": 56,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 60
+    },
+    {
+     "id": "n-lowtide-112",
+     "midiNote": 60,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 60
+    },
+    {
+     "id": "n-lowtide-113",
+     "midiNote": 63,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 63
+    },
+    {
+     "id": "n-lowtide-114",
+     "midiNote": 65,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 63
+    },
+    {
+     "id": "n-lowtide-115",
+     "midiNote": 67,
+     "startBeat": 0,
+     "durationBeats": 3.95,
+     "velocity": 61
+    },
+    {
+     "id": "n-lowtide-116",
+     "midiNote": 56,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 59
+    },
+    {
+     "id": "n-lowtide-117",
+     "midiNote": 60,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 65
+    },
+    {
+     "id": "n-lowtide-118",
+     "midiNote": 63,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 60
+    },
+    {
+     "id": "n-lowtide-119",
+     "midiNote": 65,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 64
+    },
+    {
+     "id": "n-lowtide-120",
+     "midiNote": 67,
+     "startBeat": 4,
+     "durationBeats": 3.95,
+     "velocity": 63
+    },
+    {
+     "id": "n-lowtide-121",
+     "midiNote": 56,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 62
+    },
+    {
+     "id": "n-lowtide-122",
+     "midiNote": 60,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 62
+    },
+    {
+     "id": "n-lowtide-123",
+     "midiNote": 61,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 60
+    },
+    {
+     "id": "n-lowtide-124",
+     "midiNote": 65,
+     "startBeat": 8,
+     "durationBeats": 3.95,
+     "velocity": 61
+    },
+    {
+     "id": "n-lowtide-125",
+     "midiNote": 58,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 61
+    },
+    {
+     "id": "n-lowtide-126",
+     "midiNote": 60,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 64
+    },
+    {
+     "id": "n-lowtide-127",
+     "midiNote": 63,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 65
+    },
+    {
+     "id": "n-lowtide-128",
+     "midiNote": 67,
+     "startBeat": 12,
+     "durationBeats": 3.95,
+     "velocity": 60
+    }
+   ]
+  },
+  {
+   "id": "pat-lowtide-136",
+   "name": "Vocal \u00b7 ooh",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-lowtide-130",
+     "midiNote": 67,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 57
+    },
+    {
+     "id": "n-lowtide-131",
+     "midiNote": 68,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-lowtide-132",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-lowtide-133",
+     "midiNote": 65,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-lowtide-134",
+     "midiNote": 68,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-lowtide-135",
+     "midiNote": 72,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 61
+    }
+   ]
+  },
+  {
+   "id": "pat-lowtide-143",
+   "name": "Riser",
+   "lengthBeats": 16,
+   "notes": [
+    {
+     "id": "n-lowtide-142",
+     "midiNote": 53,
+     "startBeat": 0,
+     "durationBeats": 15.5,
+     "velocity": 100
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-lowtide-176",
+   "beat": 0,
+   "name": "Intro",
+   "color": "#64748b"
+  },
+  {
+   "id": "mk-lowtide-177",
+   "beat": 32,
+   "name": "A",
+   "color": "#22c55e"
+  },
+  {
+   "id": "mk-lowtide-178",
+   "beat": 96,
+   "name": "Break",
+   "color": "#a78bfa"
+  },
+  {
+   "id": "mk-lowtide-179",
+   "beat": 128,
+   "name": "B",
+   "color": "#16a34a"
+  }
+ ],
+ "drumPatterns": [
+  {
+   "id": "dp-lowtide-137",
+   "name": "LT Intro",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.12,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.4,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-lowtide-138",
+   "name": "LT Main",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.12,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-c",
+     "name": "hihat-c",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.4,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "conga-hi",
+     "name": "conga-hi",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0.3,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "conga-lo",
+     "name": "conga-lo",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": -0.3,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-lowtide-139",
+   "name": "LT Peak",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.12,
+   "voices": [
+    {
+     "id": "kick",
+     "name": "kick",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.9,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "ride",
+     "name": "ride",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.35,
+     "pan": 0.2,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "conga-hi",
+     "name": "conga-hi",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0.3,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "conga-lo",
+     "name": "conga-lo",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": -0.3,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "shaker",
+     "name": "shaker",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 40,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.3,
+     "pan": -0.25,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-lowtide-140",
+   "name": "LT Break",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.12,
+   "voices": [
+    {
+     "id": "hihat-o",
+     "name": "hihat-o",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.4,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "conga-hi",
+     "name": "conga-hi",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.45,
+     "pan": 0.3,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  },
+  {
+   "id": "dp-lowtide-141",
+   "name": "LT Fill",
+   "genre": "Examples",
+   "stepCount": 16,
+   "swing": 0.12,
+   "voices": [
+    {
+     "id": "clap",
+     "name": "clap",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 72,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 118,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 118,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.7,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    },
+    {
+     "id": "tom-lo",
+     "name": "tom-lo",
+     "color": "#888888",
+     "steps": [
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": true,
+       "velocity": 56,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      },
+      {
+       "active": false,
+       "velocity": 100,
+       "pitch": 0,
+       "decay": 1
+      }
+     ],
+     "volume": 0.5,
+     "pan": 0,
+     "tone": 0.5,
+     "pitch": 0,
+     "decay": 1,
+     "muted": false,
+     "solo": false
+    }
+   ]
+  }
+ ],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 2.0,
+  "reverbDamp": 0.5,
+  "reverbMix": 0.65,
+  "delayEnabled": true,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.3,
+  "delayMix": 0.55,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/8.",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.6,
+  "limiterEnabled": true,
+  "limiterThreshold": -5,
+  "drumReverbSend": 0.05,
+  "drumDelaySend": 0.05
+ }
+}

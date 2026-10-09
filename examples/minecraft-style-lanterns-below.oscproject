@@ -1,0 +1,2448 @@
+{
+ "format": "osc-project",
+ "version": 2,
+ "name": "Lanterns Below",
+ "savedAt": "2026-10-09T00:00:00.000Z",
+ "bpm": 64,
+ "beatsPerBar": 4,
+ "songLengthBars": 24,
+ "loop": {
+  "enabled": false,
+  "startBeat": 0,
+  "endBeat": 96
+ },
+ "masterVolume": 0.8,
+ "tracks": [
+  {
+   "id": "trk-lanterns-289",
+   "name": "Harp",
+   "color": "#fde68a",
+   "source": {
+    "type": "preset",
+    "presetId": "pluck-harp"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-282",
+     "patternId": "pat-lanterns-193",
+     "startBeat": 0,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.2,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.7,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "lane-lanterns-283",
+     "target": "volume",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-lanterns-284",
+       "beat": 0,
+       "value": 0.22
+      },
+      {
+       "id": "pt-lanterns-285",
+       "beat": 8,
+       "value": 0.33
+      },
+      {
+       "id": "pt-lanterns-286",
+       "beat": 48,
+       "value": 0.36
+      },
+      {
+       "id": "pt-lanterns-287",
+       "beat": 80,
+       "value": 0.33
+      },
+      {
+       "id": "pt-lanterns-288",
+       "beat": 96,
+       "value": 0.1
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": "lane-lanterns-283"
+  },
+  {
+   "id": "trk-lanterns-296",
+   "name": "Drone",
+   "color": "#475569",
+   "source": {
+    "type": "preset",
+    "presetId": "pad-dark"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-290",
+     "patternId": "pat-lanterns-196",
+     "startBeat": 0,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.35,
+    "eqLow": -3,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.25,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [
+    {
+     "id": "lane-lanterns-291",
+     "target": "cutoff",
+     "enabled": true,
+     "points": [
+      {
+       "id": "pt-lanterns-292",
+       "beat": 0,
+       "value": 0.25
+      },
+      {
+       "id": "pt-lanterns-293",
+       "beat": 48,
+       "value": 0.45
+      },
+      {
+       "id": "pt-lanterns-294",
+       "beat": 80,
+       "value": 0.3
+      },
+      {
+       "id": "pt-lanterns-295",
+       "beat": 96,
+       "value": 0.18
+      }
+     ]
+    }
+   ],
+   "patch": {},
+   "showAutomation": true,
+   "activeLaneId": "lane-lanterns-291"
+  },
+  {
+   "id": "trk-lanterns-299",
+   "name": "Piano",
+   "color": "#f5d0a9",
+   "source": {
+    "type": "preset",
+    "presetId": "piano-felt"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-297",
+     "patternId": "pat-lanterns-215",
+     "startBeat": 16,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    },
+    {
+     "id": "clip-lanterns-298",
+     "patternId": "pat-lanterns-243",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.1,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lanterns-301",
+   "name": "Vibraphone",
+   "color": "#a5f3fc",
+   "source": {
+    "type": "preset",
+    "presetId": "mal-vibraphone"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-300",
+     "patternId": "pat-lanterns-235",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.25,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 1.0,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.35,
+    "sendDelay": 0.12,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lanterns-303",
+   "name": "Cello",
+   "color": "#b45309",
+   "source": {
+    "type": "preset",
+    "presetId": "str-cello-section"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-302",
+     "patternId": "pat-lanterns-249",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": -0.15,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.55,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.3,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lanterns-305",
+   "name": "Choir",
+   "color": "#f9a8d4",
+   "source": {
+    "type": "preset",
+    "presetId": "voc-breath"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-304",
+     "patternId": "pat-lanterns-262",
+     "startBeat": 48,
+     "lengthBeats": 32,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.1,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.25,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.4,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lanterns-307",
+   "name": "Chimes",
+   "color": "#e2e8f0",
+   "source": {
+    "type": "preset",
+    "presetId": "fx-chime"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-306",
+     "patternId": "pat-lanterns-268",
+     "startBeat": 0,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.4,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.4,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.5,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  },
+  {
+   "id": "trk-lanterns-309",
+   "name": "Sub",
+   "color": "#1e3a8a",
+   "source": {
+    "type": "preset",
+    "presetId": "bass-sub"
+   },
+   "clips": [
+    {
+     "id": "clip-lanterns-308",
+     "patternId": "pat-lanterns-281",
+     "startBeat": 0,
+     "lengthBeats": 96,
+     "offsetBeats": 0,
+     "muted": false
+    }
+   ],
+   "muted": false,
+   "solo": false,
+   "pan": 0.0,
+   "arp": {
+    "enabled": false,
+    "rate": "1/16",
+    "mode": "up",
+    "octaves": 1,
+    "gate": 0.65
+   },
+   "channel": {
+    "gain": 0.45,
+    "eqLow": 0.0,
+    "eqMid": 0.0,
+    "eqHigh": 0.0,
+    "sendReverb": 0.0,
+    "sendDelay": 0.0,
+    "sendChorus": 0.0,
+    "sidechain": 0.0
+   },
+   "lanes": [],
+   "patch": {},
+   "showAutomation": false,
+   "activeLaneId": null
+  }
+ ],
+ "patterns": [
+  {
+   "id": "pat-lanterns-193",
+   "name": "Harp \u00b7 whole piece",
+   "lengthBeats": 96,
+   "notes": [
+    {
+     "id": "n-lanterns-1",
+     "midiNote": 57,
+     "startBeat": 0.0051,
+     "durationBeats": 1.6,
+     "velocity": 70
+    },
+    {
+     "id": "n-lanterns-2",
+     "midiNote": 59,
+     "startBeat": 0.5052,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-3",
+     "midiNote": 60,
+     "startBeat": 1.004,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-4",
+     "midiNote": 64,
+     "startBeat": 1.5053,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-5",
+     "midiNote": 69,
+     "startBeat": 2.008,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-6",
+     "midiNote": 71,
+     "startBeat": 2.5041,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-7",
+     "midiNote": 69,
+     "startBeat": 3.0029,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-8",
+     "midiNote": 60,
+     "startBeat": 3.5044,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-9",
+     "midiNote": 57,
+     "startBeat": 4.01,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-10",
+     "midiNote": 59,
+     "startBeat": 4.5074,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-11",
+     "midiNote": 60,
+     "startBeat": 5.0072,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-12",
+     "midiNote": 64,
+     "startBeat": 5.5075,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-13",
+     "midiNote": 69,
+     "startBeat": 6.0035,
+     "durationBeats": 1.6,
+     "velocity": 54
+    },
+    {
+     "id": "n-lanterns-14",
+     "midiNote": 71,
+     "startBeat": 6.5008,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-15",
+     "midiNote": 69,
+     "startBeat": 7.0008,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-16",
+     "midiNote": 60,
+     "startBeat": 7.5023,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-17",
+     "midiNote": 57,
+     "startBeat": 8.0069,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-18",
+     "midiNote": 59,
+     "startBeat": 8.5007,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-19",
+     "midiNote": 60,
+     "startBeat": 9.0022,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-20",
+     "midiNote": 64,
+     "startBeat": 9.5067,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-21",
+     "midiNote": 65,
+     "startBeat": 10.0047,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-22",
+     "midiNote": 69,
+     "startBeat": 10.509,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-23",
+     "midiNote": 65,
+     "startBeat": 11.0049,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-24",
+     "midiNote": 60,
+     "startBeat": 11.5026,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-25",
+     "midiNote": 57,
+     "startBeat": 12.0052,
+     "durationBeats": 1.6,
+     "velocity": 72
+    },
+    {
+     "id": "n-lanterns-26",
+     "midiNote": 59,
+     "startBeat": 12.5012,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-27",
+     "midiNote": 60,
+     "startBeat": 13.0092,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-28",
+     "midiNote": 64,
+     "startBeat": 13.5081,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-29",
+     "midiNote": 65,
+     "startBeat": 14.0017,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-30",
+     "midiNote": 69,
+     "startBeat": 14.5059,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-31",
+     "midiNote": 65,
+     "startBeat": 15.0025,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-32",
+     "midiNote": 60,
+     "startBeat": 15.5073,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-33",
+     "midiNote": 55,
+     "startBeat": 16.0066,
+     "durationBeats": 1.6,
+     "velocity": 73
+    },
+    {
+     "id": "n-lanterns-34",
+     "midiNote": 57,
+     "startBeat": 16.5039,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-35",
+     "midiNote": 59,
+     "startBeat": 17.0099,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-36",
+     "midiNote": 60,
+     "startBeat": 17.5063,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-37",
+     "midiNote": 64,
+     "startBeat": 18.0076,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-38",
+     "midiNote": 67,
+     "startBeat": 18.5013,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-39",
+     "midiNote": 64,
+     "startBeat": 19.0068,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-40",
+     "midiNote": 59,
+     "startBeat": 19.5031,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-41",
+     "midiNote": 55,
+     "startBeat": 20.0061,
+     "durationBeats": 1.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-42",
+     "midiNote": 57,
+     "startBeat": 20.5031,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-43",
+     "midiNote": 59,
+     "startBeat": 21.0078,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-44",
+     "midiNote": 60,
+     "startBeat": 21.5094,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-45",
+     "midiNote": 64,
+     "startBeat": 22.0017,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-46",
+     "midiNote": 67,
+     "startBeat": 22.5001,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-47",
+     "midiNote": 64,
+     "startBeat": 23.0025,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-48",
+     "midiNote": 59,
+     "startBeat": 23.5005,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-49",
+     "midiNote": 57,
+     "startBeat": 24.0007,
+     "durationBeats": 1.6,
+     "velocity": 72
+    },
+    {
+     "id": "n-lanterns-50",
+     "midiNote": 60,
+     "startBeat": 24.5071,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-51",
+     "midiNote": 64,
+     "startBeat": 25.0097,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-52",
+     "midiNote": 65,
+     "startBeat": 25.5025,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-53",
+     "midiNote": 69,
+     "startBeat": 26.0012,
+     "durationBeats": 1.6,
+     "velocity": 54
+    },
+    {
+     "id": "n-lanterns-54",
+     "midiNote": 72,
+     "startBeat": 26.5072,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-55",
+     "midiNote": 69,
+     "startBeat": 27.0029,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-56",
+     "midiNote": 64,
+     "startBeat": 27.5036,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-57",
+     "midiNote": 57,
+     "startBeat": 28.0055,
+     "durationBeats": 1.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-lanterns-58",
+     "midiNote": 60,
+     "startBeat": 28.5074,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-59",
+     "midiNote": 64,
+     "startBeat": 29.0003,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-60",
+     "midiNote": 65,
+     "startBeat": 29.5,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-61",
+     "midiNote": 69,
+     "startBeat": 30.0006,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-62",
+     "midiNote": 72,
+     "startBeat": 30.504,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-63",
+     "midiNote": 69,
+     "startBeat": 31.0044,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-64",
+     "midiNote": 64,
+     "startBeat": 31.5028,
+     "durationBeats": 1.6,
+     "velocity": 54
+    },
+    {
+     "id": "n-lanterns-65",
+     "midiNote": 55,
+     "startBeat": 32.0024,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-66",
+     "midiNote": 59,
+     "startBeat": 32.5019,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-67",
+     "midiNote": 60,
+     "startBeat": 33.0072,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-68",
+     "midiNote": 64,
+     "startBeat": 33.5081,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-69",
+     "midiNote": 67,
+     "startBeat": 34.0069,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-70",
+     "midiNote": 71,
+     "startBeat": 34.5093,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-71",
+     "midiNote": 67,
+     "startBeat": 35.0002,
+     "durationBeats": 1.6,
+     "velocity": 54
+    },
+    {
+     "id": "n-lanterns-72",
+     "midiNote": 60,
+     "startBeat": 35.5075,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-73",
+     "midiNote": 55,
+     "startBeat": 36.0021,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-74",
+     "midiNote": 59,
+     "startBeat": 36.5065,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-75",
+     "midiNote": 60,
+     "startBeat": 37.003,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-76",
+     "midiNote": 64,
+     "startBeat": 37.5083,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-77",
+     "midiNote": 67,
+     "startBeat": 38.0006,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-78",
+     "midiNote": 71,
+     "startBeat": 38.5056,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-79",
+     "midiNote": 67,
+     "startBeat": 39.0091,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-80",
+     "midiNote": 60,
+     "startBeat": 39.5096,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-81",
+     "midiNote": 54,
+     "startBeat": 40.0036,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-82",
+     "midiNote": 57,
+     "startBeat": 40.5063,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-83",
+     "midiNote": 62,
+     "startBeat": 41.0097,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-84",
+     "midiNote": 66,
+     "startBeat": 41.5058,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-85",
+     "midiNote": 69,
+     "startBeat": 42.0074,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-86",
+     "midiNote": 74,
+     "startBeat": 42.5051,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-87",
+     "midiNote": 69,
+     "startBeat": 43.0048,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-88",
+     "midiNote": 62,
+     "startBeat": 43.5022,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-89",
+     "midiNote": 54,
+     "startBeat": 44.0048,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-90",
+     "midiNote": 57,
+     "startBeat": 44.5023,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-91",
+     "midiNote": 62,
+     "startBeat": 45.0078,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-92",
+     "midiNote": 66,
+     "startBeat": 45.5011,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-93",
+     "midiNote": 69,
+     "startBeat": 46.0049,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-94",
+     "midiNote": 74,
+     "startBeat": 46.5033,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-95",
+     "midiNote": 69,
+     "startBeat": 47.0003,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-96",
+     "midiNote": 62,
+     "startBeat": 47.5065,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-97",
+     "midiNote": 55,
+     "startBeat": 48.009,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-98",
+     "midiNote": 57,
+     "startBeat": 48.5017,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-99",
+     "midiNote": 59,
+     "startBeat": 49.0056,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-100",
+     "midiNote": 60,
+     "startBeat": 49.507,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-101",
+     "midiNote": 64,
+     "startBeat": 50.0075,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-102",
+     "midiNote": 67,
+     "startBeat": 50.5044,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-103",
+     "midiNote": 64,
+     "startBeat": 51.0046,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-104",
+     "midiNote": 59,
+     "startBeat": 51.5016,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-105",
+     "midiNote": 55,
+     "startBeat": 52.0034,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-106",
+     "midiNote": 57,
+     "startBeat": 52.5042,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-107",
+     "midiNote": 59,
+     "startBeat": 53.0029,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-108",
+     "midiNote": 60,
+     "startBeat": 53.5021,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-109",
+     "midiNote": 64,
+     "startBeat": 54.0005,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-110",
+     "midiNote": 67,
+     "startBeat": 54.5084,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-111",
+     "midiNote": 64,
+     "startBeat": 55.0012,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-112",
+     "midiNote": 59,
+     "startBeat": 55.5072,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-113",
+     "midiNote": 55,
+     "startBeat": 56.0,
+     "durationBeats": 1.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-114",
+     "midiNote": 59,
+     "startBeat": 56.5046,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-115",
+     "midiNote": 62,
+     "startBeat": 57.0038,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-116",
+     "midiNote": 64,
+     "startBeat": 57.5088,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-117",
+     "midiNote": 67,
+     "startBeat": 58.0069,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-118",
+     "midiNote": 71,
+     "startBeat": 58.5072,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-119",
+     "midiNote": 67,
+     "startBeat": 59.0068,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-120",
+     "midiNote": 62,
+     "startBeat": 59.5001,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-121",
+     "midiNote": 55,
+     "startBeat": 60.009,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-122",
+     "midiNote": 59,
+     "startBeat": 60.5039,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-123",
+     "midiNote": 62,
+     "startBeat": 61.0084,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-124",
+     "midiNote": 64,
+     "startBeat": 61.5068,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-125",
+     "midiNote": 67,
+     "startBeat": 62.0035,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-126",
+     "midiNote": 71,
+     "startBeat": 62.5084,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-127",
+     "midiNote": 67,
+     "startBeat": 63.0063,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-128",
+     "midiNote": 62,
+     "startBeat": 63.5059,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-129",
+     "midiNote": 57,
+     "startBeat": 64.004,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-130",
+     "midiNote": 60,
+     "startBeat": 64.5002,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-131",
+     "midiNote": 64,
+     "startBeat": 65.0029,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-132",
+     "midiNote": 65,
+     "startBeat": 65.5037,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-133",
+     "midiNote": 69,
+     "startBeat": 66.0065,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-134",
+     "midiNote": 72,
+     "startBeat": 66.5035,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-135",
+     "midiNote": 69,
+     "startBeat": 67.0041,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-136",
+     "midiNote": 64,
+     "startBeat": 67.5018,
+     "durationBeats": 1.6,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-137",
+     "midiNote": 57,
+     "startBeat": 68.008,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-138",
+     "midiNote": 60,
+     "startBeat": 68.5077,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-139",
+     "midiNote": 64,
+     "startBeat": 69.0047,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-140",
+     "midiNote": 65,
+     "startBeat": 69.501,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-141",
+     "midiNote": 69,
+     "startBeat": 70.0049,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-142",
+     "midiNote": 72,
+     "startBeat": 70.5042,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-143",
+     "midiNote": 69,
+     "startBeat": 71.001,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-144",
+     "midiNote": 64,
+     "startBeat": 71.5053,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-145",
+     "midiNote": 56,
+     "startBeat": 72.002,
+     "durationBeats": 1.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-146",
+     "midiNote": 59,
+     "startBeat": 72.5001,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-147",
+     "midiNote": 64,
+     "startBeat": 73.0035,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-148",
+     "midiNote": 68,
+     "startBeat": 73.5028,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-149",
+     "midiNote": 71,
+     "startBeat": 74.0041,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-150",
+     "midiNote": 76,
+     "startBeat": 74.509,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-151",
+     "midiNote": 71,
+     "startBeat": 75.0093,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-152",
+     "midiNote": 64,
+     "startBeat": 75.5006,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-153",
+     "midiNote": 56,
+     "startBeat": 76.0093,
+     "durationBeats": 1.6,
+     "velocity": 70
+    },
+    {
+     "id": "n-lanterns-154",
+     "midiNote": 59,
+     "startBeat": 76.5079,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-155",
+     "midiNote": 64,
+     "startBeat": 77.0027,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-156",
+     "midiNote": 68,
+     "startBeat": 77.5002,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-157",
+     "midiNote": 71,
+     "startBeat": 78.0069,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-158",
+     "midiNote": 76,
+     "startBeat": 78.5041,
+     "durationBeats": 1.6,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-159",
+     "midiNote": 71,
+     "startBeat": 79.0011,
+     "durationBeats": 1.6,
+     "velocity": 54
+    },
+    {
+     "id": "n-lanterns-160",
+     "midiNote": 64,
+     "startBeat": 79.5019,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-161",
+     "midiNote": 57,
+     "startBeat": 80.006,
+     "durationBeats": 1.6,
+     "velocity": 68
+    },
+    {
+     "id": "n-lanterns-162",
+     "midiNote": 59,
+     "startBeat": 80.5044,
+     "durationBeats": 1.6,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-163",
+     "midiNote": 60,
+     "startBeat": 81.0099,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-164",
+     "midiNote": 64,
+     "startBeat": 81.5047,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-165",
+     "midiNote": 69,
+     "startBeat": 82.0086,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-166",
+     "midiNote": 71,
+     "startBeat": 82.5011,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-167",
+     "midiNote": 69,
+     "startBeat": 83.006,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-168",
+     "midiNote": 60,
+     "startBeat": 83.5018,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-169",
+     "midiNote": 57,
+     "startBeat": 84.006,
+     "durationBeats": 1.6,
+     "velocity": 71
+    },
+    {
+     "id": "n-lanterns-170",
+     "midiNote": 59,
+     "startBeat": 84.5097,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-171",
+     "midiNote": 60,
+     "startBeat": 85.0001,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-172",
+     "midiNote": 64,
+     "startBeat": 85.5044,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-173",
+     "midiNote": 69,
+     "startBeat": 86.0017,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-174",
+     "midiNote": 71,
+     "startBeat": 86.5093,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-175",
+     "midiNote": 69,
+     "startBeat": 87.0095,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-176",
+     "midiNote": 60,
+     "startBeat": 87.5055,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-177",
+     "midiNote": 57,
+     "startBeat": 88.006,
+     "durationBeats": 1.6,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-178",
+     "midiNote": 59,
+     "startBeat": 88.5082,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-179",
+     "midiNote": 60,
+     "startBeat": 89.0088,
+     "durationBeats": 1.6,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-180",
+     "midiNote": 64,
+     "startBeat": 89.5034,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-181",
+     "midiNote": 69,
+     "startBeat": 90.0078,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-182",
+     "midiNote": 71,
+     "startBeat": 90.5081,
+     "durationBeats": 1.6,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-183",
+     "midiNote": 69,
+     "startBeat": 91.0002,
+     "durationBeats": 1.6,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-184",
+     "midiNote": 60,
+     "startBeat": 91.5045,
+     "durationBeats": 1.6,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-185",
+     "midiNote": 57,
+     "startBeat": 92.0059,
+     "durationBeats": 1.6,
+     "velocity": 72
+    },
+    {
+     "id": "n-lanterns-186",
+     "midiNote": 59,
+     "startBeat": 92.5029,
+     "durationBeats": 1.6,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-187",
+     "midiNote": 60,
+     "startBeat": 93.0065,
+     "durationBeats": 1.6,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-188",
+     "midiNote": 64,
+     "startBeat": 93.5052,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-189",
+     "midiNote": 69,
+     "startBeat": 94.0035,
+     "durationBeats": 1.6,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-190",
+     "midiNote": 71,
+     "startBeat": 94.5032,
+     "durationBeats": 1.6,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-191",
+     "midiNote": 69,
+     "startBeat": 95.0002,
+     "durationBeats": 1.6,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-192",
+     "midiNote": 60,
+     "startBeat": 95.5094,
+     "durationBeats": 1.6,
+     "velocity": 65
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-196",
+   "name": "Drone",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-lanterns-194",
+     "midiNote": 45,
+     "startBeat": 0,
+     "durationBeats": 31.9,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-195",
+     "midiNote": 52,
+     "startBeat": 0,
+     "durationBeats": 31.9,
+     "velocity": 50
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-215",
+   "name": "Piano \u00b7 theme",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-lanterns-197",
+     "midiNote": 76,
+     "startBeat": 0.0034,
+     "durationBeats": 1.5,
+     "velocity": 66
+    },
+    {
+     "id": "n-lanterns-198",
+     "midiNote": 74,
+     "startBeat": 1.5071,
+     "durationBeats": 0.5,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-199",
+     "midiNote": 72,
+     "startBeat": 2.0038,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-lanterns-200",
+     "midiNote": 71,
+     "startBeat": 3.0048,
+     "durationBeats": 1,
+     "velocity": 67
+    },
+    {
+     "id": "n-lanterns-201",
+     "midiNote": 69,
+     "startBeat": 4.0053,
+     "durationBeats": 3,
+     "velocity": 72
+    },
+    {
+     "id": "n-lanterns-202",
+     "midiNote": 72,
+     "startBeat": 8.0099,
+     "durationBeats": 1,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-203",
+     "midiNote": 76,
+     "startBeat": 9.0015,
+     "durationBeats": 1,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-204",
+     "midiNote": 79,
+     "startBeat": 10.0069,
+     "durationBeats": 2,
+     "velocity": 71
+    },
+    {
+     "id": "n-lanterns-205",
+     "midiNote": 76,
+     "startBeat": 12.0078,
+     "durationBeats": 3,
+     "velocity": 70
+    },
+    {
+     "id": "n-lanterns-206",
+     "midiNote": 74,
+     "startBeat": 16.0063,
+     "durationBeats": 1,
+     "velocity": 70
+    },
+    {
+     "id": "n-lanterns-207",
+     "midiNote": 76,
+     "startBeat": 17.0002,
+     "durationBeats": 1,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-208",
+     "midiNote": 79,
+     "startBeat": 18.0009,
+     "durationBeats": 1.5,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-209",
+     "midiNote": 71,
+     "startBeat": 19.5117,
+     "durationBeats": 0.5,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-210",
+     "midiNote": 72,
+     "startBeat": 20.011,
+     "durationBeats": 3,
+     "velocity": 71
+    },
+    {
+     "id": "n-lanterns-211",
+     "midiNote": 69,
+     "startBeat": 24.0036,
+     "durationBeats": 1,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-212",
+     "midiNote": 74,
+     "startBeat": 25.006,
+     "durationBeats": 1,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-213",
+     "midiNote": 78,
+     "startBeat": 26.0051,
+     "durationBeats": 2,
+     "velocity": 70
+    },
+    {
+     "id": "n-lanterns-214",
+     "midiNote": 76,
+     "startBeat": 28.0115,
+     "durationBeats": 4,
+     "velocity": 65
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-235",
+   "name": "Vibraphone \u00b7 answers",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-lanterns-216",
+     "midiNote": 84,
+     "startBeat": 0.0053,
+     "durationBeats": 1,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-217",
+     "midiNote": 83,
+     "startBeat": 1.0105,
+     "durationBeats": 1,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-218",
+     "midiNote": 81,
+     "startBeat": 2.0104,
+     "durationBeats": 2,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-219",
+     "midiNote": 76,
+     "startBeat": 5.0031,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-220",
+     "midiNote": 79,
+     "startBeat": 6.0086,
+     "durationBeats": 2,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-221",
+     "midiNote": 83,
+     "startBeat": 8.0056,
+     "durationBeats": 1,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-222",
+     "midiNote": 79,
+     "startBeat": 9.0021,
+     "durationBeats": 1,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-223",
+     "midiNote": 76,
+     "startBeat": 10.005,
+     "durationBeats": 2,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-224",
+     "midiNote": 74,
+     "startBeat": 13.0119,
+     "durationBeats": 1,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-225",
+     "midiNote": 76,
+     "startBeat": 14.0082,
+     "durationBeats": 2,
+     "velocity": 58
+    },
+    {
+     "id": "n-lanterns-226",
+     "midiNote": 81,
+     "startBeat": 16.0053,
+     "durationBeats": 1,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-227",
+     "midiNote": 84,
+     "startBeat": 17.0075,
+     "durationBeats": 1,
+     "velocity": 68
+    },
+    {
+     "id": "n-lanterns-228",
+     "midiNote": 88,
+     "startBeat": 18.0093,
+     "durationBeats": 2,
+     "velocity": 69
+    },
+    {
+     "id": "n-lanterns-229",
+     "midiNote": 84,
+     "startBeat": 21.0105,
+     "durationBeats": 1,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-230",
+     "midiNote": 81,
+     "startBeat": 22.0115,
+     "durationBeats": 2,
+     "velocity": 56
+    },
+    {
+     "id": "n-lanterns-231",
+     "midiNote": 80,
+     "startBeat": 24.0041,
+     "durationBeats": 2,
+     "velocity": 64
+    },
+    {
+     "id": "n-lanterns-232",
+     "midiNote": 83,
+     "startBeat": 26.0064,
+     "durationBeats": 1,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-233",
+     "midiNote": 76,
+     "startBeat": 27.0095,
+     "durationBeats": 1,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-234",
+     "midiNote": 80,
+     "startBeat": 28.004,
+     "durationBeats": 4,
+     "velocity": 65
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-243",
+   "name": "Piano \u00b7 low answers",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-lanterns-236",
+     "midiNote": 57,
+     "startBeat": 0.0067,
+     "durationBeats": 4,
+     "velocity": 49
+    },
+    {
+     "id": "n-lanterns-237",
+     "midiNote": 64,
+     "startBeat": 4.0088,
+     "durationBeats": 4,
+     "velocity": 47
+    },
+    {
+     "id": "n-lanterns-238",
+     "midiNote": 52,
+     "startBeat": 8.0108,
+     "durationBeats": 4,
+     "velocity": 53
+    },
+    {
+     "id": "n-lanterns-239",
+     "midiNote": 59,
+     "startBeat": 12.0095,
+     "durationBeats": 4,
+     "velocity": 49
+    },
+    {
+     "id": "n-lanterns-240",
+     "midiNote": 53,
+     "startBeat": 16.0115,
+     "durationBeats": 4,
+     "velocity": 54
+    },
+    {
+     "id": "n-lanterns-241",
+     "midiNote": 60,
+     "startBeat": 20.0054,
+     "durationBeats": 4,
+     "velocity": 51
+    },
+    {
+     "id": "n-lanterns-242",
+     "midiNote": 52,
+     "startBeat": 24.0006,
+     "durationBeats": 8,
+     "velocity": 56
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-249",
+   "name": "Cello \u00b7 lines",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-lanterns-244",
+     "midiNote": 45,
+     "startBeat": 0.0068,
+     "durationBeats": 7.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-245",
+     "midiNote": 43,
+     "startBeat": 8.0041,
+     "durationBeats": 3.9,
+     "velocity": 55
+    },
+    {
+     "id": "n-lanterns-246",
+     "midiNote": 40,
+     "startBeat": 12.0108,
+     "durationBeats": 3.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-lanterns-247",
+     "midiNote": 41,
+     "startBeat": 16.0113,
+     "durationBeats": 7.9,
+     "velocity": 57
+    },
+    {
+     "id": "n-lanterns-248",
+     "midiNote": 40,
+     "startBeat": 24.0108,
+     "durationBeats": 7.9,
+     "velocity": 55
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-262",
+   "name": "Choir \u00b7 swell",
+   "lengthBeats": 32,
+   "notes": [
+    {
+     "id": "n-lanterns-250",
+     "midiNote": 64,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 46
+    },
+    {
+     "id": "n-lanterns-251",
+     "midiNote": 67,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-lanterns-252",
+     "midiNote": 71,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-lanterns-253",
+     "midiNote": 72,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-lanterns-254",
+     "midiNote": 67,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-lanterns-255",
+     "midiNote": 71,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 51
+    },
+    {
+     "id": "n-lanterns-256",
+     "midiNote": 74,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 49
+    },
+    {
+     "id": "n-lanterns-257",
+     "midiNote": 64,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 47
+    },
+    {
+     "id": "n-lanterns-258",
+     "midiNote": 69,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-lanterns-259",
+     "midiNote": 72,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 48
+    },
+    {
+     "id": "n-lanterns-260",
+     "midiNote": 68,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 50
+    },
+    {
+     "id": "n-lanterns-261",
+     "midiNote": 71,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 49
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-268",
+   "name": "Chimes",
+   "lengthBeats": 96,
+   "notes": [
+    {
+     "id": "n-lanterns-263",
+     "midiNote": 88,
+     "startBeat": 0.5,
+     "durationBeats": 4,
+     "velocity": 50
+    },
+    {
+     "id": "n-lanterns-264",
+     "midiNote": 93,
+     "startBeat": 17,
+     "durationBeats": 4,
+     "velocity": 46
+    },
+    {
+     "id": "n-lanterns-265",
+     "midiNote": 95,
+     "startBeat": 49,
+     "durationBeats": 4,
+     "velocity": 44
+    },
+    {
+     "id": "n-lanterns-266",
+     "midiNote": 88,
+     "startBeat": 80.5,
+     "durationBeats": 4,
+     "velocity": 40
+    },
+    {
+     "id": "n-lanterns-267",
+     "midiNote": 93,
+     "startBeat": 88,
+     "durationBeats": 4,
+     "velocity": 36
+    }
+   ]
+  },
+  {
+   "id": "pat-lanterns-281",
+   "name": "Sub",
+   "lengthBeats": 96,
+   "notes": [
+    {
+     "id": "n-lanterns-269",
+     "midiNote": 33,
+     "startBeat": 0,
+     "durationBeats": 7.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-270",
+     "midiNote": 41,
+     "startBeat": 8,
+     "durationBeats": 7.9,
+     "velocity": 59
+    },
+    {
+     "id": "n-lanterns-271",
+     "midiNote": 33,
+     "startBeat": 16,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-272",
+     "midiNote": 41,
+     "startBeat": 24,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-273",
+     "midiNote": 43,
+     "startBeat": 32,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-274",
+     "midiNote": 42,
+     "startBeat": 40,
+     "durationBeats": 7.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-275",
+     "midiNote": 33,
+     "startBeat": 48,
+     "durationBeats": 7.9,
+     "velocity": 65
+    },
+    {
+     "id": "n-lanterns-276",
+     "midiNote": 40,
+     "startBeat": 56,
+     "durationBeats": 7.9,
+     "velocity": 60
+    },
+    {
+     "id": "n-lanterns-277",
+     "midiNote": 41,
+     "startBeat": 64,
+     "durationBeats": 7.9,
+     "velocity": 63
+    },
+    {
+     "id": "n-lanterns-278",
+     "midiNote": 40,
+     "startBeat": 72,
+     "durationBeats": 7.9,
+     "velocity": 62
+    },
+    {
+     "id": "n-lanterns-279",
+     "midiNote": 33,
+     "startBeat": 80,
+     "durationBeats": 7.9,
+     "velocity": 61
+    },
+    {
+     "id": "n-lanterns-280",
+     "midiNote": 33,
+     "startBeat": 88,
+     "durationBeats": 7.9,
+     "velocity": 59
+    }
+   ]
+  }
+ ],
+ "markers": [
+  {
+   "id": "mk-lanterns-310",
+   "beat": 0,
+   "name": "Cave",
+   "color": "#334155"
+  },
+  {
+   "id": "mk-lanterns-311",
+   "beat": 16,
+   "name": "Theme",
+   "color": "#f59e0b"
+  },
+  {
+   "id": "mk-lanterns-312",
+   "beat": 48,
+   "name": "Deeper",
+   "color": "#0ea5e9"
+  },
+  {
+   "id": "mk-lanterns-313",
+   "beat": 80,
+   "name": "Coda",
+   "color": "#64748b"
+  }
+ ],
+ "drumPatterns": [],
+ "oscillators": [],
+ "effects": {
+  "reverbEnabled": true,
+  "reverbSize": 6,
+  "reverbDamp": 0.65,
+  "reverbMix": 0.95,
+  "delayEnabled": true,
+  "delayTimeMs": 300,
+  "delayFeedback": 0.4,
+  "delayMix": 0.6,
+  "delayPingPong": true,
+  "delaySync": true,
+  "delayDivision": "1/4",
+  "chorusEnabled": true,
+  "chorusRate": 0.8,
+  "chorusDepth": 0.4,
+  "chorusMix": 0.4,
+  "limiterEnabled": true,
+  "limiterThreshold": -4,
+  "drumReverbSend": 0.12,
+  "drumDelaySend": 0.05
+ }
+}

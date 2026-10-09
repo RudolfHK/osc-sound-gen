@@ -1,7 +1,7 @@
 # OSC · User Guide
 
 OSC is a browser-based music production app: an arrangement of tracks and clips, a piano roll and
-drum step sequencer, 219 synthesized instruments, a mixer with per-track EQ, sends and sidechain,
+drum step sequencer, 223 synthesized instruments, a mixer with per-track EQ, sends and sidechain,
 master effects, automation, and an optional oscillator lab for hands-on waveform synthesis.
 
 Everything is synthesized in real time by the Web Audio API — there are no sample files.
@@ -82,7 +82,7 @@ Each track has a **sound source**, shown under its name:
 
 | Source | Plays | Add with |
 |--------|-------|----------|
-| **Instrument** | One of the 219 presets in the instrument library | **+ Instrument** |
+| **Instrument** | One of the 223 presets in the instrument library | **+ Instrument** |
 | **Drum kit** | Drum patterns from the step sequencer | **+ Drums** |
 | **Oscillator** | A waveform from the OSC LAB (optional) | **+ Oscillator**, or ⋯ → *Use an oscillator* |
 
@@ -359,7 +359,7 @@ future version adds new voices or presets, your patterns are migrated rather tha
 
 ## The Instrument Library
 
-Open the **INSTRUMENTS** tab of the dock (Alt+I). This is a library of 219 synthesized instruments across
+Open the **INSTRUMENTS** tab of the dock (Alt+I). This is a library of 223 synthesized instruments across
 eighteen categories:
 
 | Group | Categories |
@@ -478,6 +478,10 @@ you turn SC up on the drum track.
 A preset carries its own send levels (the instrument's character, set in the **INSTRUMENTS**
 right-click editor) and the channel adds its own on top (the mix engineer's choice). Preset sends
 default low and channel sends default to zero, so nothing doubles up until you ask for it.
+
+Both layers go through the track's channel strip: the fader, its volume automation, mute and solo
+control the instrument's own reverb and delay as well as the dry sound. Turn a pad down and its
+reverb comes down with it; mute a track and its echoes stop too.
 
 ---
 

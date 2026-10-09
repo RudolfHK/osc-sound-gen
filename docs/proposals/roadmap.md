@@ -121,6 +121,7 @@ Every item above was fixed after this review. How each was checked:
 | P3 | Notes indexed by start time per pattern, looked up by binary search | 300 randomised cases match the per-note search exactly |
 | P4 | Automation written as one ramp per breakpoint (exponential for cutoff) instead of 8 samples per beat: a 32-beat note drops from 256 events to 4; pulse waves cached | unit tests: exact reproduction of the lane |
 | P5 | Export dialog and pipeline load on first use | main bundle 494 → 472 KB (142 → 132 KB gzipped). The preset table stays in the main bundle: playback needs it at startup |
+| Found later | **Instrument and drum sends bypassed the channel strip**: a preset's own reverb/delay/chorus went straight to the effects, so the fader, volume automation, mute and solo didn't touch them (a 20 dB volume-lane move changed the output by 1.7 dB). They now enter the strip through instrument-send inputs behind the same mute and fader, driven by one control source each | Offline render: the same 10× lane change now moves the output 21.7 dB; e2e: muting every track gives silence (was "under 10%") |
 
 ---
 

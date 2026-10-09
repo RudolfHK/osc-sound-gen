@@ -431,14 +431,16 @@ export class EffectsBus {
   connectSends(
     source: AudioNode,
     levels: { reverb: number; delay: number; chorus: number },
+    /** Send inputs to use instead of the bus itself — a track strip's, so its fader applies. */
+    targets?: { reverb: AudioNode; delay: AudioNode; chorus: AudioNode },
   ): GainNode[] {
-    const sends = this.getSends();
+    const sends = targets ?? this.getSends();
     if (!sends) return [];
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return [];
 
     const made: GainNode[] = [];
-    const pairs: [number, GainNode][] = [
+    const pairs: [number, AudioNode][] = [
       [levels.reverb, sends.reverb],
       [levels.delay, sends.delay],
       [levels.chorus, sends.chorus],

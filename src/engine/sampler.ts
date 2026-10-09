@@ -1,6 +1,6 @@
 import { getAudioEngine } from './audio';
 import { getEffectsBus } from './effects';
-import { getChannelRack } from './channelStrip';
+import { getChannelRack, type StripRoute } from './channelStrip';
 import { VoicePool } from './voices';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -85,10 +85,10 @@ export class DrumSynth {
   }
 
   /**
-   * Schedule one hit. `dest` routes it through a track's channel strip; without
+   * Schedule one hit. `route` sends it through a track's channel strip; without
    * it (the pattern editor auditioning) it goes straight to the drum bus.
    */
-  trigger(voice: DrumVoiceType, p: DrumHitParams, time: number, dest?: AudioNode): void {
+  trigger(voice: DrumVoiceType, p: DrumHitParams, time: number, route?: StripRoute): void {
     const ctx = getAudioEngine().getAudioContext();
     if (!ctx) return;
 
@@ -96,7 +96,7 @@ export class DrumSynth {
     const velGain = (vel / 127) * Math.max(0, Math.min(1, p.volume));
     if (velGain < 0.001) return;
 
-    const out: AudioNode = dest ?? this.getOutput(ctx);
+    const out: AudioNode = route?.input ?? this.getOutput(ctx);
 
     // A kick ducks every track that asked for sidechain. This is what makes
     // four-to-the-floor material breathe instead of the bass and kick masking
@@ -123,11 +123,12 @@ export class DrumSynth {
     const drumSends = bus.getDrumSends();
     const dry = voice === 'kick' || voice === 'kick-808' || voice === 'kick-tight' || voice === 'sub-drop';
     if (!dry && (drumSends.reverb > 0.005 || drumSends.delay > 0.005)) {
+      // Through the track's strip when there is one, so its fader and mute apply
       bus.connectSends(panner, {
         reverb: drumSends.reverb,
         delay: drumSends.delay,
         chorus: 0,
-      });
+      }, route?.sends);
     }
 
     switch (voice) {

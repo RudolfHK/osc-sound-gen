@@ -305,9 +305,11 @@ try {
     for (let i = 0; i < 4; i++) {
       await page.locator('[aria-pressed]').filter({ hasText: /^M$/ }).nth(i).click();
     }
-    await page.waitForTimeout(500); // let release tails and reverb decay
+    await page.waitForTimeout(150);
     const muted = await page.evaluate(() => window.__level(600));
-    assert(muted < playingLevel * 0.1, `still loud while muted (peak ${muted.toFixed(4)} vs ${playingLevel.toFixed(4)})`);
+    // Mute covers the whole track — its instrument's own reverb and delay too,
+    // which used to bypass the channel strip and keep sounding
+    assert(muted < 0.003, `still sounding while every track is muted (peak ${muted.toFixed(4)} vs ${playingLevel.toFixed(4)})`);
     for (let i = 0; i < 4; i++) {
       await page.locator('[aria-pressed]').filter({ hasText: /^M$/ }).nth(i).click();
     }
