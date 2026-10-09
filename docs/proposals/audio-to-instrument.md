@@ -13,7 +13,7 @@ oscillator and have the app play back what it heard — the notes, as closely as
 caveat about what "sounds similar" will mean.**
 
 The app can reliably recover **the notes** (pitch, timing, length, loudness) from clear material and
-play them on any of its 161 instruments, and it can **suggest which preset is closest in character**.
+play them on any of its 219 instruments, and it can **suggest which preset is closest in character**.
 It cannot make a synth preset reproduce a recorded instrument's exact tone, and on a full,
 dense mix the transcription gets noticeably less accurate.
 
