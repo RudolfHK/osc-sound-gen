@@ -191,6 +191,30 @@ export function Ruler({ view, width, onSeek }: Props) {
       return;
     }
 
+    if (e.button === 2) {
+      // Bar row: playhead and loop at this bar
+      const at = snapTo(beat, bar);
+      const barNo = Math.floor(at / bar) + 1;
+      setMenu({
+        x: e.clientX, y: e.clientY, title: `Bar ${barNo}`,
+        items: [
+          { label: 'Play from here', onSelect: () => onSeek(at) },
+          { divider: true, label: '' },
+          {
+            label: 'Set loop start here', disabled: at >= seq.loopEndBeat,
+            onSelect: () => dispatch({ type: 'SEQ_SET_LOOP', enabled: true, startBeat: at }),
+          },
+          {
+            label: 'Set loop end here', disabled: at + bar <= seq.loopStartBeat,
+            onSelect: () => dispatch({ type: 'SEQ_SET_LOOP', enabled: true, endBeat: at + bar }),
+          },
+          { label: `Loop bar ${barNo}`, onSelect: () => dispatch({ type: 'SEQ_SET_LOOP', enabled: true, startBeat: at, endBeat: at + bar }) },
+          { divider: true, label: '' },
+          { label: 'Add section here', onSelect: () => addMarker(beat) },
+        ],
+      });
+      return;
+    }
     if (e.button !== 0) return;
     // Loop brace edges take precedence when the loop is showing
     if (seq.loopEnabled) {

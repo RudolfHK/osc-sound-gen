@@ -110,7 +110,15 @@ export type Action =
   | { type: 'CLIP_TOGGLE_MUTE'; clipId: string }
   | { type: 'CLIP_SPLIT'; clipId: string; atBeat: number }
   | { type: 'CLIP_SET_PATTERN'; clipId: string; patternId: string }
-  | { type: 'CLIP_SELECT'; clipId: string | null }
+  /** `toggle` (Shift/⌘-click) adds or removes the clip from a multi-selection. */
+  | { type: 'CLIP_SELECT'; clipId: string | null; toggle?: boolean }
+  | { type: 'CLIPS_SELECT'; clipIds: string[] }
+  | { type: 'CLIPS_DELETE'; clipIds: string[] }
+  /** `offsetBeats` defaults to the selection's length (copies land right after it). */
+  | { type: 'CLIPS_DUPLICATE'; clipIds: string[]; offsetBeats?: number; newIds?: string[] }
+  | { type: 'CLIPS_MOVE'; clipIds: string[]; deltaBeats: number }
+  | { type: 'CLIPS_PASTE'; items: ClipCopy[]; atBeat: number; trackId?: string | null }
+  | { type: 'CLIP_SET_COLOR'; clipIds: string[]; color: string | null }
   | { type: 'PATTERN_RENAME'; patternId: string; name: string }
   | { type: 'PATTERN_SET_LENGTH'; patternId: string; lengthBeats: number }
   // ── Notes (within a pattern) ─────────────────────────────────────────────────
@@ -223,6 +231,26 @@ function patchNotes(
   return patchPattern(state, patternId, (p) => ({ ...p, notes: fn(p.notes) }));
 }
 
+/** A copied clip: where it came from, and its notes (note clips) so a paste survives edits to the original. */
+export interface ClipCopy {
+  trackId: string;
+  isDrums: boolean;
+  clip: Clip;
+  pattern?: Pattern;
+}
+
+/** The selected clips: a multi-selection, the one focused clip, or none. */
+export function selectedClips(seq: Pick<SequencerState, 'selectedClipId' | 'selectedClipIds'>): string[] {
+  const focus = seq.selectedClipId;
+  if (!focus) return [];
+  return seq.selectedClipIds?.includes(focus) ? seq.selectedClipIds : [focus];
+}
+
+/** A unique copy of a note pattern, named "Bass 2" after "Bass 1". */
+function copyPattern(pat: Pattern, patterns: Record<string, Pattern>): Pattern {
+  return { ...pat, id: uid('pat'), name: nextName(pat.name, patterns), notes: pat.notes.map((n) => ({ ...n })) };
+}
+
 export function findClip(seq: SequencerState, clipId: string | null): { track: Track; clip: Clip } | null {
   if (!clipId) return null;
   for (const track of seq.tracks) {
@@ -284,9 +312,11 @@ function applyEntry(state: AppState, entry: UndoEntry, stacks: Pick<SequencerSta
 function sanitizeSelection(seq: SequencerState): Partial<SequencerState> {
   const trackOk = seq.tracks.some((t) => t.id === seq.selectedTrackId);
   const clipOk = !!findClip(seq, seq.selectedClipId);
+  const all = new Set(seq.tracks.flatMap((t) => t.clips.map((c) => c.id)));
   return {
     selectedTrackId: trackOk ? seq.selectedTrackId : (seq.tracks[0]?.id ?? null),
     selectedClipId: clipOk ? seq.selectedClipId : null,
+    selectedClipIds: (seq.selectedClipIds ?? []).filter((id) => all.has(id)),
     selectedNoteIds: clipOk ? seq.selectedNoteIds : [],
   };
 }
@@ -682,13 +712,147 @@ export function reducer(state: AppState, action: Action): AppState {
       return patchClip(state, action.clipId, (c) => ({ ...c, patternId: action.patternId }));
 
     case 'CLIP_SELECT': {
+      if (action.toggle && action.clipId) {
+        const current = selectedClips(seq);
+        const has = current.includes(action.clipId);
+        const ids = has ? current.filter((id) => id !== action.clipId) : [...current, action.clipId];
+        const focus = has ? (ids[ids.length - 1] ?? null) : action.clipId;
+        const found = findClip(seq, focus);
+        return seqUpdate(state, {
+          selectedClipIds: ids,
+          selectedClipId: focus,
+          selectedTrackId: found?.track.id ?? seq.selectedTrackId,
+          selectedNoteIds: [],
+          viewStartBeat: focus !== seq.selectedClipId ? 0 : seq.viewStartBeat,
+        });
+      }
       const found = findClip(seq, action.clipId);
       return seqUpdate(state, {
         selectedClipId: action.clipId,
+        selectedClipIds: action.clipId ? [action.clipId] : [],
         selectedTrackId: found?.track.id ?? seq.selectedTrackId,
         selectedNoteIds: [],
         // Jump the piano roll to the start of the pattern
         viewStartBeat: action.clipId !== seq.selectedClipId ? 0 : seq.viewStartBeat,
+      });
+    }
+
+    case 'CLIPS_SELECT': {
+      const ids = action.clipIds.filter((id) => findClip(seq, id));
+      const focus = ids.includes(seq.selectedClipId ?? '') ? seq.selectedClipId : (ids[0] ?? null);
+      const found = findClip(seq, focus);
+      return seqUpdate(state, {
+        selectedClipIds: ids,
+        selectedClipId: focus,
+        selectedTrackId: found?.track.id ?? seq.selectedTrackId,
+        selectedNoteIds: focus === seq.selectedClipId ? seq.selectedNoteIds : [],
+      });
+    }
+
+    case 'CLIPS_DELETE': {
+      const gone = new Set(action.clipIds);
+      const next = seqUpdate(state, {
+        tracks: seq.tracks.map((t) => (t.clips.some((c) => gone.has(c.id)) ? { ...t, clips: t.clips.filter((c) => !gone.has(c.id)) } : t)),
+      });
+      return seqUpdate(next, sanitizeSelection(next.sequencer));
+    }
+
+    case 'CLIPS_DUPLICATE': {
+      const found = action.clipIds.map((id) => findClip(seq, id)).filter((f): f is { track: Track; clip: Clip } => !!f);
+      if (!found.length) return state;
+      const start = Math.min(...found.map((f) => f.clip.startBeat));
+      const end = Math.max(...found.map((f) => f.clip.startBeat + f.clip.lengthBeats));
+      const offset = action.offsetBeats ?? end - start;
+      let patterns = seq.patterns;
+      const added = new Map<string, Clip[]>();
+      const newIds: string[] = [];
+      found.forEach(({ track, clip }, i) => {
+        let patternId = clip.patternId;
+        const pat = patterns[clip.patternId];
+        if (!isDrumTrack(track) && pat) {
+          const copy = copyPattern(pat, patterns);
+          patterns = { ...patterns, [copy.id]: copy };
+          patternId = copy.id;
+        }
+        const dup: Clip = { ...clip, id: action.newIds?.[i] ?? uid('clip'), patternId, startBeat: clip.startBeat + offset };
+        added.set(track.id, [...(added.get(track.id) ?? []), dup]);
+        newIds.push(dup.id);
+      });
+      const next = seqUpdate(state, {
+        patterns,
+        tracks: seq.tracks.map((t) => (added.has(t.id) ? { ...t, clips: [...t.clips, ...added.get(t.id)!] } : t)),
+        selectedClipIds: newIds,
+        selectedClipId: newIds[0],
+        selectedNoteIds: [],
+      });
+      return fitSongLength(next);
+    }
+
+    case 'CLIPS_MOVE': {
+      const ids = new Set(action.clipIds);
+      const moving = seq.tracks.flatMap((t) => t.clips.filter((c) => ids.has(c.id)));
+      if (!moving.length) return state;
+      // The group keeps its shape: it stops at the song start as a whole
+      const delta = Math.max(action.deltaBeats, -Math.min(...moving.map((c) => c.startBeat)));
+      if (Math.abs(delta) < 1e-9) return state;
+      const next = seqUpdate(state, {
+        tracks: seq.tracks.map((t) => (t.clips.some((c) => ids.has(c.id))
+          ? { ...t, clips: t.clips.map((c) => (ids.has(c.id) ? { ...c, startBeat: c.startBeat + delta } : c)) }
+          : t)),
+      });
+      return fitSongLength(next);
+    }
+
+    case 'CLIPS_PASTE': {
+      if (!action.items.length) return state;
+      const origin = Math.min(...action.items.map((it) => it.clip.startBeat));
+      // Clips copied from one track can be pasted onto another of the same kind
+      const fromOneTrack = new Set(action.items.map((it) => it.trackId)).size === 1;
+      const target = action.trackId ? seq.tracks.find((t) => t.id === action.trackId) : undefined;
+      let patterns = seq.patterns;
+      const added = new Map<string, Clip[]>();
+      const newIds: string[] = [];
+      for (const it of action.items) {
+        const dest = fromOneTrack && target && isDrumTrack(target) === it.isDrums
+          ? target
+          : seq.tracks.find((t) => t.id === it.trackId);
+        if (!dest || isDrumTrack(dest) !== it.isDrums) continue;
+        let patternId = it.clip.patternId;
+        if (!it.isDrums) {
+          const pat = it.pattern ?? patterns[it.clip.patternId];
+          if (!pat) continue;
+          const copy = copyPattern(pat, patterns);
+          patterns = { ...patterns, [copy.id]: copy };
+          patternId = copy.id;
+        }
+        const clip: Clip = { ...it.clip, id: uid('clip'), patternId, startBeat: Math.max(0, action.atBeat + it.clip.startBeat - origin) };
+        added.set(dest.id, [...(added.get(dest.id) ?? []), clip]);
+        newIds.push(clip.id);
+      }
+      if (!newIds.length) return state;
+      const next = seqUpdate(state, {
+        patterns,
+        tracks: seq.tracks.map((t) => (added.has(t.id) ? { ...t, clips: [...t.clips, ...added.get(t.id)!] } : t)),
+        selectedClipIds: newIds,
+        selectedClipId: newIds[0],
+        selectedNoteIds: [],
+      });
+      return fitSongLength(next);
+    }
+
+    case 'CLIP_SET_COLOR': {
+      const ids = new Set(action.clipIds);
+      return seqUpdate(state, {
+        tracks: seq.tracks.map((t) => (t.clips.some((c) => ids.has(c.id))
+          ? {
+              ...t,
+              clips: t.clips.map((c) => {
+                if (!ids.has(c.id)) return c;
+                const { color: _old, ...rest } = c;
+                return action.color ? { ...rest, color: action.color } : rest;
+              }),
+            }
+          : t)),
       });
     }
 
@@ -1000,6 +1164,7 @@ export function reducer(state: AppState, action: Action): AppState {
           playheadBeat: 0,
           selectedTrackId: p.doc.tracks[0]?.id ?? null,
           selectedClipId: null,
+          selectedClipIds: [],
           selectedNoteIds: [],
           arrStartBeat: 0,
           undoStack: [],
@@ -1233,6 +1398,7 @@ export function autoUndoKey(action: Action): string | null | undefined {
     case 'SECTION_DUPLICATE':
     case 'SECTION_DELETE':
     case 'CLIP_TOGGLE_MUTE':
+    case 'CLIP_SET_COLOR':
     case 'SEQ_ADD_LANE':
     case 'SEQ_REMOVE_LANE':
     case 'SEQ_TOGGLE_LANE':
@@ -1268,6 +1434,11 @@ const UNDO_LABELS: Partial<Record<Action['type'], string>> = {
   CLIP_TOGGLE_MUTE: 'Mute clip',
   CLIP_SPLIT: 'Split clip',
   CLIP_SET_PATTERN: 'Change clip pattern',
+  CLIPS_DELETE: 'Delete clips',
+  CLIPS_DUPLICATE: 'Duplicate clips',
+  CLIPS_MOVE: 'Move clips',
+  CLIPS_PASTE: 'Paste clips',
+  CLIP_SET_COLOR: 'Clip colour',
   SEQ_ADD_NOTE: 'Add note',
   SEQ_REMOVE_NOTE: 'Delete note',
   SEQ_MOVE_NOTE: 'Move notes',

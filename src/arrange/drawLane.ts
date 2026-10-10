@@ -15,7 +15,8 @@ export interface LaneDrawInput {
   drumPatterns: Map<string, DrumPattern>;
   /** patternId → number of clips using it, for the linked-clip badge. */
   patternUse: Map<string, number>;
-  selectedClipId: string | null;
+  /** Selected clips (one, or several selected together). */
+  selected: ReadonlySet<string>;
   isSelectedTrack: boolean;
   dim: boolean;
 }
@@ -80,8 +81,8 @@ function drawClip(ctx: CanvasRenderingContext2D, d: LaneDrawInput, clip: Clip): 
 
   const y = 3;
   const h = H - 6;
-  const selected = clip.id === d.selectedClipId;
-  const color = track.color;
+  const selected = d.selected.has(clip.id);
+  const color = clip.color ?? track.color;
   const alpha = clip.muted || d.dim ? 0.35 : 1;
 
   ctx.save();

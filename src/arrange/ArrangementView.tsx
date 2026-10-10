@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useAppStore, useAccent, findClip } from '../store/appStore';
+import { useAppStore, useAccent, findClip, selectedClips } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
+import { useClipActions, hasClipboard } from './useClipActions';
+import { promptDialog } from '../ui/kit/dialogs';
 import { PRESETS_BY_ID } from '../engine/instruments';
 import { AUTOMATION_TARGETS, AUTOMATION_TARGET_LIST } from '../engine/automation';
 import { getPlayhead, subscribePlayhead } from '../engine/playhead';
@@ -8,7 +10,7 @@ import { AutomationCanvas } from '../sequencer/AutomationLane';
 import { ContextMenu, type MenuItem } from '../ui/ContextMenu';
 import { setFocusZone } from '../ui/focus';
 import { isMac, shortcutLabel, withShortcut } from '../ui/shortcuts';
-import { getSettings } from '../store/settings';
+import { getSettings, updateSettings, useSettings, type FollowMode } from '../store/settings';
 import { Ruler } from './Ruler';
 import { drawLane } from './drawLane';
 import {
@@ -22,7 +24,7 @@ import {
 import type { DockTab } from '../ui/Dock';
 import { useTheme } from '../ui/theme';
 import { notify } from '../ui/notices';
-import { canvasPixelRatio, localPoint } from '../ui/scale';
+import { canvasPixelRatio, localPoint, toLayout } from '../ui/scale';
 
 interface Props {
   onSeek: (beat: number) => void;
@@ -31,6 +33,10 @@ interface Props {
 
 type Drag =
   | { kind: 'move'; clipId: string; grabOffset: number; origStart: number; origTrack: string; moved: boolean; downX: number }
+  /** Several selected clips moving together, in time only. */
+  | { kind: 'group'; ids: string[]; grabBeat: number; minStart: number; applied: number; moved: boolean; downX: number }
+  /** Rubber-band selection (client coordinates). */
+  | { kind: 'box'; x0: number; y0: number; additive: boolean; moved: boolean }
   | { kind: 'resize-r'; clipId: string; start: number; offset: number }
   | { kind: 'resize-l'; clipId: string; end: number; origStart: number; origOffset: number };
 
@@ -47,9 +53,12 @@ export function sourceLabel(track: Track, tabs: { id: string; label: string }[])
 
 export function ArrangementView({ onSeek, openDock }: Props) {
   const { state, dispatch } = useAppStore();
-  const { state: drumState } = useDrumStore();
+  const { state: drumState, dispatch: drumDispatch } = useDrumStore();
   const accent = useAccent();
   const seq = state.sequencer;
+  const clipActions = useClipActions();
+  const selection = useMemo(() => new Set(selectedClips(seq)), [seq.selectedClipId, seq.selectedClipIds]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [box, setBox] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
 
   const lanesRef = useRef<HTMLDivElement>(null);
   const [laneW, setLaneW] = useState(800);
@@ -140,6 +149,12 @@ export function ArrangementView({ onSeek, openDock }: Props) {
 
     if (e.button === 2) {
       if (clip) {
+        // Right-clicking inside a multi-selection acts on all of it
+        const current = selectedClips(seqRef.current);
+        if (current.length > 1 && current.includes(clip.id)) {
+          setMenu(groupMenu(current, e.clientX, e.clientY));
+          return;
+        }
         dispatch({ type: 'CLIP_SELECT', clipId: clip.id });
         setMenu(clipMenu(track, clip, e.clientX, e.clientY, beat));
       } else {
@@ -153,9 +168,32 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     }
     if (e.button !== 0) return;
 
+    const additive = e.shiftKey || e.metaKey || e.ctrlKey;
     if (!clip) {
+      // Empty lane: a click deselects, a drag draws a selection box
       dispatch({ type: 'TRACK_SELECT', trackId: track.id });
-      dispatch({ type: 'CLIP_SELECT', clipId: null });
+      if (!additive) dispatch({ type: 'CLIP_SELECT', clipId: null });
+      dragRef.current = { kind: 'box', x0: e.clientX, y0: e.clientY, additive, moved: false };
+      return;
+    }
+
+    // Shift / ⌘ / Ctrl-click adds a clip to the selection, or takes it out
+    if (additive) {
+      dispatch({ type: 'CLIP_SELECT', clipId: clip.id, toggle: true });
+      return;
+    }
+
+    // Dragging a clip that's part of a multi-selection moves the whole group
+    const current = selectedClips(seqRef.current);
+    if (current.length > 1 && current.includes(clip.id)) {
+      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      let ids = current;
+      if (e.altKey) {
+        ids = current.map(() => uid('clip'));
+        dispatch({ type: 'CLIPS_DUPLICATE', clipIds: current, offsetBeats: 0, newIds: ids });
+      }
+      const starts = current.map((id) => findClip(seqRef.current, id)?.clip.startBeat ?? 0);
+      dragRef.current = { kind: 'group', ids, grabBeat: beat, minStart: Math.min(...starts), applied: 0, moved: false, downX: e.clientX };
       return;
     }
 
@@ -199,6 +237,26 @@ export function ArrangementView({ onSeek, openDock }: Props) {
       const beat = xToBeat(x, viewRef.current);
       const free = e.shiftKey;
       const g = arrangeGrid(seqRef.current);
+
+      if (d.kind === 'box') {
+        if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 4) return;
+        d.moved = true;
+        setBox({ x0: d.x0, y0: d.y0, x1: e.clientX, y1: e.clientY });
+        return;
+      }
+      if (d.kind === 'group') {
+        if (!d.moved && Math.abs(e.clientX - d.downX) < 3) return;
+        d.moved = true;
+        // Snap the offset, not each clip, so the group keeps its shape
+        const raw = beat - d.grabBeat;
+        const delta = Math.max(-d.minStart, free ? raw : Math.round(raw / g) * g);
+        if (Math.abs(delta - d.applied) > 1e-9) {
+          dispatch({ type: 'CLIPS_MOVE', clipIds: d.ids, deltaBeats: delta - d.applied });
+          d.applied = delta;
+        }
+        return;
+      }
+
       const found = findClip(seqRef.current, d.clipId);
       if (!found) return;
 
@@ -223,7 +281,28 @@ export function ArrangementView({ onSeek, openDock }: Props) {
         });
       }
     };
-    const up = () => { dragRef.current = null; };
+    const up = (e: MouseEvent) => {
+      const d = dragRef.current;
+      dragRef.current = null;
+      if (d?.kind !== 'box' || !d.moved) return;
+      setBox(null);
+      // Clips on the lanes the box crosses, overlapping its time span
+      const el = lanesRef.current;
+      if (!el) return;
+      const [y0, y1] = [Math.min(d.y0, e.clientY), Math.max(d.y0, e.clientY)];
+      const bx = (cx: number) => xToBeat(localPoint({ clientX: cx, clientY: 0 }, el).x - HEADER_W, viewRef.current);
+      const [b0, b1] = [Math.min(bx(d.x0), bx(e.clientX)), Math.max(bx(d.x0), bx(e.clientX))];
+      const trackIds = new Set<string>();
+      for (const lane of el.querySelectorAll<HTMLElement>('[data-lane-track]')) {
+        const r = lane.getBoundingClientRect();
+        if (r.bottom >= y0 && r.top <= y1) trackIds.add(lane.dataset.laneTrack!);
+      }
+      const hits = seqRef.current.tracks
+        .filter((t) => trackIds.has(t.id))
+        .flatMap((t) => t.clips.filter((c) => c.startBeat < b1 && c.startBeat + c.lengthBeats > b0).map((c) => c.id));
+      const base = d.additive ? selectedClips(seqRef.current) : [];
+      dispatch({ type: 'CLIPS_SELECT', clipIds: [...new Set([...base, ...hits])] });
+    };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
     return () => {
@@ -254,9 +333,23 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     const splitAt = clip.startBeat < playhead && playhead < clip.startBeat + clip.lengthBeats
       ? playhead : snapTo(atBeat, arrangeGrid(seqRef.current));
     const undoable = (a: Parameters<typeof dispatch>[0]) => () => { dispatch({ type: 'SEQ_PUSH_UNDO' }); dispatch(a); };
+    const patName = isDrums ? drumPatterns.get(clip.patternId)?.name : seqRef.current.patterns[clip.patternId]?.name;
+    const rename = async () => {
+      const name = await promptDialog({
+        title: 'Rename clip', label: linked || isDrums ? 'Pattern name (every clip playing this pattern shows it)' : 'Clip name',
+        value: patName ?? '', confirmLabel: 'Rename',
+      });
+      if (!name) return;
+      if (isDrums) drumDispatch({ type: 'DRUM_RENAME_PATTERN', patternId: clip.patternId, name });
+      else dispatch({ type: 'PATTERN_RENAME', patternId: clip.patternId, name });
+    };
     const items: MenuItem[] = [
       { label: 'Edit', shortcut: 'dbl-click', onSelect: () => openDock('editor') },
+      { label: 'Rename…', onSelect: () => { void rename(); } },
+      { label: 'Colour', submenu: colourItems([clip.id], clip.color) },
       { divider: true, label: '' },
+      { label: 'Copy', shortcut: shortcutLabel('arrange.copy'), onSelect: () => { clipActions.copySelected(); } },
+      { label: 'Paste at playhead', shortcut: shortcutLabel('arrange.paste'), disabled: !hasClipboard(), onSelect: () => { clipActions.paste(); } },
       { label: 'Duplicate', shortcut: shortcutLabel('arrange.duplicate'), onSelect: undoable({ type: 'CLIP_DUPLICATE', clipId: clip.id }) },
       ...(!isDrums ? [
         { label: 'Duplicate as linked', onSelect: undoable({ type: 'CLIP_DUPLICATE', clipId: clip.id, linked: true }) },
@@ -273,10 +366,40 @@ export function ArrangementView({ onSeek, openDock }: Props) {
         })),
       }] : []),
       { divider: true, label: '' },
-      { label: 'Delete', shortcut: 'Del', danger: true, onSelect: undoable({ type: 'CLIP_DELETE', clipId: clip.id }) },
+      { label: 'Delete', shortcut: shortcutLabel('arrange.delete'), danger: true, onSelect: undoable({ type: 'CLIP_DELETE', clipId: clip.id }) },
     ];
-    const name = isDrums ? drumPatterns.get(clip.patternId)?.name : seqRef.current.patterns[clip.patternId]?.name;
-    return { x, y, items, title: name ?? 'Clip' };
+    return { x, y, items, title: patName ?? 'Clip' };
+  };
+
+  /** Clip colours: the track colours, or back to the track's own. */
+  const colourItems = (ids: string[], current?: string): MenuItem[] => [
+    { label: 'Track colour', checked: !current, onSelect: () => dispatch({ type: 'CLIP_SET_COLOR', clipIds: ids, color: null }) },
+    ...TRACK_COLORS.map((c) => ({
+      label: c, checked: current === c,
+      onSelect: () => dispatch({ type: 'CLIP_SET_COLOR', clipIds: ids, color: c }),
+    })),
+  ];
+
+  /** Menu for several selected clips. */
+  const groupMenu = (ids: string[], x: number, y: number) => {
+    const allMuted = ids.every((id) => findClip(seqRef.current, id)?.clip.muted);
+    const undoableAll = (fn: () => void) => () => { dispatch({ type: 'SEQ_PUSH_UNDO' }); fn(); };
+    const items: MenuItem[] = [
+      { label: 'Copy', shortcut: shortcutLabel('arrange.copy'), onSelect: () => { clipActions.copySelected(); } },
+      { label: 'Duplicate', shortcut: shortcutLabel('arrange.duplicate'), onSelect: () => { clipActions.duplicateSelected(); } },
+      { label: 'Colour', submenu: colourItems(ids) },
+      {
+        label: allMuted ? 'Unmute clips' : 'Mute clips',
+        onSelect: undoableAll(() => {
+          for (const id of ids) {
+            if (findClip(seqRef.current, id)?.clip.muted === allMuted) dispatch({ type: 'CLIP_TOGGLE_MUTE', clipId: id });
+          }
+        }),
+      },
+      { divider: true, label: '' },
+      { label: `Delete ${ids.length} clips`, shortcut: shortcutLabel('arrange.delete'), danger: true, onSelect: () => { clipActions.deleteSelected(); } },
+    ];
+    return { x, y, items, title: `${ids.length} clips selected` };
   };
 
   // ── Track header menu ──
@@ -368,10 +491,10 @@ export function ArrangementView({ onSeek, openDock }: Props) {
                     beatsPerBar: seq.beatsPerBar, sections,
                     loop: { enabled: seq.loopEnabled, start: seq.loopStartBeat, end: seq.loopEndBeat },
                     patterns: seq.patterns, drumPatterns, patternUse,
-                    selectedClipId: seq.selectedClipId, isSelectedTrack: selected, dim,
+                    selected: selection, isSelectedTrack: selected, dim,
                   })}
                   deps={[track, view, laneW, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, theme,
-                    lanePatterns.get(track.id), patternUse, seq.selectedClipId, selected, dim, seq.beatsPerBar]}
+                    lanePatterns.get(track.id), patternUse, selection, selected, dim, seq.beatsPerBar]}
                   view={view}
                 />
               </div>
@@ -406,7 +529,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
           <div className="px-3 py-3 text-xs text-neutral-500 leading-relaxed">
             {seq.tracks.length === 0
               ? 'No tracks yet — use “+ Instrument” or “+ Drums” above, or double-click here.'
-              : `Double-click an empty lane to create a clip · drag clips to move, ${isMac() ? '⌥' : 'Alt'}-drag to copy, drag edges to trim · ${isMac() ? '⌘' : 'Ctrl'}+wheel to zoom, Shift+wheel to scroll`}
+              : `Double-click an empty lane to create a clip · drag clips to move, ${isMac() ? '⌥' : 'Alt'}-drag to copy, drag edges to trim · drag across empty space or Shift-click to select several · ${isMac() ? '⌘' : 'Ctrl'}+wheel to zoom, Shift+wheel to scroll`}
           </div>
         </div>
 
@@ -415,6 +538,17 @@ export function ArrangementView({ onSeek, openDock }: Props) {
 
       <ArrangeScrollbar view={view} width={laneW} songEnd={songEnd} />
 
+      {box && (
+        <div
+          aria-hidden
+          className="fixed z-40 pointer-events-none border"
+          style={{
+            left: toLayout(Math.min(box.x0, box.x1)), top: toLayout(Math.min(box.y0, box.y1)),
+            width: toLayout(Math.abs(box.x1 - box.x0)), height: toLayout(Math.abs(box.y1 - box.y0)),
+            borderColor: accent, backgroundColor: accent + '14',
+          }}
+        />
+      )}
       {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
     </div>
   );
@@ -433,6 +567,8 @@ function clipAt(track: Track, beat: number): Clip | null {
 function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
   const { state, dispatch } = useAppStore();
   const seq = state.sequencer;
+  const settings = useSettings();
+  const accentColor = useAccent();
   const add = (source: Track['source']) => {
     dispatch({ type: 'SEQ_PUSH_UNDO' });
     dispatch({ type: 'TRACK_ADD', source });
@@ -490,10 +626,53 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
         />
       </label>
 
+      <LoopFields />
+      <button
+        className={btn}
+        onClick={() => updateSettings({ followPlayhead: FOLLOW_NEXT[settings.followPlayhead] })}
+        title={`Follow playhead: ${FOLLOW_NAMES[settings.followPlayhead]} — click for ${FOLLOW_NAMES[FOLLOW_NEXT[settings.followPlayhead]].toLowerCase()}`}
+        aria-label={`Follow playhead: ${FOLLOW_NAMES[settings.followPlayhead]}`}
+        data-testid="follow-toggle"
+        style={settings.followPlayhead !== 'off' ? { borderColor: accentColor, color: accentColor } : undefined}
+      >⇥ {settings.followPlayhead === 'off' ? 'OFF' : settings.followPlayhead.toUpperCase()}</button>
+
       <span className="ml-auto text-neutral-500" style={{ fontSize: 11 }}>
         {seq.tracks.length} track{seq.tracks.length === 1 ? '' : 's'}
       </span>
     </div>
+  );
+}
+
+const FOLLOW_NEXT: Record<FollowMode, FollowMode> = { page: 'scroll', scroll: 'off', off: 'page' };
+const FOLLOW_NAMES: Record<FollowMode, string> = { page: 'Page', scroll: 'Scroll', off: 'Off' };
+
+/** Loop start and end as bar numbers you can type. "1 → 9" loops bars 1–8. */
+function LoopFields() {
+  const { state, dispatch } = useAppStore();
+  const seq = state.sequencer;
+  const bpb = seq.beatsPerBar;
+  const toBar = (beat: number) => Math.round((beat / bpb + 1) * 100) / 100;
+  const field = 'w-12 bg-neutral-950 border border-neutral-700 text-neutral-200 font-mono text-center px-1 py-0.5';
+  const set = (which: 'start' | 'end', value: string) => {
+    const bar = parseFloat(value);
+    if (!Number.isFinite(bar) || bar < 1) return;
+    const beat = (bar - 1) * bpb;
+    if (which === 'start' && beat < seq.loopEndBeat) dispatch({ type: 'SEQ_SET_LOOP', startBeat: beat });
+    if (which === 'end' && beat > seq.loopStartBeat) dispatch({ type: 'SEQ_SET_LOOP', endBeat: beat });
+  };
+  return (
+    <span className="flex items-center gap-1 text-xs text-neutral-500 ml-1" title="Loop from the start of one bar to the start of another">
+      LOOP
+      <input type="number" min={1} step={1} key={`s${seq.loopStartBeat}`} defaultValue={toBar(seq.loopStartBeat)}
+        aria-label="Loop start bar" className={field}
+        onBlur={(e) => set('start', e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+      →
+      <input type="number" min={2} step={1} key={`e${seq.loopEndBeat}`} defaultValue={toBar(seq.loopEndBeat)}
+        aria-label="Loop end bar" className={field}
+        onBlur={(e) => set('end', e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+    </span>
   );
 }
 

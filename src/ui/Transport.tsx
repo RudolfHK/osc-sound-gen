@@ -7,6 +7,7 @@ import { getPlayhead, setPlayhead, usePlayhead } from '../engine/playhead';
 import { beatsToSeconds } from '../utils/music';
 import { openExport, setLastTake, useExportState } from './exportState';
 import { notify } from './notices';
+import { parsePosition } from '../utils/position';
 import { getSettings } from '../store/settings';
 import { withShortcut } from './shortcuts';
 import { useHistory } from './useHistory';
@@ -73,7 +74,35 @@ export function useTransport() {
 
 // ─── Position readout ─────────────────────────────────────────────────────────
 
-function Position({ bpm, beatsPerBar }: { bpm: number; beatsPerBar: number }) {
+function Position({ bpm, beatsPerBar, onSeek }: { bpm: number; beatsPerBar: number; onSeek: (beat: number) => void }) {
+  const [editing, setEditing] = useState<string | null>(null);
+  if (editing !== null) {
+    const commit = () => {
+      const at = parsePosition(editing, bpm, beatsPerBar);
+      if (at !== null) onSeek(at);
+      else if (editing.trim()) notify('Type a bar (17), bar.beat (17.3), bar.beat.sixteenth (17.3.2) or a time (1:30).', 'warn');
+      setEditing(null);
+    };
+    return (
+      <input
+        autoFocus
+        value={editing}
+        onChange={(e) => setEditing(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commit();
+          if (e.key === 'Escape') setEditing(null);
+        }}
+        aria-label="Go to bar or time"
+        placeholder="bar or m:ss"
+        className="font-mono text-sm bg-neutral-950 border border-neutral-500 text-neutral-100 px-2 py-0.5 w-[96px] xl:w-[150px]"
+      />
+    );
+  }
+  return <PositionReadout bpm={bpm} beatsPerBar={beatsPerBar} onEdit={() => setEditing('')} />;
+}
+
+function PositionReadout({ bpm, beatsPerBar, onEdit }: { bpm: number; beatsPerBar: number; onEdit: () => void }) {
   const beat = usePlayhead();
   const b = Math.max(0, beat);
   const bar = Math.floor(b / beatsPerBar) + 1;
@@ -84,12 +113,17 @@ function Position({ bpm, beatsPerBar }: { bpm: number; beatsPerBar: number }) {
   const s = Math.floor(secs % 60);
   const t = Math.floor((secs * 10) % 10);
   return (
-    <div className="flex items-baseline gap-2 font-mono bg-neutral-950 border border-neutral-800 px-2 py-0.5 min-w-[72px] xl:min-w-[150px]" aria-label="Song position">
+    <button
+      onClick={onEdit}
+      className="flex items-baseline gap-2 font-mono bg-neutral-950 border border-neutral-800 hover:border-neutral-600 px-2 py-0.5 min-w-[72px] xl:min-w-[150px] text-left"
+      aria-label={`Song position: bar ${bar}, beat ${inBar}. Click to type a position`}
+      title="Click and type a bar (17, 17.3) or a time (1:30) to jump there"
+    >
       <span className="text-sm text-neutral-100 tabular-nums">
         {bar}.{inBar}.{sixteenth}
       </span>
       <span className="hidden xl:inline text-xs text-neutral-500 tabular-nums">{m}:{String(s).padStart(2, '0')}.{t}</span>
-    </div>
+    </button>
   );
 }
 
@@ -202,7 +236,7 @@ export function Transport() {
   const { state, dispatch } = useAppStore();
   const accent = useAccent();
   const seq = state.sequencer;
-  const { toggle, stop, returnToStart, play } = useTransport();
+  const { toggle, stop, returnToStart, play, seek } = useTransport();
   const history = useHistory();
   const [historyMenu, setHistoryMenu] = useState<{ x: number; y: number } | null>(null);
   const [bpmText, setBpmText] = useState(String(seq.bpm));
@@ -282,7 +316,7 @@ export function Transport() {
         data-tour="export"
       >⤓<span className="hidden min-[1600px]:inline"> EXPORT</span></button>
 
-      <Position bpm={seq.bpm} beatsPerBar={seq.beatsPerBar} />
+      <Position bpm={seq.bpm} beatsPerBar={seq.beatsPerBar} onSeek={seek} />
 
       <label className="flex items-center gap-1" title="Tempo">
         <span className="hidden min-[1600px]:inline text-xs text-neutral-500 tracking-widest">BPM</span>

@@ -111,6 +111,8 @@ export interface Clip {
   /** Where in the pattern the clip starts playing (set by trimming the left edge). */
   offsetBeats: number;
   muted: boolean;
+  /** Overrides the track colour for this clip. */
+  color?: string;
 }
 
 export interface Pattern {
@@ -342,6 +344,12 @@ export interface SequencerState {
   markers: Marker[];
   selectedTrackId: string | null;
   selectedClipId: string | null;
+  /**
+   * Clips selected together (Shift-click, box select, select all). Counts only
+   * while it contains `selectedClipId` — the clip the editor shows — so any
+   * action that simply selects one clip ends a multi-selection by itself.
+   */
+  selectedClipIds: string[];
   selectedNoteIds: string[];
   copiedNotes: SequencerNote[] | null;  // note clipboard
   showVelocityLane: boolean;            // show velocity editing lane
@@ -382,6 +390,7 @@ export function makeDefaultSequencerState(): SequencerState {
     markers: [],
     selectedTrackId: null,
     selectedClipId: null,
+    selectedClipIds: [],
     selectedNoteIds: [],
     copiedNotes: null,
     showVelocityLane: false,

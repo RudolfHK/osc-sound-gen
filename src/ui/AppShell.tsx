@@ -1,10 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { useAppStore, useAccent, findClip } from '../store/appStore';
+import { useAppStore, useAccent } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
 import { useVisualizerStore } from '../store/visualizerStore';
 import { getAudioEngine } from '../engine/audio';
 import { getSequencerEngine } from '../engine/sequencer';
-import { getPlayhead } from '../engine/playhead';
 import { THEME_COLORS, type ColorTheme } from '../utils/math';
 import { ArrangementView } from '../arrange/ArrangementView';
 import { Transport, useTransport } from './Transport';
@@ -24,6 +23,7 @@ import { setTheme, useTheme } from './theme';
 import { dispatchShortcut, runShortcut, shortcutLabel, useShortcuts, withShortcut } from './shortcuts';
 import { helpTopicFor } from './help/topics';
 import { useHistory } from './useHistory';
+import { useClipActions } from '../arrange/useClipActions';
 import { ShortcutsOverlay } from './help/ShortcutsOverlay';
 import { DialogHost } from './kit/dialogs';
 import { getProjectStatus, useProjectStatus } from '../store/projectState';
@@ -150,7 +150,7 @@ export function AppShell() {
     return () => { offCmd?.(); offClose?.(); };
   }, []);
 
-  const selectedClip = findClip(seq, seq.selectedClipId);
+  const clips = useClipActions();
   const selectedTrack = seq.tracks.find((tr) => tr.id === seq.selectedTrackId);
   const moveSelection = (delta: number) => {
     const idx = seq.tracks.findIndex((tr) => tr.id === seq.selectedTrackId);
@@ -179,21 +179,12 @@ export function AppShell() {
     'help.shortcuts': () => setShortcutsOpen(true),
     'help.welcome': () => setWelcome('welcome'),
     'help.guide': () => openHelp(helpTopicFor(state.view, dockCollapsed ? null : dockTab)),
-    'arrange.delete': () => {
-      if (!selectedClip) return false;
-      dispatch({ type: 'SEQ_PUSH_UNDO' });
-      dispatch({ type: 'CLIP_DELETE', clipId: selectedClip.clip.id });
-    },
-    'arrange.duplicate': () => {
-      if (!selectedClip) return false;
-      dispatch({ type: 'SEQ_PUSH_UNDO' });
-      dispatch({ type: 'CLIP_DUPLICATE', clipId: selectedClip.clip.id });
-    },
-    'arrange.split': () => {
-      if (!selectedClip) return false;
-      dispatch({ type: 'SEQ_PUSH_UNDO' });
-      dispatch({ type: 'CLIP_SPLIT', clipId: selectedClip.clip.id, atBeat: seq.isPlaying ? getPlayhead() : seq.playheadBeat });
-    },
+    'arrange.delete': () => clips.deleteSelected(),
+    'arrange.duplicate': () => clips.duplicateSelected(),
+    'arrange.split': () => clips.splitAtPlayhead(),
+    'arrange.selectAll': () => clips.selectAll(),
+    'arrange.copy': () => clips.copySelected(),
+    'arrange.paste': () => clips.paste(),
     'arrange.mute': () => {
       if (!selectedTrack) return false;
       dispatch({ type: 'TRACK_UPDATE', trackId: selectedTrack.id, patch: { muted: !selectedTrack.muted } });
