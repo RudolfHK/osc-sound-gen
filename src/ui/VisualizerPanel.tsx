@@ -23,6 +23,8 @@ function Slider({
         type="range" min={min} max={max} step={step} value={value}
         className="w-full h-1" style={{ accentColor: color }}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        aria-label={`Visualizer ${label.toLowerCase()}`}
+        aria-valuetext={format(value)}
       />
     </div>
   );
@@ -155,6 +157,7 @@ export function VisualizerPanel() {
             <select
               value={state.colorMode}
               onChange={(e) => set({ colorMode: e.target.value as ColorMode })}
+              aria-label="Visualizer colours"
               className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5"
             >
               <option value="theme">Theme</option>

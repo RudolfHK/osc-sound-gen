@@ -798,6 +798,7 @@ function AutomationHeaderCell({ track }: { track: Track }) {
             value={lane?.id ?? ''}
             onChange={(e) => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { activeLaneId: e.target.value } })}
             className="flex-1 min-w-0 bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1"
+            aria-label={`${track.name}: automation lane shown`}
           >
             {track.lanes.map((l) => (
               <option key={l.id} value={l.id}>

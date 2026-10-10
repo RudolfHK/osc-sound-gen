@@ -12,9 +12,12 @@ interface SliderProps {
   step?: number;
   color?: string;
   onChange: (v: number) => void;
+  label?: string;
+  valueText?: string;
+  disabled?: boolean;
 }
 
-function Slider({ value, min, max, step = 0.001, color = '#00ff88', onChange }: SliderProps) {
+function Slider({ value, min, max, step = 0.001, color = '#00ff88', onChange, label, valueText, disabled }: SliderProps) {
   return (
     <input
       type="range"
@@ -22,6 +25,9 @@ function Slider({ value, min, max, step = 0.001, color = '#00ff88', onChange }: 
       max={max}
       step={step}
       value={value}
+      disabled={disabled}
+      aria-label={label}
+      aria-valuetext={valueText}
       className="slider-track w-full"
       style={{ color, accentColor: color }}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(parseFloat(e.target.value))}
@@ -120,7 +126,8 @@ export function FrequencyControl({ value, onChange, color = '#00ff88' }: Frequen
           aria-label="Frequency in Hz"
         />
       </div>
-      <Slider value={logFreqToLinear(value)} min={0} max={1} step={0.0001} color={color} onChange={handleSlider} />
+      <Slider value={logFreqToLinear(value)} min={0} max={1} step={0.0001} color={color} onChange={handleSlider}
+        label="Frequency" valueText={`${value.toFixed(1)} Hz`} />
       <div className="flex justify-between text-neutral-500 text-xs">
         <span>20 Hz</span>
         <span>20 kHz</span>
@@ -148,12 +155,14 @@ export function LabeledSlider({
   label, value, min, max, step, displayValue, color = '#00ff88', onChange, disabled, title,
 }: LabeledSliderProps) {
   return (
-    <div className={`space-y-1 ${disabled ? 'opacity-30 pointer-events-none' : ''}`} title={title}>
+    <div className={`space-y-1 ${disabled ? 'opacity-30' : ''}`} title={title}>
       <div className="flex justify-between items-baseline">
         <span className="knob-label">{label}</span>
         <span className="control-value" style={{ color }}>{displayValue}</span>
       </div>
-      <Slider value={value} min={min} max={max} step={step} color={color} onChange={onChange} />
+      {/* Disabled for real, so the keyboard can't move it either */}
+      <Slider value={value} min={min} max={max} step={step} color={color} onChange={onChange}
+        label={label.charAt(0) + label.slice(1).toLowerCase()} valueText={displayValue} disabled={disabled} />
     </div>
   );
 }

@@ -1,8 +1,13 @@
+import { createContext, useContext } from 'react';
 import { useEffectsStore } from '../store/effectsStore';
 import { useAccent } from '../store/appStore';
 import { DELAY_DIVISIONS, type DelayDivision, type EffectsSettings } from '../engine/effects';
 
 // ─── Small controls ───────────────────────────────────────────────────────────
+
+/** The rack a control sits in, so "MIX" is announced as "Reverb mix". */
+const RackName = createContext('');
+const spoken = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
 function Knob({
   label, value, min, max, step, format, color, onChange,
@@ -10,6 +15,7 @@ function Knob({
   label: string; value: number; min: number; max: number; step: number;
   format: (v: number) => string; color: string; onChange: (v: number) => void;
 }) {
+  const rack = useContext(RackName);
   return (
     <div className="flex flex-col gap-0.5 w-[86px]">
       <div className="flex justify-between text-neutral-500" style={{ fontSize: 11 }}>
@@ -21,6 +27,8 @@ function Knob({
         className="w-full h-1"
         style={{ accentColor: color }}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        aria-label={spoken(`${rack} ${label}`.trim())}
+        aria-valuetext={format(value)}
       />
     </div>
   );
@@ -30,26 +38,33 @@ function Rack({
   title, enabled, color, onToggle, children,
 }: {
   title: string; enabled: boolean; color: string;
-  onToggle: () => void; children: React.ReactNode;
+  /** Racks that can't be switched off (the drum sends) have no toggle. */
+  onToggle?: () => void; children: React.ReactNode;
 }) {
   return (
     <div
       className="flex flex-col gap-1.5 px-2.5 py-2 border min-w-[200px]"
       style={{ borderColor: enabled ? color + '55' : 'var(--color-neutral-800)' }}
     >
-      <button
-        onClick={onToggle}
-        className="flex items-center gap-1.5 text-xs tracking-widest transition-colors self-start"
-        style={{ color: enabled ? color : 'var(--color-neutral-600)' }}
-      >
-        <span
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: enabled ? color : 'var(--color-neutral-700)', boxShadow: enabled ? `0 0 5px ${color}` : 'none' }}
-        />
-        {title}
-      </button>
+      {onToggle ? (
+        <button
+          onClick={onToggle}
+          className="flex items-center gap-1.5 text-xs tracking-widest transition-colors self-start"
+          style={{ color: enabled ? color : 'var(--color-neutral-500)' }}
+          aria-pressed={enabled}
+          title={`${spoken(title)} ${enabled ? 'on — click to bypass' : 'off — click to switch on'}`}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: enabled ? color : 'var(--color-neutral-700)' }}
+          />
+          {title}
+        </button>
+      ) : (
+        <span className="text-xs tracking-widest self-start" style={{ color }}>{title}</span>
+      )}
       <div className={`flex flex-wrap gap-x-3 gap-y-1 ${enabled ? '' : 'opacity-35'}`}>
-        {children}
+        <RackName.Provider value={title}>{children}</RackName.Provider>
       </div>
     </div>
   );
@@ -118,13 +133,16 @@ export function EffectsPanel() {
                 onClick={() => set({ delaySync: !state.delaySync })}
                 className="font-mono transition-colors"
                 style={{ color: state.delaySync ? '#06b6d4' : 'var(--color-neutral-500)' }}
-                title="Toggle tempo sync"
+                title={state.delaySync ? 'Synced to the tempo — click for a free time in ms' : 'Free time — click to sync to the tempo'}
+                aria-pressed={state.delaySync}
+                aria-label="Delay tempo sync"
               >
-                {state.delaySync ? 'SYNC' : 'FREE'}
+                {state.delaySync ? 'SYNC' : `${Math.round(state.delayTimeMs)} ms`}
               </button>
             </div>
             {state.delaySync ? (
               <select
+                aria-label="Delay time (note value)"
                 value={state.delayDivision}
                 onChange={(e) => set({ delayDivision: e.target.value as DelayDivision })}
                 className="bg-neutral-900 border border-neutral-700 text-neutral-300 px-1 w-full"
@@ -135,6 +153,7 @@ export function EffectsPanel() {
             ) : (
               <input
                 type="range" min={20} max={1200} step={5} value={state.delayTimeMs}
+                aria-label="Delay time" aria-valuetext={`${Math.round(state.delayTimeMs)} ms`}
                 className="w-full h-1" style={{ accentColor: '#06b6d4' }}
                 onChange={(e) => set({ delayTimeMs: parseFloat(e.target.value) })}
               />
@@ -186,10 +205,7 @@ export function EffectsPanel() {
         </Rack>
 
         {/* ── Drum sends ── */}
-        <Rack
-          title="DRUM SENDS" enabled color="#f97316"
-          onToggle={() => { /* always on; levels do the work */ }}
-        >
+        <Rack title="DRUM SENDS" enabled color="#f97316">
           <Knob
             label="REVERB" value={state.drumReverbSend} min={0} max={1} step={0.01}
             format={pct} color="#f97316"

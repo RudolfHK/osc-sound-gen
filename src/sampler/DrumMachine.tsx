@@ -225,14 +225,15 @@ function VoiceContextMenu({ voice, x, y, onUpdate, onClearRow, onClose }: VoiceM
   );
 }
 
+/** A popover control row; the label names the slider inside it for screen readers. */
 function Label({ label, value, children }: { label: string; value: number | string; children: React.ReactNode }) {
   return (
-    <div className="mb-2">
-      <div className="flex justify-between text-xs text-neutral-500 mb-0.5">
+    <label className="block mb-2">
+      <span className="flex justify-between text-xs text-neutral-500 mb-0.5">
         <span>{label}</span><span className="font-mono text-neutral-400">{value}</span>
-      </div>
+      </span>
       {children}
-    </div>
+    </label>
   );
 }
 
@@ -402,6 +403,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
         <select
           value={state.activePatternId}
           onChange={(e) => dispatch({ type: 'DRUM_SET_ACTIVE_PATTERN', id: e.target.value })}
+          aria-label="Drum pattern"
           className="bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5 max-w-[150px]"
         >
           {genreGroups.map(([genre, list]) => (
@@ -463,6 +465,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
           <span className="text-xs text-neutral-500">SWING</span>
           <input
             type="range" min={0} max={0.5} step={0.01} value={pattern.swing}
+            aria-label="Swing" aria-valuetext={`${Math.round(pattern.swing * 100)}%`}
             className="w-16 accent-neutral-400"
             onChange={(e) => dispatch({ type: 'DRUM_SET_SWING', patternId: pattern.id, swing: +e.target.value })}
           />
@@ -487,6 +490,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
             <input
               type="number" min={20} max={300} value={state.syncBpm ? appState.sequencer.bpm : state.bpm}
               disabled={state.syncBpm}
+              aria-label="Audition tempo (BPM)"
               className="w-12 bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 px-1 py-0.5 font-mono text-center disabled:opacity-40"
               onChange={(e) => dispatch({ type: 'DRUM_SET_BPM', bpm: +e.target.value })}
             />

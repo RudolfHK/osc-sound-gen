@@ -86,9 +86,11 @@ function Meter({ source, color }: { source: MeterSource; color: string }) {
 // ─── Controls ─────────────────────────────────────────────────────────────────
 
 function Knob({
-  label, value, min, max, step, color, format, onChange, dim, onReset,
+  label, name, value, min, max, step, color, format, onChange, dim, onReset,
 }: {
   label: string; value: number; min: number; max: number; step: number;
+  /** Spoken name, e.g. "Bass EQ high". */
+  name: string;
   color: string; format: (v: number) => string; onChange: (v: number) => void;
   dim?: boolean; onReset?: () => void;
 }) {
@@ -101,7 +103,8 @@ function Knob({
         style={{ accentColor: color }}
         onChange={(e) => onChange(parseFloat(e.target.value))}
         onDoubleClick={onReset}
-        aria-label={label}
+        aria-label={name}
+        aria-valuetext={format(value)}
       />
     </label>
   );
@@ -109,6 +112,8 @@ function Knob({
 
 const db = (v: number) => `${v > 0 ? '+' : ''}${v.toFixed(1)} dB`;
 const pct = (v: number) => `${Math.round(v * 100)}%`;
+/** Fader gain as decibels: 1 → "0.0 dB", 0 → "−∞ dB". */
+const faderDb = (g: number) => (g <= 0.0005 ? '−∞ dB' : `${g >= 1 ? '+' : ''}${(20 * Math.log10(g)).toFixed(1)} dB`.replace('+0.0', '0.0'));
 
 function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
   const { state, dispatch } = useAppStore();
@@ -131,23 +136,23 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
 
       <div className="flex flex-col gap-0.5">
         <span className="text-neutral-500 tracking-widest" style={{ fontSize: 11 }}>EQ</span>
-        <Knob label="HI" value={ch.eqHigh} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqHigh')}
+        <Knob label="HI" name={`${track.name} EQ high`} value={ch.eqHigh} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqHigh')}
           onChange={(v) => set({ eqHigh: v })} onReset={() => set({ eqHigh: 0 })} />
-        <Knob label="MID" value={ch.eqMid} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqMid')}
+        <Knob label="MID" name={`${track.name} EQ mid`} value={ch.eqMid} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqMid')}
           onChange={(v) => set({ eqMid: v })} onReset={() => set({ eqMid: 0 })} />
-        <Knob label="LO" value={ch.eqLow} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqLow')}
+        <Knob label="LO" name={`${track.name} EQ low`} value={ch.eqLow} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqLow')}
           onChange={(v) => set({ eqLow: v })} onReset={() => set({ eqLow: 0 })} />
       </div>
 
       <div className="flex flex-col gap-0.5">
         <span className="text-neutral-500 tracking-widest" style={{ fontSize: 11 }}>SENDS</span>
-        <Knob label="REV" value={ch.sendReverb} min={0} max={1} step={0.01} color="#8b5cf6" format={pct}
+        <Knob label="REV" name={`${track.name} reverb send`} value={ch.sendReverb} min={0} max={1} step={0.01} color="#8b5cf6" format={pct}
           dim={automated.has('sendReverb')} onChange={(v) => set({ sendReverb: v })} />
-        <Knob label="DLY" value={ch.sendDelay} min={0} max={1} step={0.01} color="#06b6d4" format={pct}
+        <Knob label="DLY" name={`${track.name} delay send`} value={ch.sendDelay} min={0} max={1} step={0.01} color="#06b6d4" format={pct}
           dim={automated.has('sendDelay')} onChange={(v) => set({ sendDelay: v })} />
-        <Knob label="CHO" value={ch.sendChorus} min={0} max={1} step={0.01} color="#22c55e" format={pct}
+        <Knob label="CHO" name={`${track.name} chorus send`} value={ch.sendChorus} min={0} max={1} step={0.01} color="#22c55e" format={pct}
           dim={automated.has('sendChorus')} onChange={(v) => set({ sendChorus: v })} />
-        <Knob label="SC" value={ch.sidechain} min={0} max={1} step={0.01} color="#f97316" format={pct}
+        <Knob label="SC" name={`${track.name} sidechain`} value={ch.sidechain} min={0} max={1} step={0.01} color="#f97316" format={pct}
           onChange={(v) => set({ sidechain: v })} />
       </div>
 
@@ -160,17 +165,18 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
             style={{ accentColor: c, writingMode: 'vertical-lr', direction: 'rtl' } as React.CSSProperties}
             onChange={(e) => set({ gain: parseFloat(e.target.value) })}
             onDoubleClick={() => set({ gain: 1 })}
-            title={`Fader ${pct(ch.gain)} — double-click for 100%`}
+            title={`Fader ${faderDb(ch.gain)} — double-click for 0 dB`}
             aria-label={`${track.name} fader`}
+            aria-valuetext={faderDb(ch.gain)}
           />
-          <span className="font-mono" style={{ fontSize: 11, color: automated.has('volume') ? 'var(--color-neutral-600)' : 'var(--color-neutral-400)' }}>
-            {Math.round(ch.gain * 100)}
+          <span className="font-mono" style={{ fontSize: 11, color: automated.has('volume') ? 'var(--color-neutral-500)' : 'var(--color-neutral-400)' }}>
+            {faderDb(ch.gain).replace(' dB', '')}
           </span>
         </div>
       </div>
 
       <Knob
-        label="PAN" value={track.pan} min={-1} max={1} step={0.01} color={c}
+        label="PAN" name={`${track.name} pan`} value={track.pan} min={-1} max={1} step={0.01} color={c}
         format={(v) => (v === 0 ? 'C' : v > 0 ? `R${Math.round(v * 100)}` : `L${Math.round(-v * 100)}`)}
         dim={automated.has('pan')}
         onChange={(v) => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { pan: v } })}
@@ -181,6 +187,7 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
         <button
           onClick={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { muted: !track.muted } })}
           aria-pressed={track.muted}
+          aria-label={`Mute ${track.name}`}
           className={`flex-1 h-4 text-[11px] font-bold border leading-none ${
             track.muted ? 'border-yellow-500 text-yellow-300 bg-yellow-900/30' : 'border-neutral-700 text-neutral-500 hover:text-neutral-300'
           }`}
@@ -188,6 +195,7 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
         <button
           onClick={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { solo: !track.solo } })}
           aria-pressed={track.solo}
+          aria-label={`Solo ${track.name}`}
           className="flex-1 h-4 text-[11px] font-bold border leading-none"
           style={track.solo ? { borderColor: accent, color: accent, backgroundColor: accent + '22' } : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-500)' }}
         >S</button>

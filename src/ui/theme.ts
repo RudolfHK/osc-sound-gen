@@ -74,7 +74,7 @@ export function shade(alpha: number): string {
  * so the light theme uses a deeper shade of each.
  */
 const LIGHT_ACCENT: Record<string, string> = {
-  '#00ff88': '#059669',
+  '#00ff88': '#047857',
   '#ffb000': '#b45309',
   '#00aaff': '#0369a1',
   '#f0f0f0': '#262626',
