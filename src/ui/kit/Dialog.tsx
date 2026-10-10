@@ -56,7 +56,7 @@ export function Dialog({ title, onClose, children, className = 'w-[440px]', bare
         aria-label={bare ? title : undefined}
         tabIndex={-1}
         onKeyDown={onKeyDown}
-        className={`max-w-[94vw] max-h-[92vh] overflow-y-auto bg-neutral-900 border border-neutral-700 shadow-2xl text-neutral-200 focus:outline-none ${className}`}
+        className={`max-w-[calc(94vw/var(--ui-zoom,1))] max-h-[calc(92vh/var(--ui-zoom,1))] overflow-y-auto bg-neutral-900 border border-neutral-700 shadow-2xl text-neutral-200 focus:outline-none ${className}`}
       >
         {!bare && (
           <div className="flex items-center gap-3 px-4 py-2.5 border-b border-neutral-800">

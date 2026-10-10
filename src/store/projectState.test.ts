@@ -40,7 +40,7 @@ describe('unsaved-changes tracking', () => {
     p.trackDocument([1]);
     p.trackDocument([2]);
     p.markSaved('song.oscproject');
-    expect(p.getProjectStatus()).toEqual({ dirty: false, fileName: 'song.oscproject' });
+    expect(p.getProjectStatus()).toEqual({ dirty: false, fileName: 'song.oscproject', saving: false });
     p.trackDocument([3]);
     expect(p.getProjectStatus().dirty).toBe(true);
   });
@@ -50,7 +50,7 @@ describe('unsaved-changes tracking', () => {
     p.trackDocument([1]);
     p.trackDocument([2]);
     p.markReplaced('other.oscproject');
-    expect(p.getProjectStatus()).toEqual({ dirty: false, fileName: 'other.oscproject' });
+    expect(p.getProjectStatus()).toEqual({ dirty: false, fileName: 'other.oscproject', saving: false });
     p.trackDocument([5]);
     expect(p.getProjectStatus().dirty).toBe(false);
   });

@@ -9,6 +9,7 @@ import { getChannelRack } from './channelStrip';
 import { getDrumSynth } from './sampler';
 import type { NoteEvent, TimelineEvent } from './timeline';
 import type { OscillatorTab } from './oscillator';
+import { getSettings } from '../store/settings';
 
 /**
  * Schedule one event at context time `at`.
@@ -59,13 +60,15 @@ export function emitEvent(
 /** Metronome blip — straight to the master, bypassing every track. */
 function emitClick(ctx: BaseAudioContext, time: number, accent: boolean): void {
   const master = getAudioEngine().getMasterGain();
-  if (!master) return;
+  // The click level is a setting; 0.6 is the original loudness
+  const level = getSettings().metronomeLevel / 0.6;
+  if (!master || level <= 0) return;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = 'sine';
   osc.frequency.value = accent ? 1760 : 1175;
   g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(accent ? 0.35 : 0.22, time + 0.002);
+  g.gain.exponentialRampToValueAtTime((accent ? 0.35 : 0.22) * level, time + 0.002);
   g.gain.exponentialRampToValueAtTime(0.0001, time + 0.045);
   osc.connect(g);
   g.connect(master);

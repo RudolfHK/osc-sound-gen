@@ -8,6 +8,7 @@ import { requestUndoStep } from '../store/history';
 import type { DrumVoiceType, DrumHitParams } from '../engine/sampler';
 import type { DrumVoiceConfig, DrumStep, DrumPattern } from '../store/drumStore';
 import { notify } from '../ui/notices';
+import { toLayout } from '../ui/scale';
 
 // ─── Drum scheduler ───────────────────────────────────────────────────────────
 
@@ -144,7 +145,7 @@ function StepContextMenu({ step, x, y, onUpdate, onClose }: StepMenuProps) {
     <div
       ref={ref}
       className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-lg p-3 w-44"
-      style={{ left: x, top: y }}
+      style={{ left: toLayout(x), top: toLayout(y) }}
     >
       <div className="text-xs text-neutral-500 tracking-widest mb-2">STEP PARAMS</div>
       <Label label="VEL" value={step.velocity}>
@@ -186,7 +187,7 @@ function VoiceContextMenu({ voice, x, y, onUpdate, onClearRow, onClose }: VoiceM
     <div
       ref={ref}
       className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-lg p-3 w-48"
-      style={{ left: x, top: y }}
+      style={{ left: toLayout(x), top: toLayout(y) }}
     >
       <div className="text-xs tracking-widest mb-2" style={{ color: voice.color }}>{voice.name.toUpperCase()}</div>
       <Label label="VOL" value={Math.round(voice.volume * 100)}>

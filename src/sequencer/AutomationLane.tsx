@@ -4,6 +4,7 @@ import { AUTOMATION_TARGETS } from '../engine/automation';
 import { beatToX, xToBeat, snapTo, type ArrView } from '../arrange/geometry';
 import type { AutomationLane as Lane, Track } from '../utils/music';
 import { gray, useTheme } from '../ui/theme';
+import { canvasPixelRatio, localPoint } from '../ui/scale';
 
 const POINT_R = 4;
 const HIT_R = 7;
@@ -41,7 +42,7 @@ export function AutomationCanvas({ track, lane, view, width, height, beatsPerBar
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = canvasPixelRatio();
     canvas.width = Math.max(1, Math.floor(width * dpr));
     canvas.height = Math.max(1, Math.floor(height * dpr));
     canvas.style.width = `${width}px`;
@@ -105,10 +106,7 @@ export function AutomationCanvas({ track, lane, view, width, height, beatsPerBar
   }, [lane, view, width, height, beatsPerBar, hoverId, spec, valueToY, theme]);
 
   // ── Interaction ──
-  const local = (e: { clientX: number; clientY: number }) => {
-    const r = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
+  const local = (e: { clientX: number; clientY: number }) => localPoint(e, canvasRef.current!);
 
   const hit = useCallback((x: number, y: number) => {
     for (const p of lane.points) {

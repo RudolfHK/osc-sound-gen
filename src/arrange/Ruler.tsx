@@ -7,6 +7,7 @@ import {
   RULER_H, RULER_SECTION_H, RULER_BARS_H, type ArrView,
 } from './geometry';
 import { gray, shade, useTheme } from '../ui/theme';
+import { canvasPixelRatio, localPoint } from '../ui/scale';
 
 interface Props {
   view: ArrView;
@@ -42,7 +43,7 @@ export function Ruler({ view, width, onSeek }: Props) {
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = canvasPixelRatio();
     canvas.width = Math.max(1, Math.floor(width * dpr));
     canvas.height = Math.floor(RULER_H * dpr);
     canvas.style.width = `${width}px`;
@@ -129,10 +130,7 @@ export function Ruler({ view, width, onSeek }: Props) {
   }, [width, view, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, songEnd, bar, accent, theme]);
 
   // ── Hit testing ──
-  const local = (e: { clientX: number; clientY: number }) => {
-    const r = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
+  const local = (e: { clientX: number; clientY: number }) => localPoint(e, canvasRef.current!);
   const sectionAt = useCallback((x: number) => {
     const beat = xToBeat(x, view);
     return sections.find((s) => beat >= s.beat && beat < s.endBeat) ?? null;

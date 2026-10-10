@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useOverlay } from './overlay';
+import { toLayout } from './scale';
 
 export interface MenuItem {
   label: string;
@@ -38,7 +39,7 @@ const itemsIn = (el: HTMLElement | null) =>
  */
 export function ContextMenu({ x, y, items, onClose, title, scroll }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ left: x, top: y });
+  const [pos, setPos] = useState({ left: toLayout(x), top: toLayout(y) });
   const [openSub, setOpenSub] = useState<number | null>(null);
   useOverlay();
 
@@ -46,16 +47,24 @@ export function ContextMenu({ x, y, items, onClose, title, scroll }: Props) {
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
+    // x, y and the window are in screen pixels; `left`/`top` are CSS pixels
     setPos({
-      left: Math.max(4, Math.min(x, window.innerWidth - r.width - 4)),
-      top: Math.max(4, Math.min(y, window.innerHeight - r.height - 4)),
+      left: toLayout(Math.max(4, Math.min(x, window.innerWidth - r.width - 4))),
+      top: toLayout(Math.max(4, Math.min(y, window.innerHeight - r.height - 4))),
     });
-    // Keyboard users land on the first item
-    itemsIn(el)[0]?.focus();
+    // Keyboard users land on the first item. After the opening mousedown has
+    // finished, or its default action would take focus straight back.
+    const id = requestAnimationFrame(() => itemsIn(el)[0]?.focus());
+    return () => cancelAnimationFrame(id);
   }, [x, y]);
 
   useEffect(() => {
     const away = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
+    // Escape closes the menu wherever focus happens to be
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !ref.current?.contains(document.activeElement)) { e.preventDefault(); e.stopPropagation(); onClose(); }
+    };
+    document.addEventListener('keydown', esc, true);
     // Defer so the click that opened the menu doesn't close it
     const id = setTimeout(() => {
       document.addEventListener('mousedown', away);
@@ -63,6 +72,7 @@ export function ContextMenu({ x, y, items, onClose, title, scroll }: Props) {
     }, 0);
     return () => {
       clearTimeout(id);
+      document.removeEventListener('keydown', esc, true);
       document.removeEventListener('mousedown', away);
       document.removeEventListener('wheel', onClose);
     };
@@ -99,7 +109,7 @@ export function ContextMenu({ x, y, items, onClose, title, scroll }: Props) {
       ref={ref}
       role="menu"
       aria-label={title}
-      className={`fixed z-[100] min-w-[180px] py-1 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl text-xs ${scroll ? 'max-h-[70vh] overflow-y-auto' : ''}`}
+      className={`fixed z-[100] min-w-[180px] py-1 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl text-xs ${scroll ? 'max-h-[calc(70vh/var(--ui-zoom,1))] overflow-y-auto' : ''}`}
       style={{ left: pos.left, top: pos.top }}
       onContextMenu={(e) => e.preventDefault()}
       onKeyDown={onKeyDown}
@@ -154,7 +164,7 @@ function Submenu({ index, items, onClose }: { index: number; items: MenuItem[]; 
       ref={ref}
       role="menu"
       data-submenu={index}
-      className={`absolute top-0 -mt-1 min-w-[200px] max-w-[360px] max-h-[70vh] overflow-y-auto py-1 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl ${
+      className={`absolute top-0 -mt-1 min-w-[200px] max-w-[360px] max-h-[calc(70vh/var(--ui-zoom,1))] overflow-y-auto py-1 bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl ${
         flip ? 'right-full mr-0.5' : 'left-full ml-0.5'
       }`}
     >
@@ -165,6 +175,8 @@ function Submenu({ index, items, onClose }: { index: number; items: MenuItem[]; 
             <button
               role="menuitem"
               disabled={sub.disabled}
+              aria-label={sub.label}
+              title={sub.hint}
               onClick={() => { sub.onSelect?.(); onClose(); }}
               className="w-full flex items-start gap-2 px-3 py-1 text-left text-neutral-300 hover:bg-neutral-800 focus:bg-neutral-800 disabled:opacity-40"
             >

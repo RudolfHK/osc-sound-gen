@@ -12,7 +12,9 @@ import { getPlayhead, subscribePlayhead } from '../engine/playhead';
 import { getFocusZone, isTypingTarget, setFocusZone } from '../ui/focus';
 import { isOverlayOpen } from '../ui/overlay';
 import { useShortcuts } from '../ui/shortcuts';
+import { getSettings } from '../store/settings';
 import { gray, ink, shade, useTheme } from '../ui/theme';
+import { canvasPixelRatio, localPoint } from '../ui/scale';
 
 // ─── Coordinate helpers ───────────────────────────────────────────────────────
 
@@ -30,11 +32,11 @@ const yToNote = (y: number, vp: ViewParams) => Math.round(vp.viewHighNote - (y -
 
 const VEL_LANE_H = 50;
 
-/** Computer-keyboard piano, C4 on A — the layout most DAWs use. */
+/** Computer-keyboard piano, semitones above the C on A — the layout most DAWs use. */
 const KEY_MIDI: Record<string, number> = {
-  a: 60, w: 61, s: 62, e: 63, d: 64, f: 65, t: 66,
-  g: 67, y: 68, h: 69, u: 70, j: 71, k: 72, o: 73,
-  l: 74, p: 75, ';': 76,
+  a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6,
+  g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13,
+  l: 14, p: 15, ';': 16,
 };
 
 // ─── Preview through the track's own sound ────────────────────────────────────
@@ -261,7 +263,7 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
     const selectedSet = new Set(selectedNoteIds);
     const c = canvasRef.current;
     if (!c) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = canvasPixelRatio();
     c.width = Math.max(1, Math.floor(width * dpr));
     c.height = Math.max(1, Math.floor(canvasH * dpr));
     c.style.width = `${width}px`;
@@ -291,10 +293,7 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
   }, [seq.isPlaying, seq.playheadBeat, clip, pattern, seq.viewStartBeat, seq.pxPerBeat]);
 
   // ── Hit testing ──
-  const pos = (e: { clientX: number; clientY: number }) => {
-    const r = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
+  const pos = (e: { clientX: number; clientY: number }) => localPoint(e, canvasRef.current!);
 
   const findNote = useCallback((x: number, y: number): SequencerNote | null => {
     const midi = yToNote(y, vp);
@@ -532,10 +531,11 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
     const onKeyDown = (e: KeyboardEvent) => {
       if (getFocusZone() !== 'editor' || isTypingTarget(e.target) || isOverlayOpen()) return;
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
-      const midi = KEY_MIDI[e.key.toLowerCase()];
-      if (midi === undefined || held.has(e.key)) return;
+      const semis = KEY_MIDI[e.key.toLowerCase()];
+      if (semis === undefined || held.has(e.key)) return;
       held.add(e.key);
-      previewNote(live.current.track, live.current.tabs, midi);
+      // A plays the C of the octave chosen in Settings (C4 by default)
+      previewNote(live.current.track, live.current.tabs, (getSettings().keyboardOctave + 1) * 12 + semis);
     };
     const onKeyUp = (e: KeyboardEvent) => { held.delete(e.key); };
     window.addEventListener('keydown', onKeyDown);
@@ -556,11 +556,11 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
       if (e.ctrlKey || e.metaKey) {
         // Read the zoom from the latest view, not a value captured at mount —
         // the old handler did, which pinned zoom to two fixed steps
-        const r = canvas.getBoundingClientRect();
-        const anchor = xToBeat(e.clientX - r.left, v);
+        const mx = localPoint(e, canvas).x;
+        const anchor = xToBeat(mx, v);
         const px = Math.max(20, Math.min(400, v.pxPerBeat * (e.deltaY > 0 ? 0.85 : 1.18)));
         dispatch({ type: 'SEQ_SET_ZOOM', pxPerBeat: px });
-        dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, anchor - (e.clientX - r.left - KEY_W) / px) });
+        dispatch({ type: 'SEQ_SET_VIEW', startBeat: Math.max(0, anchor - (mx - KEY_W) / px) });
       } else if (e.shiftKey) {
         const delta = e.deltaY > 0 ? -2 : 2;
         const low = Math.max(0, Math.min(127 - (s.viewHighNote - s.viewLowNote), s.viewLowNote + delta));

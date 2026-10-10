@@ -6,11 +6,13 @@
  * desktop app, receives commands from the menu bar, and answers the window's
  * close requests (so unsaved work can be saved first).
  */
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webFrame } = require('electron');
 
 contextBridge.exposeInMainWorld('oscDesktop', {
   isDesktop: true,
   platform: process.platform,
+  /** Interface scale (Settings): real page zoom, like the browser's own. */
+  setZoomFactor: (f) => webFrame.setZoomFactor(Math.min(1.5, Math.max(0.9, Number(f) || 1))),
   /** Menu bar commands, by shortcut id ("file.save", "help.guide"…). */
   onCommand: (fn) => {
     const listener = (_event, id) => fn(String(id));

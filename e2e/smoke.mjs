@@ -166,6 +166,11 @@ try {
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     await page.waitForSelector('[data-lane-track]');
+    // The first start opens the welcome screen; Escape closes it
+    const welcome = page.getByRole('dialog', { name: 'Welcome to OSC' });
+    await welcome.waitFor({ timeout: 3000 });
+    await page.keyboard.press('Escape');
+    await welcome.waitFor({ state: 'detached', timeout: 2000 });
     const names = await page.locator('[data-lane-track]').count();
     assert(names === 4, `expected 4 starter tracks, got ${names}`);
     ['Drums', 'Bass', 'Keys', 'Pad'].forEach((n, i) => { trackIndex[n] = i; });
@@ -208,6 +213,7 @@ try {
       if (sessionStorage.getItem('cleared')) return;
       sessionStorage.setItem('cleared', '1');
       localStorage.clear();
+      localStorage.setItem('osc-welcome-seen', '1');
     });
     await page.goto(URL);
     await page.waitForSelector('[data-lane-track]');
@@ -367,7 +373,7 @@ try {
   });
 
   await step('example projects load from the File menu', async () => {
-    await openExample('midnight drive');
+    await openExample('Midnight Drive');
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes >= 5, `expected the example's tracks, saw ${lanes}`);
@@ -490,7 +496,7 @@ try {
 
   await step('the visualizer toggles on and off', async () => {
     await button('VIZ').click();
-    await page.getByText('VISUALIZER').waitFor({ timeout: 3000 });
+    await page.getByText('VISUALIZER', { exact: true }).waitFor({ timeout: 3000 });
     await button('VIZ').click();
   });
 
@@ -516,7 +522,7 @@ try {
   await step('opens the export dialog from the transport', async () => {
     racksBeforeExport = await page.evaluate(() => window.__liveRacks);
     // Make sure Midnight Drive is loaded — the export checks below depend on it
-    await openExample('midnight drive');
+    await openExample('Midnight Drive');
     await page.waitForTimeout(300);
     await button('Export').click();
     await dialog().waitFor({ timeout: 3000 });
@@ -641,7 +647,7 @@ try {
   });
 
   await step('the extended Midnight Drive loads as a full song', async () => {
-    await openExample('midnight drive extended');
+    await openExample('Midnight Drive (Extended)');
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes === 11, `expected 11 tracks, saw ${lanes}`);

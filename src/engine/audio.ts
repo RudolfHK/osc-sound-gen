@@ -1,5 +1,15 @@
 import { squareWaveCoefficients, applyDetune } from '../utils/math';
 import type { OscillatorState, AdvancedSettings } from './oscillator';
+import { getSettings } from '../store/settings';
+
+/** Called once for each live AudioContext the engine creates (the load probe hooks in here). */
+const contextListeners = new Set<(ctx: AudioContext) => void>();
+export function onAudioContext(fn: (ctx: AudioContext) => void): () => void {
+  contextListeners.add(fn);
+  return () => { contextListeners.delete(fn); };
+}
+
+type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void>; sinkId?: string };
 
 const TC = 0.01; // 10ms exponential time constant for smooth UI-driven changes
 /** Master fader smoothing — fast enough to feel instant, slow enough not to click. */
@@ -33,7 +43,9 @@ export class MultiOscillatorEngine {
 
   private ensureContext(): AudioContext {
     if (!this.ctx) {
-      this.ctx = new AudioContext();
+      const settings = getSettings();
+      // Latency is fixed when the context is made; Settings changes apply after a restart
+      this.ctx = new AudioContext({ latencyHint: settings.latencyHint });
       this.masterGain = this.ctx.createGain();
 
       // Master limiter catches the peaks that appear once several instruments,
@@ -52,8 +64,28 @@ export class MultiOscillatorEngine {
       this.masterGain.connect(this.limiter);
       this.limiter.connect(this.outputGain);
       this.outputGain.connect(this.ctx.destination);
+
+      if (settings.outputDeviceId) void this.setOutputDevice(settings.outputDeviceId);
+      for (const fn of contextListeners) fn(this.ctx);
     }
     return this.ctx;
+  }
+
+  /**
+   * Send audio to another output device ('' = the system default), where the
+   * browser supports choosing one. Resolves false if it couldn't.
+   */
+  async setOutputDevice(deviceId: string): Promise<boolean> {
+    const ctx = this.ctx as SinkContext | null;
+    if (!ctx) return true;            // applied when the context is created
+    if (!ctx.setSinkId) return false;
+    try {
+      await ctx.setSinkId(deviceId);
+      return true;
+    } catch (err) {
+      console.warn('Could not switch the audio output device.', err);
+      return false;
+    }
   }
 
   // ─── Offline rendering ───────────────────────────────────────────────────────

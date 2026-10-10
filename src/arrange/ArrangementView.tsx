@@ -8,6 +8,7 @@ import { AutomationCanvas } from '../sequencer/AutomationLane';
 import { ContextMenu, type MenuItem } from '../ui/ContextMenu';
 import { setFocusZone } from '../ui/focus';
 import { isMac, shortcutLabel, withShortcut } from '../ui/shortcuts';
+import { getSettings } from '../store/settings';
 import { Ruler } from './Ruler';
 import { drawLane } from './drawLane';
 import {
@@ -21,6 +22,7 @@ import {
 import type { DockTab } from '../ui/Dock';
 import { useTheme } from '../ui/theme';
 import { notify } from '../ui/notices';
+import { canvasPixelRatio, localPoint } from '../ui/scale';
 
 interface Props {
   onSeek: (beat: number) => void;
@@ -100,8 +102,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     const el = lanesRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left - HEADER_W;
+      const x = localPoint(e, el).x - HEADER_W;
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         // Zoom around the cursor so what you point at stays put
@@ -133,8 +134,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
   // patterns and clip-link counts, which a stale closure would get wrong.
   const onLaneMouseDown = (track: Track, e: React.MouseEvent<HTMLCanvasElement>) => {
     setFocusZone('arrange');
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    const x = localPoint(e, e.currentTarget).x;
     const beat = Math.max(0, xToBeat(x, viewRef.current));
     const clip = clipAt(track, beat);
 
@@ -195,8 +195,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
       const d = dragRef.current;
       const el = lanesRef.current;
       if (!d || !el) return;
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left - HEADER_W;
+      const x = localPoint(e, el).x - HEADER_W;
       const beat = xToBeat(x, viewRef.current);
       const free = e.shiftKey;
       const g = arrangeGrid(seqRef.current);
@@ -685,7 +684,7 @@ function LaneCanvas({
   useLayoutEffect(() => {
     const c = ref.current;
     if (!c) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = canvasPixelRatio();
     const w = Math.max(1, Math.floor(width * dpr));
     const h = Math.max(1, Math.floor(height * dpr));
     if (c.width !== w) c.width = w;
@@ -703,13 +702,11 @@ function LaneCanvas({
       className="block"
       onMouseDown={(e) => onMouseDown(track, e)}
       onDoubleClick={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        const beat = Math.max(0, xToBeat(e.clientX - r.left, view));
+        const beat = Math.max(0, xToBeat(localPoint(e, e.currentTarget).x, view));
         onDoubleClick(beat, clipAt(track, beat));
       }}
       onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - r.left;
+        const x = localPoint(e, e.currentTarget).x;
         const beat = xToBeat(x, view);
         const c = clipAt(track, beat);
         let cursor = 'default';
@@ -748,9 +745,19 @@ function PlayheadOverlay({ view, width, stoppedAt, isPlaying }: {
       const x = beatToX(beat, viewRef.current);
       el.style.transform = `translateX(${HEADER_W + x}px)`;
       el.style.display = x < 0 || x > width ? 'none' : 'block';
-      // Page the view forward when the playhead runs off the right edge
-      if (isPlaying && x > width - 24) {
+      if (!isPlaying) return;
+      const follow = getSettings().followPlayhead;
+      const v = viewRef.current;
+      if (follow === 'page' && x > width - 24) {
+        // Page the view forward when the playhead runs off the right edge
         dispatch({ type: 'SEQ_SET_ARR_VIEW', startBeat: Math.max(0, beat - 2) });
+      } else if (follow === 'scroll') {
+        // Keep the playhead about a third of the way in. The view moves in
+        // small steps rather than every frame, so the lanes aren't redrawn 60×/s.
+        const target = width / 3;
+        if (Math.abs(x - target) > 6 && (x > target || v.startBeat > 0)) {
+          dispatch({ type: 'SEQ_SET_ARR_VIEW', startBeat: Math.max(0, beat - target / v.pxPerBeat) });
+        }
       }
     };
     place(isPlaying ? getPlayhead() : stoppedAt);

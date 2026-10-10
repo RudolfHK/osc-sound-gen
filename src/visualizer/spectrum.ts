@@ -1,5 +1,6 @@
 import { getAudioEngine } from '../engine/audio';
 import { getTheme, gray } from '../ui/theme';
+import { canvasPixelRatio } from '../ui/scale';
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ export class Visualizer {
   }
 
   resize(w: number, h: number): void {
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = canvasPixelRatio();
     this.canvas.width = Math.max(1, Math.floor(w * dpr));
     this.canvas.height = Math.max(1, Math.floor(h * dpr));
     this.canvas.style.width = `${w}px`;

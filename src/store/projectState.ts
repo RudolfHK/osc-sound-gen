@@ -21,12 +21,14 @@ export interface ProjectStatus {
   dirty: boolean;
   /** The file Save writes to, if one is known (opened or saved this session). */
   fileName: string | null;
+  /** A write to the file is in progress. */
+  saving: boolean;
 }
 
 let baseline: DocumentSignature | null = null;
 let current: DocumentSignature | null = null;
 let carried = readCarried();
-let status: ProjectStatus = { dirty: carried, fileName: null };
+let status: ProjectStatus = { dirty: carried, fileName: null, saving: false };
 const listeners = new Set<() => void>();
 
 function readCarried(): boolean {
@@ -39,7 +41,7 @@ function same(a: DocumentSignature, b: DocumentSignature): boolean {
 
 function publish(patch: Partial<ProjectStatus>): void {
   const next = { ...status, ...patch };
-  if (next.dirty === status.dirty && next.fileName === status.fileName) return;
+  if (next.dirty === status.dirty && next.fileName === status.fileName && next.saving === status.saving) return;
   if (next.dirty !== status.dirty) {
     try {
       if (next.dirty) localStorage.setItem(KEY, '1'); else localStorage.removeItem(KEY);
@@ -75,6 +77,10 @@ export function markReplaced(fileName: string | null): void {
   baseline = null;
   carried = false;
   publish({ dirty: false, fileName });
+}
+
+export function setSaving(saving: boolean): void {
+  publish({ saving });
 }
 
 export function getProjectStatus(): ProjectStatus {

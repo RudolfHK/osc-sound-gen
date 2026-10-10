@@ -45,7 +45,7 @@ export default function HelpPanel({ topic, onClose }: { topic: string | null; on
     <aside
       role="dialog"
       aria-label="User guide"
-      className="fixed top-0 right-0 bottom-0 z-[140] w-[640px] max-w-[100vw] flex flex-col bg-neutral-900 border-l border-neutral-700 shadow-2xl text-sm"
+      className="fixed top-0 right-0 bottom-0 z-[140] w-[640px] max-w-[calc(100vw/var(--ui-zoom,1))] flex flex-col bg-neutral-900 border-l border-neutral-700 shadow-2xl text-sm"
     >
       <div className="flex items-center gap-2 px-3 py-2 border-b border-neutral-800">
         <span className="text-xs tracking-widest text-neutral-300">USER GUIDE</span>

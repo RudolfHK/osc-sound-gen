@@ -4,31 +4,18 @@ import { useDrumStore } from '../store/drumStore';
 import { useEffectsStore, effectsSettingsOf } from '../store/effectsStore';
 import { useInstrumentStore } from '../store/instrumentStore';
 import { DEFAULT_EFFECTS } from '../engine/effects';
-import { parseProject, serializeProject, ProjectError } from '../utils/project';
+import { parseProject, serializeProject, ProjectError, type LoadedProject } from '../utils/project';
+import { makeTemplate } from '../utils/templates';
 import { downloadBlob } from '../utils/wav';
 import { getSequencerEngine } from '../engine/sequencer';
 import { setPlayhead } from '../engine/playhead';
 import {
-  getProjectStatus, markReplaced, markSaved, setProjectSerializer, trackDocument,
+  getProjectStatus, markReplaced, markSaved, setProjectSerializer, setSaving, trackDocument,
 } from '../store/projectState';
+import { getSettings } from '../store/settings';
 import { notify } from './notices';
 import { choiceDialog } from './kit/dialogs';
-
-/**
- * Example projects ship in /examples and are bundled lazily — each file is
- * only fetched when it's chosen from the menu.
- */
-const EXAMPLE_FILES = import.meta.glob('../../examples/*.oscproject', {
-  query: '?raw',
-  import: 'default',
-}) as Record<string, () => Promise<string>>;
-
-export const EXAMPLES = Object.keys(EXAMPLE_FILES)
-  .map((path) => ({
-    path,
-    label: path.split('/').pop()!.replace('.oscproject', '').replace(/-/g, ' '),
-  }))
-  .sort((a, b) => a.label.localeCompare(b.label));
+import { EXAMPLES, TEMPLATES, loadExampleText } from './examples';
 
 // ─── Files ────────────────────────────────────────────────────────────────────
 // Chromium browsers (and the desktop app) can write back to the file a project
@@ -55,6 +42,11 @@ let fileHandle: FileSystemFileHandle | null = null;
 const isAbort = (err: unknown) => err instanceof DOMException && err.name === 'AbortError';
 
 async function writeFile(handle: FileSystemFileHandle, text: string): Promise<void> {
+  setSaving(true);
+  try { await write(handle, text); } finally { setSaving(false); }
+}
+
+async function write(handle: FileSystemFileHandle, text: string): Promise<void> {
   const h = handle as PermissionHandle;
   // A file that was opened (read access) needs permission before writing
   if (h.queryPermission && (await h.queryPermission({ mode: 'readwrite' })) !== 'granted') {
@@ -112,16 +104,21 @@ export function useProjectActions() {
     setPlayhead(0);
   }, [dispatch]);
 
+  /** Replace the song with a parsed project. */
+  const applyProject = useCallback((project: LoadedProject) => {
+    stopTransport();
+    if (project.drumPatterns.length) {
+      drumDispatch({ type: 'DRUM_IMPORT_PATTERNS', patterns: project.drumPatterns });
+    }
+    dispatch({ type: 'LOAD_PROJECT', project });
+    fxDispatch({ type: 'FX_LOAD', settings: project.effects });
+  }, [dispatch, drumDispatch, fxDispatch, stopTransport]);
+
   /** Replace the song with a project file's contents. False if it couldn't be read. */
   const loadFromText = useCallback((text: string, sourceName: string): boolean => {
     try {
       const project = parseProject(JSON.parse(text));
-      stopTransport();
-      if (project.drumPatterns.length) {
-        drumDispatch({ type: 'DRUM_IMPORT_PATTERNS', patterns: project.drumPatterns });
-      }
-      dispatch({ type: 'LOAD_PROJECT', project });
-      fxDispatch({ type: 'FX_LOAD', settings: project.effects });
+      applyProject(project);
       notify(`Loaded “${project.name}”.`);
       for (const w of project.warnings) notify(w, 'warn');
       return true;
@@ -133,7 +130,7 @@ export function useProjectActions() {
       console.error(err);
       return false;
     }
-  }, [dispatch, drumDispatch, fxDispatch, stopTransport]);
+  }, [applyProject]);
 
   const buildProject = useCallback(() => {
     const project = serializeProject({
@@ -197,6 +194,23 @@ export function useProjectActions() {
   }, [buildProject, saveProjectAs]);
 
   /**
+   * Autosave (Settings): write unsaved changes to the project's file. Only
+   * when there is a file to write to — it never opens a file picker.
+   */
+  const autosave = useCallback(async (): Promise<void> => {
+    if (!fileHandle || !getProjectStatus().dirty) return;
+    try {
+      await writeFile(fileHandle, buildProject().text);
+      markSaved(fileHandle.name);
+    } catch (err) {
+      console.warn('Autosave failed.', err);
+    }
+  }, [buildProject]);
+
+  /** Is there a file that Save (and autosave) writes to? */
+  const hasFile = useCallback(() => fileHandle !== null, []);
+
+  /**
    * Before something replaces the song: if it has unsaved changes, offer to
    * save them. Resolves true when it's fine to go ahead.
    */
@@ -249,25 +263,61 @@ export function useProjectActions() {
     input.click();
   }, [confirmDiscard, loadFromText]);
 
-  const loadExample = useCallback(async (path: string) => {
-    const load = EXAMPLE_FILES[path];
-    if (!load) return;
-    if (!(await confirmDiscard('opening the example'))) return;
+  /** Open a bundled example (by file name). Resolves true once it's loaded. */
+  const loadExample = useCallback(async (file: string): Promise<boolean> => {
+    if (!EXAMPLES.some((e) => e.file === file)) return false;
+    if (!(await confirmDiscard('opening the example'))) return false;
     // An example is a starting point: Save asks where to put the copy
-    if (loadFromText(await load(), path.split('/').pop()!)) {
-      fileHandle = null;
-      markReplaced(null);
-    }
+    if (!loadFromText(await loadExampleText(file), file)) return false;
+    fileHandle = null;
+    markReplaced(null);
+    return true;
   }, [confirmDiscard, loadFromText]);
 
-  const newProject = useCallback(async () => {
-    if (!(await confirmDiscard('starting a new project'))) return;
+  /** Start over: the starter tracks, or no tracks at all. Tempo and grid come from Settings. */
+  const startNew = useCallback((empty: boolean) => {
+    const s = getSettings();
     stopTransport();
-    dispatch({ type: 'NEW_PROJECT' });
+    dispatch({
+      type: 'NEW_PROJECT', empty,
+      defaults: { bpm: s.newTempo, snapValue: s.newSnap, defaultNoteLength: s.newNoteLength },
+    });
     fxDispatch({ type: 'FX_LOAD', settings: DEFAULT_EFFECTS });
     fileHandle = null;
     markReplaced(null);
-  }, [confirmDiscard, dispatch, fxDispatch, stopTransport]);
+  }, [dispatch, fxDispatch, stopTransport]);
 
-  return { saveProject, saveProjectAs, openProject, loadExample, newProject, confirmDiscard };
+  /** A genre's tracks, sounds, mix and beat with no notes yet. */
+  const newFromTemplate = useCallback(async (id: string, ask = true): Promise<boolean> => {
+    const t = TEMPLATES.find((x) => x.id === id);
+    if (!t) return false;
+    if (ask && !(await confirmDiscard('starting a new project'))) return false;
+    try {
+      applyProject(makeTemplate(parseProject(JSON.parse(await loadExampleText(t.from))), t.title));
+    } catch (err) {
+      notify(`Couldn't build the ${t.title} template.`, 'error');
+      console.error(err);
+      return false;
+    }
+    fileHandle = null;
+    markReplaced(null);
+    notify(`New ${t.title} project: the beat loops over the first bars — add notes on any track.`);
+    return true;
+  }, [applyProject, confirmDiscard]);
+
+  /** New project the way Settings says: starter tracks, empty, or a template. */
+  const newProject = useCallback(async (kind?: 'starter' | 'empty' | string): Promise<boolean> => {
+    if (!(await confirmDiscard('starting a new project'))) return false;
+    const start = kind ?? getSettings().newStart;
+    if (start !== 'starter' && start !== 'empty' && TEMPLATES.some((t) => t.id === start)) {
+      return newFromTemplate(start, false);
+    }
+    startNew(start === 'empty');
+    return true;
+  }, [confirmDiscard, newFromTemplate, startNew]);
+
+  return {
+    saveProject, saveProjectAs, openProject, loadExample, newProject, newFromTemplate, confirmDiscard,
+    autosave, hasFile,
+  };
 }

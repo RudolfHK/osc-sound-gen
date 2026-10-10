@@ -13,7 +13,13 @@ import { OscLab } from './OscLab';
 import { ContextMenu, type MenuItem } from './ContextMenu';
 import { Notices } from './notices';
 import { openExport, useExportState } from './exportState';
-import { useProjectActions, useDocumentTracking, EXAMPLES } from './useProjectActions';
+import { useProjectActions, useDocumentTracking } from './useProjectActions';
+import { EXAMPLES, formatLength } from './examples';
+import { Welcome, welcomeDueAtStart } from './Welcome';
+import { Tour } from './Tour';
+import { StatusBar } from './StatusBar';
+import { SettingsDialog } from './SettingsDialog';
+import { getSettings, useSettings } from '../store/settings';
 import { setTheme, useTheme } from './theme';
 import { dispatchShortcut, runShortcut, shortcutLabel, useShortcuts, withShortcut } from './shortcuts';
 import { helpTopicFor } from './help/topics';
@@ -51,6 +57,7 @@ export function AppShell() {
   const transport = useTransport();
   const project = useProjectActions();
   const status = useProjectStatus();
+  const settings = useSettings();
   const history = useHistory();
   useDocumentTracking();
 
@@ -92,6 +99,16 @@ export function AppShell() {
     return () => window.removeEventListener('keydown', dispatchShortcut);
   }, []);
 
+  const exportState = useExportState();
+  const [welcome, setWelcome] = useState<'welcome' | 'new' | null>(
+    () => (welcomeDueAtStart(getSettings().welcomeOnStart) ? 'welcome' : null));
+  const [touring, setTouring] = useState(false);
+  const startTour = useCallback(async () => {
+    dispatch({ type: 'SET_VIEW', view: 'arrange' });
+    if (await project.loadExample('midnight-drive.oscproject')) setTouring(true);
+  }, [dispatch, project]);
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [help, setHelp] = useState<{ open: boolean; topic: string | null }>({ open: false, topic: null });
   const openHelp = useCallback((topic: string | null = null) => setHelp({ open: true, topic }), []);
@@ -114,6 +131,16 @@ export function AppShell() {
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, []);
+
+  // Autosave to the project's file every few minutes (Settings → Saving)
+  const autosaveMinutes = settings.autosaveMinutes;
+  const autosave = useRef(project.autosave);
+  autosave.current = project.autosave;
+  useEffect(() => {
+    if (autosaveMinutes <= 0) return;
+    const id = setInterval(() => { void autosave.current(); }, autosaveMinutes * 60_000);
+    return () => clearInterval(id);
+  }, [autosaveMinutes]);
 
   const confirmDiscard = useRef(project.confirmDiscard);
   confirmDiscard.current = project.confirmDiscard;
@@ -139,7 +166,7 @@ export function AppShell() {
     'transport.metronome': () => dispatch({ type: 'SEQ_TOGGLE_METRONOME' }),
     'edit.undo': () => history.undo(),
     'edit.redo': () => history.redo(),
-    'file.new': () => { void project.newProject(); },
+    'file.new': () => setWelcome('new'),
     'file.save': () => { void project.saveProject(); },
     'file.saveAs': () => { void project.saveProjectAs(); },
     'file.open': () => { void project.openProject(); },
@@ -148,7 +175,9 @@ export function AppShell() {
     'view.mixer': () => openDock('mixer'),
     'view.instruments': () => openDock('instruments'),
     'view.fx': () => openDock('fx'),
+    'view.settings': () => setSettingsOpen(true),
     'help.shortcuts': () => setShortcutsOpen(true),
+    'help.welcome': () => setWelcome('welcome'),
     'help.guide': () => openHelp(helpTopicFor(state.view, dockCollapsed ? null : dockTab)),
     'arrange.delete': () => {
       if (!selectedClip) return false;
@@ -182,15 +211,21 @@ export function AppShell() {
   const fileMenu = (x: number, y: number) => setMenu({
     x, y,
     items: [
-      { label: 'New project', onSelect: () => { void project.newProject(); } },
+      { label: 'New project…', onSelect: () => setWelcome('new') },
       { label: 'Open…', shortcut: shortcutLabel('file.open'), onSelect: () => { void project.openProject(); } },
       { label: 'Save', shortcut: shortcutLabel('file.save'), onSelect: () => { void project.saveProject(); } },
       { label: 'Save as…', shortcut: shortcutLabel('file.saveAs'), onSelect: () => { void project.saveProjectAs(); } },
       { label: 'Export audio / MIDI…', shortcut: shortcutLabel('file.export'), onSelect: () => openExport('song') },
       { divider: true, label: '' },
+      { label: 'Settings…', shortcut: shortcutLabel('view.settings'), onSelect: () => setSettingsOpen(true) },
+      { divider: true, label: '' },
       {
         label: 'Open example',
-        submenu: EXAMPLES.map((ex) => ({ label: ex.label, onSelect: () => void project.loadExample(ex.path) })),
+        submenu: EXAMPLES.map((ex) => ({
+          label: ex.title,
+          hint: `${ex.genre}${ex.seconds ? ` · ${formatLength(ex.seconds)}` : ''}`,
+          onSelect: () => void project.loadExample(ex.file),
+        })),
       },
     ],
   });
@@ -200,6 +235,9 @@ export function AppShell() {
     items: [
       { label: 'User guide', shortcut: shortcutLabel('help.guide'), onSelect: () => openHelp(helpTopicFor(state.view, dockCollapsed ? null : dockTab)) },
       { label: 'Keyboard shortcuts', shortcut: shortcutLabel('help.shortcuts'), onSelect: () => setShortcutsOpen(true) },
+      { divider: true, label: '' },
+      { label: 'Welcome screen', onSelect: () => setWelcome('welcome') },
+      { label: 'Take the tour', onSelect: () => void startTour() },
     ],
   });
 
@@ -224,7 +262,7 @@ export function AppShell() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--surface-0)] select-none text-neutral-200">
+    <div className="flex flex-col h-full bg-[var(--surface-0)] select-none text-neutral-200">
       {/* ── Header ── */}
       {/* One row on a laptop or wider; below that the transport gets its own
           scrollable row instead of wrapping into a tall stack. */}
@@ -277,6 +315,13 @@ export function AppShell() {
             data-testid="theme-toggle"
           >{theme === 'dark' ? '☀' : '☾'}</button>
           <button
+            onClick={() => setSettingsOpen(true)}
+            className="w-7 h-7 flex items-center justify-center border border-neutral-700 text-neutral-400 hover:text-neutral-100 hover:border-neutral-500 transition-colors"
+            title={withShortcut('Settings', 'view.settings')}
+            aria-label="Settings"
+            data-testid="settings-button"
+          >⚙</button>
+          <button
             onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); helpMenu(r.right - 200, r.bottom + 2); }}
             className="w-7 h-7 flex items-center justify-center border border-neutral-700 text-neutral-400 hover:text-neutral-100 hover:border-neutral-500 transition-colors text-sm"
             title={withShortcut('Help — guide and shortcuts', 'help.guide')}
@@ -318,6 +363,8 @@ export function AppShell() {
         />
       )}
 
+      <StatusBar />
+
       {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
       <ExportDialogGate />
       {shortcutsOpen && (
@@ -331,6 +378,23 @@ export function AppShell() {
           <HelpPanel topic={help.topic} onClose={() => setHelp({ open: false, topic: null })} />
         </Suspense>
       )}
+      {welcome && (
+        <Welcome
+          mode={welcome}
+          onClose={() => setWelcome(null)}
+          onNew={(kind) => void project.newProject(kind)}
+          onOpen={() => void project.openProject()}
+          onExample={(file) => void project.loadExample(file)}
+          onTour={() => void startTour()}
+        />
+      )}
+      {touring && (
+        <Tour
+          ctx={{ seq, dockTab, dockCollapsed, exportOpen: exportState.open !== null }}
+          onEnd={() => setTouring(false)}
+        />
+      )}
+      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
       <DialogHost />
       <Notices />
     </div>

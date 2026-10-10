@@ -5,6 +5,7 @@ import {
   getInstrumentEngine, INSTRUMENT_PRESETS, CATEGORIES, OVERRIDE_FIELDS,
   type InstrumentPreset, type InstrumentOverride, type InstrumentCategory,
 } from '../engine/instruments';
+import { toLayout } from '../ui/scale';
 
 // ─── Parameter editor (right-click menu) ──────────────────────────────────────
 
@@ -43,8 +44,8 @@ function ParamMenu({ preset, override, x, y, trackName, scope, onScope, onChange
   }, [onClose]);
 
   // Keep the panel on screen
-  const top = Math.min(y, Math.max(8, window.innerHeight - 470));
-  const left = Math.min(x, Math.max(8, window.innerWidth - 240));
+  const top = Math.min(toLayout(y), Math.max(8, toLayout(window.innerHeight) - 470));
+  const left = Math.min(toLayout(x), Math.max(8, toLayout(window.innerWidth) - 240));
 
   return (
     <div

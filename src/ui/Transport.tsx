@@ -7,6 +7,7 @@ import { getPlayhead, setPlayhead, usePlayhead } from '../engine/playhead';
 import { beatsToSeconds } from '../utils/music';
 import { openExport, setLastTake, useExportState } from './exportState';
 import { notify } from './notices';
+import { getSettings } from '../store/settings';
 import { withShortcut } from './shortcuts';
 import { useHistory } from './useHistory';
 import { ContextMenu, type MenuItem } from './ContextMenu';
@@ -23,11 +24,14 @@ export function useTransport() {
   ref.current = { seq, tabs: state.tabs, drumPatterns: drumState.patterns };
 
   const play = useCallback(async (fromBeat?: number) => {
-    const start = fromBeat ?? ref.current.seq.playheadBeat;
+    const s = ref.current.seq;
+    const start = fromBeat ?? s.playheadBeat;
+    // Count-in (Settings) when starting with the metronome on — not on a seek
+    const countInBeats = !s.isPlaying && s.metronome ? getSettings().countIn * s.beatsPerBar : 0;
     try {
       dispatch({ type: 'SEQ_SET_PLAYING', playing: true });
       setPlayhead(start);
-      await getSequencerEngine().play(start, ref.current);
+      await getSequencerEngine().play(start, ref.current, { countInBeats });
     } catch (err) {
       console.error('Playback failed to start:', err);
       dispatch({ type: 'SEQ_SET_PLAYING', playing: false });
@@ -224,6 +228,7 @@ export function Transport() {
           className={`${btn} px-3 font-bold tracking-widest min-w-[64px]`}
           style={seq.isPlaying ? { borderColor: '#ef4444', color: '#fca5a5', backgroundColor: '#7f1d1d33' } : on}
           title={withShortcut('Play / stop', 'transport.toggle')}
+          data-tour="play"
         >
           {seq.isPlaying ? '■ STOP' : '▶ PLAY'}
         </button>
@@ -274,6 +279,7 @@ export function Transport() {
         className={`${btn} ${off} tracking-widest`}
         title={withShortcut('Export the arrangement — WAV, MP3, stems or MIDI', 'file.export')}
         aria-label="Export"
+        data-tour="export"
       >⤓<span className="hidden min-[1600px]:inline"> EXPORT</span></button>
 
       <Position bpm={seq.bpm} beatsPerBar={seq.beatsPerBar} />

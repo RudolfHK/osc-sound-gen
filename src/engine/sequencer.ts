@@ -107,7 +107,11 @@ export class SequencerEngine {
 
   // ─── Transport ──────────────────────────────────────────────────────────────
 
-  async play(startBeat: number, input: EngineInput): Promise<void> {
+  /**
+   * Start playing at `startBeat`. `countInBeats` clicks the metronome for
+   * that many beats first; the song starts after them.
+   */
+  async play(startBeat: number, input: EngineInput, { countInBeats = 0 } = {}): Promise<void> {
     const gen = ++this.generation;
     const ctx = await getAudioEngine().getOrCreateAudioContext();
     if (gen !== this.generation) return; // stopped (or restarted) while waiting
@@ -119,7 +123,14 @@ export class SequencerEngine {
     this.engaged = loopEngaged(this.loop, startBeat);
     this.configure(input);
 
-    this.anchorTime = ctx.currentTime + 0.05; // 50ms latency buffer
+    const bps = seq.bpm / 60;
+    const firstBeat = ctx.currentTime + 0.05; // 50ms latency buffer
+    for (let i = 0; i < countInBeats; i++) {
+      emitEvent({ kind: 'click', monoBeat: 0, accent: i % seq.beatsPerBar === 0 }, firstBeat + i / bps, ctx, this.bpm, this.tabs);
+    }
+    // Until the count-in has passed the scheduler finds nothing due, and the
+    // playhead holds at the start
+    this.anchorTime = firstBeat + countInBeats / bps;
     this.anchorMono = startBeat;
     this.scheduledUpTo = startBeat;
     this.chanSchedBeat.clear();

@@ -5,17 +5,30 @@
  * (clips) and the editor (notes). The area clicked last owns them — the same
  * convention DAWs use for their arrange/editor split.
  */
+import { useSyncExternalStore } from 'react';
 
 export type FocusZone = 'arrange' | 'editor' | 'other';
 
 let zone: FocusZone = 'arrange';
+const listeners = new Set<() => void>();
 
 export function getFocusZone(): FocusZone {
   return zone;
 }
 
 export function setFocusZone(z: FocusZone): void {
+  if (z === zone) return;
   zone = z;
+  for (const l of listeners) l();
+}
+
+/** The area that owns the keys, as React state (the status bar shows it). */
+export function useFocusZone(): FocusZone {
+  return useSyncExternalStore(
+    (cb) => { listeners.add(cb); return () => { listeners.delete(cb); }; },
+    () => zone,
+    () => zone,
+  );
 }
 
 /** True when a key event is going into a text field and shortcuts must stay out of the way. */

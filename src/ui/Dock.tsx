@@ -10,6 +10,7 @@ import { EffectsPanel } from '../sampler/EffectsPanel';
 import { SNAP_OPTIONS, type SnapValue } from '../utils/music';
 import { setFocusZone } from './focus';
 import { isMac, withShortcut } from './shortcuts';
+import { toLayout } from './scale';
 
 export type DockTab = 'editor' | 'mixer' | 'instruments' | 'fx';
 
@@ -45,8 +46,8 @@ export function Dock({ tab, onTab, height, onHeight, collapsed, onCollapsed, onS
     if (collapsed) onCollapsed(false);
     const move = (ev: MouseEvent) => {
       if (!dragRef.current) return;
-      const h = dragRef.current.h - (ev.clientY - dragRef.current.y);
-      onHeight(Math.max(140, Math.min(window.innerHeight - 220, h)));
+      const h = dragRef.current.h - toLayout(ev.clientY - dragRef.current.y);
+      onHeight(Math.max(140, Math.min(toLayout(window.innerHeight) - 220, h)));
     };
     const up = () => {
       dragRef.current = null;
@@ -85,6 +86,7 @@ export function Dock({ tab, onTab, height, onHeight, collapsed, onCollapsed, onS
                 ? { borderColor: accent, color: accent }
                 : { borderColor: 'transparent', color: 'var(--color-neutral-500)' }}
               title={withShortcut(t.name, `view.${t.id}`)}
+              data-tour={`tab-${t.id}`}
             >{t.label}</button>
           );
         })}

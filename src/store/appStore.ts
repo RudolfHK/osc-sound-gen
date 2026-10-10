@@ -150,7 +150,8 @@ export type Action =
   | { type: 'SEQ_LABEL_UNDO'; label: string }
   // ── Project ──────────────────────────────────────────────────────────────────
   | { type: 'LOAD_PROJECT'; project: LoadedProject }
-  | { type: 'NEW_PROJECT' };
+  /** `empty`: no tracks at all; otherwise the starter tracks. `defaults` come from Settings. */
+  | { type: 'NEW_PROJECT'; empty?: boolean; defaults?: Partial<Pick<SequencerState, 'bpm' | 'snapValue' | 'defaultNoteLength'>> };
 
 // ─── Initial state ────────────────────────────────────────────────────────────
 
@@ -1010,12 +1011,15 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'NEW_PROJECT': {
       const fresh = makeInitialAppState();
+      const empty = action.empty ? { tracks: [], patterns: {}, markers: [], selectedTrackId: null } : {};
       return {
         ...state,
         projectName: 'Untitled',
         sequencer: {
           ...fresh.sequencer,
+          ...empty,
           bpm: seq.bpm,
+          ...action.defaults,
           arrPxPerBeat: seq.arrPxPerBeat,
           pxPerBeat: seq.pxPerBeat,
         },
