@@ -1,6 +1,7 @@
 import type { Clip, Marker, Pattern, Track } from '../utils/music';
 import type { DrumPattern } from '../store/drumStore';
 import { beatToX, type ArrView } from './geometry';
+import { gray, ink } from '../ui/theme';
 
 export interface LaneDrawInput {
   track: Track;
@@ -25,7 +26,7 @@ export function drawLane(ctx: CanvasRenderingContext2D, d: LaneDrawInput): void 
   const dpr = ctx.canvas.width / Math.max(1, W);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  ctx.fillStyle = d.isSelectedTrack ? '#121212' : '#0d0d0d';
+  ctx.fillStyle = d.isSelectedTrack ? gray('#121212') : gray('#0d0d0d');
   ctx.fillRect(0, 0, W, H);
 
   // Section tint: a faint wash so you can read the song form across all lanes
@@ -40,7 +41,7 @@ export function drawLane(ctx: CanvasRenderingContext2D, d: LaneDrawInput): void 
   if (d.loop.enabled) {
     const x0 = beatToX(d.loop.start, view);
     const x1 = beatToX(d.loop.end, view);
-    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    ctx.fillStyle = ink(0.025);
     ctx.fillRect(x0, 0, x1 - x0, H);
   }
 
@@ -54,7 +55,7 @@ export function drawLane(ctx: CanvasRenderingContext2D, d: LaneDrawInput): void 
     if (!isBar && !showBeats) continue;
     const x = Math.round(beatToX(b, view)) + 0.5;
     const barIdx = b / d.beatsPerBar;
-    ctx.strokeStyle = isBar ? (barIdx % 4 === 0 ? '#2b2b2b' : '#202020') : '#171717';
+    ctx.strokeStyle = isBar ? (barIdx % 4 === 0 ? gray('#2b2b2b') : gray('#202020')) : gray('#171717');
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
@@ -62,7 +63,7 @@ export function drawLane(ctx: CanvasRenderingContext2D, d: LaneDrawInput): void 
     ctx.stroke();
   }
 
-  ctx.strokeStyle = '#1f1f1f';
+  ctx.strokeStyle = gray('#1f1f1f');
   ctx.beginPath();
   ctx.moveTo(0, H - 0.5);
   ctx.lineTo(W, H - 0.5);
@@ -108,8 +109,8 @@ function drawClip(ctx: CanvasRenderingContext2D, d: LaneDrawInput, clip: Clip): 
   const linked = (d.patternUse.get(clip.patternId) ?? 0) > 1;
 
   if (w > 18) {
-    ctx.fillStyle = '#0a0a0a';
-    ctx.font = '600 9px ui-sans-serif, system-ui, sans-serif';
+    ctx.fillStyle = gray('#0a0a0a');
+    ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
     const label = `${linked ? '⧉ ' : ''}${name}${clip.muted ? ' (muted)' : ''}`;
@@ -172,14 +173,14 @@ function drawClip(ctx: CanvasRenderingContext2D, d: LaneDrawInput, clip: Clip): 
     ctx.setLineDash([]);
   } else if (!dp && !pat && w > 40) {
     ctx.fillStyle = '#ef4444';
-    ctx.font = '9px ui-sans-serif, system-ui, sans-serif';
+    ctx.font = '10px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText('pattern missing', x + 4, bodyTop + 8);
   }
 
   ctx.restore();
 
   // Outline
-  ctx.strokeStyle = selected ? '#ffffff' : color + 'aa';
+  ctx.strokeStyle = selected ? gray('#ffffff') : color + 'aa';
   ctx.lineWidth = selected ? 1.5 : 1;
   roundRect(ctx, x + 0.5, y + 0.5, Math.max(2, w - 1), h - 1, 3);
   ctx.stroke();

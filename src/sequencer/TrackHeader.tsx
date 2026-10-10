@@ -22,11 +22,11 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
   useEffect(() => setName(pattern.name), [pattern.name]);
 
   const bars = pattern.lengthBeats / seq.beatsPerBar;
-  const label = 'text-neutral-600 tracking-widest';
+  const label = 'text-neutral-500 tracking-widest';
 
   return (
     <div
-      className="shrink-0 flex flex-col gap-2 px-2.5 py-2 border-r border-neutral-800 bg-[#101010] overflow-y-auto"
+      className="shrink-0 flex flex-col gap-2 px-2.5 py-2 border-r border-neutral-800 bg-[var(--surface-1)] overflow-y-auto"
       style={{ width: SIDEBAR_W }}
     >
       <div className="flex items-center gap-1.5">
@@ -35,7 +35,7 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
       </div>
 
       <label className="flex flex-col gap-0.5">
-        <span className={label} style={{ fontSize: 9 }}>PATTERN</span>
+        <span className={label} style={{ fontSize: 11 }}>PATTERN</span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -46,7 +46,7 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
       </label>
 
       <label className="flex items-center justify-between gap-1" title="Pattern loop length — a longer clip repeats it">
-        <span className={label} style={{ fontSize: 9 }}>LOOP</span>
+        <span className={label} style={{ fontSize: 11 }}>LOOP</span>
         <select
           value={Number.isInteger(bars) ? String(bars) : 'custom'}
           onChange={(e) => {
@@ -61,7 +61,7 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
         </select>
       </label>
 
-      <div className="text-neutral-600 leading-snug" style={{ fontSize: 10 }}>
+      <div className="text-neutral-500 leading-snug" style={{ fontSize: 11 }}>
         {pattern.notes.length} note{pattern.notes.length === 1 ? '' : 's'}
         {uses > 1 && (
           <>
@@ -82,7 +82,7 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
           dispatch({ type: 'SEQ_CLEAR_PATTERN', patternId: pattern.id });
         }}
         disabled={!pattern.notes.length}
-        className="self-start px-1.5 py-0.5 text-[10px] border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-900 disabled:opacity-30"
+        className="self-start px-1.5 py-0.5 text-[11px] border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-900 disabled:opacity-30"
       >CLEAR NOTES</button>
 
       {/* Arpeggiator — a track setting, so it applies to every clip on the track */}
@@ -96,11 +96,11 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
             className="px-1.5 py-0.5 text-xs border tracking-widest"
             style={arp.enabled
               ? { borderColor: track.color, color: track.color, backgroundColor: track.color + '22' }
-              : { borderColor: '#404040', color: '#737373' }}
+              : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-500)' }}
             title="Turn held chords into an arpeggio (applies to the whole track)"
             aria-pressed={arp.enabled}
           >ARP</button>
-          <span className="text-neutral-600" style={{ fontSize: 9 }}>track-wide</span>
+          <span className="text-neutral-500" style={{ fontSize: 11 }}>track-wide</span>
         </div>
         {arp.enabled && (
           <>
@@ -122,13 +122,13 @@ export function ClipSidebar({ track, clip, pattern, uses }: Props) {
                 {ARP_MODES.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
-            <label className="flex items-center gap-1.5 text-neutral-500" style={{ fontSize: 10 }}>
+            <label className="flex items-center gap-1.5 text-neutral-500" style={{ fontSize: 11 }}>
               <span className="w-9">OCT {arp.octaves}</span>
               <input type="range" min={1} max={4} step={1} value={arp.octaves} className="flex-1 h-1"
                 style={{ accentColor: track.color }}
                 onChange={(e) => dispatch({ type: 'SEQ_SET_ARP', trackId: track.id, arp: { octaves: +e.target.value } })} />
             </label>
-            <label className="flex items-center gap-1.5 text-neutral-500" style={{ fontSize: 10 }}>
+            <label className="flex items-center gap-1.5 text-neutral-500" style={{ fontSize: 11 }}>
               <span className="w-9">GATE</span>
               <input type="range" min={0.05} max={1} step={0.05} value={arp.gate} className="flex-1 h-1"
                 style={{ accentColor: track.color }}

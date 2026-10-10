@@ -12,7 +12,7 @@ function Knob({
 }) {
   return (
     <div className="flex flex-col gap-0.5 w-[86px]">
-      <div className="flex justify-between text-neutral-500" style={{ fontSize: 9 }}>
+      <div className="flex justify-between text-neutral-500" style={{ fontSize: 11 }}>
         <span>{label}</span>
         <span className="font-mono text-neutral-400">{format(value)}</span>
       </div>
@@ -35,16 +35,16 @@ function Rack({
   return (
     <div
       className="flex flex-col gap-1.5 px-2.5 py-2 border min-w-[200px]"
-      style={{ borderColor: enabled ? color + '55' : '#262626' }}
+      style={{ borderColor: enabled ? color + '55' : 'var(--color-neutral-800)' }}
     >
       <button
         onClick={onToggle}
         className="flex items-center gap-1.5 text-xs tracking-widest transition-colors self-start"
-        style={{ color: enabled ? color : '#525252' }}
+        style={{ color: enabled ? color : 'var(--color-neutral-600)' }}
       >
         <span
           className="w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: enabled ? color : '#404040', boxShadow: enabled ? `0 0 5px ${color}` : 'none' }}
+          style={{ backgroundColor: enabled ? color : 'var(--color-neutral-700)', boxShadow: enabled ? `0 0 5px ${color}` : 'none' }}
         />
         {title}
       </button>
@@ -67,11 +67,11 @@ export function EffectsPanel() {
   const pct = (v: number) => `${Math.round(v * 100)}`;
 
   return (
-    <div className="flex flex-col border-b border-neutral-800 bg-[#0d0d0d] shrink-0">
+    <div className="flex flex-col border-b border-neutral-800 bg-[var(--surface-1)] shrink-0">
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40">
-        <span className="text-xs text-neutral-600 tracking-widest">MASTER FX</span>
-        <span className="text-neutral-700" style={{ fontSize: 9 }}>
+        <span className="text-xs text-neutral-500 tracking-widest">MASTER FX</span>
+        <span className="text-neutral-500" style={{ fontSize: 11 }}>
           send effects — every instrument and drum voice feeds these
         </span>
         <button
@@ -112,12 +112,12 @@ export function EffectsPanel() {
           onToggle={() => set({ delayEnabled: !state.delayEnabled })}
         >
           <div className="flex flex-col gap-0.5 w-[86px]">
-            <div className="flex justify-between text-neutral-500" style={{ fontSize: 9 }}>
+            <div className="flex justify-between text-neutral-500" style={{ fontSize: 11 }}>
               <span>TIME</span>
               <button
                 onClick={() => set({ delaySync: !state.delaySync })}
                 className="font-mono transition-colors"
-                style={{ color: state.delaySync ? '#06b6d4' : '#737373' }}
+                style={{ color: state.delaySync ? '#06b6d4' : 'var(--color-neutral-500)' }}
                 title="Toggle tempo sync"
               >
                 {state.delaySync ? 'SYNC' : 'FREE'}
@@ -128,7 +128,7 @@ export function EffectsPanel() {
                 value={state.delayDivision}
                 onChange={(e) => set({ delayDivision: e.target.value as DelayDivision })}
                 className="bg-neutral-900 border border-neutral-700 text-neutral-300 px-1 w-full"
-                style={{ fontSize: 10 }}
+                style={{ fontSize: 11 }}
               >
                 {DELAY_DIVISIONS.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
@@ -154,9 +154,9 @@ export function EffectsPanel() {
             onClick={() => set({ delayPingPong: !state.delayPingPong })}
             className="px-1.5 border self-end mb-0.5 transition-colors"
             style={{
-              fontSize: 9,
-              borderColor: state.delayPingPong ? '#06b6d4' : '#404040',
-              color: state.delayPingPong ? '#06b6d4' : '#737373',
+              fontSize: 11,
+              borderColor: state.delayPingPong ? '#06b6d4' : 'var(--color-neutral-700)',
+              color: state.delayPingPong ? '#06b6d4' : 'var(--color-neutral-500)',
             }}
           >
             PING-PONG
@@ -200,7 +200,7 @@ export function EffectsPanel() {
             format={pct} color="#f97316"
             onChange={(v) => set({ drumDelaySend: v })}
           />
-          <span className="text-neutral-700 self-end mb-0.5" style={{ fontSize: 9 }}>
+          <span className="text-neutral-500 self-end mb-0.5" style={{ fontSize: 11 }}>
             kicks stay dry
           </span>
         </Rack>
@@ -215,7 +215,7 @@ export function EffectsPanel() {
             format={(v) => `${v.toFixed(1)}dB`} color={accent}
             onChange={(v) => set({ limiterThreshold: v })}
           />
-          <span className="text-neutral-700 self-end mb-0.5 max-w-[100px] leading-tight" style={{ fontSize: 9 }}>
+          <span className="text-neutral-500 self-end mb-0.5 max-w-[100px] leading-tight" style={{ fontSize: 11 }}>
             catches peaks when layers stack up
           </span>
         </Rack>

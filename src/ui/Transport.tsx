@@ -7,6 +7,9 @@ import { getPlayhead, setPlayhead, usePlayhead } from '../engine/playhead';
 import { beatsToSeconds } from '../utils/music';
 import { openExport, setLastTake, useExportState } from './exportState';
 import { notify } from './notices';
+import { withShortcut } from './shortcuts';
+import { useHistory } from './useHistory';
+import { ContextMenu, type MenuItem } from './ContextMenu';
 
 // ─── Transport control hook (shared by the bar and keyboard shortcuts) ────────
 
@@ -174,11 +177,30 @@ function RecordButton({ onStartTransport, isPlaying }: { onStartTransport: () =>
 
 // ─── Transport bar ────────────────────────────────────────────────────────────
 
+/**
+ * The History list: edits that can be redone at the top (furthest first),
+ * then the ones that can be undone, newest first. Choosing an edit undoes
+ * back to just before it — or redoes up to and including it.
+ */
+function historyItems(h: ReturnType<typeof useHistory>): MenuItem[] {
+  const redo: MenuItem[] = h.redoStack.map((e, i) => ({
+    label: `↷ ${e.label ?? 'Edit'}`, dim: true,
+    onSelect: () => { h.redo(i + 1); },
+  })).reverse();
+  const undo: MenuItem[] = [...h.undoStack].reverse().map((e, i) => ({
+    label: `↶ ${e.label ?? 'Edit'}`,
+    onSelect: () => { h.undo(i + 1); },
+  }));
+  return [...redo, { label: '● Now', disabled: true }, ...undo];
+}
+
 export function Transport() {
   const { state, dispatch } = useAppStore();
   const accent = useAccent();
   const seq = state.sequencer;
   const { toggle, stop, returnToStart, play } = useTransport();
+  const history = useHistory();
+  const [historyMenu, setHistoryMenu] = useState<{ x: number; y: number } | null>(null);
   const [bpmText, setBpmText] = useState(String(seq.bpm));
 
   useEffect(() => { setBpmText(String(seq.bpm)); }, [seq.bpm]);
@@ -196,12 +218,12 @@ export function Transport() {
   return (
     <div className="flex items-center gap-1.5 min-[1600px]:gap-2 whitespace-nowrap">
       <div className="flex gap-0.5">
-        <button onClick={returnToStart} className={`${btn} ${off}`} title="Return to start (Home)">⏮</button>
+        <button onClick={returnToStart} className={`${btn} ${off}`} title={withShortcut('Return to start (loop start first)', 'transport.home')} aria-label="Return to start">⏮</button>
         <button
           onClick={toggle}
           className={`${btn} px-3 font-bold tracking-widest min-w-[64px]`}
           style={seq.isPlaying ? { borderColor: '#ef4444', color: '#fca5a5', backgroundColor: '#7f1d1d33' } : on}
-          title="Play / stop (Space)"
+          title={withShortcut('Play / stop', 'transport.toggle')}
         >
           {seq.isPlaying ? '■ STOP' : '▶ PLAY'}
         </button>
@@ -209,38 +231,55 @@ export function Transport() {
           onClick={() => { if (seq.isPlaying) stop(); else returnToStart(); }}
           className={`${btn} ${off}`}
           title="Stop; when stopped, return to start"
+          aria-label="Stop"
         >⏹</button>
       </div>
 
       <div className="flex gap-0.5" role="group" aria-label="History">
         <button
-          onClick={() => dispatch({ type: 'SEQ_UNDO' })}
-          disabled={seq.undoStack.length === 0}
+          onClick={() => history.undo()}
+          onContextMenu={(e) => { e.preventDefault(); setHistoryMenu({ x: e.clientX, y: e.clientY }); }}
+          disabled={!history.undoName}
           className={`${btn} ${off} disabled:opacity-30 disabled:pointer-events-none`}
-          title={`Undo (Ctrl+Z)${seq.undoStack.length ? ` — ${seq.undoStack.length} step${seq.undoStack.length === 1 ? '' : 's'}` : ''}`}
-          aria-label="Undo"
+          title={history.undoName ? withShortcut(`Undo ${history.undoName}`, 'edit.undo') : 'Nothing to undo'}
+          aria-label={history.undoName ? `Undo ${history.undoName}` : 'Undo'}
         >↶</button>
         <button
-          onClick={() => dispatch({ type: 'SEQ_REDO' })}
-          disabled={seq.redoStack.length === 0}
+          onClick={() => history.redo()}
+          disabled={!history.redoName}
           className={`${btn} ${off} disabled:opacity-30 disabled:pointer-events-none`}
-          title={`Redo (Ctrl+Shift+Z / Ctrl+Y)${seq.redoStack.length ? ` — ${seq.redoStack.length} step${seq.redoStack.length === 1 ? '' : 's'}` : ''}`}
-          aria-label="Redo"
+          title={history.redoName ? withShortcut(`Redo ${history.redoName}`, 'edit.redo') : 'Nothing to redo'}
+          aria-label={history.redoName ? `Redo ${history.redoName}` : 'Redo'}
         >↷</button>
+        <button
+          onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setHistoryMenu({ x: r.left, y: r.bottom + 2 }); }}
+          disabled={!history.undoName && !history.redoName}
+          className={`px-1 py-1 text-xs border ${off} disabled:opacity-30 disabled:pointer-events-none`}
+          title="History — jump back or forward several steps"
+          aria-label="History"
+          data-testid="history-button"
+        >▾</button>
       </div>
+      {historyMenu && (
+        <ContextMenu
+          x={historyMenu.x} y={historyMenu.y} title="History" scroll
+          items={historyItems(history)}
+          onClose={() => setHistoryMenu(null)}
+        />
+      )}
 
       <RecordButton onStartTransport={() => void play()} isPlaying={seq.isPlaying} />
       <button
         onClick={() => openExport('song')}
         className={`${btn} ${off} tracking-widest`}
-        title="Export the arrangement — WAV, MP3, stems or MIDI (Ctrl+Shift+E)"
+        title={withShortcut('Export the arrangement — WAV, MP3, stems or MIDI', 'file.export')}
         aria-label="Export"
       >⤓<span className="hidden min-[1600px]:inline"> EXPORT</span></button>
 
       <Position bpm={seq.bpm} beatsPerBar={seq.beatsPerBar} />
 
       <label className="flex items-center gap-1" title="Tempo">
-        <span className="hidden min-[1600px]:inline text-xs text-neutral-600 tracking-widest">BPM</span>
+        <span className="hidden min-[1600px]:inline text-xs text-neutral-500 tracking-widest">BPM</span>
         <input
           type="text" inputMode="decimal" value={bpmText}
           aria-label="Tempo in BPM"
@@ -272,7 +311,7 @@ export function Transport() {
         onClick={() => dispatch({ type: 'SEQ_SET_LOOP', enabled: !seq.loopEnabled })}
         className={`${btn} tracking-widest ${seq.loopEnabled ? '' : off}`}
         style={seq.loopEnabled ? on : {}}
-        title="Loop the range shown on the ruler (L). Drag on the ruler to set it."
+        title={`${withShortcut('Loop the range shown on the ruler', 'transport.loop')}. Drag on the ruler to set it.`}
         aria-label="Loop"
         aria-pressed={seq.loopEnabled}
       >↻<span className="hidden min-[1600px]:inline"> LOOP</span></button>
@@ -281,7 +320,7 @@ export function Transport() {
         onClick={() => dispatch({ type: 'SEQ_TOGGLE_METRONOME' })}
         className={`${btn} tracking-widest ${seq.metronome ? '' : off}`}
         style={seq.metronome ? on : {}}
-        title="Metronome click (K)"
+        title={withShortcut('Metronome click', 'transport.metronome')}
         aria-label="Metronome"
         aria-pressed={seq.metronome}
       >♩<span className="hidden min-[1600px]:inline"> CLICK</span></button>

@@ -10,6 +10,9 @@ import { getAudioEngine } from '../engine/audio';
 import type { OscillatorTab } from '../engine/oscillator';
 import { getPlayhead, subscribePlayhead } from '../engine/playhead';
 import { getFocusZone, isTypingTarget, setFocusZone } from '../ui/focus';
+import { isOverlayOpen } from '../ui/overlay';
+import { useShortcuts } from '../ui/shortcuts';
+import { gray, ink, shade, useTheme } from '../ui/theme';
 
 // ─── Coordinate helpers ───────────────────────────────────────────────────────
 
@@ -68,27 +71,27 @@ function drawPianoRoll(
   const totalNotes = vp.viewHighNote - vp.viewLowNote + 1;
   const gridH = totalNotes * SEMITONE_H;
 
-  ctx.fillStyle = '#111';
+  ctx.fillStyle = gray('#111');
   ctx.fillRect(0, 0, W, H);
 
   // Keys
   for (let midi = vp.viewLowNote; midi <= vp.viewHighNote; midi++) {
     const y = noteToY(midi, vp);
     const black = isBlackKey(midi);
-    ctx.fillStyle = black ? '#1a1a1a' : '#262626';
+    ctx.fillStyle = black ? gray('#1a1a1a') : gray('#262626');
     ctx.fillRect(0, y, KEY_W - 1, SEMITONE_H);
     if (!black || midi % 12 === 0) {
-      ctx.fillStyle = midi % 12 === 0 ? '#999' : '#555';
-      ctx.font = '8px ui-monospace, monospace';
+      ctx.fillStyle = midi % 12 === 0 ? gray('#999') : gray('#555');
+      ctx.font = '10px ui-monospace, monospace';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.fillText(noteNameFromMidi(midi), KEY_W - 4, y + SEMITONE_H / 2);
     }
     if (black) {
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillStyle = shade(0.3);
       ctx.fillRect(KEY_W, y, W - KEY_W, SEMITONE_H);
     }
-    ctx.strokeStyle = midi % 12 === 0 ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.035)';
+    ctx.strokeStyle = midi % 12 === 0 ? ink(0.10) : ink(0.035);
     ctx.beginPath();
     ctx.moveTo(KEY_W, y + SEMITONE_H + 0.5);
     ctx.lineTo(W, y + SEMITONE_H + 0.5);
@@ -101,21 +104,21 @@ function drawPianoRoll(
   for (let b = firstBeat; b <= lastBeat; b++) {
     const x = Math.round(beatToX(b, vp)) + 0.5;
     const isBar = b % opts.beatsPerBar === 0;
-    ctx.strokeStyle = isBar ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = isBar ? ink(0.15) : ink(0.05);
     ctx.beginPath(); ctx.moveTo(x, RULER_H); ctx.lineTo(x, RULER_H + gridH); ctx.stroke();
   }
 
   // Outside the pattern's loop: dimmed, because notes there don't play
   const loopX = beatToX(pattern.lengthBeats, vp);
   if (loopX < W) {
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillStyle = shade(0.5);
     ctx.fillRect(Math.max(KEY_W, loopX), RULER_H, W - Math.max(KEY_W, loopX), gridH);
   }
 
   // Ruler
-  ctx.fillStyle = '#0d0d0d';
+  ctx.fillStyle = gray('#0d0d0d');
   ctx.fillRect(KEY_W, 0, W - KEY_W, RULER_H);
-  ctx.fillStyle = '#1a1a1a';
+  ctx.fillStyle = gray('#1a1a1a');
   ctx.fillRect(0, 0, KEY_W, RULER_H);
   // Loop range bar along the ruler, with a handle at the end
   const lx0 = beatToX(0, vp);
@@ -125,16 +128,16 @@ function drawPianoRoll(
     ctx.fillStyle = color;
     ctx.fillRect(loopX - 3, 2, 6, RULER_H - 3);
   }
-  ctx.font = '9px ui-monospace, monospace';
+  ctx.font = '10px ui-monospace, monospace';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   for (let b = firstBeat; b <= lastBeat; b++) {
     if (b % opts.beatsPerBar !== 0) continue;
     const x = beatToX(b, vp);
-    ctx.fillStyle = '#777';
+    ctx.fillStyle = gray('#777');
     ctx.fillText(String(Math.floor(b / opts.beatsPerBar) + 1), x + 3, RULER_H / 2 - 2);
   }
-  ctx.strokeStyle = '#333';
+  ctx.strokeStyle = gray('#333');
   ctx.beginPath(); ctx.moveTo(0, RULER_H + 0.5); ctx.lineTo(W, RULER_H + 0.5); ctx.stroke();
 
   // Notes
@@ -150,10 +153,10 @@ function drawPianoRoll(
     const isSel = selected.has(note.id);
     const outside = note.startBeat >= pattern.lengthBeats;
     ctx.globalAlpha = outside ? 0.3 : isSel ? 0.95 : (note.velocity / 127) * 0.65 + 0.35;
-    ctx.fillStyle = isSel ? '#fff' : color;
+    ctx.fillStyle = isSel ? gray('#fff') : color;
     ctx.fillRect(nx, ny + 1, nw, SEMITONE_H - 2);
     ctx.globalAlpha = 1;
-    ctx.strokeStyle = isSel ? '#fff' : 'rgba(0,0,0,0.45)';
+    ctx.strokeStyle = isSel ? gray('#fff') : shade(0.45);
     ctx.lineWidth = 1;
     ctx.strokeRect(nx + 0.5, ny + 1.5, nw - 1, SEMITONE_H - 3);
   }
@@ -162,10 +165,10 @@ function drawPianoRoll(
   if (selectionRect) {
     const { x1, y1, x2, y2 } = selectionRect;
     ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.strokeStyle = ink(0.6);
     ctx.setLineDash([4, 3]);
     ctx.strokeRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
-    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fillStyle = ink(0.05);
     ctx.fillRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
     ctx.restore();
   }
@@ -173,12 +176,12 @@ function drawPianoRoll(
   // Velocity lane
   if (opts.showVelocityLane) {
     const top = RULER_H + gridH;
-    ctx.fillStyle = '#0d0d0d';
+    ctx.fillStyle = gray('#0d0d0d');
     ctx.fillRect(0, top, W, VEL_LANE_H);
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = gray('#333');
     ctx.beginPath(); ctx.moveTo(0, top + 0.5); ctx.lineTo(W, top + 0.5); ctx.stroke();
-    ctx.fillStyle = '#555';
-    ctx.font = '8px ui-monospace, monospace';
+    ctx.fillStyle = gray('#555');
+    ctx.font = '10px ui-monospace, monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText('VEL', 4, top + 4);
@@ -186,7 +189,7 @@ function drawPianoRoll(
       const nx = beatToX(note.startBeat, vp);
       if (nx < KEY_W || nx > W) continue;
       const bh = Math.max(2, (note.velocity / 127) * (VEL_LANE_H - 6));
-      ctx.fillStyle = selected.has(note.id) ? '#fff' : color;
+      ctx.fillStyle = selected.has(note.id) ? gray('#fff') : color;
       ctx.globalAlpha = selected.has(note.id) ? 0.95 : 0.7;
       ctx.fillRect(nx, top + VEL_LANE_H - bh, 4, bh);
       ctx.globalAlpha = 1;
@@ -251,6 +254,7 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
   // ── Draw (data changes only — the playhead is a separate overlay) ──
   // Only this editor's inputs trigger a redraw, not every change elsewhere in
   // the app (scrolling the arrangement, moving a fader).
+  const theme = useTheme();
   const selectedNoteIds = seq.selectedNoteIds;
   const { beatsPerBar, showVelocityLane } = seq;
   useLayoutEffect(() => {
@@ -267,7 +271,7 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawPianoRoll(ctx, width, canvasH, pattern, track.color, vp, selectedSet,
       { beatsPerBar, showVelocityLane }, selRect);
-  }, [width, canvasH, pattern, track.color, vp, selectedNoteIds, beatsPerBar, showVelocityLane, selRect]);
+  }, [width, canvasH, pattern, track.color, vp, selectedNoteIds, beatsPerBar, showVelocityLane, selRect, theme]);
 
   // ── Playhead overlay: the song position mapped into this pattern ──
   useEffect(() => {
@@ -470,60 +474,68 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
   }, [dispatch]);
 
   // ── Keyboard (editor focus only) ──
+  // Commands come from the shortcut registry; the keys it scopes to the
+  // editor only reach here after a click in the editor.
+  const transpose = (step: number) => {
+    const { seq: s, pattern: p } = live.current;
+    if (!s.selectedNoteIds.length) return false;
+    dispatch({ type: 'SEQ_PUSH_UNDO' });
+    for (const n of p.notes) {
+      if (s.selectedNoteIds.includes(n.id)) {
+        dispatch({ type: 'SEQ_MOVE_NOTE', patternId: p.id, noteId: n.id, startBeat: n.startBeat, midiNote: n.midiNote + step });
+      }
+    }
+  };
+  useShortcuts({
+    'editor.draw': () => dispatch({ type: 'SEQ_SET_EDIT_MODE', mode: 'draw' }),
+    'editor.select': () => dispatch({ type: 'SEQ_SET_EDIT_MODE', mode: 'select' }),
+    'editor.selectAll': () => dispatch({ type: 'SEQ_SELECT_NOTES', ids: live.current.pattern.notes.map((n) => n.id) }),
+    'editor.copy': () => {
+      const { seq: s, pattern: p } = live.current;
+      const notes = p.notes.filter((n) => s.selectedNoteIds.includes(n.id));
+      if (!notes.length) return false;
+      dispatch({ type: 'SEQ_COPY', notes });
+    },
+    'editor.paste': () => {
+      const { seq: s, pattern: p } = live.current;
+      if (!s.copiedNotes?.length) return false;
+      // Paste after the selection if there is one, otherwise where it was copied from
+      const sel = p.notes.filter((n) => s.selectedNoteIds.includes(n.id));
+      const at = sel.length
+        ? Math.max(...sel.map((n) => n.startBeat + n.durationBeats))
+        : Math.min(...s.copiedNotes.map((n) => n.startBeat));
+      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      dispatch({ type: 'SEQ_PASTE', patternId: p.id, atBeat: at });
+    },
+    'editor.delete': () => {
+      const { seq: s, pattern: p } = live.current;
+      if (!s.selectedNoteIds.length) return false;
+      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      dispatch({ type: 'SEQ_DELETE_SELECTED', patternId: p.id });
+    },
+    'editor.quantize': () => {
+      const { seq: s, pattern: p } = live.current;
+      if (!s.selectedNoteIds.length) return false;
+      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      dispatch({ type: 'SEQ_QUANTIZE', patternId: p.id });
+    },
+    'editor.up': () => transpose(1),
+    'editor.down': () => transpose(-1),
+    'editor.octaveUp': () => transpose(12),
+    'editor.octaveDown': () => transpose(-12),
+    'editor.deselect': () => dispatch({ type: 'SEQ_SELECT_NOTES', ids: [] }),
+  });
+
+  // The computer-keyboard piano: plain letter keys audition notes
   useEffect(() => {
     const held = new Set<string>();
     const onKeyDown = (e: KeyboardEvent) => {
-      if (getFocusZone() !== 'editor' || isTypingTarget(e.target)) return;
-      const { seq: s, pattern: p } = live.current;
-      const mod = e.ctrlKey || e.metaKey;
-
-      if (mod && e.key.toLowerCase() === 'a') {
-        e.preventDefault();
-        dispatch({ type: 'SEQ_SELECT_NOTES', ids: p.notes.map((n) => n.id) });
-      } else if (mod && e.key.toLowerCase() === 'c') {
-        const notes = p.notes.filter((n) => s.selectedNoteIds.includes(n.id));
-        if (notes.length) dispatch({ type: 'SEQ_COPY', notes });
-      } else if (mod && e.key.toLowerCase() === 'v') {
-        e.preventDefault();
-        // Paste after the selection if there is one, otherwise where it was copied from
-        const sel = p.notes.filter((n) => s.selectedNoteIds.includes(n.id));
-        const at = sel.length
-          ? Math.max(...sel.map((n) => n.startBeat + n.durationBeats))
-          : Math.min(...(s.copiedNotes ?? [{ startBeat: 0 }]).map((n) => n.startBeat));
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
-        dispatch({ type: 'SEQ_PASTE', patternId: p.id, atBeat: at });
-      } else if (mod) {
-        return;
-      } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (s.selectedNoteIds.length) {
-          e.preventDefault();
-          dispatch({ type: 'SEQ_PUSH_UNDO' });
-          dispatch({ type: 'SEQ_DELETE_SELECTED', patternId: p.id });
-        }
-      } else if (e.key === 'Escape') {
-        dispatch({ type: 'SEQ_SELECT_NOTES', ids: [] });
-      } else if (e.key === 'q' || e.key === 'Q') {
-        if (s.selectedNoteIds.length) {
-          dispatch({ type: 'SEQ_PUSH_UNDO' });
-          dispatch({ type: 'SEQ_QUANTIZE', patternId: p.id });
-        }
-      } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        if (!s.selectedNoteIds.length) return;
-        e.preventDefault();
-        const step = (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 12 : 1);
-        dispatch({ type: 'SEQ_PUSH_UNDO' });
-        for (const n of p.notes) {
-          if (s.selectedNoteIds.includes(n.id)) {
-            dispatch({ type: 'SEQ_MOVE_NOTE', patternId: p.id, noteId: n.id, startBeat: n.startBeat, midiNote: n.midiNote + step });
-          }
-        }
-      } else {
-        const midi = KEY_MIDI[e.key.toLowerCase()];
-        if (midi !== undefined && !held.has(e.key) && !e.repeat) {
-          held.add(e.key);
-          previewNote(live.current.track, live.current.tabs, midi);
-        }
-      }
+      if (getFocusZone() !== 'editor' || isTypingTarget(e.target) || isOverlayOpen()) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+      const midi = KEY_MIDI[e.key.toLowerCase()];
+      if (midi === undefined || held.has(e.key)) return;
+      held.add(e.key);
+      previewNote(live.current.track, live.current.tabs, midi);
     };
     const onKeyUp = (e: KeyboardEvent) => { held.delete(e.key); };
     window.addEventListener('keydown', onKeyDown);
@@ -532,7 +544,7 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [dispatch]);
+  }, []);
 
   // ── Wheel: scroll time, Shift = pitch, Ctrl = zoom ──
   useEffect(() => {

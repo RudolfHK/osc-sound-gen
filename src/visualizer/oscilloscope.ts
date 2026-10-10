@@ -1,5 +1,6 @@
 import { computeSample, applyDetune } from '../utils/math';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
+import { gray, ink, shade } from '../ui/theme';
 
 const SAMPLES = 2048; // pre-allocated, reused every frame
 
@@ -104,7 +105,7 @@ export class Oscilloscope {
     const H = canvas.height;
     const color = this.singleColor;
 
-    ctx2d.fillStyle = '#0a0a0a';
+    ctx2d.fillStyle = gray('#0a0a0a');
     ctx2d.fillRect(0, 0, W, H);
 
     if (advanced.showGrid) this.drawGrid(W, H, color, advanced.zoomFactor);
@@ -134,10 +135,10 @@ export class Oscilloscope {
     const activeTab = this.tabs.find((t) => t.isActive) ?? this.tabs[0];
     const adv = activeTab.advanced;
 
-    ctx2d.fillStyle = '#0a0a0a';
+    ctx2d.fillStyle = gray('#0a0a0a');
     ctx2d.fillRect(0, 0, W, H);
 
-    if (adv.showGrid) this.drawGrid(W, H, '#ffffff', adv.zoomFactor);
+    if (adv.showGrid) this.drawGrid(W, H, gray('#ffffff'), adv.zoomFactor);
 
     // Reset sum buffer
     sumBuffer.fill(0);
@@ -173,9 +174,9 @@ export class Oscilloscope {
     for (let i = 0; i < SAMPLES; i++) {
       sumBuffer[i] = Math.max(-1, Math.min(1, sumBuffer[i]));
     }
-    this.drawWaveformPath(sumBuffer, W, H, 'rgba(255,255,255,0.85)', adv.lineThickness, 1.0);
+    this.drawWaveformPath(sumBuffer, W, H, ink(0.85), adv.lineThickness, 1.0);
 
-    this.drawLabels(W, H, duration, '#ffffff', adv.zoomFactor, refFreq);
+    this.drawLabels(W, H, duration, gray('#ffffff'), adv.zoomFactor, refFreq);
     this.drawOverlayLegend(W);
   }
 
@@ -230,7 +231,7 @@ export class Oscilloscope {
     const levels = [1.0, 0.5, 0.0, -0.5, -1.0];
     for (const level of levels) {
       const y = midY - level * (drawH / 2) * 0.9;
-      ctx.strokeStyle = level === 0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.07)';
+      ctx.strokeStyle = level === 0 ? ink(0.15) : ink(0.07);
       ctx.beginPath();
       ctx.moveTo(padX, y);
       ctx.lineTo(padX + drawW, y);
@@ -239,12 +240,12 @@ export class Oscilloscope {
 
     for (let c = 0; c <= numCycles; c++) {
       const x = padX + (c / numCycles) * drawW;
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.strokeStyle = ink(0.12);
       ctx.beginPath(); ctx.moveTo(x, padY); ctx.lineTo(x, padY + drawH); ctx.stroke();
     }
     for (let c = 0; c < numCycles; c++) {
       const x = padX + ((c + 0.5) / numCycles) * drawW;
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.strokeStyle = ink(0.04);
       ctx.beginPath(); ctx.moveTo(x, padY); ctx.lineTo(x, padY + drawH); ctx.stroke();
     }
 
@@ -266,7 +267,7 @@ export class Oscilloscope {
 
     ctx.save();
     ctx.font = '10px "Courier New", monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillStyle = ink(0.4);
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
 
@@ -309,10 +310,10 @@ export class Oscilloscope {
     const by = padY + 20;
 
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillStyle = shade(0.55);
     ctx.fillRect(bx, by, boxW, boxH);
 
-    ctx.font = '9px "Courier New", monospace';
+    ctx.font = '10px "Courier New", monospace';
     ctx.textBaseline = 'middle';
 
     let row = 0;
@@ -320,16 +321,16 @@ export class Oscilloscope {
       const y = by + boxPad + row * lineH + lineH / 2;
       ctx.fillStyle = tab.isMuted ? tab.color + '44' : tab.color;
       ctx.fillRect(bx + 6, y - 4, 8, 8);
-      ctx.fillStyle = tab.isMuted ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.8)';
+      ctx.fillStyle = tab.isMuted ? ink(0.3) : ink(0.8);
       ctx.fillText(tab.label, bx + 20, y);
       row++;
     }
 
     // SUM row
     const sumY = by + boxPad + row * lineH + lineH / 2;
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillStyle = ink(0.85);
     ctx.fillRect(bx + 6, sumY - 4, 8, 8);
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillStyle = ink(0.8);
     ctx.fillText('SUM', bx + 20, sumY);
 
     ctx.restore();

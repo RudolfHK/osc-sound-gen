@@ -633,6 +633,27 @@ export function drumUndoKey(a: DrumAction): string | null | undefined {
   }
 }
 
+/** What an undoable drum edit is called in the History list. */
+const DRUM_UNDO_LABELS: Partial<Record<DrumAction['type'], string>> = {
+  DRUM_TOGGLE_STEP: 'Drum steps',
+  DRUM_SET_STEP_PARAMS: 'Drum step',
+  DRUM_SET_VOICE_PARAMS: 'Drum voice',
+  DRUM_SET_SWING: 'Swing',
+  DRUM_RENAME_PATTERN: 'Rename drum pattern',
+  DRUM_SET_STEP_COUNT: 'Drum step count',
+  DRUM_MUTE_VOICE: 'Mute drum voice',
+  DRUM_SOLO_VOICE: 'Solo drum voice',
+  DRUM_CLEAR_PATTERN: 'Clear drum pattern',
+  DRUM_CLEAR_VOICE: 'Clear drum voice',
+  DRUM_ADD_PATTERN: 'New drum pattern',
+  DRUM_DUPLICATE_PATTERN: 'Duplicate drum pattern',
+  DRUM_DELETE_PATTERN: 'Delete drum pattern',
+};
+
+export function drumUndoLabel(a: DrumAction): string | undefined {
+  return DRUM_UNDO_LABELS[a.type];
+}
+
 // ─── Helpers for the UI ───────────────────────────────────────────────────────
 
 export function voiceGroupOf(id: DrumVoiceType): VoiceGroup {
@@ -717,7 +738,7 @@ export function useDrumReducer(): DrumCtx {
 
   const dispatch = useCallback<Dispatch<DrumAction>>((action) => {
     const key = drumUndoKey(action);
-    if (key !== undefined) requestUndoStep(key);
+    if (key !== undefined) requestUndoStep(key, drumUndoLabel(action));
     rawDispatch(action);
   }, []);
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useAppStore, useAccent } from '../store/appStore';
 import { useDrumStore } from '../store/drumStore';
 import { useEffectsStore } from '../store/effectsStore';
@@ -14,6 +14,7 @@ import { contentEndBeat, sectionsFromMarkers } from '../utils/music';
 import { downloadBlob } from '../utils/wav';
 import { closeExport, useExportState } from './exportState';
 import { notify } from './notices';
+import { Dialog } from './kit/Dialog';
 
 const LS_KEY = 'osc-export-settings';
 
@@ -90,13 +91,6 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
     : format === 'mp3' ? mp3Size(seconds, s.kbps) * stemCount
       : wavSize(Math.round(seconds * (isTake ? take!.sampleRate : s.sampleRate)), 2, s.bitDepth) * stemCount;
 
-  // Escape closes when idle
-  useEffect(() => {
-    const k = (e: KeyboardEvent) => { if (e.key === 'Escape' && !busy) closeExport(); };
-    window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, [busy]);
-
   const run = async () => {
     setError(null);
     setResult(null);
@@ -150,7 +144,7 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
           className="px-2 py-1 text-xs border transition-colors disabled:opacity-30"
           style={value === o.v
             ? { borderColor: accent, color: accent, backgroundColor: accent + '1c' }
-            : { borderColor: '#404040', color: '#a3a3a3' }}
+            : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-400)' }}
         >{o.label}</button>
       ))}
     </div>
@@ -158,15 +152,16 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
   const row = (label: string, child: React.ReactNode, hint?: string) => (
     <div role="group" aria-label={label[0] + label.slice(1).toLowerCase()} className="grid grid-cols-[110px_1fr] gap-3 items-start">
       <span className="text-xs text-neutral-500 tracking-widest pt-1">{label}</span>
-      <div className="flex flex-col gap-1">{child}{hint && <span className="text-[10px] text-neutral-600 leading-snug">{hint}</span>}</div>
+      <div className="flex flex-col gap-1">{child}{hint && <span className="text-[11px] text-neutral-500 leading-snug">{hint}</span>}</div>
     </div>
   );
 
   const n = s.normalize;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) closeExport(); }}>
-      <div role="dialog" aria-modal="true" aria-label="Export" className="w-[560px] max-w-[94vw] max-h-[92vh] overflow-y-auto bg-neutral-900 border border-neutral-700 rounded-sm shadow-2xl">
+    // Dialog traps focus, returns it on close, pauses the app's shortcuts and
+    // closes on Escape — except while an export is running
+    <Dialog title="Export" bare locked={busy} onClose={closeExport} className="w-[560px]">
         <div className="flex items-center px-4 py-2.5 border-b border-neutral-800">
           <span className="text-sm tracking-widest" style={{ color: accent }}>
             {isTake ? 'EXPORT RECORDING' : 'EXPORT'}
@@ -301,7 +296,7 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
         </div>
 
         <div className="flex items-center gap-2 px-4 py-2.5 border-t border-neutral-800">
-          <span className="text-[10px] text-neutral-500">
+          <span className="text-[11px] text-neutral-500">
             {estimate !== null && `≈ ${fmtBytes(estimate)}`}
             {!isTake && format !== 'midi' && ' · rendered offline, faster than real time'}
           </span>
@@ -327,7 +322,6 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }

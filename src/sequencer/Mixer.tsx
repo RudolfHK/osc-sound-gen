@@ -3,6 +3,7 @@ import { useAppStore, useAccent } from '../store/appStore';
 import { getAudioEngine } from '../engine/audio';
 import { getChannelRack } from '../engine/channelStrip';
 import { effectiveTrackMutes, type ChannelSettings, type Track } from '../utils/music';
+import { gray } from '../ui/theme';
 
 // ─── Metering ─────────────────────────────────────────────────────────────────
 //
@@ -30,7 +31,7 @@ function meterLoop() {
     m.peak = level > m.peak ? level : Math.max(level, m.peak - 0.02);
     const W = canvas.width;
     const H = canvas.height;
-    ctx.fillStyle = '#141414';
+    ctx.fillStyle = gray('#141414');
     ctx.fillRect(0, 0, W, H);
     const h = m.peak * H;
     const g = ctx.createLinearGradient(0, H, 0, 0);
@@ -69,7 +70,7 @@ function Knob({
 }) {
   return (
     <label className="flex items-center gap-1" title={`${label}: ${format(value)}${onReset ? ' — double-click to reset' : ''}`}>
-      <span className="shrink-0 font-mono w-5" style={{ fontSize: 8, color: dim ? '#525252' : '#8a8a8a' }}>{label}</span>
+      <span className="shrink-0 font-mono w-5" style={{ fontSize: 11, color: dim ? 'var(--color-neutral-600)' : 'var(--color-neutral-400)' }}>{label}</span>
       <input
         type="range" min={min} max={max} step={step} value={value}
         className="flex-1 h-0.5 min-w-0"
@@ -97,7 +98,7 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
   return (
     <div
       className="flex flex-col gap-1 px-1.5 py-1.5 border-r border-neutral-800 w-[96px] shrink-0"
-      style={{ backgroundColor: selected ? '#161616' : undefined, opacity: mutedBySolo ? 0.55 : 1 }}
+      style={{ backgroundColor: selected ? 'var(--surface-2)' : undefined, opacity: mutedBySolo ? 0.55 : 1 }}
       onMouseDown={() => dispatch({ type: 'TRACK_SELECT', trackId: track.id })}
     >
       <div className="flex items-center gap-1 border-b pb-1" style={{ borderColor: c }}>
@@ -105,7 +106,7 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <span className="text-neutral-600 tracking-widest" style={{ fontSize: 8 }}>EQ</span>
+        <span className="text-neutral-500 tracking-widest" style={{ fontSize: 11 }}>EQ</span>
         <Knob label="HI" value={ch.eqHigh} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqHigh')}
           onChange={(v) => set({ eqHigh: v })} onReset={() => set({ eqHigh: 0 })} />
         <Knob label="MID" value={ch.eqMid} min={-18} max={18} step={0.5} color={c} format={db} dim={automated.has('eqMid')}
@@ -115,7 +116,7 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <span className="text-neutral-600 tracking-widest" style={{ fontSize: 8 }}>SENDS</span>
+        <span className="text-neutral-500 tracking-widest" style={{ fontSize: 11 }}>SENDS</span>
         <Knob label="REV" value={ch.sendReverb} min={0} max={1} step={0.01} color="#8b5cf6" format={pct}
           dim={automated.has('sendReverb')} onChange={(v) => set({ sendReverb: v })} />
         <Knob label="DLY" value={ch.sendDelay} min={0} max={1} step={0.01} color="#06b6d4" format={pct}
@@ -138,7 +139,7 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
             title={`Fader ${pct(ch.gain)} — double-click for 100%`}
             aria-label={`${track.name} fader`}
           />
-          <span className="font-mono" style={{ fontSize: 9, color: automated.has('volume') ? '#525252' : '#8a8a8a' }}>
+          <span className="font-mono" style={{ fontSize: 11, color: automated.has('volume') ? 'var(--color-neutral-600)' : 'var(--color-neutral-400)' }}>
             {Math.round(ch.gain * 100)}
           </span>
         </div>
@@ -156,15 +157,15 @@ function Strip({ track, mutedBySolo }: { track: Track; mutedBySolo: boolean }) {
         <button
           onClick={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { muted: !track.muted } })}
           aria-pressed={track.muted}
-          className={`flex-1 h-4 text-[10px] font-bold border leading-none ${
+          className={`flex-1 h-4 text-[11px] font-bold border leading-none ${
             track.muted ? 'border-yellow-500 text-yellow-300 bg-yellow-900/30' : 'border-neutral-700 text-neutral-500 hover:text-neutral-300'
           }`}
         >M</button>
         <button
           onClick={() => dispatch({ type: 'TRACK_UPDATE', trackId: track.id, patch: { solo: !track.solo } })}
           aria-pressed={track.solo}
-          className="flex-1 h-4 text-[10px] font-bold border leading-none"
-          style={track.solo ? { borderColor: accent, color: accent, backgroundColor: accent + '22' } : { borderColor: '#404040', color: '#737373' }}
+          className="flex-1 h-4 text-[11px] font-bold border leading-none"
+          style={track.solo ? { borderColor: accent, color: accent, backgroundColor: accent + '22' } : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-500)' }}
         >S</button>
       </div>
     </div>
@@ -203,7 +204,7 @@ export function Mixer() {
         <Strip key={t.id} track={t} mutedBySolo={(mutes.get(t.id) ?? false) && !t.muted} />
       ))}
 
-      <div className="flex flex-col items-center gap-1 px-2 py-1.5 border-l border-neutral-700 w-[86px] shrink-0 ml-auto bg-[#0f0f0f]">
+      <div className="flex flex-col items-center gap-1 px-2 py-1.5 border-l border-neutral-700 w-[86px] shrink-0 ml-auto bg-[var(--surface-1)]">
         <span className="text-xs text-neutral-300 tracking-widest">MASTER</span>
         <div className="flex items-end gap-1.5 mt-auto">
           <Meter source={masterSource} color={accent} />
@@ -215,16 +216,16 @@ export function Mixer() {
               onChange={(e) => dispatch({ type: 'SET_MASTER_VOLUME', volume: parseFloat(e.target.value) })}
               aria-label="Master fader"
             />
-            <span className="text-[9px] text-neutral-500 font-mono">{Math.round(state.masterVolume * 100)}</span>
+            <span className="text-[11px] text-neutral-500 font-mono">{Math.round(state.masterVolume * 100)}</span>
           </div>
         </div>
-        <span className="text-neutral-700 text-center leading-tight" style={{ fontSize: 8 }}>
+        <span className="text-neutral-500 text-center leading-tight" style={{ fontSize: 11 }}>
           limiter in FX
         </span>
       </div>
 
       {tracks.length === 0 && (
-        <div className="flex items-center px-4 text-xs text-neutral-600">Add a track to see its channel strip.</div>
+        <div className="flex items-center px-4 text-xs text-neutral-500">Add a track to see its channel strip.</div>
       )}
     </div>
   );

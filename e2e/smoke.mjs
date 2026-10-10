@@ -143,6 +143,19 @@ try {
 
   globalThis.__shot = (name) => page.screenshot({ path: `${process.env.E2E_SHOTS}/${name.replace(/\W+/g, '-')}.png` }).catch(() => {});
   const button = (name) => page.getByRole('button', { name, exact: true }).first();  // reads the current `page`
+  /** Answer the unsaved-changes question, if it's asked. */
+  const dontSave = async () => {
+    const guard = page.getByRole('dialog', { name: 'Unsaved changes' });
+    if (await guard.waitFor({ timeout: 1000 }).then(() => true, () => false)) {
+      await guard.getByRole('button', { name: "Don't save" }).click();
+    }
+  };
+  const openExample = async (name) => {
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.getByRole('menuitem', { name: /Open example/ }).hover();
+    await page.getByRole('menuitem', { name, exact: true }).click();
+    await dontSave();
+  };
   // Lanes render in track order; filled in once the starter tracks are known
   const trackIndex = {};
 
@@ -226,8 +239,9 @@ try {
   });
 
   await step('the undo and redo buttons step through history', async () => {
-    const undo = page.getByRole('button', { name: 'Undo', exact: true });
-    const redo = page.getByRole('button', { name: 'Redo', exact: true });
+    const history = page.getByRole('group', { name: 'History' });
+    const undo = history.getByRole('button', { name: /^Undo/ });
+    const redo = history.getByRole('button', { name: /^(Redo|Nothing to redo)/ });
     assert(await redo.isDisabled(), 'redo should be disabled with nothing undone');
     await undo.click();
     await page.getByText('2 notes').waitFor({ timeout: 2000 });
@@ -264,7 +278,10 @@ try {
     const was = await stepBtn.getAttribute('aria-pressed');
     await stepBtn.click();
     assert(await stepBtn.getAttribute('aria-pressed') !== was, 'step did not toggle');
-    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    // Undo says what it will undo
+    assert(await undo.getAttribute('aria-label') === 'Undo Drum steps', `undo label: ${await undo.getAttribute('aria-label')}`);
+    await undo.click();
     await page.waitForTimeout(150);
     assert(await stepBtn.getAttribute('aria-pressed') === was, 'undo did not restore the drum step');
 
@@ -273,7 +290,8 @@ try {
     await bpm.fill('133');
     await bpm.press('Enter');
     await page.waitForTimeout(100);
-    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    assert(await undo.getAttribute('aria-label') === 'Undo Tempo', `undo label: ${await undo.getAttribute('aria-label')}`);
+    await undo.click();
     await page.waitForTimeout(150);
     assert(await bpm.inputValue() === before, `tempo not restored (${await bpm.inputValue()} vs ${before})`);
   });
@@ -349,9 +367,7 @@ try {
   });
 
   await step('example projects load from the File menu', async () => {
-    await page.getByRole('button', { name: 'OSC ▾' }).click();
-    await page.getByRole('menuitem', { name: /Open example/ }).hover();
-    await page.getByRole('button', { name: 'midnight drive', exact: true }).click();
+    await openExample('midnight drive');
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes >= 5, `expected the example's tracks, saw ${lanes}`);
@@ -400,7 +416,7 @@ try {
       setter.call(el, String(value));
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }, v);
-    await page.getByTitle('Return to start (Home)').click();
+    await button('Return to start').click();
     await button('▶ PLAY').click();
     await page.waitForTimeout(1500);
     const full = await page.evaluate(() => window.__level(700));
@@ -419,7 +435,7 @@ try {
     // Midnight Drive's intro is a pad holding one chord per bar. Stop halfway
     // into a chord, then play from there: the chord must sound immediately,
     // not only when the next bar starts.
-    await page.getByTitle('Return to start (Home)').click();
+    await button('Return to start').click();
     await button('▶ PLAY').click();
     await page.waitForTimeout(1200); // ≈ beat 2.4 of a 4-beat chord at 118 BPM
     await button('■ STOP').click();
@@ -500,9 +516,7 @@ try {
   await step('opens the export dialog from the transport', async () => {
     racksBeforeExport = await page.evaluate(() => window.__liveRacks);
     // Make sure Midnight Drive is loaded — the export checks below depend on it
-    await page.getByRole('button', { name: 'OSC ▾' }).click();
-    await page.getByRole('menuitem', { name: /Open example/ }).hover();
-    await page.getByRole('menu').getByRole('button', { name: 'midnight drive', exact: true }).click();
+    await openExample('midnight drive');
     await page.waitForTimeout(300);
     await button('Export').click();
     await dialog().waitFor({ timeout: 3000 });
@@ -627,9 +641,7 @@ try {
   });
 
   await step('the extended Midnight Drive loads as a full song', async () => {
-    await page.getByRole('button', { name: 'OSC ▾' }).click();
-    await page.getByRole('menuitem', { name: /Open example/ }).hover();
-    await page.getByRole('button', { name: 'midnight drive extended', exact: true }).click();
+    await openExample('midnight drive extended');
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes === 11, `expected 11 tracks, saw ${lanes}`);
@@ -639,7 +651,7 @@ try {
     for (const name of ['Intro', 'Breakdown', 'Drop', 'Bridge', 'Outro']) {
       assert(sections.includes(name), `missing section ${name} (have ${sections.join(', ')})`);
     }
-    await page.getByTitle('Return to start (Home)').click();
+    await button('Return to start').click();
     await button('▶ PLAY').click();
     await page.waitForTimeout(1500);
     const level = await page.evaluate(() => window.__level(500));

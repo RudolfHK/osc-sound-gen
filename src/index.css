@@ -30,10 +30,27 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color: #0a0a0a;
-    color: #e0e0e0;
+    background-color: var(--color-neutral-950);
+    color: var(--color-neutral-200);
     font-family: 'Courier New', Courier, monospace;
     overflow: hidden;
+  }
+
+  /* One visible focus ring for keyboard users, in the accent colour */
+  :focus-visible {
+    outline: 2px solid var(--accent, #00ff88);
+    outline-offset: 1px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
   }
 }
 
@@ -60,4 +77,83 @@
     @apply w-3 h-3 rounded-full border-0 cursor-pointer;
     background: currentColor;
   }
+}
+
+/* ── Surface tokens ──────────────────────────────────────────────────────────
+   Panels sit a step above the page; these four steps replace the handful of
+   hand-picked near-blacks the components used. */
+:root {
+  --surface-0: #0a0a0a;
+  --surface-1: #0e0e0e;
+  --surface-2: #131313;
+  --surface-3: #181818;
+}
+[data-theme="light"] {
+  --surface-0: #fafafa;
+  --surface-1: #f3f3f3;
+  --surface-2: #ececec;
+  --surface-3: #e5e5e5;
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────────────
+   The interface is written for dark: "neutral-900" means a dark surface,
+   "neutral-200" a bright label. Flipping each ramp end-for-end keeps those
+   meanings in the light theme without touching any component. Generated from
+   Tailwind's own values (neutral, plus the four hue ramps the UI uses). */
+[data-theme="light"] {
+  --color-neutral-50: oklch(14.5% 0 none);
+  --color-neutral-100: oklch(20.5% 0 none);
+  --color-neutral-200: oklch(26.9% 0 none);
+  --color-neutral-300: oklch(37.1% 0 none);
+  --color-neutral-400: oklch(43.9% 0 none);
+  --color-neutral-500: oklch(55.6% 0 none);
+  --color-neutral-600: oklch(70.8% 0 none);
+  --color-neutral-700: oklch(87% 0 none);
+  --color-neutral-800: oklch(92.2% 0 none);
+  --color-neutral-900: oklch(97% 0 none);
+  --color-neutral-950: oklch(98.5% 0 none);
+  --color-red-50: oklch(25.8% 0.092 26.042);
+  --color-red-100: oklch(39.6% 0.141 25.723);
+  --color-red-200: oklch(44.4% 0.177 26.899);
+  --color-red-300: oklch(50.5% 0.213 27.518);
+  --color-red-400: oklch(57.7% 0.245 27.325);
+  --color-red-500: oklch(63.7% 0.237 25.331);
+  --color-red-600: oklch(70.4% 0.191 22.216);
+  --color-red-700: oklch(80.8% 0.114 19.571);
+  --color-red-800: oklch(88.5% 0.062 18.334);
+  --color-red-900: oklch(93.6% 0.032 17.717);
+  --color-red-950: oklch(97.1% 0.013 17.38);
+  --color-yellow-50: oklch(28.6% 0.066 53.813);
+  --color-yellow-100: oklch(42.1% 0.095 57.708);
+  --color-yellow-200: oklch(47.6% 0.114 61.907);
+  --color-yellow-300: oklch(55.4% 0.135 66.442);
+  --color-yellow-400: oklch(68.1% 0.162 75.834);
+  --color-yellow-500: oklch(79.5% 0.184 86.047);
+  --color-yellow-600: oklch(85.2% 0.199 91.936);
+  --color-yellow-700: oklch(90.5% 0.182 98.111);
+  --color-yellow-800: oklch(94.5% 0.129 101.54);
+  --color-yellow-900: oklch(97.3% 0.071 103.193);
+  --color-yellow-950: oklch(98.7% 0.026 102.212);
+  --color-green-50: oklch(26.6% 0.065 152.934);
+  --color-green-100: oklch(39.3% 0.095 152.535);
+  --color-green-200: oklch(44.8% 0.119 151.328);
+  --color-green-300: oklch(52.7% 0.154 150.069);
+  --color-green-400: oklch(62.7% 0.194 149.214);
+  --color-green-500: oklch(72.3% 0.219 149.579);
+  --color-green-600: oklch(79.2% 0.209 151.711);
+  --color-green-700: oklch(87.1% 0.15 154.449);
+  --color-green-800: oklch(92.5% 0.084 155.995);
+  --color-green-900: oklch(96.2% 0.044 156.743);
+  --color-green-950: oklch(98.2% 0.018 155.826);
+  --color-amber-50: oklch(27.9% 0.077 45.635);
+  --color-amber-100: oklch(41.4% 0.112 45.904);
+  --color-amber-200: oklch(47.3% 0.137 46.201);
+  --color-amber-300: oklch(55.5% 0.163 48.998);
+  --color-amber-400: oklch(66.6% 0.179 58.318);
+  --color-amber-500: oklch(76.9% 0.188 70.08);
+  --color-amber-600: oklch(82.8% 0.189 84.429);
+  --color-amber-700: oklch(87.9% 0.169 91.605);
+  --color-amber-800: oklch(92.4% 0.12 95.746);
+  --color-amber-900: oklch(96.2% 0.059 95.617);
+  --color-amber-950: oklch(98.7% 0.022 95.277);
 }

@@ -58,13 +58,13 @@ function ParamMenu({ preset, override, x, y, trackName, scope, onScope, onChange
         </span>
         <button
           onClick={onReset}
-          className="text-xs text-neutral-600 hover:text-neutral-300 border border-neutral-700 px-1"
+          className="text-xs text-neutral-500 hover:text-neutral-300 border border-neutral-700 px-1"
           title={scope === 'track' ? 'Clear this track\'s own settings' : 'Restore factory settings'}
         >RESET</button>
       </div>
 
       {/* Scope: a track can sound different from the library default */}
-      <div className="flex text-[10px] tracking-widest border border-neutral-800 mb-2" role="group" aria-label="Edit scope">
+      <div className="flex text-[11px] tracking-widest border border-neutral-800 mb-2" role="group" aria-label="Edit scope">
         <button
           disabled={!trackName}
           onClick={() => onScope('track')}
@@ -82,7 +82,7 @@ function ParamMenu({ preset, override, x, y, trackName, scope, onScope, onChange
 
       {(['TONE', 'ENVELOPE', 'MIX'] as const).map((group) => (
         <div key={group} className="mb-2">
-          <div className="text-neutral-600 tracking-widest border-b border-neutral-800 mb-1 pb-0.5" style={{ fontSize: 9 }}>
+          <div className="text-neutral-500 tracking-widest border-b border-neutral-800 mb-1 pb-0.5" style={{ fontSize: 11 }}>
             {group}
           </div>
           {OVERRIDE_FIELDS.filter((f) => f.group === group).map((f) => {
@@ -152,11 +152,11 @@ function PresetCard({ preset, assignedTo, current, canAssign, edited, onAudition
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-neutral-600 truncate" style={{ fontSize: 9 }}>
+        <span className="text-neutral-500 truncate" style={{ fontSize: 11 }}>
           {assignedTo.length > 0 ? `→ ${assignedTo.join(', ')}` : preset.category}
         </span>
         {current ? (
-          <span className="text-[9px] px-1 border shrink-0" style={{ borderColor: preset.color, color: preset.color }}>ON TRACK</span>
+          <span className="text-[11px] px-1 border shrink-0" style={{ borderColor: preset.color, color: preset.color }}>ON TRACK</span>
         ) : canAssign && (
           <button
             onClick={(e) => { e.stopPropagation(); onAssign(); }}
@@ -224,10 +224,10 @@ export function InstrumentLibrary() {
     setMenu({ preset, x, y, scope: currentPreset === preset.id ? 'track' : 'library' });
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-[#0d0d0d]">
+    <div className="flex flex-col h-full min-h-0 bg-[var(--surface-1)]">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40 flex-wrap">
-        <span className="text-xs text-neutral-600 tracking-widest">INSTRUMENTS</span>
+        <span className="text-xs text-neutral-500 tracking-widest">INSTRUMENTS</span>
 
         <input
           type="text"
@@ -251,20 +251,20 @@ export function InstrumentLibrary() {
           {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
 
-        <span className="text-xs text-neutral-700 font-mono">{visible.length}</span>
+        <span className="text-xs text-neutral-500 font-mono">{visible.length}</span>
 
         <div className="ml-auto flex items-center gap-1.5 text-xs">
           {target ? (
             <>
-              <span className="text-neutral-600 tracking-widest">TRACK</span>
+              <span className="text-neutral-500 tracking-widest">TRACK</span>
               <span className="flex items-center gap-1 px-1.5 py-0.5 border" style={{ borderColor: target.color + '88' }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: target.color }} />
                 <span className="text-neutral-200">{target.name}</span>
               </span>
-              <span className="text-neutral-600">— click SET on a card to give it that sound</span>
+              <span className="text-neutral-500">— click SET on a card to give it that sound</span>
             </>
           ) : (
-            <span className="text-neutral-600">Select an instrument track in the arrangement to assign a sound to it.</span>
+            <span className="text-neutral-500">Select an instrument track in the arrangement to assign a sound to it.</span>
           )}
         </div>
       </div>
@@ -272,7 +272,7 @@ export function InstrumentLibrary() {
       {/* Preset grid */}
       <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2">
         {visible.length === 0 ? (
-          <div className="py-6 text-center text-xs text-neutral-600">
+          <div className="py-6 text-center text-xs text-neutral-500">
             No instruments match “{state.search}”.
           </div>
         ) : (
@@ -295,7 +295,7 @@ export function InstrumentLibrary() {
       </div>
 
       {/* Hint bar */}
-      <div className="px-3 py-0.5 border-t border-neutral-800/60 text-neutral-700" style={{ fontSize: 9 }}>
+      <div className="px-3 py-0.5 border-t border-neutral-800/60 text-neutral-500" style={{ fontSize: 11 }}>
         Click a card to audition · Right-click to edit its parameters · SET gives the selected track that sound.
       </div>
 

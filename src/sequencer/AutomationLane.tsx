@@ -3,6 +3,7 @@ import { useAppStore } from '../store/appStore';
 import { AUTOMATION_TARGETS } from '../engine/automation';
 import { beatToX, xToBeat, snapTo, type ArrView } from '../arrange/geometry';
 import type { AutomationLane as Lane, Track } from '../utils/music';
+import { gray, useTheme } from '../ui/theme';
 
 const POINT_R = 4;
 const HIT_R = 7;
@@ -36,6 +37,7 @@ export function AutomationCanvas({ track, lane, view, width, height, beatsPerBar
   const yToValue = useCallback((y: number) => Math.max(0, Math.min(1, (height - 5 - y) / (height - 10))), [height]);
 
   // ── Render ──
+  const theme = useTheme();
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -48,7 +50,7 @@ export function AutomationCanvas({ track, lane, view, width, height, beatsPerBar
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    ctx.fillStyle = '#0a0a0a';
+    ctx.fillStyle = gray('#0a0a0a');
     ctx.fillRect(0, 0, width, height);
 
     // Bars
@@ -56,10 +58,10 @@ export function AutomationCanvas({ track, lane, view, width, height, beatsPerBar
     const last = Math.ceil((view.startBeat + width / view.pxPerBeat) / beatsPerBar);
     for (let bar = first; bar <= last; bar++) {
       const x = Math.round(beatToX(bar * beatsPerBar, view)) + 0.5;
-      ctx.strokeStyle = bar % 4 === 0 ? '#242424' : '#191919';
+      ctx.strokeStyle = bar % 4 === 0 ? gray('#242424') : gray('#191919');
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
     }
-    ctx.strokeStyle = '#1a1a1a';
+    ctx.strokeStyle = gray('#1a1a1a');
     for (const v of [0, 0.5, 1]) {
       const y = Math.round(valueToY(v)) + 0.5;
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
@@ -87,20 +89,20 @@ export function AutomationCanvas({ track, lane, view, width, height, beatsPerBar
         const hover = p.id === hoverId;
         ctx.beginPath();
         ctx.arc(x, valueToY(p.value), hover ? POINT_R + 1.5 : POINT_R, 0, Math.PI * 2);
-        ctx.fillStyle = hover ? '#fff' : spec.color;
+        ctx.fillStyle = hover ? gray('#fff') : spec.color;
         ctx.fill();
-        ctx.strokeStyle = '#0a0a0a';
+        ctx.strokeStyle = gray('#0a0a0a');
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
     } else {
-      ctx.fillStyle = '#3f3f3f';
+      ctx.fillStyle = gray('#3f3f3f');
       ctx.font = '10px ui-sans-serif, system-ui, sans-serif';
       ctx.textBaseline = 'middle';
       ctx.fillText(`Click to draw ${spec.label.toLowerCase()} automation`, 10, height / 2);
     }
     ctx.globalAlpha = 1;
-  }, [lane, view, width, height, beatsPerBar, hoverId, spec, valueToY]);
+  }, [lane, view, width, height, beatsPerBar, hoverId, spec, valueToY, theme]);
 
   // ── Interaction ──
   const local = (e: { clientX: number; clientY: number }) => {

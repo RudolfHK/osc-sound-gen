@@ -7,6 +7,7 @@ import { getPlayhead, subscribePlayhead } from '../engine/playhead';
 import { AutomationCanvas } from '../sequencer/AutomationLane';
 import { ContextMenu, type MenuItem } from '../ui/ContextMenu';
 import { setFocusZone } from '../ui/focus';
+import { isMac, shortcutLabel, withShortcut } from '../ui/shortcuts';
 import { Ruler } from './Ruler';
 import { drawLane } from './drawLane';
 import {
@@ -18,6 +19,8 @@ import {
   type AutomationTarget, type Clip, type Track,
 } from '../utils/music';
 import type { DockTab } from '../ui/Dock';
+import { useTheme } from '../ui/theme';
+import { notify } from '../ui/notices';
 
 interface Props {
   onSeek: (beat: number) => void;
@@ -65,6 +68,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     return m;
   }, [seq.tracks]);
   const anySolo = seq.tracks.some((t) => t.solo);
+  const theme = useTheme();
 
   // The patterns each lane draws. A lane redraws when one of its own patterns
   // changes — editing a note on one track no longer repaints every lane.
@@ -254,12 +258,12 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     const items: MenuItem[] = [
       { label: 'Edit', shortcut: 'dbl-click', onSelect: () => openDock('editor') },
       { divider: true, label: '' },
-      { label: 'Duplicate', shortcut: 'Ctrl+D', onSelect: undoable({ type: 'CLIP_DUPLICATE', clipId: clip.id }) },
+      { label: 'Duplicate', shortcut: shortcutLabel('arrange.duplicate'), onSelect: undoable({ type: 'CLIP_DUPLICATE', clipId: clip.id }) },
       ...(!isDrums ? [
         { label: 'Duplicate as linked', onSelect: undoable({ type: 'CLIP_DUPLICATE', clipId: clip.id, linked: true }) },
         { label: 'Make unique', disabled: !linked, onSelect: undoable({ type: 'CLIP_MAKE_UNIQUE', clipId: clip.id }) },
       ] : []),
-      { label: 'Split', shortcut: 'Ctrl+E', onSelect: undoable({ type: 'CLIP_SPLIT', clipId: clip.id, atBeat: splitAt }) },
+      { label: 'Split', shortcut: shortcutLabel('arrange.split'), onSelect: undoable({ type: 'CLIP_SPLIT', clipId: clip.id, atBeat: splitAt }) },
       { label: clip.muted ? 'Unmute clip' : 'Mute clip', onSelect: undoable({ type: 'CLIP_TOGGLE_MUTE', clipId: clip.id }) },
       ...(isDrums ? [{
         label: 'Drum pattern',
@@ -307,9 +311,11 @@ export function ArrangementView({ onSeek, openDock }: Props) {
       {
         label: 'Delete track', danger: true,
         onSelect: () => {
-          if (track.clips.length && !window.confirm(`Delete “${track.name}” and its ${track.clips.length} clip(s)?`)) return;
+          // Undoable, so no question first — the notice offers Undo instead
           dispatch({ type: 'SEQ_PUSH_UNDO' });
           dispatch({ type: 'TRACK_REMOVE', trackId: track.id });
+          notify(`Deleted “${track.name}”${track.clips.length ? ` and its ${track.clips.length} clip${track.clips.length > 1 ? 's' : ''}` : ''}.`, 'info',
+            { label: 'Undo', run: () => dispatch({ type: 'SEQ_UNDO' }) });
         },
       },
     ];
@@ -318,15 +324,15 @@ export function ArrangementView({ onSeek, openDock }: Props) {
 
   // ── Render ──
   return (
-    <div className="flex flex-col h-full min-h-0 bg-[#0b0b0b]" onMouseDown={() => setFocusZone('arrange')}>
+    <div className="flex flex-col h-full min-h-0 bg-[var(--surface-0)]" onMouseDown={() => setFocusZone('arrange')}>
       <ArrangeToolbar openDock={openDock} />
 
       <div ref={lanesRef} data-arrange-lanes className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {/* Ruler — sticks to the top while tracks scroll */}
-        <div className="sticky top-0 z-20 flex bg-[#0b0b0b]" style={{ height: RULER_H }}>
+        <div className="sticky top-0 z-20 flex bg-[var(--surface-0)]" style={{ height: RULER_H }}>
           <div
-            className="shrink-0 flex flex-col justify-end border-r border-b border-neutral-800 text-neutral-600 px-2 pb-1"
-            style={{ width: HEADER_W, fontSize: 9 }}
+            className="shrink-0 flex flex-col justify-end border-r border-b border-neutral-800 text-neutral-500 px-2 pb-1"
+            style={{ width: HEADER_W, fontSize: 11 }}
           >
             <span className="tracking-widest">SECTIONS</span>
             <span className="tracking-widest mt-1.5">BARS · LOOP</span>
@@ -365,7 +371,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
                     patterns: seq.patterns, drumPatterns, patternUse,
                     selectedClipId: seq.selectedClipId, isSelectedTrack: selected, dim,
                   })}
-                  deps={[track, view, laneW, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat,
+                  deps={[track, view, laneW, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, theme,
                     lanePatterns.get(track.id), patternUse, seq.selectedClipId, selected, dim, seq.beatsPerBar]}
                   view={view}
                 />
@@ -381,7 +387,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
                       beatsPerBar={seq.beatsPerBar} grid={Math.min(grid, 1)}
                     />
                   ) : (
-                    <div className="flex items-center px-3 text-xs text-neutral-600" style={{ width: laneW }}>
+                    <div className="flex items-center px-3 text-xs text-neutral-500" style={{ width: laneW }}>
                       Pick a parameter on the left to start drawing automation for {track.name}.
                     </div>
                   )}
@@ -398,10 +404,10 @@ export function ArrangementView({ onSeek, openDock }: Props) {
           onDoubleClick={() => { dispatch({ type: 'SEQ_PUSH_UNDO' }); dispatch({ type: 'TRACK_ADD', source: { type: 'preset', presetId: 'keys-epiano' } }); }}
         >
           <div className="shrink-0 border-r border-neutral-900 h-full" style={{ width: HEADER_W, minHeight: 80 }} />
-          <div className="px-3 py-3 text-xs text-neutral-700 leading-relaxed">
+          <div className="px-3 py-3 text-xs text-neutral-500 leading-relaxed">
             {seq.tracks.length === 0
               ? 'No tracks yet — use “+ Instrument” or “+ Drums” above, or double-click here.'
-              : 'Double-click an empty lane to create a clip · drag clips to move, Alt-drag to copy, drag edges to trim · Ctrl+wheel to zoom, Shift+wheel to scroll'}
+              : `Double-click an empty lane to create a clip · drag clips to move, ${isMac() ? '⌥' : 'Alt'}-drag to copy, drag edges to trim · ${isMac() ? '⌘' : 'Ctrl'}+wheel to zoom, Shift+wheel to scroll`}
           </div>
         </div>
 
@@ -438,7 +444,7 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
 
   return (
     <div className="flex items-center gap-1.5 px-2 py-1 border-b border-neutral-800 bg-neutral-900/50 shrink-0 flex-wrap">
-      <span className="text-xs text-neutral-600 tracking-widest mr-1">ARRANGE</span>
+      <span className="text-xs text-neutral-500 tracking-widest mr-1">ARRANGE</span>
       <button className={btn} onClick={() => add({ type: 'preset', presetId: 'keys-epiano' })} title="Add a track that plays an instrument preset">
         + Instrument
       </button>
@@ -450,7 +456,7 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
       >+ Oscillator</button>
 
       <span className="w-px h-4 bg-neutral-800 mx-1" />
-      <label className="flex items-center gap-1 text-xs text-neutral-600" title="Grid for moving and trimming clips (hold Shift to ignore it)">
+      <label className="flex items-center gap-1 text-xs text-neutral-500" title="Grid for moving and trimming clips (hold Shift to ignore it)">
         GRID
         <select
           value={seq.arrangeSnap}
@@ -463,8 +469,8 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
           <option value="1/16">1/16</option>
         </select>
       </label>
-      <button className={btn} onClick={() => zoom(0.8)} title="Zoom out (Ctrl+wheel)">−</button>
-      <button className={btn} onClick={() => zoom(1.25)} title="Zoom in (Ctrl+wheel)">+</button>
+      <button className={btn} onClick={() => zoom(0.8)} title={`Zoom out (${isMac() ? '⌘' : 'Ctrl'}+wheel)`}>−</button>
+      <button className={btn} onClick={() => zoom(1.25)} title={`Zoom in (${isMac() ? '⌘' : 'Ctrl'}+wheel)`}>+</button>
       <button
         className={btn}
         title="Fit the whole song in view"
@@ -476,7 +482,7 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
         }}
       >FIT</button>
 
-      <label className="flex items-center gap-1 text-xs text-neutral-600 ml-1" title="Song length in bars">
+      <label className="flex items-center gap-1 text-xs text-neutral-500 ml-1" title="Song length in bars">
         LENGTH
         <input
           type="number" min={1} max={999} value={seq.songLengthBars}
@@ -485,7 +491,7 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
         />
       </label>
 
-      <span className="ml-auto text-neutral-700" style={{ fontSize: 9 }}>
+      <span className="ml-auto text-neutral-500" style={{ fontSize: 11 }}>
         {seq.tracks.length} track{seq.tracks.length === 1 ? '' : 's'}
       </span>
     </div>
@@ -512,7 +518,7 @@ function TrackHeaderCell({
   return (
     <div
       className="shrink-0 flex items-stretch border-r border-b border-neutral-800 cursor-default"
-      style={{ width: HEADER_W, backgroundColor: selected ? '#181818' : '#111' }}
+      style={{ width: HEADER_W, backgroundColor: selected ? 'var(--surface-3)' : 'var(--surface-2)' }}
       onMouseDown={() => dispatch({ type: 'TRACK_SELECT', trackId: track.id })}
       onContextMenu={(e) => { e.preventDefault(); onMenu(e.clientX, e.clientY); }}
     >
@@ -543,12 +549,12 @@ function TrackHeaderCell({
             >{track.name}</span>
           )}
           {track.arp.enabled && (
-            <span className="shrink-0 px-1 border text-[9px] leading-tight" style={{ borderColor: track.color, color: track.color }}>ARP</span>
+            <span className="shrink-0 px-1 border text-[11px] leading-tight" style={{ borderColor: track.color, color: track.color }}>ARP</span>
           )}
         </div>
         <button
           className="text-left text-neutral-500 hover:text-neutral-200 truncate"
-          style={{ fontSize: 10 }}
+          style={{ fontSize: 11 }}
           onClick={() => openDock(track.source.type === 'drums' ? 'editor' : 'instruments')}
           title="Change this track's sound"
         >
@@ -565,8 +571,8 @@ function TrackHeaderCell({
       </div>
       <div className="flex flex-col justify-center gap-0.5 pr-1.5">
         <div className="flex gap-0.5">
-          <HeaderToggle label="M" on={track.muted} color="#eab308" title="Mute (M)" onClick={() => toggle({ muted: !track.muted })} />
-          <HeaderToggle label="S" on={track.solo} color={accent} title="Solo (S)" onClick={() => toggle({ solo: !track.solo })} />
+          <HeaderToggle label="M" on={track.muted} color="#eab308" title={withShortcut('Mute', 'arrange.mute')} onClick={() => toggle({ muted: !track.muted })} />
+          <HeaderToggle label="S" on={track.solo} color={accent} title={withShortcut('Solo', 'arrange.solo')} onClick={() => toggle({ solo: !track.solo })} />
         </div>
         <div className="flex gap-0.5">
           <HeaderToggle
@@ -591,8 +597,8 @@ function HeaderToggle({ label, on, color, title, onClick }: { label: string; on:
       onClick={onClick}
       title={title}
       aria-pressed={on}
-      className="w-5 h-4 text-[10px] font-bold leading-none border transition-colors"
-      style={on ? { borderColor: color, color, backgroundColor: color + '26' } : { borderColor: '#404040', color: '#737373' }}
+      className="w-5 h-4 text-[11px] font-bold leading-none border transition-colors"
+      style={on ? { borderColor: color, color, backgroundColor: color + '26' } : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-500)' }}
     >{label}</button>
   );
 }
@@ -606,9 +612,9 @@ function AutomationHeaderCell({ track }: { track: Track }) {
   const available = AUTOMATION_TARGET_LIST.filter((t) => !used.has(t));
 
   return (
-    <div className="shrink-0 flex flex-col gap-1 justify-center px-2 border-r border-neutral-800 bg-[#0e0e0e]" style={{ width: HEADER_W }}>
+    <div className="shrink-0 flex flex-col gap-1 justify-center px-2 border-r border-neutral-800 bg-[var(--surface-1)]" style={{ width: HEADER_W }}>
       <div className="flex items-center gap-1">
-        <span className="text-neutral-600 tracking-widest" style={{ fontSize: 9 }}>AUTO</span>
+        <span className="text-neutral-500 tracking-widest" style={{ fontSize: 11 }}>AUTO</span>
         {track.lanes.length > 0 && (
           <select
             value={lane?.id ?? ''}
@@ -643,15 +649,15 @@ function AutomationHeaderCell({ track }: { track: Track }) {
           <>
             <button
               onClick={() => dispatch({ type: 'SEQ_TOGGLE_LANE', trackId: track.id, laneId: lane.id })}
-              className="px-1 text-[10px] border"
+              className="px-1 text-[11px] border"
               style={lane.enabled
                 ? { borderColor: AUTOMATION_TARGETS[lane.target].color, color: AUTOMATION_TARGETS[lane.target].color }
-                : { borderColor: '#404040', color: '#737373' }}
+                : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-500)' }}
               title="Bypass this lane without deleting its points"
             >{lane.enabled ? 'ON' : 'OFF'}</button>
             <button
               onClick={() => { dispatch({ type: 'SEQ_PUSH_UNDO' }); dispatch({ type: 'SEQ_REMOVE_LANE', trackId: track.id, laneId: lane.id }); }}
-              className="px-1 text-[10px] border border-neutral-700 text-neutral-500 hover:text-red-400"
+              className="px-1 text-[11px] border border-neutral-700 text-neutral-500 hover:text-red-400"
               title="Delete this lane"
             >✕</button>
           </>

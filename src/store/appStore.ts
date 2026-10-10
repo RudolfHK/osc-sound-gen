@@ -38,6 +38,7 @@ import {
 } from '../utils/music';
 import { restoreParticipants, setUndoStepRequester, snapshotParticipants } from './history';
 import { notify } from '../ui/notices';
+import { accentFor, useTheme } from '../ui/theme';
 import { makeLaneId, makePointId, withPoint } from '../engine/automation';
 import {
   isLegacyTrackList, makeStarterDoc, migrateLegacySequencer,
@@ -141,9 +142,12 @@ export type Action =
   // ── Undo/Redo ────────────────────────────────────────────────────────────────
   // `extras` (the other stores' undoable state) is filled in by the store's
   // dispatch; components dispatch these without it.
-  | { type: 'SEQ_PUSH_UNDO'; extras?: Record<string, unknown> }
-  | { type: 'SEQ_UNDO'; extras?: Record<string, unknown> }
-  | { type: 'SEQ_REDO'; extras?: Record<string, unknown> }
+  | { type: 'SEQ_PUSH_UNDO'; extras?: Record<string, unknown>; label?: string }
+  /** `steps` jumps several steps at once (the History list). */
+  | { type: 'SEQ_UNDO'; extras?: Record<string, unknown>; steps?: number }
+  | { type: 'SEQ_REDO'; extras?: Record<string, unknown>; steps?: number }
+  /** Name the newest undo step after the edit that followed it. */
+  | { type: 'SEQ_LABEL_UNDO'; label: string }
   // ── Project ──────────────────────────────────────────────────────────────────
   | { type: 'LOAD_PROJECT'; project: LoadedProject }
   | { type: 'NEW_PROJECT' };
@@ -926,29 +930,47 @@ export function reducer(state: AppState, action: Action): AppState {
     // ── Undo / Redo ─────────────────────────────────────────────────────────────
 
     case 'SEQ_PUSH_UNDO': {
-      const entry = entryOf(seq, action.extras);
+      const entry = { ...entryOf(seq, action.extras), label: action.label };
       const top = seq.undoStack[seq.undoStack.length - 1];
-      // A click that changed nothing shouldn't cost an undo step
-      if (top && sameEntry(top, entry)) return state;
+      // A click that changed nothing shouldn't cost an undo step (but may name one)
+      if (top && sameEntry(top, entry)) {
+        return !top.label && action.label
+          ? seqUpdate(state, { undoStack: [...seq.undoStack.slice(0, -1), { ...top, label: action.label }] })
+          : state;
+      }
       return seqUpdate(state, { undoStack: [...seq.undoStack, entry].slice(-MAX_UNDO), redoStack: [] });
     }
 
+    case 'SEQ_LABEL_UNDO': {
+      const top = seq.undoStack[seq.undoStack.length - 1];
+      if (!top || top.label) return state;
+      return seqUpdate(state, { undoStack: [...seq.undoStack.slice(0, -1), { ...top, label: action.label }] });
+    }
+
     case 'SEQ_UNDO': {
-      if (seq.undoStack.length === 0) return state;
-      const stack = [...seq.undoStack];
-      const prev = stack.pop()!;
-      return applyEntry(state, prev, {
-        undoStack: stack,
-        redoStack: [entryOf(seq, action.extras), ...seq.redoStack].slice(0, MAX_UNDO),
+      // Undoing n edits: go back to the state before the oldest of them. Each
+      // undone edit's "after" state moves to the redo stack under its name.
+      const n = Math.min(Math.max(1, action.steps ?? 1), seq.undoStack.length);
+      if (n === 0) return state;
+      const keep = seq.undoStack.slice(0, seq.undoStack.length - n);
+      const undone = seq.undoStack.slice(seq.undoStack.length - n);
+      const after = [...undone.slice(1), entryOf(seq, action.extras)];
+      const redo = after.map((e, i) => ({ ...e, label: undone[i].label }));
+      return applyEntry(state, undone[0], {
+        undoStack: keep,
+        redoStack: [...redo, ...seq.redoStack].slice(0, MAX_UNDO),
       });
     }
 
     case 'SEQ_REDO': {
-      if (seq.redoStack.length === 0) return state;
-      const [nextEntry, ...rest] = seq.redoStack;
-      return applyEntry(state, nextEntry, {
-        undoStack: [...seq.undoStack, entryOf(seq, action.extras)].slice(-MAX_UNDO),
-        redoStack: rest,
+      const n = Math.min(Math.max(1, action.steps ?? 1), seq.redoStack.length);
+      if (n === 0) return state;
+      const redone = seq.redoStack.slice(0, n);
+      const before = [entryOf(seq, action.extras), ...redone.slice(0, n - 1)];
+      const undo = before.map((e, i) => ({ ...e, label: redone[i].label }));
+      return applyEntry(state, redone[n - 1], {
+        undoStack: [...seq.undoStack, ...undo].slice(-MAX_UNDO),
+        redoStack: seq.redoStack.slice(n),
       });
     }
 
@@ -1037,7 +1059,8 @@ export function useAppStore(): StoreCtx {
 /** The UI accent colour. */
 export function useAccent(): string {
   const { state } = useAppStore();
-  return THEME_COLORS[state.uiTheme] ?? THEME_COLORS.green;
+  const theme = useTheme();
+  return accentFor(THEME_COLORS[state.uiTheme] ?? THEME_COLORS.green, theme);
 }
 
 export function computeEffectiveMutes(tabs: OscillatorTab[]): Map<string, boolean> {
@@ -1216,6 +1239,85 @@ export function autoUndoKey(action: Action): string | null | undefined {
   }
 }
 
+const UNDO_LABELS: Partial<Record<Action['type'], string>> = {
+  MARKER_UPDATE: 'Edit section',
+  SEQ_SET_BPM: 'Tempo',
+  SEQ_SET_SONG_LENGTH: 'Song length',
+  SEQ_SET_LOOP: 'Loop',
+  SEQ_SET_BEATS_PER_BAR: 'Time signature',
+  PATTERN_RENAME: 'Rename pattern',
+  PATTERN_SET_LENGTH: 'Pattern length',
+  TRACK_ADD: 'Add track',
+  TRACK_REMOVE: 'Delete track',
+  TRACK_DUPLICATE: 'Duplicate track',
+  TRACK_MOVE: 'Move track',
+  MARKER_ADD: 'Add section',
+  MARKER_REMOVE: 'Remove section',
+  SECTION_DUPLICATE: 'Duplicate section',
+  SECTION_DELETE: 'Delete section',
+  CLIP_ADD: 'Add clip',
+  CLIP_MOVE: 'Move clip',
+  CLIP_RESIZE: 'Resize clip',
+  CLIP_DELETE: 'Delete clip',
+  CLIP_DUPLICATE: 'Duplicate clip',
+  CLIP_MAKE_UNIQUE: 'Make clip unique',
+  CLIP_TOGGLE_MUTE: 'Mute clip',
+  CLIP_SPLIT: 'Split clip',
+  CLIP_SET_PATTERN: 'Change clip pattern',
+  SEQ_ADD_NOTE: 'Add note',
+  SEQ_REMOVE_NOTE: 'Delete note',
+  SEQ_MOVE_NOTE: 'Move notes',
+  SEQ_RESIZE_NOTE: 'Resize note',
+  SEQ_SET_VELOCITY: 'Velocity',
+  SEQ_CLEAR_PATTERN: 'Clear pattern',
+  SEQ_DELETE_SELECTED: 'Delete notes',
+  SEQ_PASTE: 'Paste notes',
+  SEQ_QUANTIZE: 'Quantize',
+  SEQ_ADD_LANE: 'Add automation lane',
+  SEQ_REMOVE_LANE: 'Remove automation lane',
+  SEQ_TOGGLE_LANE: 'Automation lane on / off',
+  SEQ_ADD_POINT: 'Add automation point',
+  SEQ_MOVE_POINT: 'Move automation point',
+  SEQ_REMOVE_POINT: 'Delete automation point',
+  SEQ_CLEAR_LANE: 'Clear automation',
+};
+
+const CHANNEL_LABELS: Record<string, string> = {
+  gain: 'Fader', eqLow: 'EQ', eqMid: 'EQ', eqHigh: 'EQ',
+  sendReverb: 'Reverb send', sendDelay: 'Delay send', sendChorus: 'Chorus send', sidechain: 'Sidechain',
+};
+
+/**
+ * What an edit is called in the undo tooltip and History list ("Fader: Bass");
+ * undefined if the action isn't an edit. `state` supplies track names.
+ */
+export function undoLabel(action: Action, state?: AppState): string | undefined {
+  const onTrack = (name: string, trackId: string) => {
+    const track = state?.sequencer.tracks.find((t) => t.id === trackId);
+    return track ? `${name}: ${track.name}` : name;
+  };
+  switch (action.type) {
+    case 'TRACK_UPDATE': {
+      const p = action.patch;
+      if ('muted' in p) return onTrack(p.muted ? 'Mute' : 'Unmute', action.trackId);
+      if ('solo' in p) return onTrack(p.solo ? 'Solo' : 'Unsolo', action.trackId);
+      if ('name' in p) return 'Rename track';
+      if ('color' in p) return onTrack('Colour', action.trackId);
+      if ('pan' in p) return onTrack('Pan', action.trackId);
+      return undefined;
+    }
+    case 'TRACK_SET_PATCH':
+      return onTrack(action.patch === null ? 'Reset instrument' : 'Instrument', action.trackId);
+    case 'SEQ_SET_CHANNEL': {
+      const names = new Set(Object.keys(action.channel).map((k) => CHANNEL_LABELS[k] ?? 'Mixer'));
+      return onTrack(names.size === 1 ? [...names][0] : 'Mixer', action.trackId);
+    }
+    case 'SEQ_SET_ARP': return onTrack('Arpeggiator', action.trackId);
+    case 'TRACK_SET_SOURCE': return onTrack('Change instrument', action.trackId);
+    default: return UNDO_LABELS[action.type];
+  }
+}
+
 export function useAppReducer(): StoreCtx {
   const [state, rawDispatch] = useReducer(reducer, undefined, () => {
     try {
@@ -1247,22 +1349,34 @@ export function useAppReducer(): StoreCtx {
   // components and this one never double up. Other stores (drums, effects)
   // ask for steps through the history module.
   const lastGesture = useRef<{ key: string; at: number } | null>(null);
-  const requestStep = useCallback((key: string | null) => {
+  // A step pushed without a name takes the name of the edit that follows it
+  const unnamed = useRef(false);
+  const requestStep = useCallback((key: string | null, label?: string) => {
     const now = performance.now();
     const last = lastGesture.current;
     const sameGesture = key !== null && last?.key === key && now - last.at < UNDO_COALESCE_MS;
-    if (!sameGesture) rawDispatch({ type: 'SEQ_PUSH_UNDO', extras: snapshotParticipants() });
+    if (!sameGesture) {
+      rawDispatch({ type: 'SEQ_PUSH_UNDO', extras: snapshotParticipants(), label });
+      unnamed.current = !label;
+    }
     lastGesture.current = key === null ? null : { key, at: now };
   }, []);
 
   const dispatch = useCallback<Dispatch<Action>>((action) => {
     const key = autoUndoKey(action);
     if (key !== undefined) {
-      requestStep(key);
+      requestStep(key, undoLabel(action, latest.current));
     } else if (action.type === 'SEQ_PUSH_UNDO' || action.type === 'SEQ_UNDO' || action.type === 'SEQ_REDO') {
       lastGesture.current = null;
+      unnamed.current = action.type === 'SEQ_PUSH_UNDO' && !action.label;
       rawDispatch({ ...action, extras: snapshotParticipants() });
       return;
+    } else if (unnamed.current) {
+      const label = undoLabel(action, latest.current);
+      if (label) {
+        unnamed.current = false;
+        rawDispatch({ type: 'SEQ_LABEL_UNDO', label });
+      }
     }
     rawDispatch(action);
   }, [requestStep]);

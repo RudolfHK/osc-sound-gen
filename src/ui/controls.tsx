@@ -121,7 +121,7 @@ export function FrequencyControl({ value, onChange, color = '#00ff88' }: Frequen
         />
       </div>
       <Slider value={logFreqToLinear(value)} min={0} max={1} step={0.0001} color={color} onChange={handleSlider} />
-      <div className="flex justify-between text-neutral-600 text-xs">
+      <div className="flex justify-between text-neutral-500 text-xs">
         <span>20 Hz</span>
         <span>20 kHz</span>
       </div>
@@ -253,7 +253,7 @@ export function AdvancedPanel({ advanced, onChange, color = '#00ff88' }: Advance
         className="w-full flex items-center justify-between px-1 py-2 text-xs uppercase tracking-widest text-neutral-500 hover:text-neutral-300 transition-colors"
       >
         <span>▾ Advanced</span>
-        <span className="text-neutral-700">{open ? '▲' : '▼'}</span>
+        <span className="text-neutral-500">{open ? '▲' : '▼'}</span>
       </button>
       {open && (
         <div className="space-y-3 pb-3 px-1">
@@ -262,7 +262,7 @@ export function AdvancedPanel({ advanced, onChange, color = '#00ff88' }: Advance
             value={advanced.centsOffset}
             min={-100} max={100} step={1}
             displayValue={`${advanced.centsOffset > 0 ? '+' : ''}${advanced.centsOffset}¢`}
-            color="#aaaaaa"
+            color="var(--color-neutral-400)"
             onChange={(v) => set('centsOffset', Math.round(v))}
           />
           <LabeledSlider
@@ -270,7 +270,7 @@ export function AdvancedPanel({ advanced, onChange, color = '#00ff88' }: Advance
             value={advanced.zoomFactor}
             min={1} max={8} step={0.5}
             displayValue={`${advanced.zoomFactor}×`}
-            color="#aaaaaa"
+            color="var(--color-neutral-400)"
             onChange={(v) => set('zoomFactor', v)}
           />
           <LabeledSlider
@@ -278,7 +278,7 @@ export function AdvancedPanel({ advanced, onChange, color = '#00ff88' }: Advance
             value={advanced.lineThickness}
             min={1} max={4} step={0.5}
             displayValue={`${advanced.lineThickness}px`}
-            color="#aaaaaa"
+            color="var(--color-neutral-400)"
             onChange={(v) => set('lineThickness', v)}
           />
           <div className="space-y-1">
@@ -290,7 +290,7 @@ export function AdvancedPanel({ advanced, onChange, color = '#00ff88' }: Advance
                   onClick={() => set('colorTheme', theme)}
                   title={label}
                   className={`flex-1 py-1.5 text-xs border transition-colors ${
-                    advanced.colorTheme === theme ? 'font-bold' : 'bg-transparent text-neutral-600 border-neutral-700 hover:border-neutral-500'
+                    advanced.colorTheme === theme ? 'font-bold' : 'bg-transparent text-neutral-500 border-neutral-700 hover:border-neutral-500'
                   }`}
                   style={advanced.colorTheme === theme
                     ? { color: hex, borderColor: hex, backgroundColor: hex + '18' }
@@ -308,7 +308,7 @@ export function AdvancedPanel({ advanced, onChange, color = '#00ff88' }: Advance
               onClick={() => set('showGrid', !advanced.showGrid)}
               style={advanced.showGrid ? { borderColor: color, color, backgroundColor: color + '18' } : {}}
               className={`px-3 py-1 text-xs border transition-colors ${
-                advanced.showGrid ? '' : 'border-neutral-700 text-neutral-600'
+                advanced.showGrid ? '' : 'border-neutral-700 text-neutral-500'
               }`}
             >
               {advanced.showGrid ? 'ON' : 'OFF'}

@@ -45,13 +45,15 @@ export function restoreParticipants(extras: Record<string, unknown>): void {
 /**
  * Record an undo step before an edit. `key` merges a run of edits to the same
  * control into one step (a fader drag); `null` always makes a new step.
+ * `label` names the edit for the undo button and the History list.
  */
-let requester: ((key: string | null) => void) | null = null;
+type Requester = (key: string | null, label?: string) => void;
+let requester: Requester | null = null;
 
-export function setUndoStepRequester(fn: ((key: string | null) => void) | null): void {
+export function setUndoStepRequester(fn: Requester | null): void {
   requester = fn;
 }
 
-export function requestUndoStep(key: string | null): void {
-  requester?.(key);
+export function requestUndoStep(key: string | null, label?: string): void {
+  requester?.(key, label);
 }

@@ -15,7 +15,7 @@ function Slider({
 }) {
   return (
     <div className="flex flex-col gap-0.5 w-[82px]">
-      <div className="flex justify-between text-neutral-500" style={{ fontSize: 9 }}>
+      <div className="flex justify-between text-neutral-500" style={{ fontSize: 11 }}>
         <span>{label}</span>
         <span className="font-mono text-neutral-400">{format(value)}</span>
       </div>
@@ -38,7 +38,7 @@ function Toggle({
       className="px-2 py-0.5 text-xs border transition-colors"
       style={on
         ? { borderColor: color, color, backgroundColor: color + '18' }
-        : { borderColor: '#404040', color: '#737373' }}
+        : { borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-500)' }}
     >{label}</button>
   );
 }
@@ -83,10 +83,10 @@ export function VisualizerPanel() {
   const set = (patch: Partial<typeof state>) => dispatch({ type: 'VIZ_SET', patch });
 
   return (
-    <div className="flex flex-col border-b border-neutral-800 bg-[#0a0a0a] shrink-0">
+    <div className="flex flex-col border-b border-neutral-800 bg-[var(--surface-0)] shrink-0">
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40">
-        <span className="text-xs text-neutral-600 tracking-widest">VISUALIZER</span>
+        <span className="text-xs text-neutral-500 tracking-widest">VISUALIZER</span>
 
         <div className="flex border border-neutral-800">
           {VISUALIZER_MODES.map((m) => (
@@ -96,7 +96,7 @@ export function VisualizerPanel() {
               className="px-2 py-0.5 text-xs transition-colors"
               style={state.mode === m.id
                 ? { backgroundColor: accent + '22', color: accent }
-                : { color: '#737373' }}
+                : { color: 'var(--color-neutral-500)' }}
             >{m.label}</button>
           ))}
         </div>
@@ -111,7 +111,7 @@ export function VisualizerPanel() {
         <div className="ml-auto flex items-center gap-1.5">
           <button
             onClick={() => dispatch({ type: 'VIZ_RESET' })}
-            className="px-2 py-0.5 text-xs border border-neutral-700 text-neutral-600 hover:text-neutral-300"
+            className="px-2 py-0.5 text-xs border border-neutral-700 text-neutral-500 hover:text-neutral-300"
           >RESET</button>
           <button
             onClick={() => dispatch({ type: 'VIZ_ENABLE', enabled: false })}
@@ -151,7 +151,7 @@ export function VisualizerPanel() {
           />
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-neutral-500" style={{ fontSize: 9 }}>COLOR</span>
+            <span className="text-neutral-500" style={{ fontSize: 11 }}>COLOR</span>
             <select
               value={state.colorMode}
               onChange={(e) => set({ colorMode: e.target.value as ColorMode })}
@@ -172,7 +172,7 @@ export function VisualizerPanel() {
             onClick={() => set({ fpsCap: state.fpsCap === 60 ? 30 : 60 })}
             title="Halve the redraw rate to save CPU" />
 
-          <span className="text-neutral-700 ml-auto max-w-[200px] leading-tight" style={{ fontSize: 9 }}>
+          <span className="text-neutral-500 ml-auto max-w-[200px] leading-tight" style={{ fontSize: 11 }}>
             Turn GLOW off and drop to 30 FPS if playback starts to crackle.
           </span>
         </div>

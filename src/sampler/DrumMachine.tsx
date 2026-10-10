@@ -7,6 +7,7 @@ import { Ticker } from '../engine/ticker';
 import { requestUndoStep } from '../store/history';
 import type { DrumVoiceType, DrumHitParams } from '../engine/sampler';
 import type { DrumVoiceConfig, DrumStep, DrumPattern } from '../store/drumStore';
+import { notify } from '../ui/notices';
 
 // ─── Drum scheduler ───────────────────────────────────────────────────────────
 
@@ -263,7 +264,7 @@ function VoiceRow({
         onContextMenu={(e) => { e.preventDefault(); onVoiceRightClick(voice, e.clientX, e.clientY); }}
         onClick={onAudition}
         className="w-[56px] text-right pr-1 text-xs font-mono truncate shrink-0 hover:underline"
-        style={{ color: audible ? voice.color : '#444' }}
+        style={{ color: audible ? voice.color : 'var(--color-neutral-700)' }}
         title="Click to audition · Right-click for parameters"
       >
         {voice.name}
@@ -271,15 +272,15 @@ function VoiceRow({
       <div className="flex gap-0.5 mr-2 shrink-0">
         <button
           onClick={onMute}
-          className={`w-4 h-4 text-[9px] font-bold border leading-none ${
-            voice.muted ? 'border-yellow-500 text-yellow-400' : 'border-neutral-700 text-neutral-600 hover:text-neutral-400'
+          className={`w-4 h-4 text-[11px] font-bold border leading-none ${
+            voice.muted ? 'border-yellow-500 text-yellow-400' : 'border-neutral-700 text-neutral-500 hover:text-neutral-400'
           }`}
         >M</button>
         <button
           onClick={onSolo}
           style={voice.solo ? { borderColor: voice.color, color: voice.color } : {}}
-          className={`w-4 h-4 text-[9px] font-bold border leading-none ${
-            !voice.solo ? 'border-neutral-700 text-neutral-600 hover:text-neutral-400' : ''
+          className={`w-4 h-4 text-[11px] font-bold border leading-none ${
+            !voice.solo ? 'border-neutral-700 text-neutral-500 hover:text-neutral-400' : ''
           }`}
         >S</button>
       </div>
@@ -300,11 +301,11 @@ function VoiceRow({
               className={`w-6 h-6 border transition-colors ${groupStart ? 'ml-1' : ''}`}
               style={{
                 backgroundColor: step.active
-                  ? isCurrent ? '#fff' : voice.color
-                  : isCurrent ? '#333' : 'transparent',
+                  ? isCurrent ? 'var(--color-neutral-50)' : voice.color
+                  : isCurrent ? 'var(--color-neutral-700)' : 'transparent',
                 borderColor: step.active
                   ? voice.color
-                  : isCurrent ? '#555' : '#2a2a2a',
+                  : isCurrent ? 'var(--color-neutral-600)' : 'var(--color-neutral-800)',
                 opacity: !audible ? 0.4 : step.active && step.velocity < 80 ? 0.75 : 1,
               }}
             />
@@ -391,10 +392,10 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
   if (!pattern) return null;
 
   return (
-    <div className="flex flex-col bg-[#0d0d0d] h-full min-h-0">
+    <div className="flex flex-col bg-[var(--surface-1)] h-full min-h-0">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1 border-b border-neutral-800 bg-neutral-900/40">
-        <span className="text-xs text-neutral-600 tracking-widest">DRUMS</span>
+        <span className="text-xs text-neutral-500 tracking-widest">DRUMS</span>
 
         {/* Pattern selector, grouped by genre */}
         <select
@@ -409,7 +410,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
           ))}
         </select>
 
-        <span className="text-xs text-neutral-700 font-mono">{state.patterns.length}</span>
+        <span className="text-xs text-neutral-500 font-mono">{state.patterns.length}</span>
 
         <button
           onClick={() => dispatch({ type: 'DRUM_ADD_PATTERN' })}
@@ -428,17 +429,16 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
               .filter((t) => t.source.type === 'drums')
               .flatMap((t) => t.clips.filter((c) => c.patternId === pattern.id));
             const n = clips.length;
-            const warning = n > 0
-              ? `"${pattern.name}" is used by ${n} clip${n > 1 ? 's' : ''} in the arrangement. Delete the pattern and ${n > 1 ? 'those clips' : 'that clip'}? (Undo brings both back.)`
-              : `Delete pattern "${pattern.name}"?`;
-            if (!window.confirm(warning)) return;
             // One undo step covers the clips and the pattern: the step is
-            // recorded first, and the drum store's own request merges into it
-            requestUndoStep(`drum-delete:${pattern.id}`);
+            // recorded first, and the drum store's own request merges into it.
+            // Undoable, so the notice offers Undo rather than asking first.
+            requestUndoStep(`drum-delete:${pattern.id}`, 'Delete drum pattern');
             for (const c of clips) appDispatch({ type: 'CLIP_DELETE', clipId: c.id });
             dispatch({ type: 'DRUM_DELETE_PATTERN', patternId: pattern.id });
+            notify(`Deleted pattern “${pattern.name}”${n ? ` and the ${n} clip${n > 1 ? 's' : ''} that used it` : ''}.`, 'info',
+              { label: 'Undo', run: () => appDispatch({ type: 'SEQ_UNDO' }) });
           }}
-          className="px-1.5 py-0.5 text-xs border border-neutral-700 text-neutral-600 hover:text-red-400 hover:border-red-800"
+          className="px-1.5 py-0.5 text-xs border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-800"
           title="Delete pattern"
         >🗑</button>
 
@@ -451,7 +451,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
               className={`px-2 py-0.5 text-xs ${
                 pattern.stepCount === n
                   ? 'bg-neutral-700 text-neutral-200'
-                  : 'text-neutral-600 hover:text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-400'
               }`}
             >{n}</button>
           ))}
@@ -459,7 +459,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
 
         {/* Swing */}
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-neutral-600">SWING</span>
+          <span className="text-xs text-neutral-500">SWING</span>
           <input
             type="range" min={0} max={0.5} step={0.01} value={pattern.swing}
             className="w-16 accent-neutral-400"
@@ -470,14 +470,19 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
 
         {/* Clear */}
         <button
-          onClick={() => { if (window.confirm('Clear all steps?')) dispatch({ type: 'DRUM_CLEAR_PATTERN', patternId: pattern.id }); }}
-          className="px-2 py-0.5 text-xs border border-neutral-700 text-neutral-600 hover:text-red-400 hover:border-red-800"
+          onClick={() => {
+            dispatch({ type: 'DRUM_CLEAR_PATTERN', patternId: pattern.id });
+            notify(`Cleared every step of “${pattern.name}”.`, 'info', { label: 'Undo', run: () => appDispatch({ type: 'SEQ_UNDO' }) });
+          }}
+          title="Clear every step of this pattern"
+          aria-label="Clear pattern"
+          className="px-2 py-0.5 text-xs border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-800"
         >CLR</button>
 
         <div className="ml-auto flex items-center gap-2">
           {/* BPM */}
           <div className="flex items-center gap-1">
-            <span className="text-xs text-neutral-600">BPM</span>
+            <span className="text-xs text-neutral-500">BPM</span>
             <input
               type="number" min={20} max={300} value={state.syncBpm ? appState.sequencer.bpm : state.bpm}
               disabled={state.syncBpm}
@@ -489,7 +494,7 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
               className={`px-1.5 py-0.5 text-xs border transition-colors ${
                 state.syncBpm
                   ? 'border-green-700 text-green-400 bg-green-900/20'
-                  : 'border-neutral-700 text-neutral-600 hover:border-neutral-500'
+                  : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'
               }`}
               title="Sync to sequencer BPM"
             >SYNC</button>
@@ -510,19 +515,19 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
       </div>
 
       {/* What this pattern is wired to */}
-      <div className="flex items-center gap-2 px-3 py-0.5 border-b border-neutral-800/60 bg-neutral-950 text-[10px] text-neutral-500">
+      <div className="flex items-center gap-2 px-3 py-0.5 border-b border-neutral-800/60 bg-neutral-950 text-[11px] text-neutral-500">
         {boundClipLabel
           ? <span>Editing the pattern of <span className="text-neutral-300">{boundClipLabel}</span>. Picking another pattern above swaps it into the clip.</span>
           : <span>Pattern library — double-click a drum track's lane to place the selected pattern in the arrangement.</span>}
         {(usedBy?.get(pattern.id) ?? 0) > 1 && (
           <span className="text-amber-400">Used by {usedBy!.get(pattern.id)} clips — edits change all of them.</span>
         )}
-        <span className="ml-auto text-neutral-600">AUDITION loops this pattern on its own; the song transport plays the arrangement.</span>
+        <span className="ml-auto text-neutral-500">AUDITION loops this pattern on its own; the song transport plays the arrangement.</span>
       </div>
 
       {/* Voice group filter */}
       <div className="flex items-center gap-1 px-3 py-1 border-b border-neutral-800/60 bg-neutral-900/20">
-        <span className="text-xs text-neutral-600 tracking-widest mr-1">VOICES</span>
+        <span className="text-xs text-neutral-500 tracking-widest mr-1">VOICES</span>
         {VOICE_GROUPS.map((g) => (
           <button
             key={g}
@@ -530,11 +535,11 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
             className={`px-2 py-0.5 text-xs border transition-colors ${
               state.voiceFilter === g
                 ? 'border-neutral-500 text-neutral-200 bg-neutral-800'
-                : 'border-neutral-800 text-neutral-600 hover:text-neutral-400 hover:border-neutral-600'
+                : 'border-neutral-800 text-neutral-500 hover:text-neutral-400 hover:border-neutral-600'
             }`}
           >{g}</button>
         ))}
-        <span className="text-xs text-neutral-700 font-mono ml-1">{visibleVoices.length}</span>
+        <span className="text-xs text-neutral-500 font-mono ml-1">{visibleVoices.length}</span>
       </div>
 
       {/* Voice grid */}

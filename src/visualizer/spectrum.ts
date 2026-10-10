@@ -1,4 +1,5 @@
 import { getAudioEngine } from '../engine/audio';
+import { getTheme, gray } from '../ui/theme';
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
@@ -144,7 +145,7 @@ export class Visualizer {
   private colorFor(t: number): string {
     switch (this.settings.colorMode) {
       case 'mono':
-        return '#d4d4d4';
+        return gray('#d4d4d4');
       case 'spectrum':
         return `hsl(${Math.round(200 + t * 160)}, 85%, ${55 + t * 12}%)`;
       case 'theme':
@@ -162,16 +163,17 @@ export class Visualizer {
 
     // Trail: fade the previous frame instead of clearing it
     if (this.settings.trail > 0.01) {
-      ctx.fillStyle = `rgba(10, 10, 10, ${1 - this.settings.trail})`;
+      const bg = getTheme() === 'light' ? 245 : 10;
+      ctx.fillStyle = `rgba(${bg}, ${bg}, ${bg}, ${1 - this.settings.trail})`;
       ctx.fillRect(0, 0, W, H);
     } else {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#0a0a0a';
+      ctx.fillStyle = gray('#0a0a0a');
       ctx.fillRect(0, 0, W, H);
     }
 
     if (!this.attach() || !this.analyser) {
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = gray('#333');
       ctx.font = `${Math.round(H * 0.06)}px ui-monospace, monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';

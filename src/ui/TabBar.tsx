@@ -101,7 +101,7 @@ export function TabBar({ tabs, activeTabId, onSelect, onAdd, onRemove, onRename,
             {/* Close button — only show when more than one tab */}
             {tabs.length > 1 && (
               <button
-                className="ml-0.5 text-neutral-600 hover:text-red-400 transition-colors leading-none"
+                className="ml-0.5 text-neutral-500 hover:text-red-400 transition-colors leading-none"
                 onClick={(e) => { e.stopPropagation(); onRemove(tab.id); }}
                 title="Remove oscillator"
               >
@@ -115,7 +115,7 @@ export function TabBar({ tabs, activeTabId, onSelect, onAdd, onRemove, onRename,
       {/* Add tab button */}
       <button
         onClick={onAdd}
-        className="px-2 py-1 text-xs text-neutral-600 hover:text-neutral-300 border border-transparent hover:border-neutral-700 rounded-xs transition-colors shrink-0"
+        className="px-2 py-1 text-xs text-neutral-500 hover:text-neutral-300 border border-transparent hover:border-neutral-700 rounded-xs transition-colors shrink-0"
         title="Add oscillator"
       >
         + OSC

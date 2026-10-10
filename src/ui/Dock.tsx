@@ -9,14 +9,15 @@ import { InstrumentLibrary } from '../sampler/InstrumentLibrary';
 import { EffectsPanel } from '../sampler/EffectsPanel';
 import { SNAP_OPTIONS, type SnapValue } from '../utils/music';
 import { setFocusZone } from './focus';
+import { isMac, withShortcut } from './shortcuts';
 
 export type DockTab = 'editor' | 'mixer' | 'instruments' | 'fx';
 
-const TABS: { id: DockTab; label: string; key: string }[] = [
-  { id: 'editor', label: 'EDITOR', key: 'E' },
-  { id: 'mixer', label: 'MIXER', key: 'X' },
-  { id: 'instruments', label: 'INSTRUMENTS', key: 'I' },
-  { id: 'fx', label: 'FX', key: 'F' },
+const TABS: { id: DockTab; label: string; name: string }[] = [
+  { id: 'editor', label: 'EDITOR', name: 'Editor' },
+  { id: 'mixer', label: 'MIXER', name: 'Mixer' },
+  { id: 'instruments', label: 'INSTRUMENTS', name: 'Instrument library' },
+  { id: 'fx', label: 'FX', name: 'Master effects' },
 ];
 
 interface Props {
@@ -58,7 +59,7 @@ export function Dock({ tab, onTab, height, onHeight, collapsed, onCollapsed, onS
 
   return (
     <div
-      className="flex flex-col shrink-0 border-t border-neutral-700 bg-[#0d0d0d]"
+      className="flex flex-col shrink-0 border-t border-neutral-700 bg-[var(--surface-1)]"
       style={{ height: collapsed ? 28 : height }}
       onMouseDown={() => setFocusZone(tab === 'editor' ? 'editor' : 'other')}
     >
@@ -82,12 +83,12 @@ export function Dock({ tab, onTab, height, onHeight, collapsed, onCollapsed, onS
               className="px-3 py-1 text-xs tracking-widest border-b-2 transition-colors"
               style={active
                 ? { borderColor: accent, color: accent }
-                : { borderColor: 'transparent', color: '#737373' }}
-              title={`${t.label} (Alt+${t.key})`}
+                : { borderColor: 'transparent', color: 'var(--color-neutral-500)' }}
+              title={withShortcut(t.name, `view.${t.id}`)}
             >{t.label}</button>
           );
         })}
-        <span className="ml-auto text-neutral-700" style={{ fontSize: 9 }}>
+        <span className="ml-auto text-neutral-500" style={{ fontSize: 11 }}>
           {collapsed ? 'click a tab to open' : 'click the open tab to collapse'}
         </span>
       </div>
@@ -216,18 +217,18 @@ function EditorToolbar() {
             onClick={() => dispatch({ type: 'SEQ_SET_EDIT_MODE', mode: m })}
             className={`px-2 py-0.5 text-xs border tracking-widest ${seq.editMode === m ? '' : off}`}
             style={seq.editMode === m ? on : {}}
-            title={m === 'draw' ? 'Draw: click to add notes (B)' : 'Select: drag a box to select (V)'}
+            title={m === 'draw' ? withShortcut('Draw: click to add notes', 'editor.draw') : withShortcut('Select: drag a box to select', 'editor.select')}
           >{m === 'draw' ? '✎ DRAW' : '⬚ SELECT'}</button>
         ))}
       </div>
-      <label className="flex items-center gap-1 text-xs text-neutral-600" title="Note grid (hold Shift to ignore it)">
+      <label className="flex items-center gap-1 text-xs text-neutral-500" title="Note grid (hold Shift to ignore it)">
         GRID
         <select value={seq.snapValue} onChange={(e) => dispatch({ type: 'SEQ_SET_SNAP', snap: e.target.value as SnapValue })}
           className="bg-neutral-950 border border-neutral-700 text-neutral-200 px-1 py-0.5">
           {SNAP_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
       </label>
-      <label className="flex items-center gap-1 text-xs text-neutral-600" title="Length of newly drawn notes">
+      <label className="flex items-center gap-1 text-xs text-neutral-500" title="Length of newly drawn notes">
         NOTE
         <select value={seq.defaultNoteLength} onChange={(e) => dispatch({ type: 'SEQ_SET_DEFAULT_NOTE_LEN', len: e.target.value as SnapValue })}
           className="bg-neutral-950 border border-neutral-700 text-neutral-200 px-1 py-0.5">
@@ -244,10 +245,10 @@ function EditorToolbar() {
         onClick={() => { if (patternId) { dispatch({ type: 'SEQ_PUSH_UNDO' }); dispatch({ type: 'SEQ_QUANTIZE', patternId }); } }}
         disabled={!seq.selectedNoteIds.length}
         className={`px-2 py-0.5 text-xs border ${off} disabled:opacity-30 disabled:pointer-events-none`}
-        title="Quantize selected notes to the grid (Q)"
+        title={withShortcut('Quantize selected notes to the grid', 'editor.quantize')}
       >Q</button>
-      <span className="ml-auto text-neutral-700" style={{ fontSize: 9 }}>
-        click keys or type A–; to audition · right-click deletes · ↑↓ transpose · Ctrl+wheel zoom · Shift+wheel pitch
+      <span className="ml-auto text-neutral-500" style={{ fontSize: 11 }}>
+        click keys or type A–; to audition · right-click deletes · ↑↓ transpose · {isMac() ? '⌘' : 'Ctrl'}+wheel zoom · Shift+wheel pitch
       </span>
     </div>
   );

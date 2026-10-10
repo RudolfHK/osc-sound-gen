@@ -5,6 +5,8 @@ import { TabBar } from './TabBar';
 import { getAudioEngine } from '../engine/audio';
 import { useAppStore, computeEffectiveMutes } from '../store/appStore';
 import type { OscillatorState, AdvancedSettings } from '../engine/oscillator';
+import { readable, useTheme } from './theme';
+import { confirmDialog } from './kit/dialogs';
 
 /**
  * The oscillator lab: hands-on waveform synthesis with a live oscilloscope.
@@ -19,6 +21,7 @@ export function OscLab() {
   const scopeRef = useRef<Oscilloscope | null>(null);
 
   const activeTab = state.tabs.find((t) => t.id === state.activeTabId) ?? state.tabs[0];
+  const theme = useTheme();
   const effectiveMutes = computeEffectiveMutes(state.tabs);
   const usedBy = state.sequencer.tracks.filter(
     (t) => t.source.type === 'oscillator' && t.source.tabId === activeTab.id,
@@ -93,13 +96,15 @@ export function OscLab() {
     if (tab?.isPlaying) getAudioEngine().updateTab(id, tab.oscillator, advanced);
   }, [state.tabs, dispatch]);
 
-  const removeTab = useCallback((id: string) => {
+  const removeTab = useCallback(async (id: string) => {
     const tab = state.tabs.find((t) => t.id === id);
     const users = state.sequencer.tracks.filter((t) => t.source.type === 'oscillator' && t.source.tabId === id);
     const msg = users.length
-      ? `“${tab?.label}” is the sound of ${users.map((u) => u.name).join(', ')}. Those tracks will switch to Electric Piano. Remove it?`
-      : `Remove “${tab?.label ?? 'oscillator'}”?`;
-    if (!window.confirm(msg)) return;
+      ? `“${tab?.label}” is the sound of ${users.map((u) => u.name).join(', ')}. Those tracks will switch to Electric Piano.`
+      : `“${tab?.label ?? 'oscillator'}” will be removed from the lab.`;
+    // Lab tabs aren't part of the undo history, so this one asks first
+    const ok = await confirmDialog({ title: 'Remove oscillator', message: msg, confirmLabel: 'Remove', danger: true });
+    if (!ok) return;
     getAudioEngine().removeTab(id);
     dispatch({ type: 'REMOVE_TAB', id });
   }, [state.tabs, state.sequencer.tracks, dispatch]);
@@ -127,7 +132,7 @@ export function OscLab() {
         >OVERLAY</button>
       </div>
 
-      <div className="px-3 py-1 text-[10px] text-neutral-500 border-b border-neutral-900 shrink-0">
+      <div className="px-3 py-1 text-[11px] text-neutral-500 border-b border-neutral-900 shrink-0">
         {usedBy.length
           ? <>Sound source for <span className="text-neutral-300">{usedBy.map((t) => t.name).join(', ')}</span> — changes here change how those tracks sound.</>
           : <>Not used by any track. In the arrangement, a track’s ⋯ menu → “Use an oscillator” plays its notes with this waveform.</>}
@@ -141,7 +146,7 @@ export function OscLab() {
         <ControlPanel
           state={activeTab.oscillator}
           advanced={activeTab.advanced}
-          accentColor={activeTab.color}
+          accentColor={readable(activeTab.color, theme)}
           isPlaying={activeTab.isPlaying}
           isMuted={activeTab.isMuted}
           isSolo={activeTab.solo}

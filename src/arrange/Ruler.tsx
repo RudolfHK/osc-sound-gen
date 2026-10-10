@@ -6,6 +6,7 @@ import {
   beatToX, xToBeat, snapTo, labelEvery,
   RULER_H, RULER_SECTION_H, RULER_BARS_H, type ArrView,
 } from './geometry';
+import { gray, shade, useTheme } from '../ui/theme';
 
 interface Props {
   view: ArrView;
@@ -35,6 +36,8 @@ export function Ruler({ view, width, onSeek }: Props) {
   const sections = useMemo(() => sectionsFromMarkers(seq.markers, songEnd), [seq.markers, songEnd]);
   const bar = seq.beatsPerBar;
 
+  const theme = useTheme();
+
   // ── Render ──
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -49,7 +52,7 @@ export function Ruler({ view, width, onSeek }: Props) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // Sections row
-    ctx.fillStyle = '#0c0c0c';
+    ctx.fillStyle = gray('#0c0c0c');
     ctx.fillRect(0, 0, width, RULER_SECTION_H);
     for (const s of sections) {
       const x0 = beatToX(s.beat, view);
@@ -63,14 +66,14 @@ export function Ruler({ view, width, onSeek }: Props) {
       ctx.beginPath();
       ctx.rect(x0, 0, Math.max(0, x1 - x0 - 2), RULER_SECTION_H);
       ctx.clip();
-      ctx.fillStyle = '#f5f5f5';
+      ctx.fillStyle = gray('#f5f5f5');
       ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
       ctx.textBaseline = 'middle';
       ctx.fillText(s.name, Math.max(x0, 0) + 6, RULER_SECTION_H / 2 + 0.5);
       ctx.restore();
     }
     if (sections.length === 0) {
-      ctx.fillStyle = '#404040';
+      ctx.fillStyle = gray('#404040');
       ctx.font = '10px ui-sans-serif, system-ui, sans-serif';
       ctx.textBaseline = 'middle';
       ctx.fillText('Double-click here to add a section (Intro, Verse, Drop…)', 8, RULER_SECTION_H / 2);
@@ -78,22 +81,22 @@ export function Ruler({ view, width, onSeek }: Props) {
 
     // Bars row
     const top = RULER_SECTION_H;
-    ctx.fillStyle = '#111';
+    ctx.fillStyle = gray('#111');
     ctx.fillRect(0, top, width, RULER_BARS_H);
 
     // Song end shading
     const endX = beatToX(songEnd, view);
     if (endX < width) {
-      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillStyle = shade(0.45);
       ctx.fillRect(Math.max(0, endX), top, width - Math.max(0, endX), RULER_BARS_H);
     }
 
     if (seq.loopEnabled || dragRef.current?.kind === 'loop-new') {
       const x0 = beatToX(seq.loopStartBeat, view);
       const x1 = beatToX(seq.loopEndBeat, view);
-      ctx.fillStyle = (seq.loopEnabled ? accent : '#737373') + '33';
+      ctx.fillStyle = (seq.loopEnabled ? accent : gray('#737373')) + '33';
       ctx.fillRect(x0, top + 1, x1 - x0, RULER_BARS_H - 2);
-      ctx.fillStyle = seq.loopEnabled ? accent : '#737373';
+      ctx.fillStyle = seq.loopEnabled ? accent : gray('#737373');
       ctx.fillRect(x0, top + 1, x1 - x0, 3);
       ctx.fillRect(x0, top + 1, 2, RULER_BARS_H - 2);
       ctx.fillRect(x1 - 2, top + 1, 2, RULER_BARS_H - 2);
@@ -103,27 +106,27 @@ export function Ruler({ view, width, onSeek }: Props) {
     const every = labelEvery(pxPerBar);
     const firstBar = Math.max(0, Math.floor(view.startBeat / bar));
     const lastBar = Math.ceil((view.startBeat + width / view.pxPerBeat) / bar);
-    ctx.font = '9px ui-monospace, monospace';
+    ctx.font = '10px ui-monospace, monospace';
     ctx.textBaseline = 'middle';
     for (let b = firstBar; b <= lastBar; b++) {
       const x = Math.round(beatToX(b * bar, view)) + 0.5;
       const labelled = b % every === 0;
-      ctx.strokeStyle = labelled ? '#4a4a4a' : '#2a2a2a';
+      ctx.strokeStyle = labelled ? gray('#4a4a4a') : gray('#2a2a2a');
       ctx.beginPath();
       ctx.moveTo(x, top + (labelled ? 6 : 14));
       ctx.lineTo(x, top + RULER_BARS_H);
       ctx.stroke();
       if (labelled) {
-        ctx.fillStyle = '#8a8a8a';
+        ctx.fillStyle = gray('#8a8a8a');
         ctx.fillText(String(b + 1), x + 3, top + 11);
       }
     }
-    ctx.strokeStyle = '#2a2a2a';
+    ctx.strokeStyle = gray('#2a2a2a');
     ctx.beginPath();
     ctx.moveTo(0, RULER_H - 0.5);
     ctx.lineTo(width, RULER_H - 0.5);
     ctx.stroke();
-  }, [width, view, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, songEnd, bar, accent]);
+  }, [width, view, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, songEnd, bar, accent, theme]);
 
   // ── Hit testing ──
   const local = (e: { clientX: number; clientY: number }) => {

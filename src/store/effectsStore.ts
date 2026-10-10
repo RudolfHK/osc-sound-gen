@@ -94,8 +94,8 @@ export function useEffectsReducer(bpm: number): EffectsCtx {
   }), []);
 
   const dispatch = useCallback<Dispatch<EffectsAction>>((action) => {
-    if (action.type === 'FX_SET') requestUndoStep(`fx:${Object.keys(action.patch).sort().join(',')}`);
-    if (action.type === 'FX_RESET') requestUndoStep(null);
+    if (action.type === 'FX_SET') requestUndoStep(`fx:${Object.keys(action.patch).sort().join(',')}`, 'Master effects');
+    if (action.type === 'FX_RESET') requestUndoStep(null, 'Reset master effects');
     rawDispatch(action);
   }, []);
 

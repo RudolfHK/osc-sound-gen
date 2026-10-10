@@ -190,6 +190,11 @@ export interface UndoEntry {
   doc: DocSnapshot;
   song: SongSettings;
   extras: Record<string, unknown>;
+  /**
+   * The edit this step undoes ("Move clip"). On the redo stack: the edit that
+   * redo would apply again.
+   */
+  label?: string;
 }
 
 /** The undoable part of the sequencer — what a project file is made of. */
