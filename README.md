@@ -81,20 +81,36 @@ For the complete Electron packaging guide including code signing and auto-update
 
 ## Features
 
+### Getting started and help
+- A **welcome screen** on first start: starter or empty project, five **genre templates** (tracks,
+  sounds, mix and a looping beat, no notes), and the fifteen examples with genre, length and a
+  one-line description — each with a **▶ preview** that plays without touching your session
+- A six-step **guided tour** that points at each control and waits for you to use it
+- **F1** opens this guide inside the app, at the section for the panel you're in; **?** lists every
+  shortcut, searchable. Shortcuts, tooltips and menus come from one registry, so they always agree,
+  and show ⌘/⌥ on a Mac
+- **Light and dark themes** (☀ / ☾ in the header), visible keyboard focus, every control labelled for
+  screen readers, no text under 11 px
+
 ### Arrangement
 - **Tracks own their sound** — an instrument preset, a drum kit, or (optionally) an oscillator from the lab
 - **Clips** on a timeline, each playing a looping **pattern**: drag to move (across tracks too), Alt-drag to copy,
-  drag either edge to loop or trim, Ctrl+D to duplicate, Ctrl+E to split, per-clip mute
+  drag either edge to loop or trim, Ctrl+D to duplicate, Ctrl+E to split, per-clip mute, name and colour
+- **Select several clips** (Shift-click, a selection box, Ctrl+A) and move, copy, duplicate, colour or
+  delete them together; **Ctrl+C / Ctrl+V** pastes at the playhead, onto another track of the same kind
 - **Linked or independent copies** — duplicates are independent by default, as in Ableton and Logic; linked
   clips share a pattern and show ⧉
 - **Song sections** on the ruler (Intro, Verse, Drop…): duplicate a section with everything in it, delete one and
   close the gap, or loop it with one click
-- Bar ruler: click to seek, drag to set the loop; a loop only engages when the playhead reaches it
+- Bar ruler: click to seek, drag to set the loop, right-click for play-from-here and loop points; loop
+  start/end can also be typed as bar numbers; a loop only engages when the playhead reaches it
+- Follow playhead: page, smooth scroll or off; type a bar or a time into the position display to jump
 - Ctrl+wheel zoom around the cursor, Shift+wheel to scroll time, FIT to see the whole song
 - Track headers with rename, colour, volume, mute/solo (additive), automation toggle and a ⋯ menu
 - Undo/redo (↶/↷ in the transport, Ctrl+Z / Ctrl+Shift+Z) covers the whole song: clips, patterns,
   sections, automation, instruments and their per-track settings, every mixer control, drum patterns,
-  master effects, tempo, meter, song length and loop. A fader drag counts as one step
+  master effects, tempo, meter, song length and loop. A fader drag counts as one step. Every step is
+  **named** (*Undo Fader: Bass*), and a **History** list jumps several steps at once
 - Stop and seek are immediate: held notes, queued notes and reverb/delay tails are cut within ~4 ms
 - Starting or seeking into a held chord plays it straight away (note chase) instead of waiting for
   the next note
@@ -194,7 +210,7 @@ For the complete Electron packaging guide including code signing and auto-update
 
 ### Mixer
 - A channel strip per track: 3-band EQ (200 Hz shelf / 1.2 kHz peak / 4 kHz shelf, ±18 dB),
-  independent reverb/delay/chorus sends, fader to 150%, pan, mute and solo
+  independent reverb/delay/chorus sends, fader in dB (to +3.5 dB), pan, mute and solo
 - **Real per-track meters** (post-fader peak), plus a master meter
 - **Sidechain ducking** — any track can duck under the kicks on a drum track, which is
   what lets kick and bass share a downbeat without masking each other
@@ -205,12 +221,12 @@ For the complete Electron packaging guide including code signing and auto-update
   redraw loop, so it only costs CPU while you're watching it
 - Four modes: log-spaced spectrum bars, waveform, radial, and concentric bloom
 - Customizable sensitivity, smoothing, detail, motion trail, colour mode
-  (theme / spectrum / mono), mirror, glow, and a 30/60 FPS cap
+  (theme / spectrum / mono), mirror, glow, and a 30/60 FPS cap (30 by default)
 
 ### Export
 - **Offline render** — the arrangement is played into an `OfflineAudioContext` by the same instruments,
   drums, channel strips, effects and limiter that play it live, so an export sounds exactly like playback.
-  It's sample-accurate and faster than real time (about 2.4× in testing)
+  It's sample-accurate and 4–13× faster than real time on the bundled examples
 - **WAV** — 16-bit (with optional TPDF dither), 24-bit or 32-bit float; 44.1, 48 or 96 kHz
 - **MP3** — 128–320 kbps CBR, stereo or mono, with ID3 title tags; encoded in a Web Worker
 - **Stems** — one file per track that plays in the range, all the same length, each with its own
@@ -235,11 +251,27 @@ For the complete Electron packaging guide including code signing and auto-update
 - 60 fps oscilloscope with single and overlay (with SUM) modes
 - Any lab oscillator can be a track's sound — polyphonic, with cutoff/resonance automation
 
-### Persistence
-- **Auto-save** — the whole session is kept in `localStorage`, written in debounced batches and never per frame
+### Saving and project safety
+- **Session kept automatically** — the whole session lives in `localStorage`, written in debounced batches
+  (never per frame) and restored after a reload or crash
 - **Project files** (`.oscproject`, JSON) are self-contained: tracks, clips, patterns, sections, automation, mixer,
   plus the drum patterns and lab oscillators they use
+- **Save in place** — in Chromium browsers and the desktop app, Ctrl+S writes back to the project's file
+  (File System Access API); *Save as* picks a new one. Elsewhere Save downloads a copy and says so
+- **Unsaved-changes guard** — opening, starting a new project, closing the tab or the desktop window ask
+  *Save / Don't save / Cancel* when there's something to lose; the tab title shows • while unsaved
+- Optional **autosave to file** every 1–10 minutes; a **crash screen** that can still save the song
 - Older project files and saved sessions migrate automatically
+
+### Status bar and settings
+- Save state, audio state with **Enable audio**, sample rate and latency, **audio-thread load** measured by
+  an AudioWorklet probe, a **dropout** counter, which area has the keys, and a hint for the control under
+  the mouse
+- **Eco mode** for slow machines (mono width, shorter tails, slower meters) — switches itself on after
+  dropouts, with a notice and a *Turn off* button. Exports always render at full quality
+- **Settings** (Ctrl+,): output device, latency, Eco mode; new-project tempo, grid, note length and
+  template; follow playhead, keyboard-piano octave, metronome level, count-in; autosave; theme, accent and
+  interface size (90–150 %)
 
 ### Example projects
 Fifteen compositions ship with the app — open them from **OSC ▾ → Open example**, or find the files in
@@ -260,17 +292,21 @@ fast arpeggio over techno drums. All are original compositions — genre and sty
 | **Space** | Play / stop |
 | **Home** | Return to start |
 | **Ctrl+Z** / **Ctrl+Shift+Z** | Undo / redo |
-| **Ctrl+S** / **Ctrl+O** | Save / open project |
+| **Ctrl+S** / **Ctrl+Shift+S** / **Ctrl+O** | Save / save as / open project |
 | **Ctrl+Shift+E** | Export audio or MIDI |
 | **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
-| **Delete**, **Ctrl+D**, **Ctrl+E** | Delete / duplicate / split the selected clip *(arrangement)* |
+| **Ctrl+,** · **?** · **F1** | Settings · all shortcuts · user guide |
+| **Delete**, **Ctrl+D**, **Ctrl+E** | Delete / duplicate / split the selected clips *(arrangement)* |
+| **Ctrl+A / C / V** | Select all / copy / paste clips *(arrangement)* |
 | **M** / **S** | Mute / solo the selected track *(arrangement)* |
 | **L** / **K** | Loop / metronome *(arrangement)* |
 | **A W S E D F T G Y H U J K…** | Play notes *(editor)* |
 | **↑ / ↓**, **Q**, **Ctrl+A/C/V** | Transpose, quantize, select/copy/paste notes *(editor)* |
+| **B** / **V** | Draw / select mode *(editor)* |
 
-Arrangement and editor shortcuts follow whichever you clicked last; none fire while typing in a text field.
-The full list is in [GUIDE.md](GUIDE.md#keyboard-shortcuts).
+Arrangement and editor shortcuts follow whichever you clicked last (the status bar shows which); none fire
+while typing in a text field or while a dialog is open. On a Mac, Ctrl is ⌘ and Alt is ⌥. Press **?** in
+the app for the full list, or see [GUIDE.md](GUIDE.md#keyboard-shortcuts).
 
 ---
 
@@ -312,6 +348,7 @@ The square wave audio engine uses a 256-harmonic Fourier series (`PeriodicWave`)
 src/
 ├── arrange/
 │   ├── ArrangementView.tsx  tracks, clip lanes, inline automation, playhead overlay, clip gestures
+│   ├── useClipActions.ts    multi-clip delete / duplicate / copy / paste / split, clipboard
 │   ├── Ruler.tsx            sections row + bar ruler with loop brace
 │   ├── drawLane.ts          clip rendering (note/drum previews, loop markers)
 │   └── geometry.ts          beat↔pixel maths, grid
@@ -324,7 +361,9 @@ src/
 │   ├── pcmRecorder.ts       lossless live recording (with pcm-tap.worklet.js)
 │   ├── instruments.ts       223 presets, polyphonic preset + oscillator voices
 │   ├── sampler.ts           33 synthesized drum voices
-│   ├── channelStrip.ts      per-track EQ, fader, pan, sends, mute, sidechain, meters
+│   ├── channelStrip.ts      per-track EQ, fader, pan, sends, mute, sidechain, meters, instrument width/sends
+│   ├── widener.ts           per-track mid/side stereo width (voices stay mono)
+│   ├── audioHealth.ts       context state, latency, load probe (load-probe.worklet.js), dropouts
 │   ├── effects.ts           master reverb, delay, chorus
 │   ├── automation.ts        lane maths and AudioParam scheduling
 │   ├── arpeggiator.ts       chord → arpeggio expansion
@@ -342,11 +381,21 @@ src/
 │   └── Mixer.tsx            channel strips
 ├── sampler/                 drum step sequencer, instrument library, FX panel
 ├── store/
-│   ├── appStore.ts          document model reducer, undo, debounced persistence, migration
+│   ├── appStore.ts          document model reducer, named undo, debounced persistence, migration
+│   ├── projectState.ts      unsaved-changes tracking, crash-screen serializer
+│   ├── settings.ts          app preferences (Settings dialog)
 │   └── …                    drum, instrument, effects and visualizer stores
 ├── ui/
-│   ├── AppShell.tsx         header, view switch, global shortcuts, engine sync
-│   ├── Transport.tsx        play/stop/record, position, tempo, loop, metronome
+│   ├── AppShell.tsx         header, view switch, engine sync, dialogs, desktop bridge
+│   ├── shortcuts.ts         the shortcut registry: keys, scopes, labels, dispatch
+│   ├── Transport.tsx        play/stop/record, named undo + history, typed position, tempo, loop
+│   ├── StatusBar.tsx        save / audio / load / keys / hint, automatic Eco mode
+│   ├── Welcome.tsx · Tour.tsx  start screen with templates and previews; guided tour
+│   ├── SettingsDialog.tsx   settings
+│   ├── help/                in-app guide (renders GUIDE.md) and the shortcuts overlay
+│   ├── kit/                 Dialog, Button, confirm / choice / prompt dialogs
+│   ├── theme.ts · scale.ts  light/dark theme, canvas colours; interface size
+│   ├── ErrorBoundary.tsx    crash screen
 │   ├── ExportDialog.tsx     export options, progress and level report
 │   ├── Dock.tsx             editor / mixer / instruments / FX tabs
 │   ├── OscLab.tsx           optional oscillator lab
@@ -356,6 +405,7 @@ src/
 │   └── project.ts           .oscproject v2 format, v1 + saved-session migration
 └── visualizer/              oscilloscope and audio visualizer
 e2e/smoke.mjs                browser tests (Playwright)
+e2e/perf.mjs                 performance budgets (npm run test:perf)
 examples/                    bundled projects
 electron/main.cjs            Electron main process
 ```
@@ -365,8 +415,11 @@ electron/main.cjs            Electron main process
 ## Testing
 
 ```bash
-npm test                          # 54 unit tests: model, reducer, scheduler, migrations, examples, encoders, loudness
-npm run build && npm run test:e2e # 27 browser tests
+npm test                          # 124 unit tests: model, reducers, named undo, scheduler, migrations, examples,
+                                  # templates, shortcuts, dirty tracking, encoders, loudness
+npm run build && npm run test:e2e # 55 browser tests
+npm run build && npm run test:perf  # performance budgets, normalised to the reference machine
+npx electron-builder --linux dir && xvfb-run -a npm run test:electron   # 9 desktop tests
 ```
 
 The browser suite drives the built app in Chromium and taps its audio output, so it checks that
@@ -374,8 +427,19 @@ playback actually produces sound, that mute actually silences it, that a tempo c
 playhead, and that playback doesn't write to storage every frame — not just that nothing threw. Every
 export format is downloaded and parsed: WAV headers and sample peaks, MP3 frame sync and a decode back
 to audio, ZIP contents and stem alignment, MIDI chunks, and the live take's float format. It also
-verifies that a session saved by an older version migrates instead of crashing. Set `CHROMIUM_PATH` to
-choose the browser binary.
+verifies that a session saved by an older version migrates instead of crashing.
+
+It also covers the help and safety features end to end: every registered shortcut has a handler, the
+shortcut overlay and in-app guide, named undo and the History jump, the unsaved-changes guard, saving
+over an opened file (with a mocked File System Access API) and the download fallback, the crash screen,
+templates, example previews, the guided tour, the audio-state readout, settings surviving a reload,
+multi-clip editing, and accessibility scans (no unlabeled control, no text under 11 px, focus kept
+inside dialogs, keyboard menus). Set `CHROMIUM_PATH` to choose the browser binary.
+
+`test:perf` renders a fixed calibration workload first and scales every result to the machine the
+budgets were set on, so it judges the code rather than the computer: audio-thread load on the heaviest
+passage ≤ 50 %, every example exporting ≥ 3× real time, no late notes on a 4× slower CPU, and frame
+times with meters and visualizer open.
 
 ---
 

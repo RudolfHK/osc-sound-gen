@@ -108,6 +108,13 @@ export function AppShell() {
     if (await project.loadExample('midnight-drive.oscproject')) setTouring(true);
   }, [dispatch, project]);
 
+  // Test hook: the end-to-end suite checks the crash screen with a real render error
+  const [crashTest, setCrashTest] = useState(false);
+  useEffect(() => {
+    (window as unknown as { __oscTest?: object }).__oscTest = { crash: () => setCrashTest(true) };
+  }, []);
+  if (crashTest) throw new Error('Test crash requested by window.__oscTest.crash()');
+
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [help, setHelp] = useState<{ open: boolean; topic: string | null }>({ open: false, topic: null });

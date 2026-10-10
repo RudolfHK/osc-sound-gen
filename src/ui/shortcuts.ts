@@ -188,9 +188,16 @@ export function runShortcut(id: string): boolean {
   return false;
 }
 
+/** Keys a focused slider uses itself: they move the slider, not the song. */
+const SLIDER_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown']);
+function sliderKey(e: KeyboardEvent): boolean {
+  const t = e.target;
+  return t instanceof HTMLInputElement && t.type === 'range' && SLIDER_KEYS.has(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey;
+}
+
 /** The one keydown listener. Install once (AppShell). */
 export function dispatchShortcut(e: KeyboardEvent): void {
-  if (e.defaultPrevented || isTypingTarget(e.target) || isOverlayOpen()) return;
+  if (e.defaultPrevented || isTypingTarget(e.target) || isOverlayOpen() || sliderKey(e)) return;
   // Most specific first: "Shift+ArrowUp" before "ArrowUp" is handled by matching Shift exactly
   for (const s of SHORTCUTS) {
     if (s.docOnly || !s.keys.some((k) => matches(k, e))) continue;

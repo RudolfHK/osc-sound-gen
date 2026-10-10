@@ -8,21 +8,27 @@ Everything is synthesized in real time by the Web Audio API — there are no sam
 
 1. [Interface Overview](#interface-overview)
 2. [Your First Song](#your-first-song)
-3. [The Arrangement](#the-arrangement)
-4. [The Editor](#the-editor)
-5. [Transport](#transport)
-6. [The Drum Machine](#the-drum-machine)
-7. [The Instrument Library](#the-instrument-library)
-8. [The Mixer](#the-mixer)
-9. [Master Effects](#master-effects)
-10. [Automation](#automation)
-11. [The Arpeggiator](#the-arpeggiator)
-12. [The Oscillator Lab](#the-oscillator-lab)
-13. [The Visualizer](#the-visualizer)
-14. [Exporting and Recording](#exporting-and-recording)
-15. [Projects and Saving](#projects-and-saving)
-16. [Keyboard Shortcuts](#keyboard-shortcuts)
-17. [Troubleshooting](#troubleshooting)
+3. [Welcome, Templates and the Tour](#welcome-templates-and-the-tour)
+4. [The Arrangement](#the-arrangement)
+5. [The Editor](#the-editor)
+6. [Transport](#transport)
+7. [The Drum Machine](#the-drum-machine)
+8. [The Instrument Library](#the-instrument-library)
+9. [The Mixer](#the-mixer)
+10. [Master Effects](#master-effects)
+11. [Automation](#automation)
+12. [The Arpeggiator](#the-arpeggiator)
+13. [The Oscillator Lab](#the-oscillator-lab)
+14. [The Visualizer](#the-visualizer)
+15. [Exporting and Recording](#exporting-and-recording)
+16. [Projects and Saving](#projects-and-saving)
+17. [The Status Bar](#the-status-bar)
+18. [Settings](#settings)
+19. [Keyboard Shortcuts](#keyboard-shortcuts)
+20. [Troubleshooting](#troubleshooting)
+
+This guide is also built into the app: press **F1** (or **?** in the header → *User guide*) and it
+opens at the section for the panel you're working in.
 
 ---
 
@@ -30,8 +36,8 @@ Everything is synthesized in real time by the Web Audio API — there are no sam
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ OSC ▾  Project name   ⏮ ▶PLAY ⏹ ●REC  1.1.1 0:00.0  BPM 120  4/4  ↻LOOP  ♩CLICK │
-│                                     MASTER ▓▓░  [ARRANGE|OSC LAB]  VIZ  ●       │
+│ OSC ▾  Project name   ⏮ ▶PLAY ⏹ ↶↷▾ ●REC  1.1.1 0:00.0  BPM 120  4/4  ↻  ♩     │
+│                          MASTER ▓▓░  [ARRANGE|OSC LAB]  VIZ  ☀  ⚙  ?  ●        │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ ARRANGE  + Instrument  + Drums  + Oscillator   GRID Bar  − + FIT  LENGTH 16      │
 ├────────────────┬─────────────────────────────────────────────────────────────┤
@@ -45,15 +51,23 @@ Everything is synthesized in real time by the Web Audio API — there are no sam
 ├────────────────┴─────────────────────────────────────────────────────────────┤
 │ EDITOR │ MIXER │ INSTRUMENTS │ FX                               ← dock tabs   │
 │ ┌ pattern / arp ┬ piano roll (or drum step sequencer) ──────────────────────┐ │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ ● Saved · song │ Audio 48 kHz · 12 ms │ Load ▮▮▯▯▯ 31% │ ECO │ Keys: Arrangement │  ← status bar
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 The layout follows the arrange-above / editor-below split used by Ableton Live, Logic and Bitwig:
 
-- **Header** — file menu (**OSC ▾**), project name, transport, master volume, view switch, visualizer
+- **Header** — file menu (**OSC ▾**), project name, transport, master volume, view switch,
+  visualizer, light/dark switch (**☀ / ☾**), **⚙ Settings** and **? Help**
 - **Arrangement** — tracks down the left, the song left to right, sections and loop on the ruler
 - **Dock** — the editor for whatever clip is selected, plus the mixer, instrument library and effects.
   Drag its top edge to resize it; click the open tab to collapse it
+- **Status bar** — whether the song is saved, whether audio is running and how hard it's working,
+  which area your keys act on, and what the control under the mouse does (see *The Status Bar*)
+
+Hover over any control for a tooltip; the ones with a keyboard shortcut show it. Press **?** for
+every shortcut in one searchable list.
 
 **OSC LAB** swaps the arrangement for the oscillator lab. It's optional: nothing in a song depends on it.
 
@@ -61,8 +75,9 @@ The layout follows the arrange-above / editor-below split used by Ableton Live, 
 
 ## Your First Song
 
-1. **Open an example** — **OSC ▾ → Open example → midnight drive** — and press **Space** to hear what
-   the app can do. Or keep the starter project: Drums, Bass, Keys and Pad tracks.
+1. **Open an example** — on the welcome screen, or **OSC ▾ → Open example → Midnight Drive** — and
+   press **Space** to hear what the app can do. Or keep the starter project: Drums, Bass, Keys and
+   Pad tracks. New here? *Help → Take the tour* walks you through it in six steps.
 2. **Make a beat** — double-click the Drums lane at bar 1. A drum clip appears and the dock shows the
    step sequencer. Pick a pattern from the dropdown, or click steps to write your own.
 3. **Write a bass line** — double-click the Bass lane. Draw notes in the piano roll below.
@@ -70,7 +85,36 @@ The layout follows the arrange-above / editor-below split used by Ableton Live, 
 5. **Add sections** — double-click the SECTIONS row at bar 9 to start a "Verse". Right-click a section
    to loop it, duplicate it (with everything in it), or delete it.
 6. **Mix** — open the **MIXER** tab. Turn up **SC** (sidechain) on the bass so it ducks under the kick.
-7. **Save** — Ctrl+S downloads a `.oscproject` file. Your session is also kept automatically.
+7. **Save** — Ctrl+S saves a `.oscproject` file (and saves back to it next time, in Chrome, Edge and
+   the desktop app). Your session is also kept in the browser all the time.
+
+---
+
+## Welcome, Templates and the Tour
+
+### The welcome screen
+
+The first time OSC starts it shows the **welcome screen**. Open it again from **? → Welcome screen**;
+**File → New project…** shows the same screen to choose how to start. Tick *Show this when the app
+starts* to see it every time.
+
+- **Starter** — Drums, Bass, Keys and Pad, ready for notes. **Empty** — no tracks at all.
+  **Open…** — a project file.
+- **Templates** — a genre's tracks, sounds, mix, effects and drum patterns with no notes yet: deep
+  house, organ house, drift phonk, French touch and game ambient. The main beat loops over the first
+  eight bars, so press Play and write over it.
+- **Examples** — fifteen finished songs with their genre, length and a line about each. **▶** plays
+  the start of one without opening it (your session is left exactly as it was); click its name to
+  open it.
+
+Anything that would replace your song asks first if it has unsaved changes.
+
+### The tour
+
+*New here? Take the 2-minute tour* (also **? → Take the tour**) opens Midnight Drive and walks
+through six steps — play the song, open a clip, draw a note, change the sound, mix, export. Each step
+points at the control and moves on as soon as you've done it. Nothing is blocked while it runs;
+**Skip tour** ends it.
 
 ---
 
@@ -114,10 +158,25 @@ Clips are regions on a track's lane. Each one plays a **pattern** of notes (or a
 | Trim the start | Drag the left edge — the clip starts later in its pattern |
 | Split it | **Ctrl+E** splits at the playhead; or right-click → Split |
 | Mute it | Right-click → Mute clip |
+| Rename it | Right-click → Rename… (renames its pattern) |
+| Colour it | Right-click → Colour — or back to the track's colour |
 | Delete it | **Delete**, or right-click → Delete |
 
 Edges and positions snap to the **GRID** (bar, beat, 1/8 or 1/16). Hold **Shift** while dragging to
 ignore it.
+
+### Working with several clips
+
+- **Select several**: **Shift**-click (or Ctrl/⌘-click) clips to add or remove them, drag across
+  empty lane space to draw a selection box, or press **Ctrl+A** for every clip
+- **Move them together**: drag any selected clip — the group keeps its shape. **Alt**-drag copies
+  the group
+- **Delete**, **Ctrl+D** (duplicate after the selection), right-click → **Colour** / **Mute clips**
+  act on the whole selection
+- **Copy and paste**: **Ctrl+C**, then **Ctrl+V** pastes at the playhead. Clips copied from one track
+  paste onto the selected track if it's the same kind (notes onto an instrument track, drums onto a
+  drum track); clips from several tracks go back to their own tracks. Pasted clips get their own
+  copy of the notes, so editing them leaves the originals alone
 
 ### Linked clips
 
@@ -151,6 +210,9 @@ Right-click a section for:
 - **Click** the bar ruler to move the playhead (it restarts from there if playing)
 - **Drag** across it to set the loop range and turn looping on
 - **Drag** the loop's edges to adjust it; **L** toggles looping
+- **Right-click** it for *Play from here*, *Set loop start / end here*, *Loop this bar* and *Add
+  section here*
+- Or type the loop as bar numbers in the toolbar's **LOOP** fields: *1 → 9* loops bars 1 to 8
 - If you start playback *after* the loop's end, it plays straight through — the loop only engages
   when the playhead reaches it
 
@@ -163,6 +225,7 @@ Right-click a section for:
 | Ctrl+wheel | Zoom around the mouse |
 | **FIT** | Show the whole song |
 | **LENGTH** | Song length in bars (grows automatically when you place clips further out) |
+| **⇥ PAGE / SCROLL / OFF** | Follow playhead: jump a page when it reaches the edge, scroll to keep it a third of the way in, or leave the view alone |
 
 ---
 
@@ -182,7 +245,7 @@ to the next bar.
 
 ### Drawing notes
 
-In **✎ DRAW** mode (the default):
+In **✎ DRAW** mode (the default; **B** switches to it, **V** to select mode):
 
 - **Click** an empty cell to add a note of the **NOTE** length; drag right while still holding to
   stretch it
@@ -229,7 +292,8 @@ A  S  D  F  G  H  J  K  L  ;
 C4 D4 E4 F4 G4 A4 B4 C5 D5 E5
 ```
 
-Click the arrangement to give keyboard focus back to it.
+**Settings → Editing → Keyboard piano** moves this up or down by octaves. Click the arrangement to
+give keyboard focus back to it — the status bar shows which area has it.
 
 ---
 
@@ -240,14 +304,15 @@ Click the arrangement to give keyboard focus back to it.
 | **⏮** (Home) | Back to the loop start, press again for bar 1 |
 | **▶ PLAY / ■ STOP** (Space) | Play from the playhead; stopping leaves the playhead where it stopped |
 | **⏹** | Stop; when already stopped, return to the start |
-| **↶ / ↷** | Undo / redo (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y). Greyed out when there is nothing to undo or redo; hover to see how many steps are stored |
+| **↶ / ↷** | Undo / redo (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y). Hover to see what they'll undo — *Undo Move clip*, *Undo Fader: Bass* |
+| **▾** (or right-click ↶) | **History**: every step you can undo or redo, newest first. Click one to jump back to before it (or forward to it) in one go |
 | **● REC** | Record the master output live, losslessly — see *Exporting and Recording* |
 | **⤓ EXPORT** | Export the song as WAV, MP3, stems or MIDI |
-| Position | Bar.beat.sixteenth and elapsed time |
+| Position | Bar.beat.sixteenth and elapsed time. **Click it and type** a bar (`17`), bar.beat (`17.3`), bar.beat.sixteenth (`17.3.2`) or a time (`1:30`) to jump there |
 | **BPM** | Type a tempo and press Enter; **↑/↓** nudge by 1 (Shift: 10). Changing it while playing doesn't jump the playhead |
 | **4/4** | Beats per bar |
 | **↻ LOOP** (L) | Loop the range shown on the ruler |
-| **♩ CLICK** (K) | Metronome, accented on the downbeat |
+| **♩ CLICK** (K) | Metronome, accented on the downbeat. Its level and an optional one- or two-bar count-in are in **Settings → Editing** |
 
 Stopping is immediate. Every note that is sounding, still releasing or already queued to play is
 cut off within a few milliseconds, and the reverb and delay tails are cleared with it, so a held pad
@@ -264,7 +329,8 @@ re-struck.
 track names and colours, instruments and their per-track settings, the arpeggiator, the whole mixer
 (faders, pan, EQ, sends, sidechain, mute and solo), drum patterns, the master effects, and the
 tempo, meter, song length and loop. One continuous movement of a fader or knob is a single undo
-step. Deleting a drum pattern removes the clips that use it, and one undo brings both back. The
+step. Each step is named after what you did, and undoing shows a short notice with a **Redo**
+button. Deleting a drum pattern removes the clips that use it, and one undo brings both back. The
 view (zoom, scroll) and the instrument library's own defaults are not part of the undo history.
 
 ---
@@ -458,7 +524,7 @@ Open the **MIXER** tab (Alt+X). Every track has a channel strip; the master stri
 | **EQ** | HI (high shelf, 4 kHz), MID (peak, 1.2 kHz), LO (low shelf, 200 Hz), ±18 dB. Double-click to reset |
 | **SENDS** | REV / DLY / CHO — this track's level into the master reverb, delay and chorus |
 | **SC** | Sidechain: how far this track ducks under the kick |
-| Meter + fader | Post-fader peak level for *this track*, and its level up to 150% (double-click: 100%) |
+| Meter + fader | Post-fader peak level for *this track*, and its level in dB, up to +3.5 dB (double-click: 0 dB) |
 | **PAN** | Stereo position (double-click: centre) |
 | **M** / **S** | Mute and solo — the same as the track header |
 
@@ -492,7 +558,8 @@ reverb, every instrument and drum voice feeds one shared rack. That is how recor
 and it is why a piano and a guitar sitting in the same reverb sound like they are in the same
 room rather than two different ones.
 
-Each rack's **name** is a power button — click it to bypass that effect entirely.
+Each rack's **name** is a power button — click it to bypass that effect entirely (the drum sends
+are just two levels and have none).
 
 ### Reverb
 
@@ -726,12 +793,11 @@ circle) and **Bloom** (concentric rings tracking frequency bands).
 | **DETAIL** | Bar count, 16–192 |
 | **TRAIL** | Motion trail — 0 clears each frame, high values smear |
 | **COLOR** | Theme (follows the active oscillator's colour), Spectrum, or Mono |
-| **MIRROR / GLOW** | Symmetry, and shadow bloom |
-| **FPS** | 60 or 30 |
+| **MIRROR / GLOW** | Symmetry, and a soft halo |
+| **FPS** | 30 (the default) or 60 |
 
 Your option choices persist; the on/off state doesn't. If playback starts to crackle
-while it's open, turn **GLOW** off first — shadow blur is by far the most expensive
-thing here — then drop to 30 FPS.
+while it's open, turn on **Eco mode** in the status bar, or close the visualizer.
 
 ---
 
@@ -810,12 +876,16 @@ live interaction, exporting the song is faster and exact.
 
 ## Projects and Saving
 
-### Your session is saved automatically
+### Your session is kept automatically
 
 Everything — tracks, clips, patterns, sections, mixer, lab oscillators, drum patterns, effects — is
-kept in the browser and restored when you come back. Saving is batched and skipped during playback,
-so it costs nothing while you work. If the browser's storage ever fills up, a notice says so — the
-session is then no longer being saved, so use **Save** to keep a file.
+kept in the browser and restored when you come back, even after a crash or a closed tab. It's
+written a moment after each change, in batches (never once per frame), so it costs nothing while
+you work. If the browser's storage ever fills up, a notice says so — the session is then no longer
+being kept, so use **Save** to keep a file.
+
+That copy lives only in this browser. To keep a song safe, move it to another computer or share it,
+save it as a project file.
 
 ### Project files
 
@@ -823,13 +893,33 @@ session is then no longer being saved, so use **Save** to keep a file.
 
 | Item | Action |
 |------|--------|
-| **New project** | Starts a fresh arrangement (asks first if this one has clips) |
+| **New project…** | Choose how to start: starter tracks, empty, a template or an example |
 | **Open…** (Ctrl+O) | Loads a `.oscproject` file |
-| **Save** (Ctrl+S) | Downloads the project as `<project name>.oscproject` |
+| **Save** (Ctrl+S) | Saves the project — back to the same file once it has one |
+| **Save as…** (Ctrl+Shift+S) | Saves to a new file |
 | **Export audio / MIDI…** (Ctrl+Shift+E) | Opens the export dialog |
-| **Open example** | Loads one of the bundled examples |
+| **Settings…** (Ctrl+,) | See *Settings* |
+| **Open example** | Loads one of the bundled examples, with its genre and length |
 
 Click the project name next to the logo to rename it.
+
+**Saving back to the same file.** In Chrome, Edge and the desktop app, **Save** asks where to save
+the first time, then writes over that file each time after — like any desktop program. A project you
+opened with **Open…** saves back to where it came from. In browsers that can't write files (Firefox,
+Safari), Save downloads a copy instead, and a notice says so each time.
+
+**Unsaved changes.** The status bar and the browser tab show when the song has changes that aren't
+in a file yet (the tab title gets a •). Opening a project or an example, starting a new project,
+closing the tab and closing the desktop window all ask **Save / Don't save / Cancel** first — and
+don't ask when there's nothing to lose. Undoing back to the saved state counts as saved.
+
+**Autosave to file.** **Settings → Saving** can write changes to the project's file every 1, 2, 5 or
+10 minutes. It only does so once the project has a file it can write to, and never opens a file
+picker on its own.
+
+**If something goes wrong.** Should the interface ever hit an error it can't recover from, a crash
+screen replaces it with **Save project** (downloads your song as it was), **Reload** and **Copy
+error report**.
 
 A project file contains the complete song: tracks and their sounds (including each track's own
 instrument settings), clips, patterns, sections, automation, mixer settings, the master effects,
@@ -850,9 +940,53 @@ through the lab.
 
 ---
 
+## The Status Bar
+
+The line at the bottom of the window:
+
+| Part | Shows |
+|------|-------|
+| **● Saved / Unsaved changes** | Whether the song is in a file yet, and the file it saves to |
+| **Audio** | Sample rate and output latency while audio runs. Browsers don't allow sound until you click something; until then it reads *Audio off* with an **Enable audio** button |
+| **Load** | How hard the audio thread is working. Above about 85% sound can start to break up |
+| **dropouts** | How many times the audio fell behind (where the browser can tell) |
+| **ECO** | Eco mode — see below |
+| **Keys** | Which area your keys act on: the arrangement or the editor. Delete, M, S, L, K, the arrows and the letter keys mean different things in each; click an area to give it the keys |
+| Hint | What the control under the mouse does |
+
+### Eco mode
+
+Eco mode is a lighter sound engine for slow computers: instruments play in mono instead of with
+their stereo width, long release tails are shortened, fewer overlapping tails are kept per track,
+drive skips its anti-aliasing, and the mixer meters update less often. Exports always render at
+full quality, Eco mode or not.
+
+If the audio drops out a couple of times in a short while, **Eco mode turns itself on** and a notice
+says so, with a **Turn off** button. Turn it off there or with **ECO**, and it won't switch itself
+back on until the next start; **Settings → Audio** can stop it switching on by itself at all.
+
+---
+
+## Settings
+
+**⚙** in the header, **File → Settings…** or **Ctrl+,**. Settings belong to the app, not to a
+project, and are kept across restarts.
+
+| Section | Setting |
+|---------|---------|
+| **Audio** | **Output device** (where the browser supports choosing one); **Latency** — low for playing in, high for stability on slow machines (applies after a restart); **Eco mode** and whether it may switch on by itself |
+| **New projects** | What *New project* starts from (starter tracks, empty, or a template), and the tempo, editor grid and note length for new projects |
+| **Editing** | **Follow playhead** (page, scroll, off); the **keyboard piano**'s octave; **metronome level**; **count-in** (none, one or two bars of clicks before playback when the metronome is on) |
+| **Saving** | **Autosave** to the project's file every 1–10 minutes |
+| **Appearance** | **Theme** — dark (the default) or light, also on the **☀ / ☾** button in the header; **accent colour**; **interface size** from 90% to 150%; whether the welcome screen shows at every start |
+
+---
+
 ## Keyboard Shortcuts
 
-Shortcuts never fire while you're typing in a text field.
+Shortcuts never fire while you're typing in a text field, or while a dialog or menu is open. Press
+**?** for this list inside the app — searchable, and marking the area that has the keys. On a Mac,
+**Ctrl** is **⌘** and **Alt** is **⌥**; the app's tooltips show the Mac keys there.
 
 ### Everywhere
 
@@ -861,29 +995,36 @@ Shortcuts never fire while you're typing in a text field.
 | **Space** | Play / stop |
 | **Home** | Return to start |
 | **Ctrl+Z** / **Ctrl+Shift+Z** (or **Ctrl+Y**) | Undo / redo |
-| **Ctrl+S** / **Ctrl+O** | Save / open project |
+| **Ctrl+S** / **Ctrl+Shift+S** / **Ctrl+O** | Save / save as / open project |
 | **Ctrl+Shift+E** | Export |
 | **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
+| **Ctrl+,** | Settings |
+| **?** | All shortcuts |
+| **F1** | User guide, at the section for the panel you're in |
 
 ### Arrangement (after clicking in it)
 
 | Shortcut | Action |
 |----------|--------|
-| **Delete** | Delete the selected clip |
-| **Ctrl+D** | Duplicate the selected clip |
-| **Ctrl+E** | Split the selected clip at the playhead |
+| **Delete** | Delete the selected clips |
+| **Ctrl+D** | Duplicate the selected clips |
+| **Ctrl+E** | Split the selected clips at the playhead |
+| **Ctrl+A** | Select every clip |
+| **Ctrl+C** / **Ctrl+V** | Copy clips / paste them at the playhead |
 | **M** / **S** | Mute / solo the selected track |
 | **↑** / **↓** | Select the track above / below |
 | **L** / **K** | Toggle loop / metronome |
-| **Escape** | Deselect the clip |
-| **Alt**-drag | Copy a clip |
+| **Escape** | Deselect |
+| **Shift**-click | Add a clip to the selection, or take it out |
+| **Alt**-drag | Copy a clip (or the selection) |
 | **Shift**-drag | Move or trim off the grid |
 
 ### Editor (after clicking in it)
 
 | Shortcut | Action |
 |----------|--------|
-| **A W S E D F T G Y H U J K O L P ;** | Play notes (C4 on A) |
+| **A W S E D F T G Y H U J K O L P ;** | Play notes (C4 on A; octave in Settings) |
+| **B** / **V** | Draw / select mode |
 | **Delete** | Delete selected notes |
 | **Ctrl+A / C / V** | Select all / copy / paste |
 | **↑ / ↓** (Shift: octave) | Transpose selected notes |
@@ -897,13 +1038,15 @@ Shortcuts never fire while you're typing in a text field.
 
 | Problem | Likely cause | Solution |
 |---------|-------------|----------|
-| Nothing plays | The browser hasn't allowed audio yet | Click anywhere on the page, then press Play |
+| Nothing plays | The browser hasn't allowed audio yet | Click **Enable audio** in the status bar (or anywhere on the page), then press Play |
 | A track is silent | Muted, another track is soloed, its clip is muted, or the fader is down | Check M/S on the track headers and the mixer |
 | A drum clip shows “pattern missing” | Its pattern was deleted in the drum editor | Right-click the clip → *Drum pattern* and pick another |
 | Notes past a point don't play | They're beyond the pattern's loop length | Drag the loop handle on the piano roll's ruler, or use the LOOP menu in the pattern column |
 | Letter keys play notes instead of shortcuts | The editor has keyboard focus | Click the arrangement |
 | A mixer control does nothing | An automation lane is driving it (its label is dim) | Turn the lane OFF, or edit the lane |
-| Crackling with many tracks | CPU load | Close the visualizer, or turn its GLOW off and drop it to 30 FPS |
+| Crackling with many tracks | CPU load — the status bar's **Load** reads high and **dropouts** count up | Turn on **ECO** in the status bar (it may already have switched itself on), close the visualizer, or choose a higher latency in Settings |
+| Save downloads a file instead of saving over it | The browser can't write files (Firefox, Safari) | Open the downloaded file next time; or use Chrome, Edge or the desktop app |
+| The interface is too small or too large | — | **Settings → Appearance → Interface size** |
 | Export says “Audio is busy rendering” | Something tried to play during an export | Wait for the export to finish |
 | A long live take runs out of memory | Takes are kept uncompressed | Export the song instead — it doesn't need live recording |
 | MP3 option is disabled for a take | The recording's sample rate isn't one MP3 supports | Save the take as WAV |

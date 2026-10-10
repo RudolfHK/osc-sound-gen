@@ -84,7 +84,10 @@ function createWindow() {
 }
 
 /** Ask the focused window's page to run one of its commands (a shortcut id). */
-const command = (id) => () => BrowserWindow.getFocusedWindow()?.webContents.send('osc:command', id);
+const command = (id) => () => {
+  const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+  win?.webContents.send('osc:command', id);
+};
 
 // Minimal application menu (removes Node.js-style View > Reload that confuses users)
 function buildMenu() {

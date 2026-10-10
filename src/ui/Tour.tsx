@@ -49,7 +49,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'Change the sound',
-    text: 'Open the INSTRUMENTS tab and click another sound — the selected track plays it straight away.',
+    text: 'Open the INSTRUMENTS tab. Click a sound to hear it, then SET to give it to the selected track.',
     target: '[data-tour="tab-instruments"]',
     done: (n, s) => sources(n.seq) !== sources(s.seq),
   },

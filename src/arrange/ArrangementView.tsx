@@ -34,7 +34,7 @@ interface Props {
 type Drag =
   | { kind: 'move'; clipId: string; grabOffset: number; origStart: number; origTrack: string; moved: boolean; downX: number }
   /** Several selected clips moving together, in time only. */
-  | { kind: 'group'; ids: string[]; grabBeat: number; minStart: number; applied: number; moved: boolean; downX: number }
+  | { kind: 'group'; ids: string[]; clickedId: string; copy: boolean; grabBeat: number; minStart: number; applied: number; moved: boolean; downX: number }
   /** Rubber-band selection (client coordinates). */
   | { kind: 'box'; x0: number; y0: number; additive: boolean; moved: boolean }
   | { kind: 'resize-r'; clipId: string; start: number; offset: number }
@@ -187,13 +187,11 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     const current = selectedClips(seqRef.current);
     if (current.length > 1 && current.includes(clip.id)) {
       dispatch({ type: 'SEQ_PUSH_UNDO' });
-      let ids = current;
-      if (e.altKey) {
-        ids = current.map(() => uid('clip'));
-        dispatch({ type: 'CLIPS_DUPLICATE', clipIds: current, offsetBeats: 0, newIds: ids });
-      }
       const starts = current.map((id) => findClip(seqRef.current, id)?.clip.startBeat ?? 0);
-      dragRef.current = { kind: 'group', ids, grabBeat: beat, minStart: Math.min(...starts), applied: 0, moved: false, downX: e.clientX };
+      dragRef.current = {
+        kind: 'group', ids: current, clickedId: clip.id, copy: e.altKey,
+        grabBeat: beat, minStart: Math.min(...starts), applied: 0, moved: false, downX: e.clientX,
+      };
       return;
     }
 
@@ -246,6 +244,12 @@ export function ArrangementView({ onSeek, openDock }: Props) {
       }
       if (d.kind === 'group') {
         if (!d.moved && Math.abs(e.clientX - d.downX) < 3) return;
+        if (!d.moved && d.copy) {
+          // Alt-drag: the copies are what moves; the originals stay put
+          const ids = d.ids.map(() => uid('clip'));
+          dispatch({ type: 'CLIPS_DUPLICATE', clipIds: d.ids, offsetBeats: 0, newIds: ids });
+          d.ids = ids;
+        }
         d.moved = true;
         // Snap the offset, not each clip, so the group keeps its shape
         const raw = beat - d.grabBeat;
@@ -284,6 +288,11 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     const up = (e: MouseEvent) => {
       const d = dragRef.current;
       dragRef.current = null;
+      // A click (no drag) inside a selection selects just that clip, as in any DAW
+      if (d?.kind === 'group' && !d.moved) {
+        dispatch({ type: 'CLIP_SELECT', clipId: d.clickedId });
+        return;
+      }
       if (d?.kind !== 'box' || !d.moved) return;
       setBox(null);
       // Clips on the lanes the box crosses, overlapping its time span

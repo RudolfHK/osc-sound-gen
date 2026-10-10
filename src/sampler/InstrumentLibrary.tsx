@@ -136,9 +136,22 @@ interface CardProps {
 function PresetCard({ preset, assignedTo, current, canAssign, edited, onAudition, onAssign, onContext }: CardProps) {
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`${preset.name}, ${preset.category}${current ? ', on this track' : ''} — audition`}
       onClick={onAudition}
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onAudition(); }
+        // The context-menu key (or Shift+F10) opens the parameter editor
+        if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
+          e.preventDefault();
+          const r = e.currentTarget.getBoundingClientRect();
+          onContext(r.left, r.bottom);
+        }
+      }}
       onContextMenu={(e) => { e.preventDefault(); onContext(e.clientX, e.clientY); }}
-      title="Click to audition · Right-click to edit parameters"
+      title="Click to audition · SET gives the selected track this sound · Right-click to edit parameters"
       className="group relative flex flex-col justify-between w-[122px] h-[62px] px-2 py-1.5 border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/60 hover:border-neutral-600 cursor-pointer transition-colors"
       style={{
         borderLeftColor: preset.color, borderLeftWidth: 3,
@@ -163,6 +176,7 @@ function PresetCard({ preset, assignedTo, current, canAssign, edited, onAudition
             onClick={(e) => { e.stopPropagation(); onAssign(); }}
             className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-xs px-1 border border-neutral-600 text-neutral-400 hover:text-neutral-100 hover:border-neutral-400 transition-opacity shrink-0"
             title="Give the selected track this sound"
+            aria-label={`Use ${preset.name} on the selected track`}
           >
             SET
           </button>

@@ -84,6 +84,11 @@ function startServer() {
  * app connects to the speakers, so the test can measure what comes out.
  */
 const AUDIO_TAP = () => {
+  // The main run uses the download fallback for Save; file-system saving is
+  // tested in its own context with a mocked picker
+  for (const k of ['showSaveFilePicker', 'showOpenFilePicker']) {
+    Object.defineProperty(window, k, { value: undefined, configurable: true, writable: true });
+  }
   const origConnect = AudioNode.prototype.connect;
   AudioNode.prototype.connect = function (dest, ...rest) {
     // The app's output is the first node wired to the live speakers. Later
@@ -158,6 +163,36 @@ try {
   };
   // Lanes render in track order; filled in once the starter tracks are known
   const trackIndex = {};
+  /** The saved session, once storage has settled (writes are debounced, and slower on a busy machine). */
+  const savedState = () => page.evaluate(async () => {
+    const read = () => localStorage.getItem('osc-app-state');
+    let last = read();
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 450));
+      const now = read();
+      if (now === last) break;
+      last = now;
+    }
+    return JSON.parse(last);
+  });
+  /** Controls with no accessible name, and text set below 11 px, in what's on screen now. */
+  const a11yAudit = () => page.evaluate(() => {
+    const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'; };
+    const nameOf = (el) => (el.getAttribute('aria-label')
+      || (el.getAttribute('aria-labelledby') ? el.getAttribute('aria-labelledby').split(' ').map((id) => document.getElementById(id)?.textContent ?? '').join(' ') : '')
+      || (el.labels ? [...el.labels].map((l) => l.textContent).join(' ') : '')
+      || ((el.tagName === 'BUTTON' || el.getAttribute('role')) ? el.textContent : '')
+      || el.getAttribute('title') || '').trim();
+    const unlabeled = [...document.querySelectorAll('button, input, select, textarea, [role="menuitem"], [role="tab"], [role="button"]')]
+      .filter((el) => visible(el) && !nameOf(el)).map((el) => el.outerHTML.slice(0, 100));
+    const small = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const el = n.parentElement;
+      if (el && n.textContent.trim() && visible(el) && parseFloat(getComputedStyle(el).fontSize) < 10.95) small.push(n.textContent.trim().slice(0, 30));
+    }
+    return { unlabeled, small };
+  });
 
   console.log('\nOSC end-to-end\n');
 
@@ -180,6 +215,8 @@ try {
   await step('a session saved by the previous release migrates instead of crashing', async () => {
     // A separate page seeded before any app code runs; on the main page the
     // app's unload flush would write the current session back over the seed.
+    // Let the main page's own (debounced) session write land first.
+    await savedState();
     const legacy = await context.newPage();
     const legacyErrors = [];
     legacy.on('pageerror', (e) => legacyErrors.push(e.message));
@@ -235,6 +272,12 @@ try {
       await page.mouse.click(box.x + dx, box.y + 120);
     }
     await page.getByText('3 notes').waitFor({ timeout: 2000 });
+  });
+
+  await step('every keyboard shortcut in the registry has a handler', async () => {
+    // With the piano roll open, editor and arrangement handlers are both mounted
+    const missing = await page.evaluate(() => window.__oscShortcuts.missingHandlers());
+    assert(missing.length === 0, `shortcuts without a handler: ${missing.join(', ')}`);
   });
 
   await step('undo removes the last note, redo restores it', async () => {
@@ -500,6 +543,339 @@ try {
     await button('VIZ').click();
   });
 
+  // ─── Help, safety, settings and editing (the polish release) ───────────────
+
+  await step('shortcuts pause while a dialog is open (Space in Export does not play)', async () => {
+    await button('Export').click();
+    await page.getByRole('dialog', { name: 'Export' }).waitFor({ timeout: 3000 });
+    await page.evaluate(() => document.body.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })));
+    await page.waitForTimeout(300);
+    assert(await button('▶ PLAY').count() === 1, 'Space started playback behind the dialog');
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog', { name: 'Export' }).waitFor({ state: 'detached', timeout: 2000 });
+  });
+
+  await step('Alt shortcuts match the physical key (macOS Option)', async () => {
+    // Option+X types "≈" on a Mac: the shortcut must still be Alt+X
+    await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: '≈', code: 'KeyX', altKey: true, bubbles: true })));
+    await page.getByRole('tab', { name: 'MIXER', selected: true }).waitFor({ timeout: 2000 });
+    await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: '´', code: 'KeyE', altKey: true, bubbles: true })));
+    await page.getByRole('tab', { name: 'EDITOR', selected: true }).waitFor({ timeout: 2000 });
+  });
+
+  await step('"?" lists the shortcuts, searchable, and F1 opens the guide at the focused panel', async () => {
+    await page.locator('main').click({ position: { x: 5, y: 5 } });
+    await page.keyboard.press('?');
+    const overlay = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
+    await overlay.waitFor({ timeout: 2000 });
+    await overlay.getByLabel('Search shortcuts').fill('quantize');
+    assert(await overlay.getByText('Quantize selected notes').count() === 1, 'search did not find Quantize');
+    assert(await overlay.getByText('Play / stop').count() === 0, 'search did not filter');
+    await page.keyboard.press('Escape');
+    await page.getByRole('tab', { name: 'MIXER' }).click();
+    await page.keyboard.press('F1');
+    const guide = page.getByRole('dialog', { name: 'User guide' });
+    await guide.waitFor({ timeout: 3000 });
+    await guide.getByRole('heading', { name: 'The Mixer', level: 2 }).waitFor({ timeout: 2000 });
+    await page.keyboard.press('Escape');
+    await guide.waitFor({ state: 'detached', timeout: 2000 });
+    await page.getByRole('tab', { name: 'EDITOR' }).click();
+  });
+
+  await step('every undo step is named, and History jumps several steps at once', async () => {
+    const mutes = page.getByTitle(/^Mute \(/);
+    for (const i of [0, 1, 2]) await mutes.nth(i).click();
+    const pressed = async () => Promise.all([0, 1, 2].map(async (i) => (await mutes.nth(i).getAttribute('aria-pressed')) === 'true'));
+    assert((await pressed()).every(Boolean), 'mutes did not turn on');
+    await page.getByTestId('history-button').click();
+    const sub = (await savedState()).sequencer.tracks[1].name;
+    await page.getByRole('menuitem', { name: `↶ Mute: ${sub}` }).click();
+    // Undid the last two: only the first track is still muted
+    const now = await pressed();
+    assert(now[0] && !now[1] && !now[2], `after the jump: ${now}`);
+    await page.getByTestId('history-button').click();
+    await page.getByRole('menuitem', { name: `↶ Mute: ${(await savedState()).sequencer.tracks[0].name}` }).click();
+    assert(!(await pressed()).some(Boolean), 'history did not undo the first mute');
+  });
+
+  await step('unsaved changes show in the status bar and title, and opening asks first', async () => {
+    await page.locator('input[inputmode="decimal"]').fill('121');
+    await page.locator('input[inputmode="decimal"]').press('Enter');
+    await page.getByTestId('save-state').getByText('Unsaved changes').waitFor({ timeout: 2000 });
+    assert((await page.title()).startsWith('• '), `title: ${await page.title()}`);
+    const name = await page.getByTitle('Rename project').textContent();
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.getByRole('menuitem', { name: /Open example/ }).hover();
+    await page.getByRole('menuitem', { name: 'Neon Drift', exact: true }).click();
+    const guard = page.getByRole('dialog', { name: 'Unsaved changes' });
+    await guard.waitFor({ timeout: 2000 });
+    await guard.getByRole('button', { name: 'Cancel' }).click();
+    await page.waitForTimeout(300);
+    assert(await page.getByTitle('Rename project').textContent() === name, 'Cancel still replaced the song');
+  });
+
+  await step('where the browser can\'t write files, Save downloads a copy and says so', async () => {
+    const dl = page.waitForEvent('download', { timeout: 10000 });
+    await page.keyboard.press('Control+s');
+    const file = await dl;
+    assert(file.suggestedFilename().endsWith('.oscproject'), file.suggestedFilename());
+    const project = JSON.parse(readFileSync(await file.path(), 'utf8'));
+    assert(project.format === 'osc-project' && project.bpm === 121, 'saved file is wrong');
+    await page.getByText(/can't save over a file/).first().waitFor({ timeout: 2000 });
+    await page.getByTestId('save-state').getByText('Saved', { exact: true }).waitFor({ timeout: 2000 });
+  });
+
+  await step('Save writes back to the opened file where the browser allows it', async () => {
+    const fsCtx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    await fsCtx.addInitScript(({ project }) => {
+      localStorage.setItem('osc-welcome-seen', '1');
+      window.__written = [];
+      const handle = (name, text) => ({
+        name, kind: 'file',
+        getFile: async () => new File([text], name),
+        queryPermission: async () => 'granted',
+        requestPermission: async () => 'granted',
+        createWritable: async () => {
+          let buf = '';
+          return { write: async (t) => { buf += t; }, close: async () => { window.__written.push({ name, text: buf }); } };
+        },
+      });
+      window.showOpenFilePicker = async () => [handle('song.oscproject', project)];
+      window.showSaveFilePicker = async (o) => handle(o?.suggestedName ?? 'new.oscproject', '');
+    }, { project: readFileSync('examples/arp-sequence.oscproject', 'utf8') });
+    const p2 = await fsCtx.newPage();
+    let downloads = 0;
+    p2.on('download', () => { downloads++; });
+    try {
+      await p2.goto(URL);
+      await p2.waitForSelector('[data-lane-track]');
+      await p2.keyboard.press('Control+o');
+      await p2.getByText(/Loaded “Arp Sequence”/).waitFor({ timeout: 4000 });
+      await p2.getByTestId('save-state').getByText('song.oscproject').waitFor({ timeout: 2000 });
+      await p2.locator('input[inputmode="decimal"]').fill('150');
+      await p2.locator('input[inputmode="decimal"]').press('Enter');
+      await p2.getByTestId('save-state').getByText('Unsaved changes').waitFor({ timeout: 2000 });
+      await p2.keyboard.press('Control+s');
+      await p2.getByTestId('save-state').getByText('Saved', { exact: true }).waitFor({ timeout: 3000 });
+      const written = await p2.evaluate(() => window.__written);
+      assert(written.length === 1 && written[0].name === 'song.oscproject', `writes: ${JSON.stringify(written.map((w) => w.name))}`);
+      assert(JSON.parse(written[0].text).bpm === 150, 'the file was not updated');
+      // Save as… asks for a new file
+      await p2.keyboard.press('Control+Shift+s');
+      await p2.waitForFunction(() => window.__written.length === 2, null, { timeout: 3000 });
+      assert(downloads === 0, 'saving downloaded instead of writing the file');
+    } finally {
+      await fsCtx.close();
+    }
+  });
+
+  await step('a crash shows a recovery screen that can still save the song', async () => {
+    const crashCtx = await browser.newContext({ viewport: { width: 1200, height: 800 } });
+    await crashCtx.addInitScript(() => localStorage.setItem('osc-welcome-seen', '1'));
+    const p3 = await crashCtx.newPage();
+    try {
+      await p3.goto(URL);
+      await p3.waitForSelector('[data-lane-track]');
+      await p3.evaluate(() => window.__oscTest.crash());
+      await p3.getByText('Something went wrong').waitFor({ timeout: 3000 });
+      const dl = p3.waitForEvent('download', { timeout: 5000 });
+      await p3.getByRole('button', { name: 'SAVE PROJECT' }).click();
+      const project = JSON.parse(readFileSync(await (await dl).path(), 'utf8'));
+      assert(project.format === 'osc-project' && project.tracks.length === 4, 'crash-screen save is not a valid project');
+      await p3.getByRole('button', { name: 'RELOAD' }).click();
+      await p3.waitForSelector('[data-lane-track]');
+    } finally {
+      await crashCtx.close();
+    }
+  });
+
+  await step('a template gives a playable project with no notes', async () => {
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.getByRole('menuitem', { name: 'New project…' }).click();
+    await page.getByRole('dialog', { name: 'New project' }).getByRole('button', { name: /^Drift phonk/ }).click();
+    await dontSave();
+    await page.getByText(/New Drift phonk project/).first().waitFor({ timeout: 4000 });
+    const st = (await savedState()).sequencer;
+    const notes = st.tracks.filter((t) => t.source.type !== 'drums').reduce((n, t) => n + t.clips.length, 0);
+    const beat = st.tracks.filter((t) => t.source.type === 'drums').reduce((n, t) => n + t.clips.length, 0);
+    assert(st.tracks.length >= 5 && notes === 0 && beat === 1, `tracks ${st.tracks.length}, note clips ${notes}, drum clips ${beat}`);
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(1200);
+    const level = await page.evaluate(() => window.__level(500));
+    await button('■ STOP').click();
+    assert(level > 0.01, `template is silent (peak ${level.toFixed(4)})`);
+  });
+
+  await step('previewing an example plays it without touching the session', async () => {
+    const before = await savedState();
+    await page.getByTestId('help-button').click();
+    await page.getByRole('menuitem', { name: 'Welcome screen' }).click();
+    const welcome = page.getByRole('dialog', { name: 'Welcome to OSC' });
+    await welcome.getByRole('button', { name: 'Preview Velvet Hours' }).click();
+    await page.waitForTimeout(1500);
+    const level = await page.evaluate(() => window.__level(500));
+    await welcome.getByRole('button', { name: 'Stop preview of Velvet Hours' }).click();
+    await page.keyboard.press('Escape');
+    const after = await savedState();
+    assert(level > 0.01, `preview is silent (peak ${level.toFixed(4)})`);
+    assert(after.projectName === before.projectName && after.sequencer.tracks.length === before.sequencer.tracks.length
+      && after.sequencer.bpm === before.sequencer.bpm, 'the preview changed the session');
+  });
+
+  await step('the guided tour runs end to end', async () => {
+    await page.getByTestId('help-button').click();
+    await page.getByRole('menuitem', { name: 'Take the tour' }).click();
+    await dontSave();
+    const tour = page.getByRole('dialog', { name: 'Tour' });
+    const stepIs = (n) => tour.getByText(`STEP ${n} OF 6`).waitFor({ timeout: 5000 });
+    await stepIs(1);
+    await page.locator('main').click({ position: { x: 5, y: 5 } });
+    await page.keyboard.press('Space');
+    await stepIs(2);
+    await page.keyboard.press('Space');
+    // Double-click the Lead clip
+    const st = (await savedState()).sequencer;
+    const leadIdx = st.tracks.findIndex((t) => t.name === 'Lead');
+    const clip = st.tracks[leadIdx].clips[0];
+    const lane = await page.locator('[data-lane-track]').nth(leadIdx).boundingBox();
+    await page.mouse.dblclick(lane.x + (clip.startBeat - st.arrStartBeat + 1) * st.arrPxPerBeat, lane.y + lane.height / 2);
+    await stepIs(3);
+    const roll = await page.locator('canvas[aria-label^="Piano roll"]').boundingBox();
+    await page.mouse.click(roll.x + roll.width * 0.55, roll.y + 30);
+    await stepIs(4);
+    await page.getByRole('tab', { name: 'INSTRUMENTS' }).click();
+    await page.getByRole('button', { name: /^Use .* on the selected track$/ }).first().click();
+    await stepIs(5);
+    await page.getByRole('tab', { name: 'MIXER' }).click();
+    await page.getByLabel('Lead fader').focus();
+    await page.keyboard.press('ArrowDown');
+    await stepIs(6);
+    await button('Export').click();
+    await tour.getByText('TOUR COMPLETE').waitFor({ timeout: 4000 });
+    await page.keyboard.press('Escape');
+    await tour.getByRole('button', { name: 'FINISH' }).click();
+    await page.getByRole('tab', { name: 'EDITOR' }).click();
+  });
+
+  await step('the status bar shows when audio is paused, and Enable audio resumes it', async () => {
+    await page.evaluate(() => window.__oscCtx.suspend());
+    const audio = page.getByTestId('audio-state');
+    await audio.getByText(/paused/).waitFor({ timeout: 3000 });
+    await audio.getByRole('button', { name: 'Enable audio' }).click();
+    await audio.getByText(/kHz/).waitFor({ timeout: 3000 });
+  });
+
+  await step('settings change behaviour and survive a reload', async () => {
+    await page.keyboard.press('Control+,');
+    const settings = page.getByRole('dialog', { name: 'Settings' });
+    await settings.waitFor({ timeout: 2000 });
+    await settings.getByRole('button', { name: 'Light' }).click();
+    await settings.getByLabel('Interface size').selectOption('1.1');
+    await settings.getByLabel('Keyboard piano').selectOption('3');
+    await settings.getByRole('button', { name: 'Done' }).click();
+    const look = () => page.evaluate(() => ({ theme: document.documentElement.dataset.theme, zoom: document.documentElement.style.zoom }));
+    let now = await look();
+    assert(now.theme === 'light' && now.zoom === '1.1', `before reload: ${JSON.stringify(now)}`);
+    await page.reload();
+    await page.waitForSelector('[data-lane-track]');
+    now = await look();
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('osc-settings')));
+    assert(now.theme === 'light' && now.zoom === '1.1' && saved.keyboardOctave === 3, `after reload: ${JSON.stringify(now)} ${JSON.stringify(saved)}`);
+    await page.keyboard.press('Control+,');
+    await settings.getByRole('button', { name: 'Reset to defaults' }).click();
+    await settings.getByRole('button', { name: 'Dark' }).click();
+    await settings.getByRole('button', { name: 'Done' }).click();
+    now = await look();
+    assert(now.theme === 'dark' && now.zoom === '', `restore: ${JSON.stringify(now)}`);
+  });
+
+  await step('several clips move together; clips paste onto another track; typed seek', async () => {
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.getByRole('menuitem', { name: 'New project…' }).click();
+    await page.getByRole('dialog', { name: 'New project' }).getByRole('button', { name: /^Starter/ }).click();
+    await dontSave();
+    await page.waitForTimeout(400);
+    const px = (await savedState()).sequencer.arrPxPerBeat;
+    const lane = async (i) => page.locator('[data-lane-track]').nth(i).boundingBox();
+    const [bass, keys, pad] = [await lane(trackIndex.Bass), await lane(trackIndex.Keys), await lane(trackIndex.Pad)];
+    await page.mouse.dblclick(keys.x + 10, keys.y + 20);
+    await page.mouse.dblclick(keys.x + 8 * px + 10, keys.y + 20);
+    await page.mouse.dblclick(bass.x + 4 * px + 10, bass.y + 20);
+    // Box-select all three from empty space
+    await page.mouse.move(bass.x + 2 * px, bass.y + 4);
+    await page.mouse.down();
+    await page.mouse.move(keys.x + 11 * px, keys.y + 30, { steps: 5 });
+    await page.mouse.up();
+    let st = (await savedState()).sequencer;
+    assert(st.selectedClipIds.length === 3, `box selected ${st.selectedClipIds.length}`);
+    // Drag one of them a bar to the right: all three move
+    await page.mouse.move(keys.x + 9.5 * px, keys.y + 30);
+    await page.mouse.down();
+    await page.mouse.move(keys.x + 13.5 * px, keys.y + 30, { steps: 6 });
+    await page.mouse.up();
+    st = (await savedState()).sequencer;
+    const starts = (name) => st.tracks.find((t) => t.name === name).clips.map((c) => c.startBeat).sort((a, b) => a - b).join(',');
+    assert(starts('Keys') === '4,12' && starts('Bass') === '8', `after moving: Keys ${starts('Keys')}, Bass ${starts('Bass')}`);
+    // Copy one Keys clip, select the Pad track, jump to bar 9, paste
+    await page.mouse.click(keys.x + 5 * px, keys.y + 30);
+    await page.keyboard.press('Control+c');
+    await page.getByRole('button', { name: /^Song position/ }).click();
+    await page.keyboard.type('9');
+    await page.keyboard.press('Enter');
+    await page.mouse.click(pad.x + 30 * px, pad.y + 20);
+    await page.keyboard.press('Control+v');
+    st = (await savedState()).sequencer;
+    assert(starts('Pad') === '32', `pasted onto Pad at ${starts('Pad')}`);
+  });
+
+  await step('no unlabeled controls and no text under 11 px', async () => {
+    const problems = [];
+    const check = async (where) => {
+      const a = await a11yAudit();
+      if (a.unlabeled.length) problems.push(`${where}: unlabeled ${a.unlabeled.join(' | ')}`);
+      if (a.small.length) problems.push(`${where}: small text ${a.small.slice(0, 5).join(' | ')}`);
+    };
+    await check('arrangement');
+    for (const tab of ['MIXER', 'INSTRUMENTS', 'FX']) { await page.getByRole('tab', { name: tab }).click(); await check(tab); }
+    await page.getByRole('tab', { name: 'EDITOR' }).click();
+    await page.keyboard.press('Control+,');
+    await check('settings');
+    await page.keyboard.press('Escape');
+    assert(problems.length === 0, problems.join('\n'));
+  });
+
+  await step('the export dialog keeps keyboard focus inside it', async () => {
+    await button('Export').click();
+    const dlg = page.getByRole('dialog', { name: 'Export' });
+    await dlg.waitFor({ timeout: 3000 });
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.press(i % 7 === 6 ? 'Shift+Tab' : 'Tab');
+      const inside = await page.evaluate(() => !!document.activeElement?.closest('[role="dialog"]'));
+      assert(inside, `focus left the dialog after ${i + 1} Tab presses`);
+    }
+    await page.keyboard.press('Escape');
+    await dlg.waitFor({ state: 'detached', timeout: 2000 });
+  });
+
+  await step('menus work from the keyboard', async () => {
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.waitForTimeout(100);
+    const active = () => page.evaluate(() => document.activeElement?.textContent ?? '');
+    assert((await active()).includes('New project'), `first item not focused: ${await active()}`);
+    for (let i = 0; i < 10 && !(await active()).includes('Settings'); i++) await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await page.getByRole('dialog', { name: 'Settings' }).waitFor({ timeout: 2000 });
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'OSC ▾' }).click();
+    await page.waitForTimeout(100);
+    await page.keyboard.press('End');
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(150);
+    assert(await page.evaluate(() => !!document.activeElement?.closest('[data-submenu]')), 'ArrowRight did not open the examples submenu');
+    await page.keyboard.press('Escape');
+    assert(await page.getByRole('menu').count() === 0, 'Escape did not close the menu');
+  });
+
 
   // ─── Export ────────────────────────────────────────────────────────────────
   const dialog = () => page.getByRole('dialog', { name: 'Export' });
@@ -520,10 +896,14 @@ try {
 
   let racksBeforeExport = 0;
   await step('opens the export dialog from the transport', async () => {
-    racksBeforeExport = await page.evaluate(() => window.__liveRacks);
     // Make sure Midnight Drive is loaded — the export checks below depend on it
     await openExample('Midnight Drive');
     await page.waitForTimeout(300);
+    // The live effects rack is built on first playback; have it before counting
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(400);
+    await button('■ STOP').click();
+    racksBeforeExport = await page.evaluate(() => window.__liveRacks);
     await button('Export').click();
     await dialog().waitFor({ timeout: 3000 });
     await pick('Off', 'Normalize');  // settings persist between runs
