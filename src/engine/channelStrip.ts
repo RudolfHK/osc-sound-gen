@@ -54,6 +54,9 @@ interface Strip {
   instNodes: AudioNode[];
   /** The instrument's stereo width, applied to the summed voices. */
   widener: Widener;
+  /** The instrument's body resonance, when it can be applied once per track. */
+  body: BiquadFilterNode;
+  bodyOn: boolean;
   /** The instrument's own send levels, tapped from the widened voices. */
   presetSends: { reverb: GainNode; delay: GainNode; chorus: GainNode };
   duck: GainNode;
@@ -84,6 +87,8 @@ export interface StripRoute {
 export interface InstrumentShape {
   width: number;
   send: { reverb: number; delay: number; chorus: number };
+  /** A fixed resonance (peaking EQ) the voices leave to the strip. */
+  body?: { freq: number; gain: number; q: number } | null;
 }
 
 const NO_SHAPE: InstrumentShape = { width: 0, send: { reverb: 0, delay: 0, chorus: 0 } };
@@ -164,6 +169,9 @@ export class ChannelStripRack {
     muteCtl.connect(dryInput.gain);
 
     const widener = createWidener(ctx);
+    const body = ctx.createBiquadFilter();
+    body.type = 'peaking';
+    body.connect(widener.input);
     input.connect(widener.input);
     widener.output.connect(duck);
     dryInput.connect(duck);
@@ -223,7 +231,7 @@ export class ChannelStripRack {
     const presetSends = { reverb: tap(instSends.reverb), delay: tap(instSends.delay), chorus: tap(instSends.chorus) };
 
     const strip: Strip = {
-      ctx, input, dryInput, faderCtl, muteCtl, instSends, instNodes, widener, presetSends, duck, eqLow, eqMid, eqHigh, gain, panner,
+      ctx, input, dryInput, faderCtl, muteCtl, instSends, instNodes, widener, body, bodyOn: false, presetSends, duck, eqLow, eqMid, eqHigh, gain, panner,
       sendReverb, sendDelay, sendChorus, sidechain: 0, analyser: null,
     };
     strips.set(tabId, strip);
@@ -253,6 +261,18 @@ export class ChannelStripRack {
 
   private writeShape(s: Strip, shape: InstrumentShape): void {
     s.widener.setWidth(shape.width);
+    // The body filter is only in the path when the instrument has one
+    const b = shape.body;
+    if (b) {
+      s.body.frequency.value = b.freq;
+      s.body.gain.value = b.gain;
+      s.body.Q.value = b.q;
+    }
+    if (!!b !== s.bodyOn) {
+      if (b) { s.input.disconnect(s.widener.input); s.input.connect(s.body); }
+      else { s.input.disconnect(s.body); s.input.connect(s.widener.input); }
+      s.bodyOn = !!b;
+    }
     s.presetSends.reverb.gain.value = shape.send.reverb;
     s.presetSends.delay.gain.value = shape.send.delay;
     s.presetSends.chorus.gain.value = shape.send.chorus;
@@ -414,7 +434,7 @@ export class ChannelStripRack {
     for (const c of [s.faderCtl, s.muteCtl]) {
       try { c.stop(); } catch (_) { /* already stopped */ }
     }
-    for (const n of [s.input, s.dryInput, s.faderCtl, s.muteCtl, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
+    for (const n of [s.input, s.dryInput, s.body, s.faderCtl, s.muteCtl, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
                      s.sendReverb, s.sendDelay, s.sendChorus, s.analyser, ...s.instNodes]) {
       try { n?.disconnect(); } catch (_) { /* already gone */ }
     }

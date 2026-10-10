@@ -2553,6 +2553,15 @@ function driveCurve(amount: number): Float32Array<ArrayBuffer> {
 // ─── Engine ───────────────────────────────────────────────────────────────────
 
 const MAX_VOICES = 64;
+
+/**
+ * A preset's body resonance is a fixed EQ, so on a track it can be applied
+ * once to the summed voices instead of in every note. Not when the preset
+ * drives its voices: the resonance has to be there before the distortion.
+ */
+export function bodyOnStrip(p: InstrumentPreset): boolean {
+  return !!p.body && p.drive <= 0.01;
+}
 /** Release tails one track may have ringing at once (Eco mode: fewer). */
 const MAX_TAILS_PER_TRACK = 8;
 const ECO_MAX_TAILS = 4;
@@ -2736,8 +2745,15 @@ export class InstrumentEngine {
     const amp = ctx.createGain();
     amp.gain.value = 0;
 
+    // Drive can't be ramped (a WaveShaper curve is fixed once set), so an
+    // automated drive lane is sampled at the note's start instead.
+    const driveLane = findLane(lanes, 'drive');
+    const driveAmount = driveLane ? laneRealAt(driveLane, startBeat) : preset.drive;
+
     let head: AudioNode = filter;
-    if (preset.body) {
+    // On a track the strip applies the body resonance once (see bodyOnStrip)
+    const bodyHere = !!preset.body && !(route && bodyOnStrip(preset) && !driveLane);
+    if (bodyHere && preset.body) {
       const body = ctx.createBiquadFilter();
       body.type = 'peaking';
       body.frequency.value = preset.body.freq;
@@ -2746,11 +2762,6 @@ export class InstrumentEngine {
       body.connect(filter);
       head = body;
     }
-
-    // Drive can't be ramped (a WaveShaper curve is fixed once set), so an
-    // automated drive lane is sampled at the note's start instead.
-    const driveLane = findLane(lanes, 'drive');
-    const driveAmount = driveLane ? laneRealAt(driveLane, startBeat) : preset.drive;
 
     // The −3 dB a centred voice needs on a strip (see Output below) goes
     // before the drive for wide presets: they used to be split into stereo
@@ -2849,8 +2860,11 @@ export class InstrumentEngine {
     amp.gain.linearRampToValueAtTime(voicePeak, time + attack);
     amp.gain.exponentialRampToValueAtTime(sustainLevel, decayEnd);
 
-    // Note off — hold sustain until the note's end, then release
-    const noteOff = Math.max(time + attack + 0.005, time + dur);
+    // Note off — hold sustain until the note's end, then release. A
+    // percussive sound (no sustain) is silent once its decay ends, so its
+    // voice ends there too instead of idling for the rest of a long note.
+    const held = Math.max(time + attack + 0.005, time + dur);
+    const noteOff = sustain < 0.0005 ? Math.min(held, decayEnd) : held;
     if (noteOff > decayEnd) amp.gain.setValueAtTime(sustainLevel, noteOff);
     const end = noteOff + release;
     amp.gain.exponentialRampToValueAtTime(0.0001, end);
@@ -2879,6 +2893,8 @@ export class InstrumentEngine {
     const prevFreq = last ? (sameChord ? last.from : last.freq) : undefined;
     const oscs: OscillatorNode[] = [];
     const layerCount = preset.layers.length;
+    // Layers at the same level share one gain node (a hat's six partials: one, not six)
+    const levelNodes = new Map<number, GainNode>();
 
     for (let i = 0; i < layerCount; i++) {
       const layer = preset.layers[i];
@@ -2898,11 +2914,15 @@ export class InstrumentEngine {
       // Layers sum straight into the filter; a gain node only where a layer
       // isn't at full level
       if (Math.abs(layer.gain - 1) > 1e-6) {
-        const g = ctx.createGain();
-        g.gain.value = layer.gain;
+        let g = levelNodes.get(layer.gain);
+        if (!g) {
+          g = ctx.createGain();
+          g.gain.value = layer.gain;
+          g.connect(head);
+          levelNodes.set(layer.gain, g);
+          extras.push(g);
+        }
         osc.connect(g);
-        g.connect(head);
-        extras.push(g);
       } else {
         osc.connect(head);
       }

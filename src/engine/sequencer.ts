@@ -1,13 +1,13 @@
 import { getAudioEngine } from './audio';
 import { getChannelRack, type InstrumentShape } from './channelStrip';
 import { getSettings, subscribeSettings } from '../store/settings';
-import { getInstrumentEngine } from './instruments';
+import { getInstrumentEngine, bodyOnStrip } from './instruments';
 import { getDrumSynth } from './sampler';
 import { getEffectsBus } from './effects';
 import { emitEvent, worthChasing } from './emit';
 import { expandArpCached, pruneArpCache } from './arpeggiator';
 import { Ticker } from './ticker';
-import { AUTOMATION_TARGETS, CHANNEL_TARGETS, laneValueAt } from './automation';
+import { AUTOMATION_TARGETS, CHANNEL_TARGETS, findLane, laneValueAt } from './automation';
 import { setPlayhead } from './playhead';
 import {
   eventsInWindow, heldNotesAt, loopEngaged, monoToSong,
@@ -363,7 +363,9 @@ function shapeOf(track: Track): InstrumentShape {
   const p = getInstrumentEngine().resolve(track.source.presetId, track.patch);
   if (!p) return { width: 0, send: { reverb: 0, delay: 0, chorus: 0 } };
   const eco = getSettings().ecoMode && !getAudioEngine().isRenderingOffline;
-  return { width: eco ? 0 : p.width, send: p.send };
+  // A drive lane distorts every note, so the body has to stay in the voice
+  const driven = !!findLane(track.lanes, 'drive');
+  return { width: eco ? 0 : p.width, send: p.send, body: bodyOnStrip(p) && !driven ? p.body : null };
 }
 
 // ─── Singleton ────────────────────────────────────────────────────────────────

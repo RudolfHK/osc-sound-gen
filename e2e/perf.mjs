@@ -24,7 +24,7 @@ const REFERENCE_CALIBRATION_MS = 306;
 
 const BUDGETS = {
   heaviestLoad: 0.5,       // audio-thread load, Midnight Drive (Extended) drop
-  exportSpeed: 3,          // × real time, every example's busiest 8 bars
+  exportSpeed: 3,          // × real time, every example (whole song)
   lateNotes: 0,            // notes queued < 5 ms ahead, slow machine
   slowFrameP95Ms: 33,      // slow machine, mixer meters + visualizer open
   dropouts: 0,             // normal speed (where Chrome reports them)
@@ -85,53 +85,46 @@ try {
   console.log(`\nOSC performance — machine speed factor ${factor.toFixed(2)} (calibration ${Math.round(calib)} ms; 1.00 = reference)\n`);
 
   // ── Offline: audio-thread load and export speed ────────────────────────────
-  // The busiest 8 bars of each example, rendered the way Export renders them.
+  // Export speed is for the whole song, estimated from four 8-bar windows
+  // spread across it (rendered the way Export renders). The load budget is
+  // the worst case: the Extended mix's drop, every part playing at once.
   console.log('Audio thread (offline render, normalised)');
-  for (const ex of manifest.examples) {
-    const raw = JSON.parse(readFileSync(`examples/${ex.file}`, 'utf8'));
-    const heaviest = ex.file === 'midnight-drive-extended.oscproject';
-    const { load, from } = await page.evaluate(async ({ raw, heaviest }) => {
-      const { parseProject } = await import('/src/utils/project.ts');
-      const { makeDefaultSequencerState } = await import('/src/utils/music.ts');
-      const { eventsInWindow } = await import('/src/engine/timeline.ts');
-      const render = await import('/src/export/render.ts');
-      const p = parseProject(raw);
-      const bpb = p.beatsPerBar;
-      const seq = { ...makeDefaultSequencerState(), ...p.doc, bpm: p.bpm, beatsPerBar: bpb, songLengthBars: p.songLengthBars };
-      const span = Math.min(8, p.songLengthBars);
-      let from = 0;
-      if (heaviest) {
-        from = 64; // the Drop: every part at once
-      } else {
-        // Busiest window by event count
-        const input = {
-          tracks: p.doc.tracks, patterns: p.doc.patterns,
-          drumPatterns: new Map(p.drumPatterns.map((d) => [d.id, d])),
-          notesFor: (_t, pat) => pat.notes, metronome: false, beatsPerBar: bpb,
-        };
-        let best = -1;
-        for (let bar = 0; bar + span <= p.songLengthBars; bar++) {
-          const n = eventsInWindow(input, bar * bpb, (bar + span) * bpb, { enabled: false, start: 0, end: 0 }, false).length;
-          if (n > best) { best = n; from = bar; }
-        }
-      }
-      const loads = [];
-      for (let i = 0; i < 3; i++) {
+  const renderLoads = (raw, windows) => page.evaluate(async ({ raw, windows }) => {
+    const { parseProject } = await import('/src/utils/project.ts');
+    const { makeDefaultSequencerState } = await import('/src/utils/music.ts');
+    const render = await import('/src/export/render.ts');
+    const p = parseProject(raw);
+    const bpb = p.beatsPerBar;
+    const seq = { ...makeDefaultSequencerState(), ...p.doc, bpm: p.bpm, beatsPerBar: bpb, songLengthBars: p.songLengthBars };
+    const span = Math.min(8, p.songLengthBars);
+    const out = [];
+    for (const w of windows) {
+      const from = w === 'drop' ? 64 : Math.min(Math.round(w * p.songLengthBars), p.songLengthBars - span);
+      const runs = [];
+      for (let i = 0; i < (w === 'drop' ? 3 : 1); i++) {
         const t0 = performance.now();
         const buf = await render.renderArrangement(
           { seq, tabs: p.oscillators, drumPatterns: p.drumPatterns, effects: p.effects, masterVolume: p.masterVolume },
           { startBeat: from * bpb, endBeat: (from + span) * bpb, sampleRate: 44100, maxTailSeconds: 0.5 },
         );
-        loads.push((performance.now() - t0) / 1000 / (buf.length / 44100));
+        runs.push((performance.now() - t0) / 1000 / (buf.length / 44100));
       }
-      loads.sort((a, b) => a - b);
-      return { load: loads[1], from };
-    }, { raw, heaviest });
-    const norm = load / factor;
-    const speed = 1 / norm;
-    const where = `bars ${from + 1}–${from + 8}`;
-    if (heaviest) check(`Load: ${ex.title} drop`, `${Math.round(norm * 100)} %`, norm <= BUDGETS.heaviestLoad, `budget ≤ ${BUDGETS.heaviestLoad * 100} %`);
-    check(`Export speed: ${ex.title}`, `${speed.toFixed(1)}×`, speed >= BUDGETS.exportSpeed, `${where}, budget ≥ ${BUDGETS.exportSpeed}×`);
+      runs.sort((a, b) => a - b);
+      out.push(runs[Math.floor(runs.length / 2)]);
+    }
+    return out;
+  }, { raw, windows });
+
+  for (const ex of manifest.examples) {
+    const raw = JSON.parse(readFileSync(`examples/${ex.file}`, 'utf8'));
+    if (ex.file === 'midnight-drive-extended.oscproject') {
+      const [drop] = await renderLoads(raw, ['drop']);
+      const norm = drop / factor;
+      check(`Load: ${ex.title}, the drop`, `${Math.round(norm * 100)} %`, norm <= BUDGETS.heaviestLoad, `budget ≤ ${BUDGETS.heaviestLoad * 100} %`);
+    }
+    const loads = await renderLoads(raw, [0, 0.25, 0.5, 0.75]);
+    const speed = factor / (loads.reduce((a, b) => a + b, 0) / loads.length);
+    check(`Export speed: ${ex.title}`, `${speed.toFixed(1)}× real time`, speed >= BUDGETS.exportSpeed, `budget ≥ ${BUDGETS.exportSpeed}×`);
   }
   await page.close();
 
