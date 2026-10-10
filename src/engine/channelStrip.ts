@@ -1,6 +1,7 @@
 import { getAudioEngine } from './audio';
 import { getEffectsBus } from './effects';
 import { holdAt } from './voices';
+import { createWidener, type Widener } from './widener';
 import type { ChannelSettings } from '../utils/music';
 
 /**
@@ -8,6 +9,10 @@ import type { ChannelSettings } from '../utils/music';
  * within about 15 ms, which reads as instant while still avoiding zipper noise.
  */
 const TC = 0.004;
+
+const DEFAULT_SETTINGS: ChannelSettings = {
+  gain: 1, eqLow: 0, eqMid: 0, eqHigh: 0, sendReverb: 0, sendDelay: 0, sendChorus: 0, sidechain: 0,
+};
 
 // ─── EQ band frequencies ──────────────────────────────────────────────────────
 
@@ -21,20 +26,24 @@ const EQ_HIGH_HZ = 4000;
  * — is shared by every note on the track, so moving a fader moves the whole
  * part rather than only notes that start afterwards.
  *
- *   input → duck → eqLow → eqMid → eqHigh → gain → panner → master
- *                                                       ├→ reverb send
- *                                                       ├→ delay send
- *                                                       └→ chorus send
+ *   input → width → duck → eqLow → eqMid → eqHigh → gain → panner → master
+ *             │                                                ├→ reverb send
+ *             │                                                ├→ delay send
+ *             │                                                └→ chorus send
+ *             └→ instrument sends (reverb / delay / chorus) → mute → fader → effects
  *
- * Instruments also have effect sends of their own (a pad's built-in reverb).
- * Those enter at `instSends` and pass through the same mute and fader, so a
- * fader, a volume lane, mute and solo control the whole sound of the track,
- * wet and dry — not just the dry part. One ConstantSource per control drives
- * every gain that follows it, so automation still writes a single parameter.
+ * The instrument's own character lives here too, once per track rather than
+ * once per note: its stereo width (voices arrive mono) and its built-in
+ * effect sends (a pad's reverb). Those sends pass through the same mute and
+ * fader as the dry signal, so a fader, a volume lane, mute and solo control
+ * the whole sound of the track, wet and dry. One ConstantSource per control
+ * drives every gain that follows it, so automation still writes one parameter.
  */
 interface Strip {
   ctx: AudioContext;
   input: GainNode;
+  /** Like `input` but past the instrument sends — for hits that stay dry (kicks). */
+  dryInput: GainNode;
   /** Drives the fader gain and the instrument-send faders together. */
   faderCtl: ConstantSourceNode;
   /** Drives the mute gains of the dry path and the instrument sends together. */
@@ -43,6 +52,10 @@ interface Strip {
   instSends: { reverb: GainNode; delay: GainNode; chorus: GainNode };
   /** Every node owned by the instrument-send paths, for teardown. */
   instNodes: AudioNode[];
+  /** The instrument's stereo width, applied to the summed voices. */
+  widener: Widener;
+  /** The instrument's own send levels, tapped from the widened voices. */
+  presetSends: { reverb: GainNode; delay: GainNode; chorus: GainNode };
   duck: GainNode;
   eqLow: BiquadFilterNode;
   eqMid: BiquadFilterNode;
@@ -62,14 +75,25 @@ interface Strip {
 /** Where a track's voices connect: the dry input and the instrument-send inputs. */
 export interface StripRoute {
   input: GainNode;
+  /** Skips the instrument sends: a kick that should stay out of the reverb. */
+  dry: GainNode;
   sends: { reverb: GainNode; delay: GainNode; chorus: GainNode };
 }
+
+/** The sound source's part of the strip: its width and built-in effect sends. */
+export interface InstrumentShape {
+  width: number;
+  send: { reverb: number; delay: number; chorus: number };
+}
+
+const NO_SHAPE: InstrumentShape = { width: 0, send: { reverb: 0, delay: 0, chorus: 0 } };
 
 interface Desired {
   settings: ChannelSettings;
   pan: number;
   automated: Set<string>;
   muted: boolean;
+  shape: InstrumentShape;
 }
 
 export class ChannelStripRack {
@@ -105,6 +129,7 @@ export class ChannelStripRack {
     if (!master) return null;
 
     const input = ctx.createGain();
+    const dryInput = ctx.createGain();
     const duck = ctx.createGain();
     const eqLow = ctx.createBiquadFilter();
     const eqMid = ctx.createBiquadFilter();
@@ -133,10 +158,15 @@ export class ChannelStripRack {
     muteCtl.start();
     gain.gain.value = 0;
     input.gain.value = 0;
+    dryInput.gain.value = 0;
     faderCtl.connect(gain.gain);
     muteCtl.connect(input.gain);
+    muteCtl.connect(dryInput.gain);
 
-    input.connect(duck);
+    const widener = createWidener(ctx);
+    input.connect(widener.input);
+    widener.output.connect(duck);
+    dryInput.connect(duck);
     duck.connect(eqLow);
     eqLow.connect(eqMid);
     eqMid.connect(eqHigh);
@@ -182,9 +212,18 @@ export class ChannelStripRack {
       delay: instPath(buses?.delay),
       chorus: instPath(buses?.chorus),
     };
+    const tap = (to: GainNode) => {
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      widener.output.connect(g);
+      g.connect(to);
+      instNodes.push(g);
+      return g;
+    };
+    const presetSends = { reverb: tap(instSends.reverb), delay: tap(instSends.delay), chorus: tap(instSends.chorus) };
 
     const strip: Strip = {
-      ctx, input, faderCtl, muteCtl, instSends, instNodes, duck, eqLow, eqMid, eqHigh, gain, panner,
+      ctx, input, dryInput, faderCtl, muteCtl, instSends, instNodes, widener, presetSends, duck, eqLow, eqMid, eqHigh, gain, panner,
       sendReverb, sendDelay, sendChorus, sidechain: 0, analyser: null,
     };
     strips.set(tabId, strip);
@@ -195,14 +234,34 @@ export class ChannelStripRack {
     if (d) {
       this.write(strip, d, (param, value) => { param.value = value; });
       muteCtl.offset.value = d.muted ? 0 : 1;
+      this.writeShape(strip, d.shape);
     }
     return strip;
+  }
+
+  /**
+   * The track's sound source: its stereo width and its own effect sends. Voices
+   * on a strip arrive mono and without sends; the strip adds both once.
+   */
+  setInstrument(tabId: string, shape: InstrumentShape): void {
+    const d = this.desired.get(tabId);
+    if (d) d.shape = shape;
+    else this.desired.set(tabId, { settings: DEFAULT_SETTINGS, pan: 0, automated: new Set(), muted: false, shape });
+    const s = this.get(tabId);
+    if (s) this.writeShape(s, shape);
+  }
+
+  private writeShape(s: Strip, shape: InstrumentShape): void {
+    s.widener.setWidth(shape.width);
+    s.presetSends.reverb.gain.value = shape.send.reverb;
+    s.presetSends.delay.gain.value = shape.send.delay;
+    s.presetSends.chorus.gain.value = shape.send.chorus;
   }
 
   /** Where a track's voices connect: dry signal and their own effect sends. */
   getRoute(tabId: string): StripRoute | null {
     const s = this.get(tabId);
-    return s ? { input: s.input, sends: s.instSends } : null;
+    return s ? { input: s.input, dry: s.dryInput, sends: s.instSends } : null;
   }
 
   // ─── Settings ───────────────────────────────────────────────────────────────
@@ -219,7 +278,7 @@ export class ChannelStripRack {
     automated: Set<string> = new Set(),
   ): void {
     const prev = this.desired.get(tabId);
-    const d: Desired = { settings, pan, automated, muted: prev?.muted ?? false };
+    const d: Desired = { settings, pan, automated, muted: prev?.muted ?? false, shape: prev?.shape ?? NO_SHAPE };
     this.desired.set(tabId, d);
     const s = this.get(tabId);
     if (!s) return;
@@ -355,10 +414,11 @@ export class ChannelStripRack {
     for (const c of [s.faderCtl, s.muteCtl]) {
       try { c.stop(); } catch (_) { /* already stopped */ }
     }
-    for (const n of [s.input, s.faderCtl, s.muteCtl, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
+    for (const n of [s.input, s.dryInput, s.faderCtl, s.muteCtl, s.duck, s.eqLow, s.eqMid, s.eqHigh, s.gain, s.panner,
                      s.sendReverb, s.sendDelay, s.sendChorus, s.analyser, ...s.instNodes]) {
       try { n?.disconnect(); } catch (_) { /* already gone */ }
     }
+    s.widener.disconnect();
     this.strips.delete(tabId);
   }
 }

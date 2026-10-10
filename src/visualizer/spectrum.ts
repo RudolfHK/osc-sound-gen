@@ -41,7 +41,7 @@ export const DEFAULT_VISUALIZER: VisualizerSettings = {
   mirror: true,
   glow: true,
   trail: 0.25,
-  fpsCap: 60,
+  fpsCap: 30,
 };
 
 // ─── Renderer ─────────────────────────────────────────────────────────────────
@@ -61,6 +61,8 @@ export class Visualizer {
   private phase = 0;
 
   private settings: VisualizerSettings = { ...DEFAULT_VISUALIZER };
+  /** The draw pass in progress: the glow pass is fainter and wider. */
+  private pass = { alpha: 1, widen: 1 };
   private accent = '#00ff88';
 
   constructor(canvas: HTMLCanvasElement) {
@@ -186,18 +188,21 @@ export class Visualizer {
     this.analyser.getFloatTimeDomainData(this.time);
     this.phase += 0.01;
 
-    ctx.save();
-    if (this.settings.glow) {
-      ctx.shadowBlur = Math.max(4, H * 0.03);
+    // Glow is a wide, faint pass under the sharp one. (A canvas shadow blur
+    // looks the same but blurs every shape on the CPU, every frame.)
+    const passes = this.settings.glow ? [{ alpha: 0.2, widen: 3.5 }, { alpha: 1, widen: 1 }] : [{ alpha: 1, widen: 1 }];
+    for (const pass of passes) {
+      this.pass = pass;
+      ctx.save();
+      ctx.globalAlpha = pass.alpha;
+      switch (this.settings.mode) {
+        case 'bars':   this.drawBars(ctx, W, H); break;
+        case 'wave':   this.drawWave(ctx, W, H); break;
+        case 'radial': this.drawRadial(ctx, W, H); break;
+        case 'bloom':  this.drawBloom(ctx, W, H); break;
+      }
+      ctx.restore();
     }
-
-    switch (this.settings.mode) {
-      case 'bars':   this.drawBars(ctx, W, H); break;
-      case 'wave':   this.drawWave(ctx, W, H); break;
-      case 'radial': this.drawRadial(ctx, W, H); break;
-      case 'bloom':  this.drawBloom(ctx, W, H); break;
-    }
-    ctx.restore();
   }
 
   /** Log-spaced spectrum bars — matches how pitch is perceived. */
@@ -228,12 +233,11 @@ export class Visualizer {
     for (let i = 0; i < count; i++) {
       const m = this.magnitude(i, count);
       const h = Math.pow(m, 0.8) * maxH;
-      const x = i * (bw + gap) + gap / 2;
-      const color = this.colorFor(i / count);
-      ctx.fillStyle = color;
-      if (this.settings.glow) ctx.shadowColor = color;
-      ctx.fillRect(x, baseY - h, bw, h);
-      if (this.settings.mirror) ctx.fillRect(x, baseY, bw, h * 0.6);
+      const grow = (this.pass.widen - 1) * 1.5;
+      const x = i * (bw + gap) + gap / 2 - grow;
+      ctx.fillStyle = this.colorFor(i / count);
+      ctx.fillRect(x, baseY - h - grow, bw + grow * 2, h + grow);
+      if (this.settings.mirror) ctx.fillRect(x, baseY, bw + grow * 2, h * 0.6 + grow);
     }
   }
 
@@ -244,8 +248,7 @@ export class Visualizer {
     const color = this.colorFor(0.5);
 
     ctx.strokeStyle = color;
-    if (this.settings.glow) ctx.shadowColor = color;
-    ctx.lineWidth = Math.max(1.5, H * 0.008);
+    ctx.lineWidth = Math.max(1.5, H * 0.008) * this.pass.widen;
     ctx.beginPath();
     const step = Math.max(1, Math.floor(data.length / W));
     for (let i = 0, x = 0; i < data.length; i += step, x++) {
@@ -255,14 +258,14 @@ export class Visualizer {
     ctx.stroke();
 
     if (this.settings.mirror) {
-      ctx.globalAlpha = 0.3;
+      ctx.globalAlpha = 0.3 * this.pass.alpha;
       ctx.beginPath();
       for (let i = 0, x = 0; i < data.length; i += step, x++) {
         const y = mid + data[i] * amp;
         if (x === 0) ctx.moveTo(0, y); else ctx.lineTo(x * (W / (data.length / step)), y);
       }
       ctx.stroke();
-      ctx.globalAlpha = 1;
+      ctx.globalAlpha = this.pass.alpha;
     }
   }
 
@@ -274,14 +277,12 @@ export class Visualizer {
     const reach = Math.min(W, H) * 0.32;
     const sweep = this.settings.mirror ? Math.PI : Math.PI * 2;
 
-    ctx.lineWidth = Math.max(1.5, (Math.min(W, H) * 0.9) / count);
+    ctx.lineWidth = Math.max(1.5, (Math.min(W, H) * 0.9) / count) * this.pass.widen;
     for (let i = 0; i < count; i++) {
       const m = this.magnitude(i, count);
       const len = inner + Math.pow(m, 0.8) * reach;
       const a = (i / count) * sweep - Math.PI / 2 + this.phase * 0.2;
-      const color = this.colorFor(i / count);
-      ctx.strokeStyle = color;
-      if (this.settings.glow) ctx.shadowColor = color;
+      ctx.strokeStyle = this.colorFor(i / count);
 
       ctx.beginPath();
       ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
@@ -308,15 +309,13 @@ export class Visualizer {
     for (let i = rings - 1; i >= 0; i--) {
       const m = this.magnitude(i, rings);
       const r = unit * ((i + 1) / rings) * (0.55 + m * 0.75);
-      const color = this.colorFor(i / rings);
-      ctx.strokeStyle = color;
-      if (this.settings.glow) ctx.shadowColor = color;
-      ctx.globalAlpha = 0.25 + m * 0.65;
-      ctx.lineWidth = Math.max(1, unit * 0.012 + m * unit * 0.02);
+      ctx.strokeStyle = this.colorFor(i / rings);
+      ctx.globalAlpha = (0.25 + m * 0.65) * this.pass.alpha;
+      ctx.lineWidth = Math.max(1, unit * 0.012 + m * unit * 0.02) * this.pass.widen;
       ctx.beginPath();
       ctx.arc(cx, cy, Math.max(1, r), 0, Math.PI * 2);
       ctx.stroke();
     }
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = this.pass.alpha;
   }
 }

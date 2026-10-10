@@ -1,5 +1,6 @@
 import { getAudioEngine } from './audio';
-import { getChannelRack } from './channelStrip';
+import { getChannelRack, type InstrumentShape } from './channelStrip';
+import { getSettings, subscribeSettings } from '../store/settings';
 import { getInstrumentEngine } from './instruments';
 import { getDrumSynth } from './sampler';
 import { getEffectsBus } from './effects';
@@ -26,6 +27,11 @@ const LOOKAHEAD_MAX_S = 0.4;
  * the notes that were missed are dropped rather than all fired at once.
  */
 const MAX_OVERDUE_S = 0.05;
+/**
+ * Extra lookahead per millisecond of scheduling work per second of music:
+ * 100 events/s at 1 ms each (a dense bar on a slow machine) adds 0.2 s.
+ */
+const DENSE_REACH = 0.002;
 /** Channel automation is written in chunks this many beats long. */
 const AUTOMATION_CHUNK_BEATS = 0.25;
 
@@ -64,6 +70,10 @@ export class SequencerEngine {
   private ticker = new Ticker();
   private lookahead = LOOKAHEAD_MIN_S;
   private lastTickAt = 0;
+  /** Main-thread milliseconds it takes to schedule one event (smoothed). */
+  private costPerEvent = 0.2;
+  /** Events per second of music in the windows just scheduled (smoothed). */
+  private density = 0;
   /**
    * Bumped by every play and stop. `play` awaits the audio context; if a stop
    * (or another play) happens meanwhile, the stale play must not start.
@@ -90,7 +100,7 @@ export class SequencerEngine {
     this.applyMixState(seq);
   }
 
-  /** Push channel settings, mute and solo to every strip. */
+  /** Push channel settings, mute and solo — and each track's instrument width and sends — to every strip. */
   applyMixState(seq: SequencerState): void {
     this.lastSeq = seq;
     const rack = getChannelRack();
@@ -101,8 +111,14 @@ export class SequencerEngine {
       );
       rack.apply(track.id, track.channel, track.pan, automated);
       rack.setMute(track.id, mutes.get(track.id) ?? false);
+      rack.setInstrument(track.id, shapeOf(track));
     }
     rack.retain(new Set(seq.tracks.map((t) => t.id)));
+  }
+
+  /** Library edits or Eco mode changed how instruments sound: re-apply the mix. */
+  refreshMix(): void {
+    if (this.lastSeq) this.applyMixState(this.lastSeq);
   }
 
   // ─── Transport ──────────────────────────────────────────────────────────────
@@ -246,13 +262,18 @@ export class SequencerEngine {
     if (!ctx) return;
 
     // A tick that arrives late means the main thread is busy: look further
-    // ahead so notes are queued before they're due. Relax again slowly.
+    // ahead so notes are queued before they're due. Dense passages get a
+    // longer reach up front — scheduling them is itself the work that makes
+    // the next tick late — sized from how many events are coming and what
+    // each costs to schedule on this machine. Relax again slowly.
     const now = performance.now();
     const lateBy = (now - this.lastTickAt - SCHEDULER_MS) / 1000;
     this.lastTickAt = now;
+    const busyMsPerS = this.density * this.costPerEvent;
+    const floor = Math.min(LOOKAHEAD_MAX_S, LOOKAHEAD_MIN_S + busyMsPerS * DENSE_REACH);
     this.lookahead = lateBy > 0.02
-      ? Math.min(LOOKAHEAD_MAX_S, Math.max(this.lookahead, lateBy + LOOKAHEAD_MIN_S))
-      : Math.max(LOOKAHEAD_MIN_S, this.lookahead * 0.98);
+      ? Math.min(LOOKAHEAD_MAX_S, Math.max(this.lookahead, lateBy + floor))
+      : Math.max(floor, this.lookahead * 0.98);
 
     // After a long stall, skip what was missed instead of firing it in a burst
     const overdueFrom = this.monoAt(ctx.currentTime - MAX_OVERDUE_S);
@@ -260,10 +281,16 @@ export class SequencerEngine {
 
     const horizon = this.monoAt(ctx.currentTime + this.lookahead);
     if (horizon > this.scheduledUpTo) {
+      const t0 = performance.now();
       const events = eventsInWindow(this.input, this.scheduledUpTo, horizon, this.loop, this.engaged);
       for (const e of events) this.emit(e, ctx);
       this.scheduleChannelAutomation(horizon, ctx);
+      const windowS = (horizon - this.scheduledUpTo) / (this.bpm / 60);
       this.scheduledUpTo = horizon;
+      if (events.length) {
+        this.costPerEvent = this.costPerEvent * 0.8 + ((performance.now() - t0) / events.length) * 0.2;
+      }
+      this.density = this.density * 0.8 + (events.length / Math.max(0.01, windowS)) * 0.2;
     }
   }
 
@@ -321,11 +348,43 @@ export class SequencerEngine {
   }
 }
 
+/**
+ * The part of a track's sound that lives on its strip: the preset's stereo
+ * width and its own effect sends. Eco mode plays live audio in mono; exports
+ * always render at full quality.
+ */
+function shapeOf(track: Track): InstrumentShape {
+  if (track.source.type === 'drums') {
+    // The kit's room (Effects → drum sends); kicks bypass it on the strip
+    const d = getEffectsBus().getDrumSends();
+    return { width: 0, send: { reverb: d.reverb, delay: d.delay, chorus: 0 } };
+  }
+  if (track.source.type !== 'preset') return { width: 0, send: { reverb: 0, delay: 0, chorus: 0 } };
+  const p = getInstrumentEngine().resolve(track.source.presetId, track.patch);
+  if (!p) return { width: 0, send: { reverb: 0, delay: 0, chorus: 0 } };
+  const eco = getSettings().ecoMode && !getAudioEngine().isRenderingOffline;
+  return { width: eco ? 0 : p.width, send: p.send };
+}
+
 // ─── Singleton ────────────────────────────────────────────────────────────────
 
 let _seq: SequencerEngine | null = null;
 
 export function getSequencerEngine(): SequencerEngine {
-  if (!_seq) _seq = new SequencerEngine();
+  if (!_seq) {
+    const engine = new SequencerEngine();
+    _seq = engine;
+    // The kit's sends live on drum tracks' strips
+    getEffectsBus().onDrumSendsChange = () => {
+      if (!getAudioEngine().isRenderingOffline) engine.refreshMix();
+    };
+    // Eco mode changes the width every strip applies
+    let eco = getSettings().ecoMode;
+    subscribeSettings(() => {
+      if (getSettings().ecoMode === eco) return;
+      eco = getSettings().ecoMode;
+      engine.refreshMix();
+    });
+  }
   return _seq;
 }

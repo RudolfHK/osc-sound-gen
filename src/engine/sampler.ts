@@ -107,28 +107,40 @@ export class DrumSynth {
       if (rack.anySidechained()) rack.duckAll(time);
     }
 
-    // Per-hit channel strip: gain + panner
+    // Ambience — a kit with no room around it is the giveaway that it is synthetic.
+    // Cymbals and snares get the send; kicks and subs stay dry to keep the low end tight.
+    const dry = voice === 'kick' || voice === 'kick-808' || voice === 'kick-tight' || voice === 'sub-drop';
+    const pan = Math.max(-1, Math.min(1, p.pan));
     const chanGain = ctx.createGain();
-    const panner = ctx.createStereoPanner();
     chanGain.gain.value = velGain;
-    panner.pan.value = Math.max(-1, Math.min(1, p.pan));
-    chanGain.connect(panner);
-    panner.connect(out);
     // The longest hit (a crash with its decay stretched) rings for about 4 s
     this.hits.add(chanGain, [], time, time + 4);
 
-    // Ambience — a kit with no room around it is the giveaway that it is synthetic.
-    // Cymbals and snares get the send; kicks and subs stay dry to keep the low end tight.
-    const bus = getEffectsBus();
-    const drumSends = bus.getDrumSends();
-    const dry = voice === 'kick' || voice === 'kick-808' || voice === 'kick-tight' || voice === 'sub-drop';
-    if (!dry && (drumSends.reverb > 0.005 || drumSends.delay > 0.005)) {
-      // Through the track's strip when there is one, so its fader and mute apply
-      bus.connectSends(panner, {
-        reverb: drumSends.reverb,
-        delay: drumSends.delay,
-        chorus: 0,
-      }, route?.sends);
+    if (route) {
+      // On a track strip the strip adds the kit's room once for the whole
+      // track (kicks enter past it). A centred hit needs no panner: matched to
+      // a StereoPanner's −3 dB centre so the level is unchanged.
+      const into = dry ? route.dry : route.input;
+      if (Math.abs(pan) > 0.005) {
+        const panner = ctx.createStereoPanner();
+        panner.pan.value = pan;
+        chanGain.connect(panner);
+        panner.connect(into);
+      } else {
+        chanGain.gain.value = velGain * Math.SQRT1_2;
+        chanGain.connect(into);
+      }
+    } else {
+      // Auditioning in the pattern editor: the hit carries its own pan and sends
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = pan;
+      chanGain.connect(panner);
+      panner.connect(out);
+      const bus = getEffectsBus();
+      const drumSends = bus.getDrumSends();
+      if (!dry && (drumSends.reverb > 0.005 || drumSends.delay > 0.005)) {
+        bus.connectSends(panner, { reverb: drumSends.reverb, delay: drumSends.delay, chorus: 0 });
+      }
     }
 
     switch (voice) {

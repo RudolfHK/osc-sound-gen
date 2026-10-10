@@ -7,6 +7,8 @@ import { VoicePool } from './voices';
 import { midiToFreq } from '../utils/music';
 import type { AutomationLane, InstrumentPatch } from '../utils/music';
 import type { OscillatorState, AdvancedSettings } from './oscillator';
+import { getSettings } from '../store/settings';
+import { createWidener, type Widener } from './widener';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -2551,6 +2553,11 @@ function driveCurve(amount: number): Float32Array<ArrayBuffer> {
 // ─── Engine ───────────────────────────────────────────────────────────────────
 
 const MAX_VOICES = 64;
+/** Release tails one track may have ringing at once (Eco mode: fewer). */
+const MAX_TAILS_PER_TRACK = 8;
+const ECO_MAX_TAILS = 4;
+/** Eco mode caps release times at this. */
+const ECO_MAX_RELEASE_S = 0.35;
 
 /** Per-note routing and automation context supplied by the sequencer. */
 export interface NoteContext {
@@ -2706,21 +2713,22 @@ export class InstrumentEngine {
     if (peak < 0.001) return;
 
     // Voices land on the track's channel strip when the sequencer supplies one,
-    // so the fader, EQ, sends and sidechain apply to the whole part at once —
-    // including the instrument's own reverb/delay/chorus, which go in through
-    // the strip's instrument sends rather than straight to the effects.
+    // so the fader, EQ, sends and sidechain apply to the whole part at once.
+    // The strip also adds the instrument's stereo width and its own reverb /
+    // delay / chorus sends — once per track instead of once per note.
     const route = opts.trackId ? getChannelRack().getRoute(opts.trackId) : null;
-    const out: AudioNode = route?.input ?? this.getOutput(ctx);
+    // Eco mode is for live playback; an export always renders at full quality
+    const eco = getSettings().ecoMode && !getAudioEngine().isRenderingOffline;
 
     const freq = midiToFreq(midiNote + preset.octave * 12);
-    const { attack, decay, sustain, release } = preset.amp;
+    const { attack, decay, sustain } = preset.amp;
+    // Eco mode trims long release tails — the bulk of overlapping voices
+    const release = eco ? Math.min(preset.amp.release, ECO_MAX_RELEASE_S) : preset.amp.release;
     const dur = Math.max(0.02, durationS);
 
-    // ── Chain: layers → [layer panners] → mix → [body] → filter → [drive]
-    //           → amp → panner → out (+ FX sends)
-    const mix = ctx.createGain();
-    mix.gain.value = 1;
-
+    // ── Chain (mono): layers → [body] → filter → [drive] → amp → out
+    // A voice stays mono from the first node to the last: stereo width is the
+    // strip's job now, so the filter, drive and amp each process one channel.
     const filter = ctx.createBiquadFilter();
     filter.type = preset.filter.type;
     filter.Q.value = preset.filter.q;
@@ -2728,44 +2736,77 @@ export class InstrumentEngine {
     const amp = ctx.createGain();
     amp.gain.value = 0;
 
-    const panner = ctx.createStereoPanner();
-    // When a channel strip handles pan, the voice keeps only the preset's own
-    // placement so the two don't fight.
-    panner.pan.value = Math.max(-1, Math.min(1, opts.pan ?? preset.pan));
-
-    let head: AudioNode = mix;
+    let head: AudioNode = filter;
     if (preset.body) {
       const body = ctx.createBiquadFilter();
       body.type = 'peaking';
       body.frequency.value = preset.body.freq;
       body.gain.value = preset.body.gain;
       body.Q.value = preset.body.q;
-      head.connect(body);
+      body.connect(filter);
       head = body;
     }
-    head.connect(filter);
 
     // Drive can't be ramped (a WaveShaper curve is fixed once set), so an
     // automated drive lane is sampled at the note's start instead.
     const driveLane = findLane(lanes, 'drive');
     const driveAmount = driveLane ? laneRealAt(driveLane, startBeat) : preset.drive;
 
+    // The −3 dB a centred voice needs on a strip (see Output below) goes
+    // before the drive for wide presets: they used to be split into stereo
+    // ahead of the drive, which then saturated each side at full level.
+    const centredOnStrip = !!route && Math.abs(Math.max(-1, Math.min(1, opts.pan ?? preset.pan))) <= 0.005;
+    const driven = driveAmount > 0.01;
+    const trimBeforeDrive = centredOnStrip && driven && preset.width > 0.01;
+
     let tail: AudioNode = filter;
-    if (driveAmount > 0.01) {
+    if (driven) {
+      if (trimBeforeDrive) {
+        const trim = ctx.createGain();
+        trim.gain.value = Math.SQRT1_2;
+        tail.connect(trim);
+        tail = trim;
+      }
       const shaper = ctx.createWaveShaper();
       shaper.curve = driveCurve(driveAmount);
-      shaper.oversample = '2x';
+      // Oversampling keeps the distortion from aliasing; Eco mode skips it
+      shaper.oversample = eco ? 'none' : '2x';
       tail.connect(shaper);
       tail = shaper;
     }
     tail.connect(amp);
-    amp.connect(panner);
-    panner.connect(out);
 
-    // ── FX sends tap the voice post-pan ──
-    // These are the instrument's own character. The track's channel strip adds
-    // its own sends downstream, which the mix engineer controls separately.
-    const sendNodes = getEffectsBus().connectSends(panner, preset.send, route?.sends);
+    // ── Output ──
+    // On a strip a centred voice needs no panner of its own. A StereoPanner
+    // turns mono into stereo at −3 dB per side, so the voice is scaled to
+    // match and sounds exactly as loud as before. Off-centre presets keep one.
+    const extras: AudioNode[] = [];
+    const sendNodes: GainNode[] = [];
+    let previewWidener: Widener | null = null;
+    const presetPan = Math.max(-1, Math.min(1, opts.pan ?? preset.pan));
+    let level = 1;
+    if (route) {
+      if (Math.abs(presetPan) > 0.005) {
+        const panner = ctx.createStereoPanner();
+        panner.pan.value = presetPan;
+        amp.connect(panner);
+        panner.connect(route.input);
+        extras.push(panner);
+      } else {
+        amp.connect(route.input);
+        if (!trimBeforeDrive) level = Math.SQRT1_2;
+      }
+    } else {
+      // Previews (no track): the voice carries its own pan, width and sends
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = presetPan;
+      amp.connect(panner);
+      previewWidener = createWidener(ctx, eco ? 0 : preset.width);
+      panner.connect(previewWidener.input);
+      previewWidener.output.connect(this.getOutput(ctx));
+      extras.push(panner);
+      sendNodes.push(...getEffectsBus().connectSends(previewWidener.output, preset.send));
+    }
 
     // ── Filter: an automation lane replaces the per-note envelope ──
     const noteEnd = Math.max(time + attack + 0.005, time + dur) + release;
@@ -2801,10 +2842,11 @@ export class InstrumentEngine {
     }
 
     // ── Amp envelope ──
-    const sustainLevel = Math.max(0.0001, peak * sustain);
+    const voicePeak = peak * level;
+    const sustainLevel = Math.max(0.0001, voicePeak * sustain);
     const decayEnd = time + attack + decay;
     amp.gain.setValueAtTime(0.0001, time);
-    amp.gain.linearRampToValueAtTime(peak, time + attack);
+    amp.gain.linearRampToValueAtTime(voicePeak, time + attack);
     amp.gain.exponentialRampToValueAtTime(sustainLevel, decayEnd);
 
     // Note off — hold sustain until the note's end, then release
@@ -2836,13 +2878,11 @@ export class InstrumentEngine {
     const sameChord = !!last && Math.abs(last.time - time) < 0.005;
     const prevFreq = last ? (sameChord ? last.from : last.freq) : undefined;
     const oscs: OscillatorNode[] = [];
-    const extras: AudioNode[] = [];
     const layerCount = preset.layers.length;
 
     for (let i = 0; i < layerCount; i++) {
       const layer = preset.layers[i];
       const osc = ctx.createOscillator();
-      const g = ctx.createGain();
       osc.type = layer.wave;
       const layerFreq = freq * Math.pow(2, layer.octave);
       osc.detune.value = layer.detune + tuneJitter;
@@ -2855,26 +2895,21 @@ export class InstrumentEngine {
       }
 
       lfoGain?.connect(osc.detune);
-      g.gain.value = layer.gain;
-      osc.connect(g);
-
-      // Stereo width spreads the stack across the field instead of stacking it
-      // all dead centre — the difference between "one sound" and "an ensemble".
-      if (preset.width > 0.01 && layerCount > 1) {
-        const spreadPan = ctx.createStereoPanner();
-        const position = layerCount === 1 ? 0 : (i / (layerCount - 1)) * 2 - 1;
-        spreadPan.pan.value = position * preset.width;
-        g.connect(spreadPan);
-        spreadPan.connect(mix);
-        extras.push(spreadPan);
+      // Layers sum straight into the filter; a gain node only where a layer
+      // isn't at full level
+      if (Math.abs(layer.gain - 1) > 1e-6) {
+        const g = ctx.createGain();
+        g.gain.value = layer.gain;
+        osc.connect(g);
+        g.connect(head);
+        extras.push(g);
       } else {
-        g.connect(mix);
+        osc.connect(head);
       }
 
       osc.start(time);
       osc.stop(end + 0.02);
       oscs.push(osc);
-      extras.push(g);
     }
     this.glide.set(glideKey, { freq, time, from: prevFreq ?? freq });
 
@@ -2888,7 +2923,7 @@ export class InstrumentEngine {
       bp.Q.value = 1.2;
       const ng = ctx.createGain();
       // Harder hits bite harder
-      ng.gain.setValueAtTime(preset.noise * peak * (0.4 + velNorm * 0.8), time);
+      ng.gain.setValueAtTime(preset.noise * voicePeak * (0.4 + velNorm * 0.8), time);
       ng.gain.exponentialRampToValueAtTime(0.0001, time + Math.max(0.005, preset.noiseDecay));
       noise.connect(bp); bp.connect(ng); ng.connect(amp);
       startNoise(noise, time, nStop);
@@ -2896,7 +2931,11 @@ export class InstrumentEngine {
     }
 
     // ── Cleanup ──
-    const voice = this.voices.add(amp, [...oscs, ...(lfo ? [lfo] : [])], time, end + 0.02);
+    const voice = this.voices.add(amp, [...oscs, ...(lfo ? [lfo] : [])], time, end + 0.02, {
+      releaseAt: noteOff,
+      group: opts.trackId,
+      maxTails: opts.trackId ? (eco ? ECO_MAX_TAILS : MAX_TAILS_PER_TRACK) : undefined,
+    });
     const first = oscs[0];
     if (first) {
       first.onended = () => {
@@ -2905,7 +2944,8 @@ export class InstrumentEngine {
         for (const n of extras) { try { n.disconnect(); } catch (_) { /* ignore */ } }
         for (const s of sendNodes) { try { s.disconnect(); } catch (_) { /* ignore */ } }
         try { lfo?.disconnect(); lfoGain?.disconnect(); } catch (_) { /* ignore */ }
-        try { mix.disconnect(); filter.disconnect(); amp.disconnect(); panner.disconnect(); } catch (_) { /* ignore */ }
+        try { head.disconnect(); filter.disconnect(); amp.disconnect(); } catch (_) { /* ignore */ }
+        previewWidener?.disconnect();
       };
     }
   }

@@ -14,6 +14,7 @@
     "electron:build": "npm run build && electron-builder",
     "test": "vitest run",
     "test:e2e": "node e2e/smoke.mjs",
+    "test:perf": "node e2e/perf.mjs",
     "electron:pack": "npm run build && electron-builder --dir",
     "test:electron": "node e2e/electron-smoke.mjs"
   },

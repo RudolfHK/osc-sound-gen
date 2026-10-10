@@ -1,5 +1,6 @@
 import { getAudioEngine } from './audio';
 import { HARD_STOP_FADE_S, holdAt } from './voices';
+import { SIDE_DELAY_S } from './widener';
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
@@ -320,7 +321,9 @@ export class EffectsBus {
     if (!n) return;
     const ctx = n.ctx;
     const now = ctx.currentTime;
-    const openAt = now + fadeS + 0.003;
+    // Reopen once nothing from before the stop can still arrive — including
+    // the last few milliseconds held in a track's stereo-width delay
+    const openAt = now + fadeS + SIDE_DELAY_S + 0.004;
 
     const old: TailUnit[] = [n.reverb, n.delay];
     for (const u of old) {
@@ -398,8 +401,15 @@ export class EffectsBus {
     getAudioEngine().configureLimiter(s.limiterEnabled, s.limiterThreshold);
   }
 
+  /** Called when the kit's reverb/delay sends change — drum tracks apply them on their strips. */
+  onDrumSendsChange: (() => void) | null = null;
+
   update(settings: EffectsSettings, bpm?: number): void {
+    const prev = this.settings;
     this.settings = settings;
+    if (prev.drumReverbSend !== settings.drumReverbSend || prev.drumDelaySend !== settings.drumDelaySend) {
+      this.onDrumSendsChange?.();
+    }
     if (bpm !== undefined) this.bpm = bpm;
     const n = this.ensure();
     if (n) this.applyTo(n, settings);

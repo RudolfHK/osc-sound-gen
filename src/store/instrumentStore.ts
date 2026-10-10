@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, type Dispatch } from 'react';
 import { getInstrumentEngine, type InstrumentOverride, type InstrumentCategory } from '../engine/instruments';
+import { getSequencerEngine } from '../engine/sequencer';
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -106,6 +107,8 @@ export function useInstrumentReducer(): InstrumentCtx {
   // the track itself.)
   useEffect(() => {
     getInstrumentEngine().setOverrides(state.overrides);
+    // A library edit to width or sends changes what the tracks' strips apply
+    getSequencerEngine().refreshMix();
   }, [state.overrides]);
 
   return useMemo(() => ({ state, dispatch }), [state]);

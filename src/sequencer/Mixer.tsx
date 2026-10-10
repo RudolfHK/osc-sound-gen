@@ -3,18 +3,33 @@ import { useAppStore, useAccent } from '../store/appStore';
 import { getAudioEngine } from '../engine/audio';
 import { getChannelRack } from '../engine/channelStrip';
 import { effectiveTrackMutes, type ChannelSettings, type Track } from '../utils/music';
-import { gray } from '../ui/theme';
+import { gray, useTheme } from '../ui/theme';
+import { getSettings } from '../store/settings';
 
 // ─── Metering ─────────────────────────────────────────────────────────────────
 //
 // One animation loop drives every meter, rather than one loop per strip.
 
 type MeterSource = () => AnalyserNode | null;
-const meters = new Map<HTMLCanvasElement, { source: MeterSource; color: string; peak: number; buf: Float32Array }>();
+interface MeterState {
+  source: MeterSource; color: string; peak: number; buf: Float32Array;
+  /** Height last drawn, so an idle meter isn't repainted. */
+  drawn: number;
+  fill: CanvasGradient | null;
+}
+const meters = new Map<HTMLCanvasElement, MeterState>();
 let meterRaf = 0;
+let lastMeterFrame = 0;
 
-function meterLoop() {
+/** Meters update at 30 fps (15 in Eco mode) — smooth to the eye, half the work of 60. */
+function meterLoop(now: number) {
+  meterRaf = meters.size ? requestAnimationFrame(meterLoop) : 0;
+  const gap = getSettings().ecoMode ? 1000 / 15 : 1000 / 30;
+  if (now - lastMeterFrame < gap - 1) return;
+  lastMeterFrame = now;
   for (const [canvas, m] of meters) {
+    // Strips scrolled out of view or in a hidden tab aren't drawn
+    if (!canvas.isConnected || canvas.offsetParent === null) continue;
     const a = m.source();
     const ctx = canvas.getContext('2d');
     if (!ctx) continue;
@@ -27,22 +42,25 @@ function meterLoop() {
       const db = 20 * Math.log10(Math.max(peak, 1e-5));
       level = Math.max(0, Math.min(1, (db + 54) / 54));
     }
-    // Fast attack, slow release, like a hardware meter
-    m.peak = level > m.peak ? level : Math.max(level, m.peak - 0.02);
+    // Fast attack, slow release, like a hardware meter (release per 30 fps frame)
+    m.peak = level > m.peak ? level : Math.max(level, m.peak - 0.04);
     const W = canvas.width;
     const H = canvas.height;
+    const h = Math.round(m.peak * H);
+    if (h === m.drawn) continue;
+    m.drawn = h;
     ctx.fillStyle = gray('#141414');
     ctx.fillRect(0, 0, W, H);
-    const h = m.peak * H;
-    const g = ctx.createLinearGradient(0, H, 0, 0);
-    g.addColorStop(0, m.color);
-    g.addColorStop(0.75, m.color);
-    g.addColorStop(0.9, '#f59e0b');
-    g.addColorStop(1, '#ef4444');
-    ctx.fillStyle = g;
+    if (!m.fill) {
+      m.fill = ctx.createLinearGradient(0, H, 0, 0);
+      m.fill.addColorStop(0, m.color);
+      m.fill.addColorStop(0.75, m.color);
+      m.fill.addColorStop(0.9, '#f59e0b');
+      m.fill.addColorStop(1, '#ef4444');
+    }
+    ctx.fillStyle = m.fill;
     ctx.fillRect(0, H - h, W, h);
   }
-  meterRaf = meters.size ? requestAnimationFrame(meterLoop) : 0;
 }
 
 function Meter({ source, color }: { source: MeterSource; color: string }) {
@@ -52,10 +70,16 @@ function Meter({ source, color }: { source: MeterSource; color: string }) {
   useEffect(() => {
     const c = ref.current;
     if (!c) return;
-    meters.set(c, { source: () => srcRef.current(), color, peak: 0, buf: new Float32Array(512) });
+    meters.set(c, { source: () => srcRef.current(), color, peak: 0, buf: new Float32Array(512), drawn: -1, fill: null });
     if (!meterRaf) meterRaf = requestAnimationFrame(meterLoop);
     return () => { meters.delete(c); };
   }, [color]);
+  // A theme switch changes the meter background: repaint
+  const theme = useTheme();
+  useEffect(() => {
+    const m = ref.current && meters.get(ref.current);
+    if (m) m.drawn = -1;
+  }, [theme]);
   return <canvas ref={ref} width={6} height={96} className="rounded-xs" aria-hidden />;
 }
 

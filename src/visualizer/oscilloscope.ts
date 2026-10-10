@@ -198,13 +198,9 @@ export class Oscilloscope {
     const midY = padY + drawH / 2;
 
     ctx.save();
-    ctx.globalAlpha = opacity;
     ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 6;
 
     ctx.beginPath();
     for (let i = 0; i < SAMPLES; i++) {
@@ -213,6 +209,13 @@ export class Oscilloscope {
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
+    // The phosphor glow: a wide faint stroke under the sharp one (cheaper
+    // than a canvas shadow blur, which blurs the whole trace every frame)
+    ctx.globalAlpha = opacity * 0.18;
+    ctx.lineWidth = lineWidth * 4;
+    ctx.stroke();
+    ctx.globalAlpha = opacity;
+    ctx.lineWidth = lineWidth;
     ctx.stroke();
     ctx.restore();
   }
