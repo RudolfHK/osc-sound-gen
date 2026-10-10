@@ -1,6 +1,7 @@
 # Verification, Performance Review and the "Professional Polish" Plan
 
-*Status: verification and measurements done; everything in Part C onward is a plan — not implemented.*
+*Status: **implemented** — all of C1–C10 shipped on this branch; see [Part E](#part-e--what-shipped)
+for what was built, the decisions taken and the re-measured budgets.*
 *Reviewed: `claude/oscillator-synthesizer-app-fUywi` at `1eb71c8` (October 2026), which holds the bug-fix
 release (`ad5e3ac`) and the genre examples with the send-routing fix (`1eb71c8`).*
 
@@ -380,3 +381,53 @@ user-visible behaviour (audio measured where relevant), the perf budgets re-run 
 3. **Eco mode default**: off everywhere, or switched on automatically when dropouts are detected?
 4. **Save in place** needs the File System Access API: fine to have it in Chromium and the desktop
    app only, with downloads elsewhere?
+
+**Decided:** 1 — first start only (then from *New project…*, *Help → Welcome screen*, or a Settings
+checkbox). 2 — light and dark, with a switch in the header; dark stays the default. 3 — Eco mode
+switches itself on when dropouts are detected, with a notice and a *Turn off* button. 4 — save in
+place where the File System Access API exists; elsewhere Save downloads and says so every time.
+
+---
+
+## Part E — What shipped
+
+| Item | Built | Tests |
+|---|---|---|
+| **C1** fix pass | Q1 B/V editor modes; Q2 shortcuts pause behind dialogs and menus; Q3 guard before replacing the song; Q4 Ctrl+D/E never reach the browser; Q5 dead DRUM SENDS toggle removed; Q6 disabled sliders disabled for real; Q7 Alt shortcuts by physical key; Q8 every control labelled, dB on faders, ms on the free delay; Q9 GUIDE autosave wording | e2e: Space behind Export, Option+X, registry handlers; unit: key matching |
+| **C2** help in the app | Shortcut registry (tooltips, menus, overlay, ⌘⌥ labels); **?** overlay with search; F1 guide panel opening at the focused panel; desktop File and Help menus | e2e: overlay search, F1 at the mixer; desktop: Help menu command |
+| **C3** first run | Welcome screen (first start), examples manifest with genre/length/description and ▶ preview, five templates, six-step tour | unit: manifest and templates; e2e: welcome, template, preview, full tour |
+| **C4** status bar | Save state, audio state + Enable audio, sample rate/latency, AudioWorklet load probe, dropout count, keys owner, hover hint, automatic Eco mode | e2e: unsaved state, suspend → Enable audio |
+| **C5** project safety | Dirty tracking (by reference, survives reload), Save/Don't save/Cancel guard on open/example/new/tab close/desktop close, save in place + Save as, download fallback notice, crash screen | unit: dirty tracking; e2e: guard, fallback, mocked save-in-place, crash screen; desktop: close guard |
+| **C6** named undo | Every step named (*Fader: Bass*), Undo/Redo notices, History list with multi-step jumps | unit: labels for every edit, jump = repeated undo; e2e: History jump |
+| **C7** performance | P-a mono voices + per-track mid/side width; P-b no per-voice panner or sends on a strip (drums too), per-track body EQ, shared layer gains; P-c release-aware stealing + tail cap; P-d density-aware lookahead; P-e meters 30 fps/culled, visualizer 30 fps, glow without shadow blur; P-f Eco mode; P-g `npm run test:perf` | perf test (below); levels match the old engine within 0.6 dB per track |
+| **C8** interface | Light/dark themes over mirrored ramps, surface tokens, focus ring, 11 px minimum, Dialog/Button/Menu primitives, keyboard menus with flipping submenus, keyboard-reachable instrument cards | e2e: no unlabeled control or small text, focus trap, keyboard menus; contrast measured |
+| **C9** settings | Output device, latency, Eco; new-project defaults and template; follow playhead, keyboard octave, metronome level, count-in; autosave to file; theme, accent, interface size | e2e: settings survive a reload; desktop: interface size is page zoom |
+| **C10** editing | Multi-clip selection (Shift-click, box, ⌘A), group move/copy/delete/colour, clip copy/paste across tracks, clip rename and colour, ruler menu, loop fields, follow toggle, typed seek | unit: clip reducers, position parser; e2e: box select, group move, paste onto another track |
+
+### Budgets, re-measured
+
+Normalised to the reference machine (`npm run test:perf` calibrates first; the run below was on a
+machine 2.4× slower than the reference).
+
+| Budget | Target | Before | Now |
+|---|---|---|---|
+| Audio-thread load, Midnight Drive (Extended) drop | ≤ 50 % | 63–66 % | **33–39 %** |
+| Export speed, every example (whole song) | ≥ 3× | Extended 1.4×, Velvet 2.1×, Neon 2.5× | **4.0–13×** (Low Tide 4.0×, Memphis Fog 4.1×, Velvet 4.2×, Extended 4.4×) |
+| Late notes on a 4× slower CPU | none | Velvet 35, Neon 15 | **0** (Extended, Velvet, Neon) |
+| Frame p95, 4× slower CPU, mixer meters + visualizer open | ≤ 33 ms | 50 ms | **16.7 ms** |
+| Dropouts at normal speed | none | Neon 5, Extended + meters + viz 7 | Not judged on this machine — a 2.4× slower audio thread can't be scaled; measured 0 on Velvet, 3 on Neon and 5–8 on Extended + meters + visualizer through the headless fake device. Re-run on reference-speed hardware |
+
+Contrast (both themes): body text ≥ 9:1, hints ≥ 3.8:1, the light theme's accent 5.3:1.
+
+### Deviations from the plan
+
+- **High-contrast theme** was not built: decision 2 chose light and dark.
+- **Latency** applies after a restart — an AudioContext's latency is fixed when it is created, and
+  rebuilding every engine's graph live wasn't worth the risk.
+- **Interface size** is real page zoom in the desktop app; in browsers it is CSS zoom with pointer
+  and popup coordinates converted (the browser's own Ctrl +/− also works).
+- **Stereo width** is now a per-track mid/side widener instead of per-layer panning. Levels match the
+  old engine, but the stereo image is a little different: the side signal is a delayed, high-passed
+  copy, so bass stays centred and the mix stays mono-compatible.
+- The hover hint was added to the status bar; the existing hint lines stay (now at 11 px).
+
