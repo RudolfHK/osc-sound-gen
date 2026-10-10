@@ -2,6 +2,9 @@
 
 *Status: the bugs and debt in §2 are fixed (see §2.3); the features in §3 onward are plan only.*
 *Reviewed: `main` at `baf47eb` (October 2026).*
+*Next: [`professional-polish-plan.md`](professional-polish-plan.md) re-verifies the app after these fixes,
+re-measures performance against budgets, and plans a "professional polish" release to do before
+the MIDI release below.*
 
 This is the result of three passes over the app: the automated test suites, a hands-on QA run that
 drives the real app in Chromium and measures its audio output, and a read-only code audit of every
