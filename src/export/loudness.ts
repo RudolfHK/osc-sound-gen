@@ -35,9 +35,10 @@ export function samplePeak(audio: PcmAudio): number {
 // from their analog prototypes (as pyloudnorm does) gives the same response at
 // any sample rate.
 
-interface Biquad { b0: number; b1: number; b2: number; a1: number; a2: number }
+export interface Biquad { b0: number; b1: number; b2: number; a1: number; a2: number }
 
-function highShelf(fs: number): Biquad {
+/** Stage 1 of K-weighting: the head's high-frequency boost. */
+export function highShelf(fs: number): Biquad {
   const G = 3.99984385397, Q = 0.7071752369554193, fc = 1681.974450955533;
   const K = Math.tan(Math.PI * fc / fs);
   const Vh = Math.pow(10, G / 20);
@@ -52,7 +53,8 @@ function highShelf(fs: number): Biquad {
   };
 }
 
-function highPass(fs: number): Biquad {
+/** Stage 2 of K-weighting: the RLB high-pass. */
+export function highPass(fs: number): Biquad {
   const Q = 0.5003270373238773, fc = 38.13547087613982;
   const K = Math.tan(Math.PI * fc / fs);
   const a0 = 1 + K / Q + K * K;
@@ -108,13 +110,23 @@ export function integratedLoudness(audio: PcmAudio): number {
     blockPower.push(z);
   }
 
-  const lufs = (z: number) => -0.691 + 10 * Math.log10(z);
-  const absGated = blockPower.filter((z) => lufs(z) > -70);
-  if (absGated.length === 0) return Number.NEGATIVE_INFINITY;
+  return gatedLoudness(blockPower);
+}
 
-  const relThreshold = lufs(mean(absGated)) - 10;
-  const gated = absGated.filter((z) => lufs(z) > relThreshold);
-  return lufs(mean(gated));
+/** Loudness of a mean-square block power (K-weighted, channels summed). */
+export const blockLufs = (z: number) => -0.691 + 10 * Math.log10(z);
+
+/**
+ * Integrated loudness from 400 ms block powers: the absolute gate at −70
+ * LUFS, then the relative gate 10 LU below what's left. Shared by exports
+ * and the live meter.
+ */
+export function gatedLoudness(blockPower: number[]): number {
+  const absGated = blockPower.filter((z) => blockLufs(z) > -70);
+  if (absGated.length === 0) return Number.NEGATIVE_INFINITY;
+  const relThreshold = blockLufs(mean(absGated)) - 10;
+  const gated = absGated.filter((z) => blockLufs(z) > relThreshold);
+  return blockLufs(mean(gated));
 }
 
 function mean(xs: number[]): number {

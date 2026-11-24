@@ -5,6 +5,7 @@ import { getSettings, updateSettings, useSettings } from '../store/settings';
 import { enableAudio, getAudioHealth, subscribeAudioHealth, useAudioHealth } from '../engine/audioHealth';
 import { useFocusZone } from './focus';
 import { notify } from './notices';
+import { LoudnessReadout, useReferenceSync } from './ReferencePanel';
 
 // ─── Automatic Eco mode ───────────────────────────────────────────────────────
 
@@ -75,6 +76,7 @@ export function StatusBar() {
   const hint = useHoverHint();
 
   useEffect(() => installAutoEco(), []);
+  useReferenceSync();
 
   const sep = <span className="w-px self-stretch bg-neutral-800 mx-2" aria-hidden />;
   const load = audio.load === null ? null : Math.round(audio.load * 100);
@@ -148,6 +150,10 @@ export function StatusBar() {
         aria-pressed={settings.ecoMode}
         title="Eco mode: lighter sound engine for slow machines — narrower stereo, shorter tails, slower meters"
       >ECO</button>
+      {sep}
+
+      {/* Loudness and the reference track */}
+      <LoudnessReadout />
       {sep}
 
       {/* Keys */}

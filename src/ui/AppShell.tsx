@@ -21,6 +21,8 @@ import { SettingsDialog } from './SettingsDialog';
 import { getSettings, useSettings } from '../store/settings';
 import { setTheme, useTheme } from './theme';
 import { dispatchShortcut, runShortcut, shortcutLabel, useShortcuts, withShortcut } from './shortcuts';
+import { reference } from '../engine/reference';
+import { notify } from './notices';
 import { helpTopicFor } from './help/topics';
 import { useHistory } from './useHistory';
 import { useClipActions } from '../arrange/useClipActions';
@@ -171,6 +173,10 @@ export function AppShell() {
     'transport.home': () => transport.returnToStart(),
     'transport.loop': () => dispatch({ type: 'SEQ_SET_LOOP', enabled: !seq.loopEnabled }),
     'transport.metronome': () => dispatch({ type: 'SEQ_TOGGLE_METRONOME' }),
+    'transport.reference': () => {
+      if (!reference.toggle()) return false;
+      notify(reference.state.listening === 'reference' ? 'Listening to the reference (B).' : 'Listening to the mix (A).');
+    },
     'edit.undo': () => history.undo(),
     'edit.redo': () => history.redo(),
     'file.new': () => setWelcome('new'),

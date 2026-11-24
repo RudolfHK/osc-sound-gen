@@ -35,6 +35,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'transport.home', label: 'Back to the start (loop start first)', group: 'Transport', scope: 'global', keys: ['Home'] },
   { id: 'transport.loop', label: 'Loop on / off', group: 'Transport', scope: 'arrange', keys: ['L'] },
   { id: 'transport.metronome', label: 'Metronome on / off', group: 'Transport', scope: 'arrange', keys: ['K'] },
+  { id: 'transport.reference', label: 'Switch between the mix and the reference track (A/B)', group: 'Transport', scope: 'global', keys: ['Alt+R'] },
   // ── File ──
   { id: 'file.new', label: 'New project', group: 'File', scope: 'global', keys: [] },
   { id: 'file.save', label: 'Save', group: 'File', scope: 'global', keys: ['Mod+S'] },

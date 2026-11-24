@@ -37,6 +37,8 @@ export class MultiOscillatorEngine {
    * to fade in rather than happen.
    */
   private outputGain: GainNode | null = null;
+  /** Listening level of the mix (1, or 0 while a reference track plays instead). Live only. */
+  private monitorGain: GainNode | null = null;
   private tabs = new Map<string, TabNodes>();
 
   // ─── Context ─────────────────────────────────────────────────────────────────
@@ -61,9 +63,14 @@ export class MultiOscillatorEngine {
       this.outputGain = this.ctx.createGain();
       this.outputGain.gain.value = this.pendingVolume;
 
+      // What reaches the speakers, after the recording tap: switching to a
+      // reference track mutes the mix here, so a recording still gets it
+      this.monitorGain = this.ctx.createGain();
+
       this.masterGain.connect(this.limiter);
       this.limiter.connect(this.outputGain);
-      this.outputGain.connect(this.ctx.destination);
+      this.outputGain.connect(this.monitorGain);
+      this.monitorGain.connect(this.ctx.destination);
 
       if (settings.outputDeviceId) void this.setOutputDevice(settings.outputDeviceId);
       for (const fn of contextListeners) fn(this.ctx);
@@ -146,6 +153,16 @@ export class MultiOscillatorEngine {
   /** The node feeding the speakers (post limiter and master volume) — recording taps here. */
   getOutputNode(): AudioNode | null {
     return this.outputGain;
+  }
+
+  /** Fade the mix in the speakers (not in recordings) to `gain` over about 20 ms. */
+  setMonitorGain(gain: number): void {
+    const g = this.monitorGain;
+    if (!g) return;
+    // The node's own (live) clock — during an export `this.ctx` is the offline one
+    const now = g.context.currentTime;
+    g.gain.cancelScheduledValues(now);
+    g.gain.setTargetAtTime(gain, now, 0.007);
   }
 
   /** Master limiter control. Disabled = transparent (threshold at 0, ratio 1). */

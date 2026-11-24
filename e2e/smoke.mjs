@@ -42,6 +42,21 @@ function parseWav(buf) {
   return { ...fmt, frames, seconds: frames / fmt.sampleRate, peak };
 }
 
+/** A stereo 16-bit WAV of a sine, for a reference track with a known loudness. */
+function sineWav(seconds, freq, amp, rate = 44100) {
+  const frames = Math.round(seconds * rate);
+  const buf = Buffer.alloc(44 + frames * 4);
+  buf.write('RIFF', 0); buf.writeUInt32LE(36 + frames * 4, 4); buf.write('WAVE', 8);
+  buf.write('fmt ', 12); buf.writeUInt32LE(16, 16); buf.writeUInt16LE(1, 20); buf.writeUInt16LE(2, 22);
+  buf.writeUInt32LE(rate, 24); buf.writeUInt32LE(rate * 4, 28); buf.writeUInt16LE(4, 32); buf.writeUInt16LE(16, 34);
+  buf.write('data', 36); buf.writeUInt32LE(frames * 4, 40);
+  for (let i = 0; i < frames; i++) {
+    const v = Math.round(Math.sin((2 * Math.PI * freq * i) / rate) * amp * 32767);
+    buf.writeInt16LE(v, 44 + i * 4); buf.writeInt16LE(v, 46 + i * 4);
+  }
+  return buf;
+}
+
 const PORT = 4179;
 const URL = `http://localhost:${PORT}`;
 const exe = process.env.CHROMIUM_PATH
@@ -98,6 +113,8 @@ const AUDIO_TAP = () => {
       window.__oscOut = this;
       window.__oscCtx = this.context;
     }
+    // Everything else wired straight to the speakers (the reference track)
+    if (dest instanceof AudioDestinationNode && live) (window.__destNodes ??= []).push(this);
     return origConnect.call(this, dest, ...rest);
   };
   // Whole effect racks built on the live context: only a rack's chorus uses
@@ -108,9 +125,9 @@ const AUDIO_TAP = () => {
     if (!(this instanceof OfflineAudioContext) && max === 0.1) window.__liveRacks += 0.5;
     return origDelay.call(this, max, ...a);
   };
-  window.__level = (ms = 600) => new Promise((resolve) => {
+  window.__level = (ms = 600, node) => new Promise((resolve) => {
     const ctx = window.__oscCtx;
-    const out = window.__oscOut;
+    const out = node ?? window.__oscOut;
     if (!ctx || !out) { resolve(-1); return; }
     const a = ctx.createAnalyser();
     a.fftSize = 2048;
@@ -682,6 +699,47 @@ try {
     const level = await page.evaluate(() => window.__level(350));
     await button('■ STOP').click();
     assert(level > 0.02, `silent after starting mid-chord (peak ${level.toFixed(4)})`);
+  });
+
+  await step('a reference track plays with the song, A/B swaps what you hear, and the mix is measured in LUFS', async () => {
+    await page.getByTestId('loudness-readout').click();
+    const panel = page.getByRole('dialog', { name: 'Reference track' });
+    const before = await page.evaluate(() => (window.__destNodes ?? []).length);
+    const chooser = page.waitForEvent('filechooser', { timeout: 5000 });
+    await panel.getByRole('button', { name: 'Load a track…' }).click();
+    // A sine at a quarter of full scale in both channels: about −12.7 LUFS
+    await (await chooser).setFiles({ name: 'reference.wav', mimeType: 'audio/wav', buffer: sineWav(8, 440, 0.25) });
+    const info = panel.getByText(/LUFS integrated/);
+    await info.waitFor({ timeout: 5000 });
+    const refLufs = parseFloat((await info.innerText()).match(/(-?\d+\.\d) LUFS/)[1]);
+    assert(refLufs > -13.5 && refLufs < -12, `reference measured at ${refLufs} LUFS`);
+
+    await page.locator('main').click({ position: { x: 5, y: 5 } });
+    await button('▶ PLAY').click();
+    await page.waitForTimeout(600);
+    const refIndex = await page.evaluate((n) => window.__destNodes.length - 1 >= n ? window.__destNodes.length - 1 : -1, before);
+    assert(refIndex >= before, 'the reference is not wired to the speakers');
+    const mixA = await page.evaluate(() => window.__level(400));
+    const refA = await page.evaluate((i) => window.__level(400, window.__destNodes[i]), refIndex);
+    assert(mixA > 0.01 && refA < 0.002, `on A: mix ${mixA.toFixed(4)}, reference ${refA.toFixed(4)}`);
+
+    await page.keyboard.press('Alt+r');
+    await page.waitForTimeout(250);
+    const mixB = await page.evaluate(() => window.__level(400));
+    const refB = await page.evaluate((i) => window.__level(400, window.__destNodes[i]), refIndex);
+    assert(mixB < 0.003 && refB > 0.02, `on B: mix ${mixB.toFixed(4)}, reference ${refB.toFixed(4)}`);
+
+    await page.keyboard.press('Alt+r');
+    await page.waitForTimeout(250);
+    assert(await page.evaluate(() => window.__level(400)) > 0.01, 'back on A the mix is silent');
+    await button('■ STOP').click();
+    const lufs = await page.getByTestId('loudness-readout').innerText();
+    assert(/-\d+\.\d/.test(lufs), `no loudness reading after playing: ${lufs}`);
+    await page.getByTestId('loudness-readout').click();
+    await panel.getByRole('button', { name: 'Remove' }).click();
+    await panel.getByRole('button', { name: 'Load a track…' }).waitFor({ timeout: 2000 });
+    await page.keyboard.press('Escape');
+    await panel.waitFor({ state: 'detached', timeout: 2000 });
   });
 
   await step('the header stays one row on a 1024 px laptop and fits a phone', async () => {
