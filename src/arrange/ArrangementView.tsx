@@ -16,6 +16,7 @@ import { isMac, shortcutLabel, withShortcut } from '../ui/shortcuts';
 import { getSettings, updateSettings, useSettings, type FollowMode } from '../store/settings';
 import { Ruler } from './Ruler';
 import { PartDialogHost, openPartDialog } from './PartDialog';
+import { TransitionsDialogHost, openTransitionsDialog } from './TransitionsDialog';
 import { drawLane } from './drawLane';
 import {
   HEADER_W, TRACK_H, AUTO_H, RULER_H, RULER_SECTION_H, RULER_CHORDS_H, RULER_BARS_H, EDGE_PX,
@@ -479,6 +480,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
       ] : [
         { label: 'Edit drum patterns', onSelect: () => { dispatch({ type: 'TRACK_SELECT', trackId: track.id }); openDock('editor'); } },
         { label: 'Add fills before each section', disabled: seq.markers.length < 2, onSelect: () => addFills(track) },
+        { label: 'Add transitions…', disabled: seq.markers.length < 2, onSelect: () => openTransitionsDialog() },
       ]),
       {
         label: 'Colour', submenu: TRACK_COLORS.map((c) => ({
@@ -509,6 +511,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     <div className="flex flex-col h-full min-h-0 bg-[var(--surface-0)]" onMouseDown={() => setFocusZone('arrange')}>
       <ArrangeToolbar openDock={openDock} />
       <PartDialogHost />
+      <TransitionsDialogHost />
 
       <div ref={lanesRef} data-arrange-lanes className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {/* Ruler — sticks to the top while tracks scroll */}
@@ -653,6 +656,8 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
       >+ Oscillator</button>
       <button className={btn} onClick={() => openPartDialog()} data-testid="part-from-chords"
         title="Write a bass line, pad, arpeggio or stabs from the chord track">+ Part from chords</button>
+      <button className={btn} onClick={() => openTransitionsDialog()} data-testid="add-transitions"
+        title="Risers, snare rolls and impacts into the song's sections">+ Transitions</button>
 
       <span className="w-px h-4 bg-neutral-800 mx-1" />
       <label className="flex items-center gap-1 text-xs text-neutral-500" title="Grid for moving and trimming clips (hold Shift to ignore it)">

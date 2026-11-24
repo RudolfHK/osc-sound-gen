@@ -300,3 +300,44 @@ export function makeFill(p: DrumPattern, seed: number, opts: { barSteps?: number
   for (const v of Object.keys(out) as DrumVoiceType[]) out[v] = out[v]!.sort((a, b) => a.step - b.step);
   return patternFromHits(opts.name ?? `${p.name} fill`, p.genre === 'User' ? 'User' : p.genre, p.stepCount, p.swing, out);
 }
+
+/**
+ * A snare roll that builds into a new section, `bars` long: quarter notes,
+ * then eighths, then sixteenths (doubled for the last two steps), louder all
+ * the way. The groove's kick from `base` keeps going underneath until the
+ * last beat, which is left empty so the next downbeat lands harder.
+ */
+export function makeRoll(base: DrumPattern | null, opts: { bars?: number; barSteps?: number; name?: string } = {}): DrumPattern {
+  const barSteps = Math.max(4, Math.min(16, opts.barSteps ?? 16));
+  const bars = Math.max(1, Math.min(2, Math.round(opts.bars ?? 1)));
+  const n = bars * barSteps;
+  const stepCount: 16 | 32 = n <= 16 ? 16 : 32;
+  const out: Partial<Record<DrumVoiceType, HitSpec[]>> = {};
+
+  // The kick of the groove's first bar, repeated, up to the last beat
+  const kicks = base ? (['kick', 'kick-808', 'kick-tight'] as DrumVoiceType[]) : [];
+  const baseHits = base ? hitsOf(base) : {};
+  for (const voice of kicks) {
+    const list = (baseHits[voice] ?? []).filter((h) => h.step < barSteps);
+    if (!list.length) continue;
+    const hits: HitSpec[] = [];
+    for (let b = 0; b < bars; b++) {
+      for (const h of list) {
+        const step = b * barSteps + h.step;
+        if (step < n - 4) hits.push({ step, velocity: h.velocity });
+      }
+    }
+    if (hits.length) out[voice] = hits;
+  }
+
+  // Density rises through the roll: a two-bar roll starts in quarters
+  const snare: HitSpec[] = [];
+  for (let i = 0; i < n; i++) {
+    const f = i / n;
+    const every = bars === 2 && f < 0.5 ? 4 : f < (bars === 2 ? 0.75 : 0.5) ? 2 : 1;
+    if (i % every !== 0) continue;
+    snare.push({ step: i, velocity: Math.round(55 + (70 * i) / Math.max(1, n - 1)), ratchet: i >= n - 2 ? 2 : 1 });
+  }
+  out.snare = snare;
+  return patternFromHits(opts.name ?? 'Snare roll', base?.genre === 'User' ? 'User' : (base?.genre ?? 'Electronic'), stepCount, 0, out);
+}

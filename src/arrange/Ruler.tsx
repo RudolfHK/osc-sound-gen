@@ -10,6 +10,7 @@ import { chordName, chordSpans, keyUsesFlats, PROGRESSIONS, progressionChords, t
 import { detectChordsInRange } from '../utils/songAnalysis';
 import { ChordDialog, useSongKey } from './ChordDialog';
 import { openPartDialog } from './PartDialog';
+import { openTransitionsDialog } from './TransitionsDialog';
 import { notify } from '../ui/notices';
 import { gray, shade, useTheme } from '../ui/theme';
 import { canvasPixelRatio, localPoint } from '../ui/scale';
@@ -194,6 +195,7 @@ export function Ruler({ view, width, onSeek }: Props) {
             onSelect: () => dispatch({ type: 'MARKER_UPDATE', id: s.id, patch: { color: c } }),
           })),
         },
+        { label: 'Add a transition into it…', disabled: s.beat <= 0, onSelect: () => openTransitionsDialog(s.id) },
         { divider: true, label: '' },
         {
           label: 'Duplicate section', shortcut: '',

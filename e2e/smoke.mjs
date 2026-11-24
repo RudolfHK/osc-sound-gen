@@ -580,6 +580,37 @@ try {
     await undo.click(); // the progression
   });
 
+  await step('transitions add risers, rolls and impacts into sections, undone in one step', async () => {
+    let seq = (await savedState()).sequencer;
+    if (seq.markers.length < 2) {
+      const ruler = page.locator('[data-arrange-lanes] canvas').first();
+      const box = await ruler.boundingBox();
+      await page.mouse.dblclick(box.x + 300, box.y + 8);
+      seq = (await savedState()).sequencer;
+    }
+    const tracksBefore = seq.tracks.length;
+    const drumsBefore = (await savedDrums()).patterns.length;
+    await page.getByTestId('add-transitions').click();
+    const dialog = page.getByRole('dialog', { name: 'Add transitions' });
+    await dialog.getByRole('button', { name: 'Add transitions' }).click();
+    await dialog.waitFor({ state: 'detached', timeout: 2000 });
+
+    seq = (await savedState()).sequencer;
+    const risers = seq.tracks.find((t) => t.name === 'Risers');
+    const impacts = seq.tracks.find((t) => t.name === 'Impacts');
+    assert(risers && risers.clips.length >= 1, 'no riser track with clips');
+    assert(impacts && impacts.clips.length >= 1, 'no impact track with clips');
+    assert(risers.lanes.find((l) => l.target === 'cutoff')?.points.length >= 3, 'the riser has no filter sweep');
+    const drums = await savedDrums();
+    assert(drums.patterns.some((p) => p.name.startsWith('Roll into')), 'no snare roll pattern');
+
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    assert(await undo.getAttribute('aria-label') === 'Undo Add transitions', `undo label: ${await undo.getAttribute('aria-label')}`);
+    await undo.click();
+    assert((await savedState()).sequencer.tracks.length === tracksBefore, 'undo left the transition tracks');
+    assert((await savedDrums()).patterns.length === drumsBefore, 'undo left the roll patterns');
+  });
+
   // ── Transport response: stop, seek and volume act at once ──
   // Midnight Drive holds long pad chords through a reverb, which is exactly
   // what used to keep sounding after stop.

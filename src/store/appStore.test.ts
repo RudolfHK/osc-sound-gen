@@ -305,6 +305,33 @@ describe('written parts', () => {
     expect(clips.map((c) => [c.startBeat, c.lengthBeats, c.offsetBeats])).toEqual([[0, 8, 0], [8, 8, 0], [16, 16, 16]]);
   });
 
+  it('writes clips and automation onto several tracks at once, replacing points in the spans', () => {
+    let s = fresh();
+    s = reducer(s, {
+      type: 'TRACKS_WRITE',
+      writes: [{
+        target: { source: { type: 'preset', presetId: 'fx-noise-sweep' }, name: 'Risers' },
+        clips: [{ startBeat: 8, lengthBeats: 8, name: 'Riser', notes: [{ midiNote: 60, startBeat: 0, durationBeats: 8, velocity: 100 }] }],
+        lanes: [{ target: 'cutoff', points: [{ beat: 8, value: 0.1 }, { beat: 16, value: 0.9 }], spans: [{ from: 8, to: 16 }] }],
+      }],
+    });
+    const risers = s.sequencer.tracks.at(-1)!;
+    expect(risers.name).toBe('Risers');
+    expect(risers.lanes.find((l) => l.target === 'cutoff')!.points.map((p) => p.beat)).toEqual([8, 16]);
+    // Writing again over the same span replaces those points instead of piling up
+    s = reducer(s, {
+      type: 'TRACKS_WRITE',
+      writes: [{
+        target: { trackId: risers.id },
+        clips: [{ startBeat: 8, lengthBeats: 8, name: 'Riser', notes: [{ midiNote: 60, startBeat: 0, durationBeats: 8, velocity: 100 }] }],
+        lanes: [{ target: 'cutoff', points: [{ beat: 12, value: 0.1 }, { beat: 16, value: 0.9 }], spans: [{ from: 8, to: 16 }] }],
+      }],
+    });
+    const again = s.sequencer.tracks.find((t) => t.id === risers.id)!;
+    expect(again.clips).toHaveLength(1);
+    expect(again.lanes.find((l) => l.target === 'cutoff')!.points.map((p) => p.beat)).toEqual([12, 16]);
+  });
+
   it('refuses a drum track', () => {
     const s = fresh();
     const drums = s.sequencer.tracks.find((t) => t.source.type === 'drums')!;

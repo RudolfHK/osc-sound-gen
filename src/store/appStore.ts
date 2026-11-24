@@ -130,11 +130,9 @@ export type Action =
    * Add a written part: one clip per entry, each with its own pattern, onto
    * an instrument track (clearing what was in those ranges) or a new track.
    */
-  | {
-      type: 'PART_ADD';
-      target: { trackId: string } | { source: TrackSource; name: string };
-      clips: { startBeat: number; lengthBeats: number; name: string; notes: Omit<SequencerNote, 'id'>[] }[];
-    }
+  | { type: 'PART_ADD'; target: TrackWrite['target']; clips: TrackWrite['clips'] }
+  /** Several track writes as one edit (transitions: risers, impacts). The caller records the undo step. */
+  | { type: 'TRACKS_WRITE'; writes: TrackWrite[] }
   | { type: 'PATTERN_RENAME'; patternId: string; name: string }
   | { type: 'PATTERN_SET_LENGTH'; patternId: string; lengthBeats: number }
   /**
@@ -411,6 +409,62 @@ function clearRange(clips: Clip[], a: number, b: number): Clip[] {
     }
   }
   return out;
+}
+
+/** Clips (and automation) to write onto a track — an existing one, or a new one. */
+export interface TrackWrite {
+  target: { trackId: string } | { source: TrackSource; name: string };
+  clips: { startBeat: number; lengthBeats: number; name: string; notes: Omit<SequencerNote, 'id'>[] }[];
+  /** Points to write into a lane; points already inside `spans` are replaced. */
+  lanes?: { target: AutomationTarget; points: { beat: number; value: number }[]; spans: { from: number; to: number }[] }[];
+}
+
+/**
+ * Write clips onto a track: each gets its own pattern and replaces what the
+ * track had in its range. Null if the target is missing or a drum track.
+ */
+function writeTrack(tracks: Track[], patterns: Record<string, Pattern>, w: TrackWrite):
+  { tracks: Track[]; patterns: Record<string, Pattern>; trackId: string; added: Clip[] } | null {
+  let track: Track | undefined;
+  let list = tracks;
+  if ('trackId' in w.target) {
+    const id = w.target.trackId;
+    track = tracks.find((t) => t.id === id);
+    if (!track || isDrumTrack(track)) return null;
+  } else {
+    track = makeTrack({ name: w.target.name, source: w.target.source, index: tracks.length });
+    list = [...tracks, track];
+  }
+  const pats = { ...patterns };
+  let clips = track.clips;
+  const added: Clip[] = [];
+  for (const part of w.clips) {
+    if (part.lengthBeats < 0.25) continue;
+    const a = Math.max(0, part.startBeat);
+    clips = clearRange(clips, a, a + part.lengthBeats);
+    const taken = Object.values(pats).some((p) => p.name === part.name);
+    const pattern: Pattern = {
+      id: uid('pat'), name: taken ? nextName(part.name, pats) : part.name, lengthBeats: part.lengthBeats,
+      notes: part.notes.map((n) => ({ ...n, id: uid('n') })),
+    };
+    pats[pattern.id] = pattern;
+    added.push({ id: uid('clip'), patternId: pattern.id, startBeat: a, lengthBeats: part.lengthBeats, offsetBeats: 0, muted: false });
+  }
+  let lanes = track.lanes;
+  for (const l of w.lanes ?? []) {
+    const existing = lanes.find((x) => x.target === l.target);
+    const inSpans = (beat: number) => l.spans.some((sp) => beat >= sp.from - 1e-9 && beat <= sp.to + 1e-9);
+    const points = [
+      ...(existing?.points ?? []).filter((pt) => !inSpans(pt.beat)),
+      ...l.points.map((pt) => ({ id: makePointId(), beat: Math.max(0, pt.beat), value: Math.max(0, Math.min(1, pt.value)) })),
+    ].sort((x, y) => x.beat - y.beat);
+    lanes = existing
+      ? lanes.map((x) => (x === existing ? { ...x, enabled: true, points } : x))
+      : [...lanes, { id: makeLaneId(), target: l.target, enabled: true, points }];
+  }
+  const id = track.id;
+  const updated: Track = { ...track, clips: [...clips, ...added].sort((x, y) => x.startBeat - y.startBeat), lanes };
+  return { tracks: list.map((t) => (t.id === id ? updated : t)), patterns: pats, trackId: id, added };
 }
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -919,40 +973,29 @@ export function reducer(state: AppState, action: Action): AppState {
     }
 
     case 'PART_ADD': {
-      const parts = action.clips.filter((c) => c.lengthBeats >= 0.25);
-      if (!parts.length) return state;
-      let tracks = seq.tracks;
-      let track = 'trackId' in action.target ? tracks.find((t) => t.id === (action.target as { trackId: string }).trackId) : undefined;
-      if ('trackId' in action.target) {
-        if (!track || isDrumTrack(track)) return state;
-      } else {
-        track = makeTrack({ name: action.target.name, source: action.target.source, index: tracks.length });
-        tracks = [...tracks, track];
-      }
-      const patterns = { ...seq.patterns };
-      let clips = track.clips;
-      const added: Clip[] = [];
-      for (const part of parts) {
-        const a = Math.max(0, part.startBeat), b = a + part.lengthBeats;
-        clips = clearRange(clips, a, b);
-        const pattern: Pattern = {
-          id: uid('pat'),
-          name: Object.values(patterns).some((p) => p.name === part.name) ? nextName(part.name, patterns) : part.name,
-          lengthBeats: part.lengthBeats,
-          notes: part.notes.map((n) => ({ ...n, id: uid('n') })),
-        };
-        patterns[pattern.id] = pattern;
-        added.push({ id: uid('clip'), patternId: pattern.id, startBeat: a, lengthBeats: part.lengthBeats, offsetBeats: 0, muted: false });
-      }
-      clips = [...clips, ...added].sort((x, y) => x.startBeat - y.startBeat);
-      const id = track.id;
+      const written = writeTrack(seq.tracks, seq.patterns, { target: action.target, clips: action.clips });
+      if (!written || !written.added.length) return state;
       const next = seqUpdate(state, {
-        tracks: tracks.map((t) => (t.id === id ? { ...t, clips } : t)),
-        patterns,
-        selectedTrackId: id,
-        selectedClipId: added[0].id,
+        tracks: written.tracks,
+        patterns: written.patterns,
+        selectedTrackId: written.trackId,
+        selectedClipId: written.added[0].id,
         selectedClipIds: [],
       });
+      return fitSongLength(seqUpdate(next, sanitizeSelection(next.sequencer)));
+    }
+
+    case 'TRACKS_WRITE': {
+      let { tracks, patterns } = seq;
+      let changed = false;
+      for (const w of action.writes) {
+        const written = writeTrack(tracks, patterns, w);
+        if (!written) continue;
+        ({ tracks, patterns } = written);
+        changed = true;
+      }
+      if (!changed) return state;
+      const next = seqUpdate(state, { tracks, patterns });
       return fitSongLength(seqUpdate(next, sanitizeSelection(next.sequencer)));
     }
 
