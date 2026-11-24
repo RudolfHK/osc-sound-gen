@@ -320,3 +320,26 @@ projects still passing, and the guide and README updated.
    version (v3) with a migration, rather than two.
 4. **Where to start.** The recommendation is Phase 0, then F1 + F2 + F3 together, since a MIDI keyboard
    plus scale and chord tools changes day-to-day use the most for the least risk.
+
+---
+
+## 6. Shipped since this review — the composition and finishing release
+
+Ten features landed together, each with unit tests for its pure logic, an e2e step, named undo steps,
+session and project-file support with backward compatibility, and guide and README sections:
+
+| Feature | Covers |
+|---|---|
+| Chord track with key detection, chord dialog, progressions, piano-roll chord tones | F2 *key* and *chord tool* in part — a song key and chord-aware editing; scale snapping and ghost notes are still open |
+| Part generator (bass, pads, arpeggios, stabs; voice-led) | New; builds on the chord track |
+| Transitions (risers, snare rolls, impacts) | New |
+| Drum step chance and repeats, Euclidean rows | New (drum side of F2's "humanise") |
+| Drum pattern generator, variations, fills, fills before sections | New |
+| Note and clip transforms (transpose, reverse, invert, speed, humanize, legato) | F2 *velocity tools* (humanize) and *legato / transpose by octave*; quantise strength and swing for note clips are still open |
+| Favourites, recents, user sounds, preset packs | Extends B7 (per-track patches) towards F8; project files gained `userPresets` (still format v2, optional field) |
+| Reference track A/B with level matching | New |
+| Live LUFS meter (momentary, short-term, integrated) | F7 in part — no true-peak yet, and it reads AnalyserNodes on a 100 ms timer rather than running in an AudioWorklet |
+| Video export (16:9, 1:1, 9:16; MP4 or WebM) | New; F19 (sharing) in part |
+
+Project files gained `chords`, `songKey` and `userPresets`; all are optional, so older files open
+unchanged and older versions of the app ignore them.

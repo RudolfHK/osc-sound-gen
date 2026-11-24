@@ -115,6 +115,23 @@ For the complete Electron packaging guide including code signing and auto-update
 - Starting or seeking into a held chord plays it straight away (note chase) instead of waiting for
   the next note
 
+### Chords, parts and transitions
+- A **chord track** on the ruler: add chords from the song's key (with numerals and sevenths), type a
+  symbol (*Am7*, *F/C*, *B♭maj7*) or build root/type/bass; drag to move; **detect** chords from the
+  notes, bar by bar; **fill** a section with one of eight progressions; hear any chord first
+- **Key detection** from every note the song plays (Krumhansl–Kessler profiles, with close calls
+  settled by the chords the song opens on, ends on and returns to), or a key you choose; chord names
+  are spelled for the key
+- The **piano roll tints the rows of the chord tones** under each chord and names the chords in its ruler
+- **Write a part from the chords**: bass (roots, eighth pulse, octave bounce, offbeat, groove,
+  walking), pads (held, every bar, open voicing, quarter pulse), arpeggios (up, up-down, down, broken,
+  random) and stabs (offbeats, Charleston, 3-3-2, backbeat) — on the bar grid, **voice-led** so chords
+  move by the smallest steps, one clip per section, onto a new track with a fitting sound or an
+  existing one, with a two-bar preview and "another take"
+- **Transitions** into any sections: a riser (noise sweep with filter and volume automation), a
+  snare roll that builds over one or two bars, and an impact on the downbeat — risers and impacts on
+  their own tracks, rolls on the drum track, all one undo step
+
 ### Editor dock
 - Arrange above, editor below — the Ableton/Logic/Bitwig layout. Tabs for **Editor**, **Mixer**, **Instruments**
   and **FX**; resizable and collapsible
@@ -122,6 +139,9 @@ For the complete Electron packaging guide including code signing and auto-update
   copy/paste, arrow-key transpose, draggable pattern loop length
 - Every note you draw or drag **plays through the track's actual instrument**
 - **Drum step sequencer** for drum clips; picking a pattern swaps it into the clip
+- **Transforms** for the selected notes or the whole clip: transpose (semitone/octave), reverse,
+  invert, half/double speed, humanize, legato — also on a clip's and a clip selection's menu in the
+  arrangement, each one named undo step
 - Computer-keyboard piano (C4 on A) through the selected track's sound
 
 ### Drums
@@ -135,8 +155,13 @@ For the complete Electron packaging guide including code signing and auto-update
   Amen Break, Breakbeat, Funk, Motown, Disco, Jazz, Bossa Nova, Salsa, Samba, Reggaeton,
   Cumbia, Afrobeat, Marching, and more
 - 16- or 32-step grid, per-pattern swing, group filtering (KIT / CYMBAL / PERC / FX)
-- **Right-click a step** → velocity, pitch, decay for that single hit
-- **Right-click a voice name** → volume, pan, tone, pitch, decay for the whole row
+- **Right-click a step** → velocity, pitch, decay, **chance** (0–100 %, deterministic: the same every
+  play and export, different bar to bar) and **repeat** (×2–×4 hits within the step) for that hit
+- **Right-click a voice name** → volume, pan, tone, pitch, decay, and **Euclidean** hits/rotation for
+  the whole row
+- **GEN ▾** writes patterns in twelve styles (house, techno, boom bap, trap, phonk, drum & bass, rock,
+  lo-fi, UK garage, dembow, Afro house…), **varies** the current one, or makes a **fill** (snare roll,
+  tom run, build-up, stutter); **Add fills before each section** does a whole song at once
 - Per-voice mute/solo; BPM syncs to the sequencer
 
 ### Instrument Library
@@ -181,6 +206,10 @@ For the complete Electron packaging guide including code signing and auto-update
   Tone / Envelope / Mix
 - **Assign a preset to a track** — the sequencer then plays that track's notes through the
   instrument instead of its raw oscillator, so you can layer synths, guitars and drums
+- **Favourites** (☆ on any card), **Recently used**, and **My sounds**: save an edited sound under a
+  name, rename, edit or delete it; it stays as saved even if its factory preset is edited later
+- Project files **carry the user sounds their tracks play**; **preset packs** (`.oscpack.json`) share
+  sounds — imports are validated, clamped to range and de-duplicated
 
 ### Master Effects
 - **Convolution reverb** with a procedurally generated impulse response — adjustable tail
@@ -236,7 +265,18 @@ For the complete Electron packaging guide including code signing and auto-update
 - **Range** — whole song, the loop, or any section; reverb and release tails included, silence trimmed
 - **Normalize** — off, peak (−1 dBFS), or **loudness** to a streaming target (−14 LUFS Spotify/YouTube,
   −16 Apple Music, −23 broadcast) measured per ITU-R BS.1770, never exceeding a −1 dBFS ceiling
+- **Video** — the song with the visualizer, its title, the section playing and a progress bar, in
+  16:9, 1:1 or 9:16: the offline render played in real time through a private audio context into a
+  canvas stream and MediaRecorder — MP4 (H.264/AAC) where the browser can record it, otherwise WebM
 - The dialog reports the export's peak and integrated loudness
+
+### Loudness and reference tracks
+- A live **LUFS meter** of the mix in the status bar: momentary, short-term and integrated (ITU-R
+  BS.1770, K-weighting with the standard's own coefficients, the same gating as the export meter)
+- **Reference track A/B**: load any audio file; it plays in time with the song (seeks and loops
+  included, with an offset to line it up), **Alt+R** switches in ~20 ms, and **Match loudness** moves
+  it to the mix's level so louder doesn't win by being louder. It goes straight to the speakers: never
+  recorded, exported or saved
 
 ### Live recording
 - **● REC** captures the master output as raw PCM through an AudioWorklet — lossless, unlike the previous
@@ -254,8 +294,8 @@ For the complete Electron packaging guide including code signing and auto-update
 ### Saving and project safety
 - **Session kept automatically** — the whole session lives in `localStorage`, written in debounced batches
   (never per frame) and restored after a reload or crash
-- **Project files** (`.oscproject`, JSON) are self-contained: tracks, clips, patterns, sections, automation, mixer,
-  plus the drum patterns and lab oscillators they use
+- **Project files** (`.oscproject`, JSON) are self-contained: tracks, clips, patterns, sections, chords and key,
+  automation, mixer, plus the drum patterns, lab oscillators and user sounds they use
 - **Save in place** — in Chromium browsers and the desktop app, Ctrl+S writes back to the project's file
   (File System Access API); *Save as* picks a new one. Elsewhere Save downloads a copy and says so
 - **Unsaved-changes guard** — opening, starting a new project, closing the tab or the desktop window ask
@@ -295,6 +335,7 @@ fast arpeggio over techno drums. All are original compositions — genre and sty
 | **Ctrl+S** / **Ctrl+Shift+S** / **Ctrl+O** | Save / save as / open project |
 | **Ctrl+Shift+E** | Export audio or MIDI |
 | **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
+| **Alt+R** | Mix / reference track (A/B) |
 | **Ctrl+,** · **?** · **F1** | Settings · all shortcuts · user guide |
 | **Delete**, **Ctrl+D**, **Ctrl+E** | Delete / duplicate / split the selected clips *(arrangement)* |
 | **Ctrl+A / C / V** | Select all / copy / paste clips *(arrangement)* |
@@ -349,7 +390,10 @@ src/
 ├── arrange/
 │   ├── ArrangementView.tsx  tracks, clip lanes, inline automation, playhead overlay, clip gestures
 │   ├── useClipActions.ts    multi-clip delete / duplicate / copy / paste / split, clipboard
-│   ├── Ruler.tsx            sections row + bar ruler with loop brace
+│   ├── Ruler.tsx            sections row, chord track, bar ruler with loop brace
+│   ├── ChordDialog.tsx      add / edit a chord: the key's chords, typed symbols, root/type/bass
+│   ├── PartDialog.tsx       write a bass, pad, arpeggio or stabs from the chords
+│   ├── TransitionsDialog.tsx  risers, snare rolls and impacts into sections
 │   ├── drawLane.ts          clip rendering (note/drum previews, loop markers)
 │   └── geometry.ts          beat↔pixel maths, grid
 ├── engine/
@@ -367,13 +411,15 @@ src/
 │   ├── effects.ts           master reverb, delay, chorus
 │   ├── automation.ts        lane maths and AudioParam scheduling
 │   ├── arpeggiator.ts       chord → arpeggio expansion
+│   ├── reference.ts         live LUFS meter; reference track synced to the transport, A/B, level match
 │   └── audio.ts             AudioContext, master bus + limiter, lab oscillators, offline swap
 ├── export/
 │   ├── render.ts            offline render of the arrangement and stems
 │   ├── exporter.ts          render → normalize → encode → zip
 │   ├── wav.ts · midi.ts     WAV (16/24/32f) and Standard MIDI File writers
 │   ├── mp3.ts · mp3.worker.ts  MP3 via LAME in a Web Worker, with ID3 tags (id3.ts)
-│   └── loudness.ts          sample peak, BS.1770 integrated loudness, normalization
+│   ├── loudness.ts          sample peak, BS.1770 integrated loudness, normalization
+│   └── video.ts             video export: canvas + visualizer + MediaRecorder (MP4 / WebM)
 ├── sequencer/
 │   ├── PianoRoll.tsx        note editor for the selected clip
 │   ├── TrackHeader.tsx      editor's pattern column + arpeggiator
@@ -402,6 +448,14 @@ src/
 │   └── …                    context menus, notices, focus scoping, project actions
 ├── utils/
 │   ├── music.ts             track/clip/pattern/section model, MIDI and beat maths
+│   ├── harmony.ts           chords, keys, symbols, diatonic chords, progressions, chord detection
+│   ├── songAnalysis.ts      notes sounding in a range, song key, chords per bar
+│   ├── partGen.ts           bass / pad / arpeggio / stab writer with voice leading
+│   ├── transitions.ts       riser and impact plans
+│   ├── drumGen.ts           drum styles, variations, fills, rolls
+│   ├── rhythm.ts            deterministic step chance, ratchets, Euclidean rhythms, seeded RNG
+│   ├── transforms.ts        note transforms (transpose, reverse, invert, stretch, humanize, legato)
+│   ├── userPresets.ts       user sounds, favourites, recents, preset packs
 │   └── project.ts           .oscproject v2 format, v1 + saved-session migration
 └── visualizer/              oscilloscope and audio visualizer
 e2e/smoke.mjs                browser tests (Playwright)
@@ -415,9 +469,10 @@ electron/main.cjs            Electron main process
 ## Testing
 
 ```bash
-npm test                          # 124 unit tests: model, reducers, named undo, scheduler, migrations, examples,
-                                  # templates, shortcuts, dirty tracking, encoders, loudness
-npm run build && npm run test:e2e # 55 browser tests
+npm test                          # 216 unit tests: model, reducers, named undo, scheduler, migrations, examples,
+                                  # templates, shortcuts, dirty tracking, encoders, loudness, harmony, key
+                                  # detection, part writing, drum generation, transforms, user sounds, video layout
+npm run build && npm run test:e2e # 64 browser tests
 npm run build && npm run test:perf  # performance budgets, normalised to the reference machine
 npx electron-builder --linux dir && xvfb-run -a npm run test:electron   # 9 desktop tests
 ```
@@ -428,6 +483,12 @@ playhead, and that playback doesn't write to storage every frame — not just th
 export format is downloaded and parsed: WAV headers and sample peaks, MP3 frame sync and a decode back
 to audio, ZIP contents and stem alignment, MIDI chunks, and the live take's float format. It also
 verifies that a session saved by an older version migrates instead of crashing.
+
+The newer features are driven the same way: chord detection, editing and undo on the chord row; a part
+written from a progression onto a new track; transitions across both stores undone in one step; step
+chance, repeats and Euclidean rows; the drum generator; transforms; saving a sound of your own,
+starring it, exporting and importing a pack; a generated WAV loaded as a reference, measured at its
+known loudness, with A/B checked at the speakers; and a square video that decodes at 1080×1080.
 
 It also covers the help and safety features end to end: every registered shortcut has a handler, the
 shortcut overlay and in-app guide, named undo and the History jump, the unsaved-changes guard, saving

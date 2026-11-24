@@ -1,8 +1,10 @@
 # OSC · User Guide
 
-OSC is a browser-based music production app: an arrangement of tracks and clips, a piano roll and
-drum step sequencer, 223 synthesized instruments, a mixer with per-track EQ, sends and sidechain,
-master effects, automation, and an optional oscillator lab for hands-on waveform synthesis.
+OSC is a browser-based music production app: an arrangement of tracks and clips, a chord track that
+writes bass lines, pads and arpeggios for you, a piano roll and drum step sequencer with a pattern
+generator, 223 synthesized instruments (plus your own), a mixer with per-track EQ, sends and
+sidechain, master effects, automation, a reference-track A/B with a live loudness meter, export to
+audio, MIDI and video, and an optional oscillator lab for hands-on waveform synthesis.
 
 Everything is synthesized in real time by the Web Audio API — there are no sample files.
 
@@ -10,22 +12,24 @@ Everything is synthesized in real time by the Web Audio API — there are no sam
 2. [Your First Song](#your-first-song)
 3. [Welcome, Templates and the Tour](#welcome-templates-and-the-tour)
 4. [The Arrangement](#the-arrangement)
-5. [The Editor](#the-editor)
-6. [Transport](#transport)
-7. [The Drum Machine](#the-drum-machine)
-8. [The Instrument Library](#the-instrument-library)
-9. [The Mixer](#the-mixer)
-10. [Master Effects](#master-effects)
-11. [Automation](#automation)
-12. [The Arpeggiator](#the-arpeggiator)
-13. [The Oscillator Lab](#the-oscillator-lab)
-14. [The Visualizer](#the-visualizer)
-15. [Exporting and Recording](#exporting-and-recording)
-16. [Projects and Saving](#projects-and-saving)
-17. [The Status Bar](#the-status-bar)
-18. [Settings](#settings)
-19. [Keyboard Shortcuts](#keyboard-shortcuts)
-20. [Troubleshooting](#troubleshooting)
+5. [Chords, Parts and Transitions](#chords-parts-and-transitions)
+6. [The Editor](#the-editor)
+7. [Transport](#transport)
+8. [The Drum Machine](#the-drum-machine)
+9. [The Instrument Library](#the-instrument-library)
+10. [The Mixer](#the-mixer)
+11. [Master Effects](#master-effects)
+12. [Automation](#automation)
+13. [The Arpeggiator](#the-arpeggiator)
+14. [The Oscillator Lab](#the-oscillator-lab)
+15. [The Visualizer](#the-visualizer)
+16. [Exporting and Recording](#exporting-and-recording)
+17. [Projects and Saving](#projects-and-saving)
+18. [The Status Bar](#the-status-bar)
+19. [Loudness and Reference Tracks](#loudness-and-reference-tracks)
+20. [Settings](#settings)
+21. [Keyboard Shortcuts](#keyboard-shortcuts)
+22. [Troubleshooting](#troubleshooting)
 
 This guide is also built into the app: press **F1** (or **?** in the header → *User guide*) and it
 opens at the section for the panel you're working in.
@@ -39,9 +43,10 @@ opens at the section for the panel you're working in.
 │ OSC ▾  Project name   ⏮ ▶PLAY ⏹ ↶↷▾ ●REC  1.1.1 0:00.0  BPM 120  4/4  ↻  ♩     │
 │                          MASTER ▓▓░  [ARRANGE|OSC LAB]  VIZ  ☀  ⚙  ?  ●        │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│ ARRANGE  + Instrument  + Drums  + Oscillator   GRID Bar  − + FIT  LENGTH 16      │
+│ ARRANGE  + Instrument  + Drums  + Oscillator  + Part from chords  + Transitions │
 ├────────────────┬─────────────────────────────────────────────────────────────┤
 │ SECTIONS       │ Intro ▕ Verse ▕ Drop ▕ …                       ← sections    │
+│ CHORDS         │ Am  │ F   │ C   │ G   │                        ← chord track │
 │ BARS · LOOP    │ 1    2    3    4    5    6   ════loop════        ← ruler       │
 ├────────────────┼─────────────────────────────────────────────────────────────┤
 │ Drums   M S    │ ▕House▕▕House▕                                  ← clips       │
@@ -52,7 +57,7 @@ opens at the section for the panel you're working in.
 │ EDITOR │ MIXER │ INSTRUMENTS │ FX                               ← dock tabs   │
 │ ┌ pattern / arp ┬ piano roll (or drum step sequencer) ──────────────────────┐ │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│ ● Saved · song │ Audio 48 kHz · 12 ms │ Load ▮▮▯▯▯ 31% │ ECO │ Keys: Arrangement │  ← status bar
+│ ● Saved │ Audio 48 kHz · 12 ms │ Load ▮▮▯▯▯ 31% │ ECO │ −14.2 LUFS │ Keys: Arrangement │ ← status bar
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -60,11 +65,13 @@ The layout follows the arrange-above / editor-below split used by Ableton Live, 
 
 - **Header** — file menu (**OSC ▾**), project name, transport, master volume, view switch,
   visualizer, light/dark switch (**☀ / ☾**), **⚙ Settings** and **? Help**
-- **Arrangement** — tracks down the left, the song left to right, sections and loop on the ruler
+- **Arrangement** — tracks down the left, the song left to right; the ruler holds the sections, the
+  chord track and the bars with the loop
 - **Dock** — the editor for whatever clip is selected, plus the mixer, instrument library and effects.
   Drag its top edge to resize it; click the open tab to collapse it
 - **Status bar** — whether the song is saved, whether audio is running and how hard it's working,
-  which area your keys act on, and what the control under the mouse does (see *The Status Bar*)
+  how loud the mix is (and the reference track), which area your keys act on, and what the control
+  under the mouse does (see *The Status Bar*)
 
 Hover over any control for a tooltip; the ones with a keyboard shortcut show it. Press **?** for
 every shortcut in one searchable list.
@@ -204,6 +211,11 @@ Right-click a section for:
 - **Delete section and its content** — removes the clips that start in it and closes the gap
 - **Remove marker only** — merges it into the previous section without touching any clips
 - **Split section at this bar**, **Colour**, **Rename**
+- **Add a transition into it…** — a riser, snare roll and impact leading into the section (see
+  *Transitions*)
+
+Chords on the chord track move with their sections: duplicating a section copies its chords, and
+deleting one keeps the chord that was sounding into the next section.
 
 ### The bar ruler and loop
 
@@ -226,6 +238,92 @@ Right-click a section for:
 | **FIT** | Show the whole song |
 | **LENGTH** | Song length in bars (grows automatically when you place clips further out) |
 | **⇥ PAGE / SCROLL / OFF** | Follow playhead: jump a page when it reaches the edge, scroll to keep it a third of the way in, or leave the view alone |
+
+---
+
+## Chords, Parts and Transitions
+
+### The chord track
+
+The middle row of the ruler, under the sections, is the song's **chord track**: which chord plays
+where. It doesn't make a sound by itself — it tells OSC the harmony, so it can write parts that fit,
+show you the chord tones while you draw, and fill sections with a progression.
+
+| To… | Do this |
+|-----|---------|
+| Add a chord | Double-click the chord row where it should start |
+| Change one | Click it (or right-click → **Edit chord…**) |
+| Move one | Drag it — it snaps to the arrangement grid; hold **Shift** for single beats |
+| Remove one | Right-click → **Remove chord** |
+
+Each chord lasts until the next one. The **chord dialog** offers three ways to pick:
+
+- **The chords of the song's key**, with their numerals (I, ii, V…) — tick **Sevenths** for four-note
+  chords. Click one to hear it, double-click to use it
+- **Type a chord symbol** — *Am7*, *F/C*, *B♭maj7*, *Dsus4*, *C6*, *Gm9*… and press Enter
+- **Root, Type and Bass** — build any chord, including a slash chord over another bass note
+
+**▶ Hear it** plays the chord through the selected track's sound.
+
+**Right-click the chord row** for more:
+
+- **Detect chords in this section / the whole song** — reads the notes your instrument tracks play
+  (drum tracks don't count) and writes the chord of each bar
+- **Fill with a progression** — Pop (I–V–vi–IV), Ballad, 50s, Jazz turnaround, Epic minor,
+  Descending, Minor drive or Deep house, one chord per bar in the song's key
+- **Clear chords** in the section or the song
+- **Write a part over it…** — see below
+
+**The key.** The chord dialog's **Key** menu shows the key OSC detects from your notes (it listens to
+the chords the song opens on, ends on and keeps returning to, not just which notes appear), or you
+can choose one. Chord names are spelled for the key — B♭, not A♯, in F major.
+
+**In the piano roll**, the rows of the notes in the chord under each part of the clip are tinted, and
+the chord names run along the piano roll's ruler. Notes on tinted rows fit the harmony.
+
+Chords and the chosen key are part of the song: undoable and saved in the project file.
+
+### Writing parts from the chords
+
+OSC can write a bass line, a pad, an arpeggio or stabs that follow the chord track. Open it from
+**+ Part from chords** in the arrangement toolbar, **Write a part over…** on the chord row's menu, or
+**Write a part from the chords…** in an instrument track's ⋯ menu.
+
+| Part | Styles |
+|------|--------|
+| **Bass** | Roots (held), Eighth pulse, Octave bounce, Offbeat (between the kicks), Groove (root, fifth and octave with pushes), Walking (quarter notes stepping into each chord) |
+| **Pad** | Held, Every bar, Open voicing (spread wide), Quarter pulse |
+| **Arpeggio** | Up, Up and down, Down, Broken chord, Random |
+| **Stabs** | Offbeats, Charleston, 3-3-2, Backbeat |
+
+- **Where** — the whole song, one section, or the loop
+- **Onto** — a new track with a sound that suits the part (Sub Bass, Warm Pad, Digital Pluck…), or an
+  existing instrument track. On an existing track, the part replaces what it had in that range
+- **Register** — an octave lower or higher than usual
+- **▶ Hear it** plays the first two bars; **Another take** keeps the style but makes different small
+  choices (the order of a random arpeggio, the steps of a walking bass, small velocity changes)
+
+Rhythms sit on the song's bar lines, not on the chord changes, so the part stays locked to the
+drums. Bass plays the slash bass of a chord like *C/E*. Pads, arpeggios and stabs are **voice-led**:
+each chord takes the voicing closest to the one before, so the parts move by small steps the way a
+player would, and stay in their register. The part arrives as one clip per section, each with its
+own pattern to edit, and **Write it** is a single undo step.
+
+### Transitions
+
+**+ Transitions** in the toolbar (or **Add a transition into it…** on a section, or **Add
+transitions…** in a drum track's ⋯ menu) adds the build-ups between sections:
+
+| Transition | What you get |
+|------------|--------------|
+| **Riser** | A noise sweep over the 1, 2, 4 or 8 bars before the section, its filter opening and level rising into the downbeat (filter and volume automation on its track you can edit) |
+| **Snare roll** | 1 or 2 bars before the section on the drum track: quarter notes, then eighths, then sixteenths, getting louder. The groove's kick keeps going, and the last beat is left empty so the downbeat hits harder |
+| **Impact** | A hit with a sub drop on the section's first beat |
+
+Tick the sections to lead into. Risers and impacts go on their own **Risers** and **Impacts** tracks
+(reused if the song already has them), so you can mix or mute them; rolls replace those bars on the
+drum track. A riser never reaches back past the previous section's start. Everything you add is one
+undo step.
 
 ---
 
@@ -270,6 +368,24 @@ With notes selected:
 | **Ctrl+C** / **Ctrl+V** | Copy, then paste right after the selection |
 | **Delete** | Delete |
 | **Escape** | Deselect |
+
+### Transforms
+
+**TRANSFORM ▾** in the editor toolbar changes the selected notes — or, with nothing selected, the
+whole clip:
+
+| Transform | Does |
+|-----------|------|
+| **Transpose** | Up or down a semitone or an octave |
+| **Reverse** | Plays it backwards in time (a whole pattern mirrors over its loop, so it stays in time) |
+| **Invert** | Turns the melody upside down around its middle |
+| **Half speed / Double speed** | Twice or half as long (the clip grows or shrinks with it) |
+| **Humanize** | Small changes to timing and velocity, so it sounds played |
+| **Legato** | Each note lasts until the next one |
+
+The same menu is on a clip's right-click menu in the arrangement (**Transform**; on a linked clip it
+changes every clip sharing the pattern) and on the menu for several selected clips. Each transform is
+one named undo step.
 
 ### Velocity
 
@@ -388,6 +504,11 @@ Filtering only hides rows — hidden voices still play.
 | **VEL** | 1–127 | Loudness of this one hit |
 | **PITCH** | −12 to +12 | Transposes this hit in semitones |
 | **DECAY** | 0.2–2.0 | Multiplies this hit's tail length |
+| **CHANCE** | 0–100% | How often the hit plays. Decided per bar and the same every time you play or export, so a variation stays put until you change it |
+| **REPEAT** | 1, ×2, ×3, ×4 | Plays the hit several times within its step — for rolls and hi-hat flams |
+
+A step with a chance below 100% is drawn partly filled; one with repeats shows a dot per hit. Press
+**Escape** or click elsewhere to close the popup.
 
 These stack on top of the voice-level settings, so a step at pitch +3 on a voice already
 tuned to −2 sounds one semitone up.
@@ -403,6 +524,7 @@ tuned to −2 sounds one semitone up.
 | **TONE** | Brightness — moves the filter cutoff on noise-based voices, adds bite on tonal ones |
 | **PITCH** | Base tuning in semitones |
 | **DECAY** | Base tail length |
+| **EUCLIDEAN · HITS / ROTATE** | Spreads a number of hits as evenly as possible across the bar (3 hits in 8 is the tresillo, 5 in 16 a bossa feel), then shifts them along. One drag is one undo step |
 | **CLEAR ROW** | Removes every hit in the row |
 
 **Left-click a voice name** to audition it with its current settings.
@@ -417,6 +539,20 @@ tuned to −2 sounds one semitone up.
 | **⧉** | Duplicate the current pattern |
 | **🗑** | Delete the current pattern (the last one can't be deleted) |
 | **CLR** | Clear all steps in the current pattern |
+| **GEN ▾** | Generate a pattern — see below |
+
+**GEN ▾** writes patterns for you, each added to the library and swapped into the selected clip (one
+undo step):
+
+- **New pattern** — in one of twelve styles: House, Deep house, Techno, Boom bap, Trap, Drift phonk,
+  Drum & bass, Rock, Lo-fi, UK garage, Dembow and Afro house. Each keeps its style's defining groove;
+  the details differ every time
+- **Vary this pattern** — the same groove with some hits moved, added or taken away
+- **Fill from this pattern** — the groove, then a **Snare roll**, **Tom run**, **Build-up** or
+  **Stutter** in the last beat or two
+
+To put a fill before every section at once, use the drum track's ⋯ menu → **Add fills before each
+section**: each fill continues the groove playing there.
 
 Patterns are saved to `localStorage` automatically. Factory patterns you edit stay edited; if a
 future version adds new voices or presets, your patterns are migrated rather than reset.
@@ -443,7 +579,8 @@ to load and works offline.
 ### Browsing and auditioning
 
 Filter with the **category dropdown** or type into the **search** box (matches name and
-category). **Click any card** to hear a short phrase appropriate to its type — a chord for
+category). The dropdown also has three lists of your own: **★ Favourites**, **Recently used** (the
+sounds you last gave to a track) and **My sounds**. **Click any card** to hear a short phrase appropriate to its type — a chord for
 pads, a strum for guitars, a riff for leads, a bass line for basses.
 
 A small dot on a card means you've customized that preset's parameters.
@@ -493,6 +630,32 @@ persist across reloads. **RESET** clears the track's own settings (TRACK) or res
 settings for that preset (LIBRARY). When you save a project, library edits are written into each
 track that uses them, so the file sounds the same on any machine.
 **▶ AUDITION** at the bottom of the editor replays the preview so you can hear your edits.
+
+### Favourites and your own sounds
+
+Hover a card and click **☆** to star it; starred sounds are listed under **★ Favourites**.
+
+When a sound is just right, keep it: in its editor, **SAVE AS MY SOUND…** asks for a name and saves
+the settings shown — the track's own settings, or the library's — as a sound of your own, listed
+under **My sounds** and marked *Mine* on its card. Saved from a track, the track switches to it.
+
+Your sounds behave like any other: audition, **SET** on a track, star them. Their editor changes the
+sound itself (the scope reads **SOUND**), and has **RENAME…** and **DELETE** (a sound a track still
+plays can't be deleted — give that track another sound first). A sound of your own is its factory
+preset plus your settings, kept as you saved it: editing the factory preset in the library later
+doesn't change it.
+
+Your sounds are part of your copy of the app, and a project file **carries the ones its tracks
+play**, so the song sounds the same on another computer — opening it adds them to that library.
+
+### Sharing sounds as packs
+
+**Packs ▾** in the library's toolbar:
+
+- **Export my sounds as a pack…** saves all of them as one `.oscpack.json` file
+- **Import a pack…** adds the sounds from someone's pack to **My sounds**. Sounds you already have are
+  skipped, a name already in use gets a number, and anything in the file that isn't a valid sound
+  is left out
 
 ### Why the instruments respond to how hard you play
 
@@ -814,7 +977,7 @@ three-minute song takes well under three minutes.
 
 | Option | Choices |
 |--------|---------|
-| **Format** | **WAV** (uncompressed), **MP3** (compressed), **MIDI** (the notes, not the audio) |
+| **Format** | **WAV** (uncompressed), **MP3** (compressed), **MIDI** (the notes, not the audio), **Video** (the music with a moving picture) |
 | **What** | **Mixdown** (one file) or **Stems** (one file per track, zipped) |
 | **Range** | Whole song, the loop, or any section |
 | **Sample rate** | 44.1 kHz (CD, most streaming), 48 kHz (video), 96 kHz (WAV only) |
@@ -858,6 +1021,24 @@ markers. Looping clips are written out in full and trimmed clips are respected. 
 write the **arpeggio** as played or the **held chords** you drew. Drum tracks go to MIDI channel 10
 using General MIDI drum notes, and each instrument track gets a General MIDI program matching its
 preset's family, so the file opens sensibly in Ableton, Logic, FL Studio, Reaper or MuseScore.
+
+#### Video
+
+**Video** makes a file you can post where audio files can't go: the music with the visualizer, the
+song's title, the name of the section playing and a progress bar with the time.
+
+| Option | Choices |
+|--------|---------|
+| **Shape** | **16:9** (1280×720 — YouTube, a laptop screen), **1:1** (1080×1080 — square feeds), **9:16** (720×1280 — phones: Shorts, Reels, TikTok) |
+| **Picture** | Spectrum, Waveform, Radial or Bloom, drawn from the exported audio |
+| **Listen** | Silent, or play it while it records |
+
+The audio is the same offline render as a WAV export (normalization applies), so it sounds exactly
+like the song. The picture is then **recorded in real time** — a three-minute song takes three
+minutes — so keep the window in front until it's done; **Cancel** stops it. The file is **MP4**
+(H.264 and AAC) where the browser can record that, otherwise **WebM** (VP9 or VP8 with Opus), which
+YouTube and most players accept; the export dialog says which you'll get. It follows the app's light
+or dark theme. A live take can be exported as a video too.
 
 ### Recording live
 
@@ -923,8 +1104,9 @@ error report**.
 
 A project file contains the complete song: tracks and their sounds (including each track's own
 instrument settings), clips, patterns, sections, automation, mixer settings, the master effects,
-tempo and loop — plus the drum patterns and lab oscillators it uses, so it opens and sounds the same
-on another computer. Patterns no clip uses are left out. Files saved before the master effects were
+tempo and loop, the chord track and the chosen key — plus the drum patterns, lab oscillators and
+your own sounds it uses, so it opens and sounds the same on another computer. A reference track is
+never saved in it. Patterns no clip uses are left out. Files saved before the master effects were
 included open with the default effects.
 
 ### Older project files
@@ -951,6 +1133,7 @@ The line at the bottom of the window:
 | **Load** | How hard the audio thread is working. Above about 85% sound can start to break up |
 | **dropouts** | How many times the audio fell behind (where the browser can tell) |
 | **ECO** | Eco mode — see below |
+| **LUFS** | The loudness of the mix while it plays; click for the meter and the reference track (see *Loudness and Reference Tracks*) |
 | **Keys** | Which area your keys act on: the arrangement or the editor. Delete, M, S, L, K, the arrows and the letter keys mean different things in each; click an area to give it the keys |
 | Hint | What the control under the mouse does |
 
@@ -964,6 +1147,42 @@ full quality, Eco mode or not.
 If the audio drops out a couple of times in a short while, **Eco mode turns itself on** and a notice
 says so, with a **Turn off** button. Turn it off there or with **ECO**, and it won't switch itself
 back on until the next start; **Settings → Audio** can stop it switching on by itself at all.
+
+---
+
+## Loudness and Reference Tracks
+
+### The loudness meter
+
+The status bar shows the mix's loudness while the song plays, in **LUFS** — the unit streaming
+services use to set every song to the same level (Spotify and YouTube play at about −14 LUFS). Click
+it for the full meter:
+
+| Reading | Measures |
+|---------|----------|
+| **Momentary** | The last 0.4 seconds |
+| **Short-term** | The last 3 seconds (what the status bar shows) |
+| **Integrated** | Everything since you pressed play, with silence and quiet passages gated out — the number streaming services go by. **Reset** starts it again |
+
+It measures exactly as the export report does (ITU-R BS.1770), on the mix after the master volume —
+the same signal as a recording.
+
+### Comparing with a reference track
+
+Mixing in a vacuum is hard: a **reference** — a finished song in the same style, yours or a favourite
+record — tells you whether the bass is too big or the top too dull. In the loudness panel, **Load a
+track…** takes any audio file the browser can decode (WAV, MP3, FLAC, OGG, M4A).
+
+- It plays **in time with the song** — from wherever you start, through seeks and loops. **Reference
+  at the song's start** lines it up if its first beat isn't at 0 seconds
+- **A · Mix / B · Reference** (or **Alt+R** anywhere) switches what you hear, instantly
+- **Match loudness** (on by default) turns the reference down (or up) to your mix's integrated
+  loudness, so you compare the sound and not the volume — louder always seems better. The panel shows
+  how many dB it moved
+
+The reference is only for listening: it goes straight to your speakers, so it is **never recorded,
+exported or saved** with the project — and a recording made while you listen to B still has your mix.
+**Remove** unloads it.
 
 ---
 
@@ -998,6 +1217,7 @@ Shortcuts never fire while you're typing in a text field, or while a dialog or m
 | **Ctrl+S** / **Ctrl+Shift+S** / **Ctrl+O** | Save / save as / open project |
 | **Ctrl+Shift+E** | Export |
 | **Alt+E / X / I / F** | Dock: Editor / Mixer / Instruments / FX |
+| **Alt+R** | Switch between the mix and the reference track (A/B) |
 | **Ctrl+,** | Settings |
 | **?** | All shortcuts |
 | **F1** | User guide, at the section for the panel you're in |
