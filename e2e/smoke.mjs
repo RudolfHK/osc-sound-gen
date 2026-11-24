@@ -549,6 +549,37 @@ try {
     assert(chords.length === 0, `undo did not remove the detected chords (${chords.length} left)`);
   });
 
+  await step('a part written from the chords lands on a new track, as one undo step', async () => {
+    const ruler = page.locator('[data-arrange-lanes] canvas').first();
+    const box = await ruler.boundingBox();
+    await page.mouse.click(box.x + 40, box.y + 29, { button: 'right' });
+    await page.getByRole('menuitem', { name: /^Fill .* with a progression/ }).hover();
+    await page.getByRole('menuitem', { name: /^Pop/ }).first().click();
+    const tracksBefore = (await savedState()).sequencer.tracks.length;
+
+    await page.getByTestId('part-from-chords').click();
+    const dialog = page.getByRole('dialog', { name: 'Write a part from the chords' });
+    await dialog.getByRole('radio', { name: 'Pad' }).click();
+    await dialog.getByRole('radio', { name: /^Held/ }).click();
+    await dialog.getByLabel('Onto').selectOption('new');
+    await dialog.getByText(/— \d+ notes\./).waitFor({ timeout: 2000 });
+    await dialog.getByRole('button', { name: 'Write it' }).click();
+    await dialog.waitFor({ state: 'detached', timeout: 2000 });
+
+    const seq = (await savedState()).sequencer;
+    assert(seq.tracks.length === tracksBefore + 1, `expected a new track (${seq.tracks.length} vs ${tracksBefore})`);
+    const pad = seq.tracks.at(-1);
+    assert(pad.name.startsWith('Pad') && pad.clips.length >= 1, `new track: ${pad.name}, ${pad.clips.length} clips`);
+    const notes = pad.clips.flatMap((c) => seq.patterns[c.patternId].notes);
+    assert(notes.length >= 8, `the pad has only ${notes.length} notes`);
+
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    assert(await undo.getAttribute('aria-label') === 'Undo Generate part', `undo label: ${await undo.getAttribute('aria-label')}`);
+    await undo.click();
+    assert((await savedState()).sequencer.tracks.length === tracksBefore, 'undo did not remove the written track');
+    await undo.click(); // the progression
+  });
+
   // ── Transport response: stop, seek and volume act at once ──
   // Midnight Drive holds long pad chords through a reverb, which is exactly
   // what used to keep sounding after stop.

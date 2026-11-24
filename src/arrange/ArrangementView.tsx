@@ -15,6 +15,7 @@ import { setFocusZone } from '../ui/focus';
 import { isMac, shortcutLabel, withShortcut } from '../ui/shortcuts';
 import { getSettings, updateSettings, useSettings, type FollowMode } from '../store/settings';
 import { Ruler } from './Ruler';
+import { PartDialogHost, openPartDialog } from './PartDialog';
 import { drawLane } from './drawLane';
 import {
   HEADER_W, TRACK_H, AUTO_H, RULER_H, RULER_SECTION_H, RULER_CHORDS_H, RULER_BARS_H, EDGE_PX,
@@ -466,6 +467,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     const items: MenuItem[] = [
       ...(track.source.type !== 'drums' ? [
         { label: 'Choose instrument…', onSelect: () => { dispatch({ type: 'TRACK_SELECT', trackId: track.id }); openDock('instruments'); } },
+        { label: 'Write a part from the chords…', onSelect: () => openPartDialog({ trackId: track.id }) },
         {
           label: 'Use an oscillator',
           submenu: state.tabs.map((t) => ({
@@ -506,6 +508,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
   return (
     <div className="flex flex-col h-full min-h-0 bg-[var(--surface-0)]" onMouseDown={() => setFocusZone('arrange')}>
       <ArrangeToolbar openDock={openDock} />
+      <PartDialogHost />
 
       <div ref={lanesRef} data-arrange-lanes className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {/* Ruler — sticks to the top while tracks scroll */}
@@ -648,6 +651,8 @@ function ArrangeToolbar({ openDock }: { openDock: (t: DockTab) => void }) {
         onClick={() => add({ type: 'oscillator', tabId: state.activeTabId })}
         title="Add a track that plays the active oscillator from the OSC LAB"
       >+ Oscillator</button>
+      <button className={btn} onClick={() => openPartDialog()} data-testid="part-from-chords"
+        title="Write a bass line, pad, arpeggio or stabs from the chord track">+ Part from chords</button>
 
       <span className="w-px h-4 bg-neutral-800 mx-1" />
       <label className="flex items-center gap-1 text-xs text-neutral-500" title="Grid for moving and trimming clips (hold Shift to ignore it)">

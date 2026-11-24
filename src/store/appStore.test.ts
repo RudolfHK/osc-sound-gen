@@ -276,6 +276,42 @@ describe('chord track', () => {
   });
 });
 
+describe('written parts', () => {
+  const notes = [{ midiNote: 45, startBeat: 0, durationBeats: 1, velocity: 100 }];
+
+  it('adds a new track with a clip per part, selected, as one undo step', () => {
+    let s = fresh();
+    const before = s.sequencer.tracks.length;
+    s = reducer(s, {
+      type: 'PART_ADD', target: { source: { type: 'preset', presetId: 'bass-sub' }, name: 'Bass 2' },
+      clips: [{ startBeat: 0, lengthBeats: 16, name: 'Bass Intro', notes }, { startBeat: 16, lengthBeats: 16, name: 'Bass Verse', notes }],
+    });
+    const track = s.sequencer.tracks.at(-1)!;
+    expect(s.sequencer.tracks).toHaveLength(before + 1);
+    expect(track).toMatchObject({ name: 'Bass 2', source: { type: 'preset', presetId: 'bass-sub' } });
+    expect(track.clips.map((c) => [c.startBeat, c.lengthBeats])).toEqual([[0, 16], [16, 16]]);
+    expect(s.sequencer.patterns[track.clips[0].patternId]).toMatchObject({ name: 'Bass Intro', lengthBeats: 16 });
+    expect(s.sequencer.patterns[track.clips[0].patternId].notes[0].id).toBeTruthy();
+    expect(s.sequencer.selectedClipId).toBe(track.clips[0].id);
+    expect(autoUndoKey({ type: 'PART_ADD', target: { trackId: track.id }, clips: [] })).toBeNull();
+  });
+
+  it('replaces what an existing track had in the range, keeping the rest of a crossing clip', () => {
+    let s = fresh();
+    const id = s.sequencer.tracks[1].id;
+    s = reducer(s, { type: 'CLIP_ADD', trackId: id, startBeat: 0, lengthBeats: 32 });
+    s = reducer(s, { type: 'PART_ADD', target: { trackId: id }, clips: [{ startBeat: 8, lengthBeats: 8, name: 'Bass', notes }] });
+    const clips = s.sequencer.tracks.find((t) => t.id === id)!.clips;
+    expect(clips.map((c) => [c.startBeat, c.lengthBeats, c.offsetBeats])).toEqual([[0, 8, 0], [8, 8, 0], [16, 16, 16]]);
+  });
+
+  it('refuses a drum track', () => {
+    const s = fresh();
+    const drums = s.sequencer.tracks.find((t) => t.source.type === 'drums')!;
+    expect(reducer(s, { type: 'PART_ADD', target: { trackId: drums.id }, clips: [{ startBeat: 0, lengthBeats: 4, name: 'x', notes }] })).toBe(s);
+  });
+});
+
 describe('undo', () => {
   it('skips no-op undo steps and restores the whole document', () => {
     let s = fresh();

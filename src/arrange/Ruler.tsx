@@ -9,6 +9,7 @@ import {
 import { chordName, chordSpans, keyUsesFlats, PROGRESSIONS, progressionChords, type ChordMark } from '../utils/harmony';
 import { detectChordsInRange } from '../utils/songAnalysis';
 import { ChordDialog, useSongKey } from './ChordDialog';
+import { openPartDialog } from './PartDialog';
 import { notify } from '../ui/notices';
 import { gray, shade, useTheme } from '../ui/theme';
 import { canvasPixelRatio, localPoint } from '../ui/scale';
@@ -325,6 +326,11 @@ export function Ruler({ view, width, onSeek }: Props) {
           }),
         },
         { label: `Clear chords in ${where}`, disabled: inRange === 0, onSelect: () => replace('Clear chords', []) },
+        { divider: true, label: '' },
+        {
+          label: `Write a part over ${where}…`, disabled: !chords.length,
+          onSelect: () => openPartDialog(sec ? { from: sec.beat, to: sec.endBeat } : {}),
+        },
       ],
     };
   };

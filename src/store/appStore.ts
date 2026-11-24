@@ -126,6 +126,15 @@ export type Action =
    * were there (a fill bar dropped into a running drum loop).
    */
   | { type: 'CLIP_REPLACE_RANGE'; trackId: string; startBeat: number; endBeat: number; patternId: string; clipId?: string }
+  /**
+   * Add a written part: one clip per entry, each with its own pattern, onto
+   * an instrument track (clearing what was in those ranges) or a new track.
+   */
+  | {
+      type: 'PART_ADD';
+      target: { trackId: string } | { source: TrackSource; name: string };
+      clips: { startBeat: number; lengthBeats: number; name: string; notes: Omit<SequencerNote, 'id'>[] }[];
+    }
   | { type: 'PATTERN_RENAME'; patternId: string; name: string }
   | { type: 'PATTERN_SET_LENGTH'; patternId: string; lengthBeats: number }
   /**
@@ -381,6 +390,27 @@ function sectionDeleteChords(chords: ChordMark[], from: number, to: number): Cho
   const kept = chords.filter((c) => !(c.beat >= from && c.beat < to));
   if (held && held.beat >= from && held.beat < to) kept.push({ ...held, id: uid('ch'), beat: to });
   return sortChords(kept);
+}
+
+/**
+ * A track's clips with [a, b) cleared. A clip crossing the range is cut: the
+ * part before keeps the clip's identity, the part after continues the
+ * pattern from where it would have been.
+ */
+function clearRange(clips: Clip[], a: number, b: number): Clip[] {
+  const out: Clip[] = [];
+  for (const c of clips) {
+    const cEnd = c.startBeat + c.lengthBeats;
+    if (cEnd <= a + 1e-9 || c.startBeat >= b - 1e-9) { out.push(c); continue; }
+    if (c.startBeat < a - 1e-9) out.push({ ...c, lengthBeats: a - c.startBeat });
+    if (cEnd > b + 1e-9) {
+      out.push({
+        ...c, id: c.startBeat < a - 1e-9 ? uid('clip') : c.id,
+        startBeat: b, lengthBeats: cEnd - b, offsetBeats: c.offsetBeats + (b - c.startBeat),
+      });
+    }
+  }
+  return out;
 }
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -881,23 +911,48 @@ export function reducer(state: AppState, action: Action): AppState {
       const track = seq.tracks.find((t) => t.id === action.trackId);
       const [a, b] = [Math.max(0, action.startBeat), action.endBeat];
       if (!track || b - a < 0.25) return state;
-      const clips: Clip[] = [];
-      for (const c of track.clips) {
-        const cEnd = c.startBeat + c.lengthBeats;
-        if (cEnd <= a + 1e-9 || c.startBeat >= b - 1e-9) { clips.push(c); continue; }
-        // The part before the range keeps the clip's identity…
-        if (c.startBeat < a - 1e-9) clips.push({ ...c, lengthBeats: a - c.startBeat });
-        // …the part after continues the pattern from where it would have been
-        if (cEnd > b + 1e-9) {
-          clips.push({
-            ...c, id: c.startBeat < a - 1e-9 ? uid('clip') : c.id,
-            startBeat: b, lengthBeats: cEnd - b, offsetBeats: c.offsetBeats + (b - c.startBeat),
-          });
-        }
-      }
+      const clips = clearRange(track.clips, a, b);
       clips.push({ id: action.clipId ?? uid('clip'), patternId: action.patternId, startBeat: a, lengthBeats: b - a, offsetBeats: 0, muted: false });
       clips.sort((x, y) => x.startBeat - y.startBeat);
       const next = seqUpdate(state, { tracks: seq.tracks.map((t) => (t.id === track.id ? { ...t, clips } : t)) });
+      return fitSongLength(seqUpdate(next, sanitizeSelection(next.sequencer)));
+    }
+
+    case 'PART_ADD': {
+      const parts = action.clips.filter((c) => c.lengthBeats >= 0.25);
+      if (!parts.length) return state;
+      let tracks = seq.tracks;
+      let track = 'trackId' in action.target ? tracks.find((t) => t.id === (action.target as { trackId: string }).trackId) : undefined;
+      if ('trackId' in action.target) {
+        if (!track || isDrumTrack(track)) return state;
+      } else {
+        track = makeTrack({ name: action.target.name, source: action.target.source, index: tracks.length });
+        tracks = [...tracks, track];
+      }
+      const patterns = { ...seq.patterns };
+      let clips = track.clips;
+      const added: Clip[] = [];
+      for (const part of parts) {
+        const a = Math.max(0, part.startBeat), b = a + part.lengthBeats;
+        clips = clearRange(clips, a, b);
+        const pattern: Pattern = {
+          id: uid('pat'),
+          name: Object.values(patterns).some((p) => p.name === part.name) ? nextName(part.name, patterns) : part.name,
+          lengthBeats: part.lengthBeats,
+          notes: part.notes.map((n) => ({ ...n, id: uid('n') })),
+        };
+        patterns[pattern.id] = pattern;
+        added.push({ id: uid('clip'), patternId: pattern.id, startBeat: a, lengthBeats: part.lengthBeats, offsetBeats: 0, muted: false });
+      }
+      clips = [...clips, ...added].sort((x, y) => x.startBeat - y.startBeat);
+      const id = track.id;
+      const next = seqUpdate(state, {
+        tracks: tracks.map((t) => (t.id === id ? { ...t, clips } : t)),
+        patterns,
+        selectedTrackId: id,
+        selectedClipId: added[0].id,
+        selectedClipIds: [],
+      });
       return fitSongLength(seqUpdate(next, sanitizeSelection(next.sequencer)));
     }
 
@@ -1511,6 +1566,7 @@ export function autoUndoKey(action: Action): string | null | undefined {
     case 'CHORD_REMOVE':
     case 'CHORDS_REPLACE':
     case 'SEQ_SET_KEY':
+    case 'PART_ADD':
       return null;
     case 'TRACK_SET_PATCH': return action.patch === null ? null : `patch:${action.trackId}:${keys(action.patch)}`;
     case 'SEQ_SET_BPM': return 'bpm';
@@ -1569,6 +1625,7 @@ const UNDO_LABELS: Partial<Record<Action['type'], string>> = {
   CLIP_TOGGLE_MUTE: 'Mute clip',
   CLIP_SPLIT: 'Split clip',
   CLIP_SET_PATTERN: 'Change clip pattern',
+  PART_ADD: 'Generate part',
   CLIPS_DELETE: 'Delete clips',
   CLIPS_DUPLICATE: 'Duplicate clips',
   CLIPS_MOVE: 'Move clips',
