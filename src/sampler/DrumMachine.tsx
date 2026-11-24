@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useDrumStore, voiceGroupOf, patternsByGenre, VOICE_GROUPS } from '../store/drumStore';
 import { useAppStore } from '../store/appStore';
 import { getDrumSynth } from '../engine/sampler';
@@ -135,6 +135,34 @@ const scheduler = new DrumScheduler();
 
 // ─── Context menu ─────────────────────────────────────────────────────────────
 
+/**
+ * A popover at a click point: kept inside the window (the drum rows sit at the
+ * bottom of the screen, so it usually opens upwards), closed by a click
+ * outside it or by Escape. Returns the position to render at.
+ */
+function usePopover(ref: React.RefObject<HTMLDivElement | null>, x: number, y: number, onClose: () => void) {
+  const [pos, setPos] = useState({ left: toLayout(x), top: toLayout(y) });
+  useLayoutEffect(() => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    setPos({
+      left: toLayout(Math.max(4, Math.min(x, window.innerWidth - r.width - 4))),
+      top: toLayout(Math.max(4, Math.min(y, window.innerHeight - r.height - 4))),
+    });
+  }, [ref, x, y]);
+  useEffect(() => {
+    const outside = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } };
+    document.addEventListener('mousedown', outside);
+    document.addEventListener('keydown', key, true);
+    return () => {
+      document.removeEventListener('mousedown', outside);
+      document.removeEventListener('keydown', key, true);
+    };
+  }, [ref, onClose]);
+  return pos;
+}
+
 interface StepMenuProps {
   step: DrumStep;
   x: number; y: number;
@@ -144,17 +172,13 @@ interface StepMenuProps {
 
 function StepContextMenu({ step, x, y, onUpdate, onClose }: StepMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, [onClose]);
+  const pos = usePopover(ref, x, y, onClose);
 
   return (
     <div
-      ref={ref}
+      ref={ref} role="dialog" aria-label="Step settings"
       className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-lg p-3 w-44"
-      style={{ left: toLayout(x), top: toLayout(y) }}
+      style={pos}
     >
       <div className="text-xs text-neutral-500 tracking-widest mb-2">STEP PARAMS</div>
       <Label label="VEL" value={step.velocity}>
@@ -215,17 +239,13 @@ function VoiceContextMenu({ voice, stepCount, x, y, onUpdate, onEuclid, onClearR
     setRotate(r);
     onEuclid(euclid(h, stepCount, r));
   };
-  useEffect(() => {
-    const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, [onClose]);
+  const pos = usePopover(ref, x, y, onClose);
 
   return (
     <div
-      ref={ref}
+      ref={ref} role="dialog" aria-label={`${voice.name} settings`}
       className="fixed z-50 bg-neutral-900 border border-neutral-700 rounded-sm shadow-lg p-3 w-48"
-      style={{ left: toLayout(x), top: toLayout(y) }}
+      style={pos}
     >
       <div className="text-xs tracking-widest mb-2" style={{ color: voice.color }}>{voice.name.toUpperCase()}</div>
       <Label label="VOL" value={Math.round(voice.volume * 100)}>

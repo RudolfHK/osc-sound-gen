@@ -138,14 +138,21 @@ function EditorPanel({ onSeek }: { onSeek: (beat: number) => void }) {
     }
   }, [drumClip?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const lastActive = useRef(drumState.activePatternId);
+  const knownPatterns = useRef(new Set(drumState.patterns.map((p) => p.id)));
   useEffect(() => {
     const changed = lastActive.current !== drumState.activePatternId;
     lastActive.current = drumState.activePatternId;
     if (changed && drumClip && drumClip.patternId !== drumState.activePatternId) {
-      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      // A pattern that was just made (new, duplicated, generated) came with
+      // its own undo step, taken before it — that step covers the clip too
+      if (knownPatterns.current.has(drumState.activePatternId)) dispatch({ type: 'SEQ_PUSH_UNDO' });
       dispatch({ type: 'CLIP_SET_PATTERN', clipId: drumClip.id, patternId: drumState.activePatternId });
     }
   }, [drumState.activePatternId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // After the effect above, so it still sees the patterns from before an add
+  useEffect(() => {
+    knownPatterns.current = new Set(drumState.patterns.map((p) => p.id));
+  }, [drumState.patterns]);
 
   const height = useEditorHeight(containerRef);
 

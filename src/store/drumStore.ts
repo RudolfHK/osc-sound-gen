@@ -88,7 +88,7 @@ export type DrumAction =
   /** Merge patterns from a project file; existing ids are replaced. */
   | { type: 'DRUM_IMPORT_PATTERNS'; patterns: DrumPattern[] }
   /** Undo/redo: put a recorded pattern list back. */
-  | { type: 'DRUM_RESTORE_PATTERNS'; patterns: DrumPattern[] };
+  | { type: 'DRUM_RESTORE_PATTERNS'; patterns: DrumPattern[]; activePatternId?: string };
 
 // ─── Voice catalogue ──────────────────────────────────────────────────────────
 
@@ -676,10 +676,12 @@ export function drumReducer(state: DrumMachineState, action: DrumAction): DrumMa
     }
 
     case 'DRUM_RESTORE_PATTERNS': {
-      if (action.patterns.length === 0 || action.patterns === state.patterns) return state;
-      const active = action.patterns.some((p) => p.id === state.activePatternId)
-        ? state.activePatternId
-        : action.patterns[0].id;
+      if (action.patterns.length === 0) return state;
+      const want = action.activePatternId ?? state.activePatternId;
+      const active = action.patterns.some((p) => p.id === want) ? want
+        : action.patterns.some((p) => p.id === state.activePatternId) ? state.activePatternId
+          : action.patterns[0].id;
+      if (action.patterns === state.patterns && active === state.activePatternId) return state;
       return { ...state, patterns: action.patterns, activePatternId: active };
     }
 
@@ -780,6 +782,8 @@ const LS_KEY = 'osc-drum-state';
 const PERSIST_DEBOUNCE_MS = 400;
 
 /** What is worth saving: not the transport state of the AUDITION loop. */
+interface DrumHistorySnapshot { patterns: DrumPattern[]; active: string }
+
 function persisted(s: DrumMachineState) {
   const { isPlaying: _p, currentStep: _c, ...rest } = s;
   return rest;
@@ -819,12 +823,23 @@ export function useDrumReducer(): DrumCtx {
     return () => window.removeEventListener('beforeunload', flush);
   }, []);
 
-  // Drum patterns share the song's undo history
-  useEffect(() => registerHistoryParticipant<DrumPattern[]>({
-    id: 'drums',
-    snapshot: () => latest.current.patterns,
-    restore: (p) => rawDispatch({ type: 'DRUM_RESTORE_PATTERNS', patterns: p }),
-  }), []);
+  // Drum patterns share the song's undo history. The pattern on show goes
+  // with them: undoing an added pattern goes back to the one shown before it,
+  // which is the one its clip played.
+  // The same object while nothing changed, so a step that changes nothing is
+  // still recognised as one and dropped.
+  useEffect(() => {
+    let last: DrumHistorySnapshot | null = null;
+    return registerHistoryParticipant<DrumHistorySnapshot>({
+      id: 'drums',
+      snapshot: () => {
+        const { patterns, activePatternId: active } = latest.current;
+        if (!last || last.patterns !== patterns || last.active !== active) last = { patterns, active };
+        return last;
+      },
+      restore: (s) => rawDispatch({ type: 'DRUM_RESTORE_PATTERNS', patterns: s.patterns, activePatternId: s.active }),
+    });
+  }, []);
 
   const dispatch = useCallback<Dispatch<DrumAction>>((action) => {
     const key = drumUndoKey(action);
