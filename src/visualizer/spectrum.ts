@@ -112,6 +112,29 @@ export class Visualizer {
     return true;
   }
 
+  /**
+   * Draw from this analyser instead of the master bus (a video export plays
+   * its own rendered audio). Nothing is disconnected on destroy.
+   */
+  useAnalyser(node: AnalyserNode): void {
+    this.analyser = node;
+    this.tapped = null;
+    node.smoothingTimeConstant = this.settings.smoothing;
+    this.freq = new Uint8Array(node.frequencyBinCount);
+    this.time = new Float32Array(node.fftSize);
+  }
+
+  /** Draw one frame now (for a caller with its own clock, like a video recorder). */
+  renderFrame(): void {
+    this.frame();
+  }
+
+  /** Size the drawing surface in pixels, with no CSS size (an off-screen canvas). */
+  setPixelSize(w: number, h: number): void {
+    this.canvas.width = Math.max(1, Math.floor(w));
+    this.canvas.height = Math.max(1, Math.floor(h));
+  }
+
   start(): void {
     if (this.running) return;
     this.running = true;

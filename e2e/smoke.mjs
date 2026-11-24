@@ -1292,6 +1292,33 @@ try {
     await dialog().getByRole('button', { name: 'Done', exact: true }).click();
   });
 
+  await step('exports a square video of a section that decodes at its size', async () => {
+    await button('Export').click();
+    await dialog().waitFor({ timeout: 3000 });
+    const f = await exportFile(async () => {
+      await pick('Video');
+      await pick('1:1', 'Shape');
+      await dialog().getByRole('combobox', { name: 'Range' }).selectOption({ label: 'Section: Intro' });
+    });
+    const webm = f.bytes[0] === 0x1a && f.bytes[1] === 0x45 && f.bytes[2] === 0xdf && f.bytes[3] === 0xa3;
+    const mp4 = String.fromCharCode(...f.bytes.slice(4, 8)) === 'ftyp';
+    assert((webm && f.name.endsWith('-Intro.webm')) || (mp4 && f.name.endsWith('-Intro.mp4')), `not a video: ${f.name}`);
+    assert(f.bytes.length > 50_000, `video is only ${f.bytes.length} bytes`);
+    // It records in real time: about the section's length, plus its tail
+    assert(f.ms > SECTION_SECONDS * 1000 * 0.9, `recorded in ${f.ms} ms — faster than real time?`);
+    const meta = await page.evaluate(async ({ b64, type }) => {
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const v = document.createElement('video');
+      v.muted = true;
+      v.src = URL.createObjectURL(new Blob([bytes], { type }));
+      await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('the video does not decode')); });
+      return { w: v.videoWidth, h: v.videoHeight };
+    }, { b64: Buffer.from(f.bytes).toString('base64'), type: webm ? 'video/webm' : 'video/mp4' });
+    assert(meta.w === 1080 && meta.h === 1080, `video is ${meta.w}×${meta.h}`);
+    await pick('WAV');
+    await dialog().getByRole('button', { name: 'Done', exact: true }).click();
+  });
+
   await step('exporting leaves the live audio graph alone (no leaked effect racks)', async () => {
     await button('▶ PLAY').click();
     await page.waitForTimeout(400);

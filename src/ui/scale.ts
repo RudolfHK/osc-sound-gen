@@ -10,7 +10,7 @@
  */
 
 interface DesktopZoom { setZoomFactor?: (f: number) => void }
-const desktop = (window as unknown as { oscDesktop?: DesktopZoom }).oscDesktop;
+const desktop = (typeof window === 'undefined' ? {} : window as unknown as { oscDesktop?: DesktopZoom }).oscDesktop;
 
 let cssZoom = 1;
 

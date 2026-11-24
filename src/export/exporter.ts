@@ -8,8 +8,10 @@ import { encodeWav, audioBufferToPcm, type PcmAudio, type WavBitDepth } from './
 import { encodeMp3, type Mp3Bitrate } from './mp3';
 import { encodeMidi } from './midi';
 import { normalizeInPlace, integratedLoudness, samplePeak, gainToDb, type LevelReport, type Normalize } from './loudness';
+import { recordVideo, type VideoAspect, type VideoFormat } from './video';
+import type { VisualizerMode } from '../visualizer/spectrum';
 
-export type ExportFormat = 'wav' | 'mp3' | 'midi';
+export type ExportFormat = 'wav' | 'mp3' | 'midi' | 'video';
 
 export interface ExportSettings {
   format: ExportFormat;
@@ -23,6 +25,10 @@ export interface ExportSettings {
   normalize: Normalize;
   maxTailSeconds: number;
   bakeArpeggiator: boolean;
+  videoAspect: VideoAspect;
+  videoStyle: VisualizerMode;
+  /** Hear the video while it records. */
+  videoListen: boolean;
 }
 
 export const DEFAULT_EXPORT: ExportSettings = {
@@ -36,6 +42,9 @@ export const DEFAULT_EXPORT: ExportSettings = {
   normalize: { mode: 'off' },
   maxTailSeconds: 4,
   bakeArpeggiator: true,
+  videoAspect: '16:9',
+  videoStyle: 'bars',
+  videoListen: false,
 };
 
 export interface ExportResult {
@@ -48,7 +57,7 @@ export interface ExportResult {
 }
 
 export interface Progress {
-  phase: 'render' | 'encode' | 'zip';
+  phase: 'render' | 'encode' | 'zip' | 'video';
   fraction: number;
   detail?: string;
 }
@@ -85,8 +94,36 @@ function bytes(u: Uint8Array): Uint8Array<ArrayBuffer> {
   return u as Uint8Array<ArrayBuffer>;
 }
 
-const MIME: Record<ExportFormat, string> = { wav: 'audio/wav', mp3: 'audio/mpeg', midi: 'audio/midi' };
-const EXT: Record<ExportFormat, string> = { wav: 'wav', mp3: 'mp3', midi: 'mid' };
+const MIME: Record<Exclude<ExportFormat, 'video'>, string> = { wav: 'audio/wav', mp3: 'audio/mpeg', midi: 'audio/midi' };
+const EXT: Record<Exclude<ExportFormat, 'video'>, string> = { wav: 'wav', mp3: 'mp3', midi: 'mid' };
+
+/** What a video shows besides the music. */
+export interface VideoContext {
+  format: VideoFormat;
+  accent: string;
+  /** Section starts in beats (song time); converted to the video's own time. */
+  sections: { name: string; beat: number }[];
+  bpm: number;
+}
+
+/** Record finished PCM as a video, in real time. */
+async function videoFromPcm(
+  pcm: PcmAudio, s: ExportSettings, title: string, startBeat: number, v: VideoContext, filename: string,
+  levels: LevelReport | undefined, onProgress: (p: Progress) => void, signal?: AbortSignal,
+): Promise<ExportResult> {
+  const spb = 60 / v.bpm;
+  const sections = v.sections
+    .map((x) => ({ name: x.name, seconds: (x.beat - startBeat) * spb }))
+    // Sections from the start of the range on, and the one already playing there
+    .filter((x, i, all) => x.seconds >= 0 || !(all[i + 1]?.seconds <= 0))
+    .map((x) => ({ ...x, seconds: Math.max(0, x.seconds) }));
+  onProgress({ phase: 'video', fraction: 0 });
+  const blob = await recordVideo(pcm, {
+    aspect: s.videoAspect, style: s.videoStyle, title, sections, accent: v.accent, format: v.format,
+    listen: s.videoListen, signal, onProgress: (f) => onProgress({ phase: 'video', fraction: f }),
+  });
+  return { blob, filename: `${filename}.${v.format.ext}`, levels, seconds: (pcm.channels[0]?.length ?? 0) / pcm.sampleRate };
+}
 
 /** Export the arrangement over a beat range. */
 export async function exportArrangement(
@@ -96,8 +133,20 @@ export async function exportArrangement(
   projectName: string,
   onProgress: (p: Progress) => void,
   signal?: AbortSignal,
+  video?: VideoContext,
 ): Promise<ExportResult> {
   const base = safeFileName(projectName) + (range.label ? `-${safeFileName(range.label)}` : '');
+
+  if (s.format === 'video') {
+    if (!video) throw new Error('Video needs a recording format this browser supports.');
+    const buffer = await renderArrangement(input, {
+      startBeat: range.startBeat, endBeat: range.endBeat, sampleRate: 48000, maxTailSeconds: s.maxTailSeconds, signal,
+      onProgress: (f) => onProgress({ phase: 'render', fraction: f }),
+    });
+    const pcm: PcmAudio = { sampleRate: buffer.sampleRate, channels: audioBufferToPcm(buffer).channels.map((c) => c.slice()) };
+    const levels = normalizeInPlace(pcm, s.normalize);
+    return videoFromPcm(pcm, s, projectName, range.startBeat, video, base, levels, onProgress, signal);
+  }
 
   if (s.format === 'midi') {
     const midiBytes = encodeMidi(input.seq, projectName, {
@@ -167,10 +216,15 @@ export async function exportTake(
   name: string,
   onProgress: (p: Progress) => void,
   signal?: AbortSignal,
+  video?: VideoContext,
 ): Promise<ExportResult> {
   if (s.format === 'midi') throw new Error('A recording is audio — choose WAV or MP3.');
   const pcm: PcmAudio = { sampleRate: take.sampleRate, channels: take.channels.map((c) => c.slice()) };
   const levels = normalizeInPlace(pcm, s.normalize);
+  if (s.format === 'video') {
+    if (!video) throw new Error('Video needs a recording format this browser supports.');
+    return videoFromPcm(pcm, s, name, 0, { ...video, sections: [] }, safeFileName(name), levels, onProgress, signal);
+  }
   const encoded = await encodeAudio(pcm, s, name, onProgress, signal);
   return {
     blob: new Blob([bytes(encoded)], { type: MIME[s.format] }),

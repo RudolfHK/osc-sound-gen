@@ -12,6 +12,8 @@ import { MP3_BITRATES, MP3_SAMPLE_RATES, mp3Size } from '../export/mp3';
 import { wavSize } from '../export/wav';
 import { contentEndBeat, sectionsFromMarkers } from '../utils/music';
 import { downloadBlob } from '../utils/wav';
+import { pickVideoFormat, VIDEO_ASPECTS } from '../export/video';
+import { VISUALIZER_MODES } from '../visualizer/spectrum';
 import { closeExport, useExportState } from './exportState';
 import { notify } from './notices';
 import { Dialog } from './kit/Dialog';
@@ -35,8 +37,11 @@ const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60
 const fmtDb = (d: number) => (Number.isFinite(d) ? `${d > 0 ? '+' : ''}${d.toFixed(1)}` : '−∞');
 
 const PHASE_LABEL: Record<Progress['phase'], string> = {
-  render: 'Rendering', encode: 'Encoding', zip: 'Packing stems',
+  render: 'Rendering', encode: 'Encoding', zip: 'Packing stems', video: 'Recording the video in real time',
 };
+
+/** What this browser can record video as (null: it can't). */
+const VIDEO_FORMAT = pickVideoFormat();
 
 export function ExportDialog() {
   const { open, take } = useExportState();
@@ -79,7 +84,8 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
 
   const isTake = source === 'take' && !!take;
   const format = isTake && s.format === 'midi' ? 'wav' : s.format;
-  const stems = !isTake && s.stems && format !== 'midi';
+  const video = format === 'video';
+  const stems = !isTake && s.stems && format !== 'midi' && !video;
   const mp3RateOk = MP3_SAMPLE_RATES.includes(isTake ? take!.sampleRate : s.sampleRate);
 
   // ── Size estimate ──
@@ -88,6 +94,7 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
     : (range.endBeat - range.startBeat) / (seq.bpm / 60) + 1;
   const stemCount = stems ? tracksWithContent(seq.tracks, range.startBeat, range.endBeat).length : 1;
   const estimate = format === 'midi' ? null
+    : video ? Math.round(((s.videoAspect === '1:1' ? 6_000_000 : 4_500_000) + 192_000) / 8 * seconds)
     : format === 'mp3' ? mp3Size(seconds, s.kbps) * stemCount
       : wavSize(Math.round(seconds * (isTake ? take!.sampleRate : s.sampleRate)), 2, s.bitDepth) * stemCount;
 
@@ -100,8 +107,12 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
     const settings: ExportSettings = { ...s, format, stems, normalize: stems ? { mode: 'off' } : s.normalize };
     try {
       let res: ExportResult;
+      const videoContext = VIDEO_FORMAT ? {
+        format: VIDEO_FORMAT, accent, bpm: seq.bpm,
+        sections: [...seq.markers].sort((a, b) => a.beat - b.beat).map((m) => ({ name: m.name, beat: m.beat })),
+      } : undefined;
       if (isTake) {
-        res = await exportTake(take!, settings, `${state.projectName}-recording`, setProgress, ac.signal);
+        res = await exportTake(take!, settings, `${state.projectName}-recording`, setProgress, ac.signal, videoContext);
       } else {
         // The renderer borrows the audio engine; live playback has to stop first
         // (and so does the drum editor's AUDITION loop)
@@ -113,7 +124,7 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
         res = await exportArrangement(
           { seq, tabs: state.tabs, drumPatterns: drumState.patterns, effects, masterVolume: state.masterVolume },
           settings, { startBeat: range.startBeat, endBeat: range.endBeat, label: range.file },
-          state.projectName, setProgress, ac.signal,
+          state.projectName, setProgress, ac.signal, videoContext,
         );
       }
       setResult(res);
@@ -177,12 +188,28 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
             { v: 'wav', label: 'WAV' },
             { v: 'mp3', label: 'MP3' },
             { v: 'midi', label: 'MIDI', disabled: isTake },
+            { v: 'video', label: 'Video', disabled: !VIDEO_FORMAT },
           ], (v) => set({ format: v })),
           format === 'wav' ? 'Uncompressed — for mastering, other DAWs, archiving.'
             : format === 'mp3' ? 'Compressed — for sharing and listening. 320 kbps is transparent for most listeners.'
-              : 'The notes, not the audio — opens in Ableton, Logic, FL Studio, MuseScore and other MIDI software.')}
+              : video ? `${VIDEO_FORMAT?.label ?? 'Video'} — the music with a moving picture, the title and a progress bar, for sharing where audio files can't go.`
+                : !VIDEO_FORMAT && format === 'midi' ? 'The notes, not the audio — opens in Ableton, Logic, FL Studio, MuseScore and other MIDI software. (This browser can\'t record video.)'
+                  : 'The notes, not the audio — opens in Ableton, Logic, FL Studio, MuseScore and other MIDI software.')}
 
-          {!isTake && format !== 'midi' && row('WHAT', seg(stems ? 'stems' : 'mix', [
+          {video && (
+            <>
+              {row('SHAPE', seg(s.videoAspect, VIDEO_ASPECTS.map((a) => ({ v: a.id, label: a.label })), (v) => set({ videoAspect: v })),
+                VIDEO_ASPECTS.find((a) => a.id === s.videoAspect)?.hint)}
+              {row('PICTURE', seg(s.videoStyle, VISUALIZER_MODES.map((m) => ({ v: m.id, label: m.label })), (v) => set({ videoStyle: v })),
+                'The visualizer, drawn from the exported audio.')}
+              {row('LISTEN', seg(s.videoListen ? 'on' : 'off', [
+                { v: 'off', label: 'Silent' }, { v: 'on', label: 'Play it while recording' },
+              ], (v) => set({ videoListen: v === 'on' })),
+              `It records in real time — ${fmtTime(seconds)} — so keep this window in front until it’s done.`)}
+            </>
+          )}
+
+          {!isTake && format !== 'midi' && !video && row('WHAT', seg(stems ? 'stems' : 'mix', [
             { v: 'mix', label: 'Mixdown' },
             { v: 'stems', label: 'Stems (ZIP)' },
           ], (v) => set({ stems: v === 'stems' })),
@@ -298,7 +325,8 @@ function ExportDialogBody({ source }: { source: 'song' | 'take' }) {
         <div className="flex items-center gap-2 px-4 py-2.5 border-t border-neutral-800">
           <span className="text-[11px] text-neutral-500">
             {estimate !== null && `≈ ${fmtBytes(estimate)}`}
-            {!isTake && format !== 'midi' && ' · rendered offline, faster than real time'}
+            {!isTake && format !== 'midi' && !video && ' · rendered offline, faster than real time'}
+            {video && ' · audio rendered offline, then recorded in real time'}
           </span>
           <div className="ml-auto flex gap-2">
             {busy ? (
