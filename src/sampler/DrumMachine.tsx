@@ -6,9 +6,12 @@ import { getAudioEngine } from '../engine/audio';
 import { Ticker } from '../engine/ticker';
 import { requestUndoStep } from '../store/history';
 import type { DrumVoiceType, DrumHitParams } from '../engine/sampler';
-import type { DrumVoiceConfig, DrumStep, DrumPattern } from '../store/drumStore';
+import type { DrumVoiceConfig, DrumStep, DrumPattern, DrumStepParams } from '../store/drumStore';
 import { notify } from '../ui/notices';
 import { toLayout } from '../ui/scale';
+import { euclid, ratchetCount, stepPlays } from '../utils/rhythm';
+import { DRUM_STYLES, FILL_KINDS, FILL_NAMES, generateDrumPattern, makeFill, varyPattern } from '../utils/drumGen';
+import { ContextMenu, type MenuItem } from '../ui/ContextMenu';
 
 // ─── Drum scheduler ───────────────────────────────────────────────────────────
 
@@ -19,6 +22,8 @@ class DrumScheduler {
   private ctx: AudioContext | null = null;
   private nextStepTime = 0;
   private nextStepIdx = 0;
+  /** Bars played since AUDITION started — step probability varies per bar. */
+  private bar = 0;
   private ticker = new Ticker();
   private rafId = 0;
   private lastShown = -1;
@@ -36,6 +41,7 @@ class DrumScheduler {
     this.onStep = onStep;
     this.running = true;
     this.nextStepIdx = 0;
+    this.bar = 0;
     this.lastShown = -1;
     this.nextStepTime = ctx.currentTime + 0.05;
     this.ticker.start(25, () => this.tick());
@@ -77,13 +83,14 @@ class DrumScheduler {
       const swingDelay = this.nextStepIdx % 2 === 1 ? p.swing * stepDur * 0.5 : 0;
       const t = this.nextStepTime + swingDelay;
 
-      this.scheduleStep(this.nextStepIdx, t);
+      this.scheduleStep(this.nextStepIdx, t, stepDur);
       this.nextStepTime += stepDur;
       this.nextStepIdx = (this.nextStepIdx + 1) % p.stepCount;
+      if (this.nextStepIdx === 0) this.bar++;
     }
   }
 
-  private scheduleStep(idx: number, t: number): void {
+  private scheduleStep(idx: number, t: number, stepDur: number): void {
     if (!this.pattern) return;
     const anySolo = this.pattern.voices.some((v) => v.solo);
     for (const voice of this.pattern.voices) {
@@ -92,6 +99,7 @@ class DrumScheduler {
       if (!step.active) continue;
       if (voice.muted) continue;
       if (anySolo && !voice.solo) continue;
+      if (!stepPlays(step.chance, this.pattern.id, voice.id, idx, this.bar)) continue;
       const params: DrumHitParams = {
         volume: voice.volume,
         pan: voice.pan,
@@ -100,7 +108,8 @@ class DrumScheduler {
         tone: voice.tone,
         velocity: step.velocity,
       };
-      getDrumSynth().trigger(voice.id as DrumVoiceType, params, t);
+      const hits = ratchetCount(step.ratchet);
+      for (let r = 0; r < hits; r++) getDrumSynth().trigger(voice.id as DrumVoiceType, params, t + (r * stepDur) / hits);
     }
   }
 
@@ -129,7 +138,7 @@ const scheduler = new DrumScheduler();
 interface StepMenuProps {
   step: DrumStep;
   x: number; y: number;
-  onUpdate: (p: Partial<Pick<DrumStep, 'velocity' | 'pitch' | 'decay'>>) => void;
+  onUpdate: (p: DrumStepParams) => void;
   onClose: () => void;
 }
 
@@ -163,20 +172,49 @@ function StepContextMenu({ step, x, y, onUpdate, onClose }: StepMenuProps) {
           className="w-full accent-neutral-400"
           onChange={(e) => onUpdate({ decay: +e.target.value })} />
       </Label>
+      <Label label="CHANCE" value={`${Math.round((step.chance ?? 1) * 100)}%`}>
+        <input type="range" min={0} max={1} step={0.05} value={step.chance ?? 1}
+          className="w-full accent-neutral-400"
+          aria-valuetext={`${Math.round((step.chance ?? 1) * 100)} percent`}
+          onChange={(e) => onUpdate({ chance: +e.target.value })} />
+      </Label>
+      <div className="text-xs text-neutral-500 mb-0.5">REPEAT</div>
+      <div className="flex gap-1" role="group" aria-label="Repeat (ratchet)">
+        {[1, 2, 3, 4].map((n) => {
+          const on = ratchetCount(step.ratchet) === n;
+          return (
+            <button key={n} onClick={() => onUpdate({ ratchet: n })} aria-pressed={on}
+              title={n === 1 ? 'One hit' : `${n} hits within the step`}
+              className={`flex-1 py-0.5 text-xs border ${on ? 'border-neutral-300 text-neutral-100' : 'border-neutral-700 text-neutral-500 hover:text-neutral-300'}`}
+            >{n === 1 ? '1' : `×${n}`}</button>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 interface VoiceMenuProps {
   voice: DrumVoiceConfig;
+  stepCount: number;
   x: number; y: number;
   onUpdate: (p: Partial<Omit<DrumVoiceConfig, 'id' | 'name' | 'steps' | 'color'>>) => void;
+  /** Fill the row with a Euclidean rhythm. */
+  onEuclid: (row: boolean[]) => void;
   onClearRow: () => void;
   onClose: () => void;
 }
 
-function VoiceContextMenu({ voice, x, y, onUpdate, onClearRow, onClose }: VoiceMenuProps) {
+function VoiceContextMenu({ voice, stepCount, x, y, onUpdate, onEuclid, onClearRow, onClose }: VoiceMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
+  // Start from the row as it is: its number of hits, no rotation
+  const [hits, setHits] = useState(() => voice.steps.slice(0, stepCount).filter((s) => s.active).length);
+  const [rotate, setRotate] = useState(0);
+  const applyEuclid = (h: number, r: number) => {
+    setHits(h);
+    setRotate(r);
+    onEuclid(euclid(h, stepCount, r));
+  };
   useEffect(() => {
     const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
     document.addEventListener('mousedown', close);
@@ -214,6 +252,20 @@ function VoiceContextMenu({ voice, x, y, onUpdate, onClearRow, onClose }: VoiceM
         <input type="range" min={0.2} max={2.0} step={0.1} value={voice.decay}
           className="w-full" style={{ accentColor: voice.color }}
           onChange={(e) => onUpdate({ decay: +e.target.value })} />
+      </Label>
+      <div className="text-xs text-neutral-500 tracking-widest mt-1 mb-1 border-t border-neutral-800 pt-2"
+        title="Spread a number of hits as evenly as possible over the bar — the rhythms of much of the world's music">
+        EUCLIDEAN
+      </div>
+      <Label label="HITS" value={`${hits} / ${stepCount}`}>
+        <input type="range" min={0} max={stepCount} step={1} value={hits}
+          className="w-full" style={{ accentColor: voice.color }}
+          onChange={(e) => applyEuclid(+e.target.value, rotate)} />
+      </Label>
+      <Label label="ROTATE" value={rotate}>
+        <input type="range" min={0} max={stepCount - 1} step={1} value={rotate}
+          className="w-full" style={{ accentColor: voice.color }}
+          onChange={(e) => applyEuclid(hits, +e.target.value)} />
       </Label>
       <button
         onClick={onClearRow}
@@ -292,25 +344,36 @@ function VoiceRow({
         {voice.steps.map((step, i) => {
           const isCurrent = isPlaying && i === currentStep;
           const groupStart = i % 4 === 0 && i !== 0;
+          const chance = step.chance ?? 1;
+          const hits = ratchetCount(step.ratchet);
+          const fill = isCurrent ? 'var(--color-neutral-50)' : voice.color;
+          const extra = [chance < 1 ? `${Math.round(chance * 100)}% chance` : '', hits > 1 ? `${hits} hits` : ''].filter(Boolean).join(', ');
           return (
             <button
               key={i}
-              title="Left-click to toggle · Right-click for velocity/pitch"
-              aria-label={`${voice.name} step ${i + 1}`}
+              title="Left-click to toggle · Right-click for velocity, pitch, chance and repeats"
+              aria-label={`${voice.name} step ${i + 1}${step.active && extra ? `, ${extra}` : ''}`}
               aria-pressed={step.active}
               onClick={() => onToggleStep(i)}
               onContextMenu={(e) => { e.preventDefault(); if (step.active) onStepRightClick(i, step, e.clientX, e.clientY); }}
-              className={`w-6 h-6 border transition-colors ${groupStart ? 'ml-1' : ''}`}
+              className={`relative w-6 h-6 border transition-colors ${groupStart ? 'ml-1' : ''}`}
               style={{
-                backgroundColor: step.active
-                  ? isCurrent ? 'var(--color-neutral-50)' : voice.color
+                // A step that only sometimes plays is filled only partly
+                background: step.active
+                  ? chance < 1 ? `linear-gradient(to top, ${fill} ${Math.round(chance * 100)}%, transparent ${Math.round(chance * 100)}%)` : fill
                   : isCurrent ? 'var(--color-neutral-700)' : 'transparent',
                 borderColor: step.active
                   ? voice.color
                   : isCurrent ? 'var(--color-neutral-600)' : 'var(--color-neutral-800)',
                 opacity: !audible ? 0.4 : step.active && step.velocity < 80 ? 0.75 : 1,
               }}
-            />
+            >
+              {step.active && hits > 1 && (
+                <span aria-hidden className="absolute inset-x-0 top-0.5 flex justify-center gap-px">
+                  {Array.from({ length: hits }, (_, k) => <span key={k} className="w-1 h-1 rounded-full bg-[var(--surface-0)]" />)}
+                </span>
+              )}
+            </button>
           );
         })}
       </div>
@@ -333,6 +396,39 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
 
   const pattern = state.patterns.find((p) => p.id === state.activePatternId)
     ?? state.patterns[0];
+
+  // ── Generator ──
+  const [genMenu, setGenMenu] = useState<{ x: number; y: number } | null>(null);
+  const addGenerated = (p: DrumPattern, what: string) => {
+    dispatch({ type: 'DRUM_ADD_PATTERNS', patterns: [p], activate: true });
+    notify(`${what} “${p.name}”.`);
+  };
+  const numbered = (base: string) => {
+    let n = 1;
+    while (state.patterns.some((p) => p.name === `${base} ${n}`)) n++;
+    return `${base} ${n}`;
+  };
+  const genItems = (): MenuItem[] => {
+    const seed = Date.now() & 0x7fffffff;
+    const barSteps = Math.min(16, appState.sequencer.beatsPerBar * 4);
+    return [
+      {
+        label: 'New pattern',
+        submenu: DRUM_STYLES.map((st, i) => ({
+          label: st.name, hint: `${st.genre} · around ${st.bpm} BPM`,
+          onSelect: () => addGenerated(generateDrumPattern(st.id, seed + i, 0.35 + ((seed >> 3) % 40) / 100, numbered(st.name)), 'Generated'),
+        })),
+      },
+      { label: 'Vary this pattern', onSelect: () => addGenerated(varyPattern(pattern, seed, 0.4, numbered(`${pattern.name} var`)), 'Added variation') },
+      {
+        label: 'Fill from this pattern',
+        submenu: FILL_KINDS.map((kind) => ({
+          label: FILL_NAMES[kind],
+          onSelect: () => addGenerated(makeFill(pattern, seed, { kind, barSteps, name: numbered(`${pattern.name} fill`) }), 'Added fill'),
+        })),
+      },
+    ];
+  };
 
   const effectiveBpm = state.syncBpm ? appState.sequencer.bpm : state.bpm;
 
@@ -483,6 +579,16 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
           className="px-2 py-0.5 text-xs border border-neutral-700 text-neutral-500 hover:text-red-400 hover:border-red-800"
         >CLR</button>
 
+        {/* Generator */}
+        <button
+          onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setGenMenu({ x: r.left, y: r.bottom + 2 }); }}
+          title="Generate a pattern in a style, a variation of this one, or a fill"
+          aria-label="Generate drum pattern"
+          aria-haspopup="menu"
+          data-testid="drum-generate"
+          className="px-2 py-0.5 text-xs border border-neutral-700 text-neutral-400 hover:text-neutral-200 hover:border-neutral-500 tracking-widest"
+        >GEN ▾</button>
+
         <div className="ml-auto flex items-center gap-2">
           {/* BPM */}
           <div className="flex items-center gap-1">
@@ -602,10 +708,15 @@ export function DrumMachine({ usedBy, boundClipLabel }: DrumMachineProps = {}) {
           onClose={closeMenus}
         />
       )}
+      {genMenu && <ContextMenu x={genMenu.x} y={genMenu.y} title="Generate" items={genItems()} onClose={() => setGenMenu(null)} />}
       {voiceMenu && (
         <VoiceContextMenu
           voice={voiceMenu.voice}
+          stepCount={pattern.stepCount}
           x={voiceMenu.x} y={voiceMenu.y}
+          onEuclid={(row) => dispatch({
+            type: 'DRUM_SET_ROW', patternId: pattern.id, voiceId: voiceMenu.voice.id as DrumVoiceType, active: row,
+          })}
           onUpdate={(params) => {
             dispatch({
               type: 'DRUM_SET_VOICE_PARAMS',

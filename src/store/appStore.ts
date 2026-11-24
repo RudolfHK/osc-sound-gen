@@ -119,6 +119,11 @@ export type Action =
   | { type: 'CLIPS_MOVE'; clipIds: string[]; deltaBeats: number }
   | { type: 'CLIPS_PASTE'; items: ClipCopy[]; atBeat: number; trackId?: string | null }
   | { type: 'CLIP_SET_COLOR'; clipIds: string[]; color: string | null }
+  /**
+   * Put a clip over [startBeat, endBeat) on a track, cutting whatever clips
+   * were there (a fill bar dropped into a running drum loop).
+   */
+  | { type: 'CLIP_REPLACE_RANGE'; trackId: string; startBeat: number; endBeat: number; patternId: string; clipId?: string }
   | { type: 'PATTERN_RENAME'; patternId: string; name: string }
   | { type: 'PATTERN_SET_LENGTH'; patternId: string; lengthBeats: number }
   // ── Notes (within a pattern) ─────────────────────────────────────────────────
@@ -840,6 +845,30 @@ export function reducer(state: AppState, action: Action): AppState {
       return fitSongLength(next);
     }
 
+    case 'CLIP_REPLACE_RANGE': {
+      const track = seq.tracks.find((t) => t.id === action.trackId);
+      const [a, b] = [Math.max(0, action.startBeat), action.endBeat];
+      if (!track || b - a < 0.25) return state;
+      const clips: Clip[] = [];
+      for (const c of track.clips) {
+        const cEnd = c.startBeat + c.lengthBeats;
+        if (cEnd <= a + 1e-9 || c.startBeat >= b - 1e-9) { clips.push(c); continue; }
+        // The part before the range keeps the clip's identity…
+        if (c.startBeat < a - 1e-9) clips.push({ ...c, lengthBeats: a - c.startBeat });
+        // …the part after continues the pattern from where it would have been
+        if (cEnd > b + 1e-9) {
+          clips.push({
+            ...c, id: c.startBeat < a - 1e-9 ? uid('clip') : c.id,
+            startBeat: b, lengthBeats: cEnd - b, offsetBeats: c.offsetBeats + (b - c.startBeat),
+          });
+        }
+      }
+      clips.push({ id: action.clipId ?? uid('clip'), patternId: action.patternId, startBeat: a, lengthBeats: b - a, offsetBeats: 0, muted: false });
+      clips.sort((x, y) => x.startBeat - y.startBeat);
+      const next = seqUpdate(state, { tracks: seq.tracks.map((t) => (t.id === track.id ? { ...t, clips } : t)) });
+      return fitSongLength(seqUpdate(next, sanitizeSelection(next.sequencer)));
+    }
+
     case 'CLIP_SET_COLOR': {
       const ids = new Set(action.clipIds);
       return seqUpdate(state, {
@@ -1439,6 +1468,7 @@ const UNDO_LABELS: Partial<Record<Action['type'], string>> = {
   CLIPS_MOVE: 'Move clips',
   CLIPS_PASTE: 'Paste clips',
   CLIP_SET_COLOR: 'Clip colour',
+  CLIP_REPLACE_RANGE: 'Add fill',
   SEQ_ADD_NOTE: 'Add note',
   SEQ_REMOVE_NOTE: 'Delete note',
   SEQ_MOVE_NOTE: 'Move notes',

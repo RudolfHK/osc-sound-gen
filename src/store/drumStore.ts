@@ -9,7 +9,14 @@ export interface DrumStep {
   velocity: number;  // 1–127
   pitch: number;     // -12 to +12 semitones
   decay: number;     // 0.2–2.0 multiplier
+  /** Probability the step plays, 0–1 (absent = always). */
+  chance?: number;
+  /** Hits fired within the step, 1–4 (absent = 1): 2 = 32nds, 3 = triplets, 4 = 64ths. */
+  ratchet?: number;
 }
+
+/** What the step-parameter popover can change. */
+export type DrumStepParams = Partial<Pick<DrumStep, 'velocity' | 'pitch' | 'decay' | 'chance' | 'ratchet'>>;
 
 export interface DrumVoiceConfig {
   id: DrumVoiceType;
@@ -62,7 +69,11 @@ export type DrumAction =
   | { type: 'DRUM_SET_ACTIVE_PATTERN'; id: string }
   | { type: 'DRUM_SET_VOICE_FILTER'; filter: VoiceGroup | 'ALL' }
   | { type: 'DRUM_TOGGLE_STEP'; patternId: string; voiceId: DrumVoiceType; stepIndex: number }
-  | { type: 'DRUM_SET_STEP_PARAMS'; patternId: string; voiceId: DrumVoiceType; stepIndex: number; params: Partial<Pick<DrumStep, 'velocity' | 'pitch' | 'decay'>> }
+  | { type: 'DRUM_SET_STEP_PARAMS'; patternId: string; voiceId: DrumVoiceType; stepIndex: number; params: DrumStepParams }
+  /** Replace which steps of one voice are on (Euclidean fill); kept steps keep their settings. */
+  | { type: 'DRUM_SET_ROW'; patternId: string; voiceId: DrumVoiceType; active: boolean[] }
+  /** Add ready-made patterns (generator, variation, fill) to the library. */
+  | { type: 'DRUM_ADD_PATTERNS'; patterns: DrumPattern[]; activate?: boolean }
   | { type: 'DRUM_SET_VOICE_PARAMS'; patternId: string; voiceId: DrumVoiceType; params: Partial<Omit<DrumVoiceConfig, 'id' | 'name' | 'steps' | 'color'>> }
   | { type: 'DRUM_SET_SWING'; patternId: string; swing: number }
   | { type: 'DRUM_SET_STEP_COUNT'; patternId: string; steps: 16 | 32 }
@@ -162,6 +173,55 @@ function makeVoice(
 // with pattern ids already saved in localStorage and referenced by drum clips.
 function pid(): string {
   return `dp-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/** One hit in a generated pattern. */
+export interface HitSpec {
+  step: number;
+  velocity?: number;
+  chance?: number;
+  ratchet?: number;
+}
+
+/**
+ * Build a full pattern (every voice present) from per-voice hit lists — used
+ * by the pattern generator, variations, fills and transitions.
+ */
+export function patternFromHits(
+  name: string,
+  genre: string,
+  stepCount: 16 | 32,
+  swing: number,
+  hits: Partial<Record<DrumVoiceType, HitSpec[]>>,
+): DrumPattern {
+  return {
+    id: pid(), name, genre, stepCount, swing,
+    voices: VOICE_META.map((meta) => {
+      const voice = makeVoice(meta, stepCount);
+      for (const h of hits[meta.id] ?? []) {
+        if (h.step < 0 || h.step >= stepCount) continue;
+        voice.steps[h.step] = {
+          ...makeStep(true, Math.max(1, Math.min(127, Math.round(h.velocity ?? 100)))),
+          ...(h.chance !== undefined && h.chance < 1 ? { chance: h.chance } : {}),
+          ...(h.ratchet !== undefined && h.ratchet > 1 ? { ratchet: h.ratchet } : {}),
+        };
+      }
+      return voice;
+    }),
+  };
+}
+
+/** The hits of a pattern, per voice — the inverse of `patternFromHits`. */
+export function hitsOf(p: DrumPattern): Partial<Record<DrumVoiceType, HitSpec[]>> {
+  const out: Partial<Record<DrumVoiceType, HitSpec[]>> = {};
+  for (const v of p.voices) {
+    const list: HitSpec[] = [];
+    v.steps.forEach((s, step) => {
+      if (s.active && step < p.stepCount) list.push({ step, velocity: s.velocity, chance: s.chance, ratchet: s.ratchet });
+    });
+    if (list.length) out[v.id] = list;
+  }
+  return out;
 }
 
 /** `hits` maps a voice to its accented steps; `ghosts` to low-velocity steps. */
@@ -502,6 +562,29 @@ export function drumReducer(state: DrumMachineState, action: DrumAction): DrumMa
         }))
       );
 
+    case 'DRUM_SET_ROW':
+      return patchPattern(state, action.patternId, (p) =>
+        patchVoice(p, action.voiceId, (v) => ({
+          ...v,
+          steps: v.steps.map((s, i) => {
+            const on = !!action.active[i];
+            return on === s.active ? s : { ...s, active: on };
+          }),
+        }))
+      );
+
+    case 'DRUM_ADD_PATTERNS': {
+      if (!action.patterns.length) return state;
+      const ids = new Set(state.patterns.map((p) => p.id));
+      const fresh = action.patterns.filter((p) => !ids.has(p.id));
+      if (!fresh.length) return state;
+      return {
+        ...state,
+        patterns: [...state.patterns, ...fresh],
+        activePatternId: action.activate ? fresh[0].id : state.activePatternId,
+      };
+    }
+
     case 'DRUM_SET_VOICE_PARAMS':
       return patchPattern(state, action.patternId, (p) =>
         patchVoice(p, action.voiceId, (v) => ({ ...v, ...action.params }))
@@ -616,6 +699,11 @@ export function drumUndoKey(a: DrumAction): string | null | undefined {
     case 'DRUM_SET_STEP_PARAMS': return `drum-step:${a.patternId}:${a.voiceId}:${a.stepIndex}:${keys(a.params)}`;
     case 'DRUM_SET_VOICE_PARAMS': return `drum-voice:${a.patternId}:${a.voiceId}:${keys(a.params)}`;
     case 'DRUM_SET_SWING': return `drum-swing:${a.patternId}`;
+    // One Euclidean gesture (dragging hits or rotation) is one undo step
+    case 'DRUM_SET_ROW': return `drum-row:${a.patternId}:${a.voiceId}`;
+    // Keyed by the first pattern, so a caller that also adds clips for these
+    // patterns can record the step first and have both share it
+    case 'DRUM_ADD_PATTERNS': return `drum-add:${a.patterns[0]?.id ?? ''}`;
     case 'DRUM_RENAME_PATTERN': return `drum-name:${a.patternId}`;
     case 'DRUM_SET_STEP_COUNT':
     case 'DRUM_MUTE_VOICE':
@@ -639,6 +727,8 @@ const DRUM_UNDO_LABELS: Partial<Record<DrumAction['type'], string>> = {
   DRUM_SET_STEP_PARAMS: 'Drum step',
   DRUM_SET_VOICE_PARAMS: 'Drum voice',
   DRUM_SET_SWING: 'Swing',
+  DRUM_SET_ROW: 'Euclidean rhythm',
+  DRUM_ADD_PATTERNS: 'New drum pattern',
   DRUM_RENAME_PATTERN: 'Rename drum pattern',
   DRUM_SET_STEP_COUNT: 'Drum step count',
   DRUM_MUTE_VOICE: 'Mute drum voice',

@@ -16,6 +16,7 @@
 
 import type { Clip, Pattern, SequencerNote, Track } from '../utils/music';
 import type { DrumPattern, DrumStep, DrumVoiceConfig } from '../store/drumStore';
+import { ratchetCount, stepPlays } from '../utils/rhythm';
 
 // ─── Loop mapping ─────────────────────────────────────────────────────────────
 
@@ -229,12 +230,20 @@ export function eventsInSegment(input: TimelineInput, seg: Segment): TimelineEve
           for (let i = 0; i < voice.steps.length && i < dp.stepCount; i++) {
             const step = voice.steps[i];
             if (!step.active) continue;
+            const hits = ratchetCount(step.ratchet);
+            const swingBeats = i % 2 === 1 ? dp.swing * STEP_BEATS * 0.5 : 0;
             for (const at of occurrences(clip, P, i * STEP_BEATS, s0, s1)) {
-              out.push({
-                kind: 'drum', track, voice, step,
-                songBeat: at, monoBeat: at + offset,
-                swingBeats: i % 2 === 1 ? dp.swing * STEP_BEATS * 0.5 : 0,
-              });
+              // Probability is decided per occurrence, the same way every time
+              if (!stepPlays(step.chance, clip.id, voice.id, i, Math.round(at * 1000))) continue;
+              for (let r = 0; r < hits; r++) {
+                // A ratchet splits the step into equal hits, all inside the clip
+                const hitAt = at + (r * STEP_BEATS) / hits;
+                if (hitAt >= clipEnd - 1e-9) break;
+                out.push({
+                  kind: 'drum', track, voice, step,
+                  songBeat: hitAt, monoBeat: hitAt + offset, swingBeats,
+                });
+              }
             }
           }
         }

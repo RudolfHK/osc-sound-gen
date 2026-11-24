@@ -3,6 +3,8 @@ import { useAppStore, useAccent, findClip, selectedClips } from '../store/appSto
 import { useDrumStore } from '../store/drumStore';
 import { useClipActions, hasClipboard } from './useClipActions';
 import { promptDialog } from '../ui/kit/dialogs';
+import { makeFill } from '../utils/drumGen';
+import { requestUndoStep } from '../store/history';
 import { PRESETS_BY_ID } from '../engine/instruments';
 import { AUTOMATION_TARGETS, AUTOMATION_TARGET_LIST } from '../engine/automation';
 import { getPlayhead, subscribePlayhead } from '../engine/playhead';
@@ -411,6 +413,34 @@ export function ArrangementView({ onSeek, openDock }: Props) {
     return { x, y, items, title: `${ids.length} clips selected` };
   };
 
+  /**
+   * A fill in the last bar before every section, made from whichever pattern
+   * the track plays there. One undo step covers the new patterns and clips.
+   */
+  const addFills = (track: Track) => {
+    const s = seqRef.current;
+    const bar = s.beatsPerBar;
+    const plan: { start: number; end: number; pattern: ReturnType<typeof makeFill> }[] = [];
+    const seed = Date.now() & 0x7fffffff;
+    s.markers.filter((m) => m.beat >= bar).forEach((m, i) => {
+      const start = m.beat - bar;
+      const clip = track.clips.find((c) => c.startBeat <= start + 1e-6 && start < c.startBeat + c.lengthBeats - 1e-6);
+      const base = clip && drumPatterns.get(clip.patternId);
+      if (!base) return;
+      plan.push({ start, end: m.beat, pattern: makeFill(base, seed + i * 7919, { barSteps: Math.min(16, bar * 4), name: `${base.name} fill ${i + 1}` }) });
+    });
+    if (!plan.length) {
+      notify('No fills added: the track has no drum clip in the bar before any section.', 'warn');
+      return;
+    }
+    const patterns = plan.map((p) => p.pattern);
+    requestUndoStep(`drum-add:${patterns[0].id}`, 'Add fills');
+    drumDispatch({ type: 'DRUM_ADD_PATTERNS', patterns });
+    for (const p of plan) dispatch({ type: 'CLIP_REPLACE_RANGE', trackId: track.id, startBeat: p.start, endBeat: p.end, patternId: p.pattern.id });
+    notify(`Added ${plan.length} fill${plan.length === 1 ? '' : 's'} on “${track.name}”, one before each section.`, 'info',
+      { label: 'Undo', run: () => dispatch({ type: 'SEQ_UNDO' }) });
+  };
+
   // ── Track header menu ──
   const trackMenu = (track: Track, x: number, y: number) => {
     const idx = seq.tracks.findIndex((t) => t.id === track.id);
@@ -428,6 +458,7 @@ export function ArrangementView({ onSeek, openDock }: Props) {
         },
       ] : [
         { label: 'Edit drum patterns', onSelect: () => { dispatch({ type: 'TRACK_SELECT', trackId: track.id }); openDock('editor'); } },
+        { label: 'Add fills before each section', disabled: seq.markers.length < 2, onSelect: () => addFills(track) },
       ]),
       {
         label: 'Colour', submenu: TRACK_COLORS.map((c) => ({
