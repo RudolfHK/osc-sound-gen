@@ -80,7 +80,7 @@ export function useDocumentTracking(): void {
   // Cheap enough to run after every render: a short array of references
   useEffect(() => {
     trackDocument([
-      seq.tracks, seq.patterns, seq.markers,
+      seq.tracks, seq.patterns, seq.markers, seq.chords, seq.songKey,
       seq.bpm, seq.beatsPerBar, seq.songLengthBars,
       seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat,
       state.projectName, state.masterVolume,
@@ -140,7 +140,8 @@ export function useProjectActions() {
       songLengthBars: seq.songLengthBars,
       loop: { enabled: seq.loopEnabled, startBeat: seq.loopStartBeat, endBeat: seq.loopEndBeat },
       masterVolume: state.masterVolume,
-      doc: { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers },
+      doc: { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers, chords: seq.chords },
+      songKey: seq.songKey,
       allDrumPatterns: drumState.patterns,
       allOscillators: state.tabs,
       effects: effectsSettingsOf(fxState),

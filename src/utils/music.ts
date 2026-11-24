@@ -1,5 +1,7 @@
 // ─── Snap values ─────────────────────────────────────────────────────────────
 
+import type { ChordMark, SongKey } from './harmony';
+
 export type SnapValue = '1/1' | '1/2' | '1/4' | '1/8' | '1/16' | '1/32';
 
 /** Each snap value expressed in beats (assumes denominator = beat unit) */
@@ -182,6 +184,8 @@ export interface SongSettings {
   loopEnabled: boolean;
   loopStartBeat: number;
   loopEndBeat: number;
+  /** The song's key, when chosen; null means it's detected from the notes. */
+  songKey: SongKey | null;
 }
 
 /**
@@ -204,6 +208,8 @@ export interface DocSnapshot {
   tracks: Track[];
   patterns: Record<string, Pattern>;
   markers: Marker[];
+  /** The chord track: one chord per change, each lasting until the next. */
+  chords: ChordMark[];
 }
 
 // ─── IDs ──────────────────────────────────────────────────────────────────────
@@ -342,6 +348,9 @@ export interface SequencerState {
   tracks: Track[];
   patterns: Record<string, Pattern>;
   markers: Marker[];
+  chords: ChordMark[];
+  /** Chosen key, or null to detect it from the notes. */
+  songKey: SongKey | null;
   selectedTrackId: string | null;
   selectedClipId: string | null;
   /**
@@ -388,6 +397,8 @@ export function makeDefaultSequencerState(): SequencerState {
     tracks: [],
     patterns: {},
     markers: [],
+    chords: [],
+    songKey: null,
     selectedTrackId: null,
     selectedClipId: null,
     selectedClipIds: [],

@@ -4,8 +4,11 @@ export const HEADER_W = 236;
 export const TRACK_H = 58;
 export const AUTO_H = 76;
 export const RULER_SECTION_H = 20;
+export const RULER_CHORDS_H = 18;
 export const RULER_BARS_H = 22;
-export const RULER_H = RULER_SECTION_H + RULER_BARS_H;
+export const RULER_H = RULER_SECTION_H + RULER_CHORDS_H + RULER_BARS_H;
+/** Where the bar row starts (below sections and chords). */
+export const RULER_BARS_TOP = RULER_SECTION_H + RULER_CHORDS_H;
 /** Pixels from a clip edge that count as grabbing the edge. */
 export const EDGE_PX = 6;
 

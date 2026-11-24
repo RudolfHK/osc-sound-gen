@@ -41,8 +41,9 @@ import { notify } from '../ui/notices';
 import { accentFor, useTheme } from '../ui/theme';
 import { makeLaneId, makePointId, withPoint } from '../engine/automation';
 import { transformLabel, transformNotes, type NoteTransform } from '../utils/transforms';
+import { chordAt, type ChordMark, type SongKey } from '../utils/harmony';
 import {
-  isLegacyTrackList, makeStarterDoc, migrateLegacySequencer,
+  isLegacyTrackList, makeStarterDoc, migrateLegacySequencer, parseChords,
   type LoadedProject, type LegacyTrack,
 } from '../utils/project';
 
@@ -152,6 +153,14 @@ export type Action =
   | { type: 'SEQ_MOVE_POINT'; trackId: string; laneId: string; pointId: string; beat: number; value: number }
   | { type: 'SEQ_REMOVE_POINT'; trackId: string; laneId: string; pointId: string }
   | { type: 'SEQ_CLEAR_LANE'; trackId: string; laneId: string }
+  // ── Chord track ──────────────────────────────────────────────────────────────
+  /** Put a chord at `beat` (replacing one that starts there). */
+  | { type: 'CHORD_SET'; beat: number; chord: Pick<ChordMark, 'root' | 'quality' | 'bass'> }
+  | { type: 'CHORD_UPDATE'; id: string; patch: Partial<Omit<ChordMark, 'id'>> }
+  | { type: 'CHORD_REMOVE'; id: string }
+  /** Replace every chord in [fromBeat, toBeat) — a progression or detected chords. */
+  | { type: 'CHORDS_REPLACE'; fromBeat: number; toBeat: number; chords: Omit<ChordMark, 'id'>[] }
+  | { type: 'SEQ_SET_KEY'; key: SongKey | null }
   // ── Sections (markers) ───────────────────────────────────────────────────────
   | { type: 'MARKER_ADD'; beat: number; name?: string }
   | { type: 'MARKER_UPDATE'; id: string; patch: Partial<Omit<Marker, 'id'>> }
@@ -283,13 +292,14 @@ function patchClip(state: AppState, clipId: string, fn: (c: Clip, t: Track) => C
 const isDrumTrack = (t: Track) => t.source.type === 'drums';
 
 function docOf(seq: SequencerState): DocSnapshot {
-  return { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers };
+  return { tracks: seq.tracks, patterns: seq.patterns, markers: seq.markers, chords: seq.chords };
 }
 
 function songOf(seq: SequencerState): SongSettings {
   return {
     bpm: seq.bpm, beatsPerBar: seq.beatsPerBar, songLengthBars: seq.songLengthBars,
     loopEnabled: seq.loopEnabled, loopStartBeat: seq.loopStartBeat, loopEndBeat: seq.loopEndBeat,
+    songKey: seq.songKey,
   };
 }
 
@@ -299,7 +309,8 @@ function entryOf(seq: SequencerState, extras: Record<string, unknown> = {}): Und
 
 /** Would recording `b` after `a` undo nothing? */
 function sameEntry(a: UndoEntry, b: UndoEntry): boolean {
-  if (a.doc.tracks !== b.doc.tracks || a.doc.patterns !== b.doc.patterns || a.doc.markers !== b.doc.markers) return false;
+  if (a.doc.tracks !== b.doc.tracks || a.doc.patterns !== b.doc.patterns || a.doc.markers !== b.doc.markers
+    || a.doc.chords !== b.doc.chords) return false;
   for (const k of Object.keys(a.song) as (keyof SongSettings)[]) if (a.song[k] !== b.song[k]) return false;
   const keys = new Set([...Object.keys(a.extras), ...Object.keys(b.extras)]);
   for (const k of keys) if (a.extras[k] !== b.extras[k]) return false;
@@ -342,8 +353,8 @@ function fitSongLength(state: AppState): AppState {
   return bars > seq.songLengthBars ? seqUpdate(state, { songLengthBars: bars }) : state;
 }
 
-/** Shift every clip, automation point and marker at/after `fromBeat` by `delta`. */
-function shiftTimeline(seq: SequencerState, fromBeat: number, delta: number): Pick<SequencerState, 'tracks' | 'markers'> {
+/** Shift every clip, automation point, marker and chord at/after `fromBeat` by `delta`. */
+function shiftTimeline(seq: SequencerState, fromBeat: number, delta: number): Pick<SequencerState, 'tracks' | 'markers' | 'chords'> {
   return {
     tracks: seq.tracks.map((t) => ({
       ...t,
@@ -354,7 +365,22 @@ function shiftTimeline(seq: SequencerState, fromBeat: number, delta: number): Pi
       })),
     })),
     markers: seq.markers.map((m) => (m.beat >= fromBeat ? { ...m, beat: m.beat + delta } : m)),
+    chords: seq.chords.map((c) => (c.beat >= fromBeat ? { ...c, beat: c.beat + delta } : c)),
   };
+}
+
+const sortChords = (chords: ChordMark[]) => [...chords].sort((a, b) => a.beat - b.beat);
+
+/**
+ * The chords left when [from, to) is cut out (before the gap closes). The
+ * chord sounding where the cut ends carries on: if it started inside the cut,
+ * it is restated at the cut's end, so what follows keeps its harmony.
+ */
+function sectionDeleteChords(chords: ChordMark[], from: number, to: number): ChordMark[] {
+  const held = chordAt(sortChords(chords), to);
+  const kept = chords.filter((c) => !(c.beat >= from && c.beat < to));
+  if (held && held.beat >= from && held.beat < to) kept.push({ ...held, id: uid('ch'), beat: to });
+  return sortChords(kept);
 }
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -1109,9 +1135,18 @@ export function reducer(state: AppState, action: Action): AppState {
         return { ...t, clips: [...t.clips, ...copies], lanes };
       });
       const copyMarker: Marker = { ...sec, id: uid('mk'), beat: sec.endBeat, name: nextName(sec.name, {}) };
+      // The section's chords come along; a chord held into the section is
+      // restated where the copy starts
+      const inside = seq.chords.filter((c) => c.beat >= sec.beat && c.beat < sec.endBeat);
+      const held = chordAt(sortChords(seq.chords), sec.beat);
+      const chordCopies = [
+        ...(held && held.beat < sec.beat ? [{ ...held, beat: sec.beat }] : []),
+        ...inside,
+      ].map((c) => ({ ...c, id: uid('ch'), beat: c.beat + len }));
       const next = seqUpdate(state, {
         tracks,
         patterns,
+        chords: sortChords([...shifted.chords, ...chordCopies]),
         markers: [...shifted.markers, { id: copyMarker.id, beat: copyMarker.beat, name: copyMarker.name, color: copyMarker.color }]
           .sort((a, b) => a.beat - b.beat),
         songLengthBars: seq.songLengthBars + Math.ceil(len / seq.beatsPerBar),
@@ -1135,15 +1170,49 @@ export function reducer(state: AppState, action: Action): AppState {
           })),
         })),
         markers: seq.markers.filter((m) => m.id !== sec.id),
+        chords: sectionDeleteChords(seq.chords, sec.beat, sec.endBeat),
       };
       const shifted = len > 0 ? shiftTimeline(pruned, sec.endBeat, -len) : pruned;
       const next = seqUpdate(state, {
         tracks: shifted.tracks,
         markers: shifted.markers,
+        chords: shifted.chords,
         songLengthBars: Math.max(1, seq.songLengthBars - Math.floor(len / seq.beatsPerBar)),
       });
       return seqUpdate(next, sanitizeSelection(next.sequencer));
     }
+
+    // ── Chord track ─────────────────────────────────────────────────────────────
+
+    case 'CHORD_SET': {
+      const beat = Math.max(0, action.beat);
+      const chord: ChordMark = { id: uid('ch'), beat, root: action.chord.root, quality: action.chord.quality };
+      if (action.chord.bass !== undefined && action.chord.bass !== action.chord.root) chord.bass = action.chord.bass;
+      const others = seq.chords.filter((c) => Math.abs(c.beat - beat) > 1e-6);
+      return seqUpdate(state, { chords: sortChords([...others, chord]) });
+    }
+
+    case 'CHORD_UPDATE': {
+      const target = seq.chords.find((c) => c.id === action.id);
+      if (!target) return state;
+      const moved = { ...target, ...action.patch, beat: Math.max(0, action.patch.beat ?? target.beat) };
+      if (moved.bass === moved.root) delete moved.bass;
+      // Moving a chord onto another replaces that one
+      const others = seq.chords.filter((c) => c.id !== action.id && Math.abs(c.beat - moved.beat) > 1e-6);
+      return seqUpdate(state, { chords: sortChords([...others, moved]) });
+    }
+
+    case 'CHORD_REMOVE':
+      return seqUpdate(state, { chords: seq.chords.filter((c) => c.id !== action.id) });
+
+    case 'CHORDS_REPLACE': {
+      const kept = seq.chords.filter((c) => c.beat < action.fromBeat - 1e-6 || c.beat >= action.toBeat - 1e-6);
+      const added = action.chords.map((c) => ({ ...c, id: uid('ch') }));
+      return seqUpdate(state, { chords: sortChords([...kept, ...added]) });
+    }
+
+    case 'SEQ_SET_KEY':
+      return seqUpdate(state, { songKey: action.key });
 
     // ── Undo / Redo ─────────────────────────────────────────────────────────────
 
@@ -1213,6 +1282,7 @@ export function reducer(state: AppState, action: Action): AppState {
           loopEnabled: p.loop.enabled,
           loopStartBeat: p.loop.startBeat,
           loopEndBeat: p.loop.endBeat,
+          songKey: p.songKey,
           isPlaying: false,
           playheadBeat: 0,
           selectedTrackId: p.doc.tracks[0]?.id ?? null,
@@ -1376,6 +1446,7 @@ export function restoreState(raw: string | null, legacyAssignmentsRaw: string | 
       }),
       patterns,
       markers: (savedSeq.markers ?? []) as Marker[],
+      chords: parseChords(savedSeq.chords),
     };
   } else {
     return init;
@@ -1435,6 +1506,12 @@ export function autoUndoKey(action: Action): string | null | undefined {
     case 'SEQ_SET_CHANNEL': return `channel:${action.trackId}:${keys(action.channel)}`;
     case 'SEQ_SET_ARP': return `arp:${action.trackId}:${keys(action.arp)}`;
     case 'MARKER_UPDATE': return `marker:${action.id}:${keys(action.patch)}`;
+    case 'CHORD_UPDATE': return `chord:${action.id}:${keys(action.patch)}`;
+    case 'CHORD_SET':
+    case 'CHORD_REMOVE':
+    case 'CHORDS_REPLACE':
+    case 'SEQ_SET_KEY':
+      return null;
     case 'TRACK_SET_PATCH': return action.patch === null ? null : `patch:${action.trackId}:${keys(action.patch)}`;
     case 'SEQ_SET_BPM': return 'bpm';
     case 'SEQ_SET_SONG_LENGTH': return 'song-length';
@@ -1464,6 +1541,11 @@ export function autoUndoKey(action: Action): string | null | undefined {
 
 const UNDO_LABELS: Partial<Record<Action['type'], string>> = {
   MARKER_UPDATE: 'Edit section',
+  CHORD_SET: 'Add chord',
+  CHORD_UPDATE: 'Edit chord',
+  CHORD_REMOVE: 'Remove chord',
+  CHORDS_REPLACE: 'Chords',
+  SEQ_SET_KEY: 'Key',
   SEQ_SET_BPM: 'Tempo',
   SEQ_SET_SONG_LENGTH: 'Song length',
   SEQ_SET_LOOP: 'Loop',

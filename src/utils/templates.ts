@@ -34,7 +34,7 @@ export function makeTemplate(project: LoadedProject, title: string): LoadedProje
     name: `Untitled (${title})`,
     songLengthBars: TEMPLATE_LOOP_BARS * 2,
     loop: { enabled: true, startBeat: 0, endBeat: loopBeats },
-    doc: { tracks, patterns: {}, markers: [] },
+    doc: { tracks, patterns: {}, markers: [], chords: [] },
     warnings: [],
   };
 }

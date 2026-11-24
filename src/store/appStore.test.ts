@@ -188,6 +188,94 @@ describe('sections', () => {
   });
 });
 
+describe('chord track', () => {
+  const C = { root: 0, quality: 'maj' as const };
+  const Am = { root: 9, quality: 'min' as const };
+  // Intro 0–16, Verse 16–32, Chorus from 32
+  const withMarkers = () => reducer(
+    reducer(fresh(), { type: 'MARKER_ADD', beat: 16, name: 'Verse' }),
+    { type: 'MARKER_ADD', beat: 32, name: 'Chorus' },
+  );
+
+  it('keeps one chord per beat, sorted, and drops a bass equal to the root', () => {
+    let s = fresh();
+    s = reducer(s, { type: 'CHORD_SET', beat: 8, chord: Am });
+    s = reducer(s, { type: 'CHORD_SET', beat: 0, chord: { ...C, bass: 0 } });
+    s = reducer(s, { type: 'CHORD_SET', beat: 8, chord: C }); // replaces Am
+    expect(s.sequencer.chords.map((c) => [c.beat, c.root])).toEqual([[0, 0], [8, 0]]);
+    expect(s.sequencer.chords[0].bass).toBeUndefined();
+  });
+
+  it('moving a chord onto another replaces it', () => {
+    let s = fresh();
+    s = reducer(s, { type: 'CHORD_SET', beat: 0, chord: C });
+    s = reducer(s, { type: 'CHORD_SET', beat: 4, chord: Am });
+    const am = s.sequencer.chords.find((c) => c.root === 9)!;
+    s = reducer(s, { type: 'CHORD_UPDATE', id: am.id, patch: { beat: 0 } });
+    expect(s.sequencer.chords).toHaveLength(1);
+    expect(s.sequencer.chords[0]).toMatchObject({ beat: 0, root: 9 });
+  });
+
+  it('replaces chords only inside the range', () => {
+    let s = fresh();
+    for (const beat of [0, 4, 8, 12]) s = reducer(s, { type: 'CHORD_SET', beat, chord: C });
+    s = reducer(s, { type: 'CHORDS_REPLACE', fromBeat: 4, toBeat: 12, chords: [{ beat: 4, ...Am }] });
+    expect(s.sequencer.chords.map((c) => [c.beat, c.root])).toEqual([[0, 0], [4, 9], [12, 0]]);
+  });
+
+  it('duplicating a section copies its chords, and the held chord carries into the copy', () => {
+    let s = withMarkers();
+    s = reducer(s, { type: 'CHORD_SET', beat: 0, chord: C });
+    s = reducer(s, { type: 'CHORD_SET', beat: 20, chord: Am }); // inside Verse, not at its start
+    const verse = s.sequencer.markers.find((m) => m.name === 'Verse')!;
+    s = reducer(s, { type: 'SECTION_DUPLICATE', markerId: verse.id });
+    // The copy starts on C (still sounding when Verse began), then Am four beats in
+    expect(s.sequencer.chords.map((c) => [c.beat, c.root])).toEqual([[0, 0], [20, 9], [32, 0], [36, 9]]);
+  });
+
+  it('deleting a section removes its chords, keeps the next section\'s harmony, and pulls later ones in', () => {
+    let s = withMarkers();
+    s = reducer(s, { type: 'CHORD_SET', beat: 4, chord: Am });  // held into Verse
+    s = reducer(s, { type: 'CHORD_SET', beat: 20, chord: C });
+    const intro = s.sequencer.markers.find((m) => m.beat === 0)!;
+    s = reducer(s, { type: 'SECTION_DELETE', markerId: intro.id });
+    expect(s.sequencer.chords.map((c) => [c.beat, c.root])).toEqual([[0, 9], [4, 0]]);
+  });
+
+  it('is part of the undo history', () => {
+    let s = fresh();
+    s = reducer(s, { type: 'SEQ_PUSH_UNDO' });
+    s = reducer(s, { type: 'CHORD_SET', beat: 0, chord: C });
+    s = reducer(s, { type: 'SEQ_UNDO' });
+    expect(s.sequencer.chords).toEqual([]);
+    s = reducer(s, { type: 'SEQ_REDO' });
+    expect(s.sequencer.chords).toHaveLength(1);
+  });
+
+  it('round-trips through a project file with the chosen key, and ignores bad entries', () => {
+    const s = fresh();
+    const chords = [{ id: 'a', beat: 0, root: 9, quality: 'm7' as const, bass: 4 }];
+    const file = serializeProject({
+      name: 'T', bpm: 120, beatsPerBar: 4, songLengthBars: 4,
+      loop: { enabled: false, startBeat: 0, endBeat: 16 }, masterVolume: 0.8,
+      doc: { tracks: s.sequencer.tracks, patterns: s.sequencer.patterns, markers: s.sequencer.markers, chords },
+      songKey: { tonic: 9, mode: 'minor' },
+      allDrumPatterns: [], allOscillators: s.tabs, effects: DEFAULT_EFFECTS,
+    });
+    const raw = JSON.parse(JSON.stringify(file));
+    raw.chords.push({ beat: 4, root: 99, quality: 'maj' }, { beat: 'x' }, null);
+    const loaded = parseProject(raw);
+    expect(loaded.doc.chords).toHaveLength(1);
+    expect(loaded.doc.chords[0]).toMatchObject({ beat: 0, root: 9, quality: 'm7', bass: 4 });
+    expect(loaded.songKey).toEqual({ tonic: 9, mode: 'minor' });
+    // Files from before the chord track load with none
+    delete raw.chords; delete raw.songKey;
+    const old = parseProject(raw);
+    expect(old.doc.chords).toEqual([]);
+    expect(old.songKey).toBeNull();
+  });
+});
+
 describe('undo', () => {
   it('skips no-op undo steps and restores the whole document', () => {
     let s = fresh();
@@ -297,7 +385,7 @@ describe('project files', () => {
 
   it('round-trips a v2 project, shipping only the drum patterns it uses', () => {
     const s = fresh();
-    const doc = { tracks: s.sequencer.tracks, patterns: s.sequencer.patterns, markers: s.sequencer.markers };
+    const doc = { tracks: s.sequencer.tracks, patterns: s.sequencer.patterns, markers: s.sequencer.markers, chords: [] };
     const drumTrack = doc.tracks[0];
     drumTrack.clips = [{ id: 'c', patternId: 'dp-used', startBeat: 0, lengthBeats: 4, offsetBeats: 0, muted: false }];
     const file = serializeProject({
@@ -326,7 +414,7 @@ describe('project files', () => {
     const file = serializeProject({
       name: 'T', bpm: 120, beatsPerBar: 4, songLengthBars: 4,
       loop: { enabled: false, startBeat: 0, endBeat: 16 }, masterVolume: 0.8,
-      doc: { tracks, patterns: {}, markers: [] },
+      doc: { tracks, patterns: {}, markers: [], chords: [] },
       allDrumPatterns: [], allOscillators: [],
       effects: { ...DEFAULT_EFFECTS, reverbSize: 5, delayDivision: '1/16' },
       // A library-wide edit to the same preset: baked in, the track's own value wins

@@ -17,7 +17,7 @@ import { getSettings, updateSettings, useSettings, type FollowMode } from '../st
 import { Ruler } from './Ruler';
 import { drawLane } from './drawLane';
 import {
-  HEADER_W, TRACK_H, AUTO_H, RULER_H, EDGE_PX,
+  HEADER_W, TRACK_H, AUTO_H, RULER_H, RULER_SECTION_H, RULER_CHORDS_H, RULER_BARS_H, EDGE_PX,
   beatToX, xToBeat, snapTo, arrangeGrid, type ArrView,
 } from './geometry';
 import {
@@ -511,11 +511,12 @@ export function ArrangementView({ onSeek, openDock }: Props) {
         {/* Ruler — sticks to the top while tracks scroll */}
         <div className="sticky top-0 z-20 flex bg-[var(--surface-0)]" style={{ height: RULER_H }}>
           <div
-            className="shrink-0 flex flex-col justify-end border-r border-b border-neutral-800 text-neutral-500 px-2 pb-1"
+            className="shrink-0 flex flex-col border-r border-b border-neutral-800 text-neutral-500 px-2"
             style={{ width: HEADER_W, fontSize: 11 }}
           >
-            <span className="tracking-widest">SECTIONS</span>
-            <span className="tracking-widest mt-1.5">BARS · LOOP</span>
+            <span className="tracking-widest flex items-center" style={{ height: RULER_SECTION_H }}>SECTIONS</span>
+            <span className="tracking-widest flex items-center" style={{ height: RULER_CHORDS_H }}>CHORDS</span>
+            <span className="tracking-widest flex items-center" style={{ height: RULER_BARS_H }}>BARS · LOOP</span>
           </div>
           <Ruler view={view} width={laneW} onSeek={onSeek} />
         </div>

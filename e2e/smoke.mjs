@@ -58,7 +58,7 @@ async function step(name, fn) {
     console.log(`  ✓ ${name}`);
   } catch (err) {
     results.push({ name, ok: false, err: err.message });
-    console.log(`  ✗ ${name}\n      ${err.message.split('\n')[0]}`);
+    console.log(`  ✗ ${name}\n      ${process.env.E2E_SHOTS ? err.message : err.message.split('\n')[0]}`);
     if (process.env.E2E_SHOTS) await globalThis.__shot?.(name);
   }
 }
@@ -300,6 +300,32 @@ try {
     assert(await redo.isDisabled(), 'redo should be disabled once history is replayed');
   });
 
+  await step('transforms move the clip\'s notes, as one named undo step', async () => {
+    const notesOf = async () => {
+      const seq = (await savedState()).sequencer;
+      const clip = seq.tracks[trackIndex.Keys].clips.find((c) => seq.patterns[c.patternId]?.notes.length === 3);
+      return seq.patterns[clip.patternId].notes.map((n) => n.midiNote).sort((a, b) => a - b);
+    };
+    const before = await notesOf();
+    // The last drawn note is selected: only it moves
+    await page.getByTestId('transform-button').click();
+    await page.getByRole('menuitem', { name: 'Transpose up an octave' }).click();
+    let after = await notesOf();
+    assert(after.filter((m, i) => m !== before[i]).length === 1, `only the selected note should move: ${before} → ${after}`);
+    await page.keyboard.press('Control+z');
+    // With nothing selected, the whole clip moves
+    await page.locator('canvas[aria-label^="Piano roll"]').focus();
+    await page.keyboard.press('Escape');
+    await page.getByTestId('transform-button').click();
+    await page.getByRole('menuitem', { name: 'Transpose up an octave' }).click();
+    after = await notesOf();
+    assert(after.every((m, i) => m === before[i] + 12), `not an octave up: ${before} → ${after}`);
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    assert(/Transpose/.test(await undo.getAttribute('aria-label')), `undo label: ${await undo.getAttribute('aria-label')}`);
+    await undo.click();
+    assert(String(await notesOf()) === String(before), 'undo did not put the notes back');
+  });
+
   await step('a drum clip can be placed on the drum track', async () => {
     const drums = page.locator('[data-lane-track]').nth(trackIndex.Drums);
     const box = await drums.boundingBox();
@@ -345,6 +371,69 @@ try {
     assert(await bpm.inputValue() === before, `tempo not restored (${await bpm.inputValue()} vs ${before})`);
   });
 
+  /** The drum machine's saved state, once its debounced save has landed. */
+  const savedDrums = () => page.evaluate(() => new Promise((r) => setTimeout(() => r(JSON.parse(localStorage.getItem('osc-drum-state'))), 700)));
+  const activeDrumPattern = (d) => d.patterns.find((p) => p.id === d.activePatternId);
+
+  await step('a drum step takes a chance and a ratchet; a row takes a Euclidean rhythm', async () => {
+    const stepBtn = page.getByRole('button', { name: /step 5(,|$)/ }).first();
+    const voiceName = (await stepBtn.getAttribute('aria-label')).replace(/ step 5.*$/, '');
+    const original = JSON.stringify(activeDrumPattern(await savedDrums()).voices);
+    if (await stepBtn.getAttribute('aria-pressed') !== 'true') await stepBtn.click();
+    await stepBtn.click({ button: 'right' });
+    const stepDialog = page.getByRole('dialog', { name: 'Step settings' });
+    await stepDialog.getByLabel(/^CHANCE/).fill('0.5');
+    await stepDialog.getByRole('group', { name: 'Repeat (ratchet)' }).getByRole('button', { name: '×3' }).click();
+    await page.keyboard.press('Escape');
+    await stepDialog.waitFor({ state: 'detached', timeout: 1000 });
+    let d = await savedDrums();
+    let voice = activeDrumPattern(d).voices.find((v) => v.name === voiceName);
+    assert(voice.steps[4].chance === 0.5 && voice.steps[4].ratchet === 3, `step 5: ${JSON.stringify(voice.steps[4])}`);
+    assert(/50%/.test(await stepBtn.getAttribute('aria-label')), `the step does not say its chance: ${await stepBtn.getAttribute('aria-label')}`);
+
+    // Right-click the row name: 3 hits spread over the bar
+    await page.getByRole('button', { name: voiceName, exact: true }).first().click({ button: 'right' });
+    const voiceDialog = page.getByRole('dialog', { name: `${voiceName} settings` });
+    await voiceDialog.getByLabel(/^HITS/).fill('3');
+    await page.keyboard.press('Escape');
+    await voiceDialog.waitFor({ state: 'detached', timeout: 1000 });
+    d = await savedDrums();
+    voice = activeDrumPattern(d).voices.find((v) => v.name === voiceName);
+    const on = voice.steps.map((s, i) => (s.active ? i : -1)).filter((i) => i >= 0);
+    assert(on.length === 3 && on[0] === 0, `Euclidean 3 hits: ${on}`);
+
+    // Every one of those edits undoes, back to the pattern as it was
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    for (let i = 0; i < 6 && JSON.stringify(activeDrumPattern(d).voices) !== original; i++) {
+      await undo.click();
+      d = await savedDrums();
+    }
+    assert(JSON.stringify(activeDrumPattern(d).voices) === original, 'undo did not restore the drum pattern');
+  });
+
+  await step('the drum generator adds a new pattern, a variation and a fill', async () => {
+    const before = (await savedDrums()).patterns.length;
+    await page.getByTestId('drum-generate').click();
+    await page.getByRole('menuitem', { name: /^New pattern/ }).hover();
+    await page.getByRole('menuitem').filter({ hasText: /BPM/ }).first().click();
+    await page.getByTestId('drum-generate').click();
+    await page.getByRole('menuitem', { name: 'Vary this pattern' }).click();
+    await page.getByTestId('drum-generate').click();
+    await page.getByRole('menuitem', { name: /^Fill from this pattern/ }).hover();
+    await page.getByRole('menuitem', { name: 'Tom run' }).click();
+    const d = await savedDrums();
+    assert(d.patterns.length === before + 3, `expected 3 new patterns, have ${d.patterns.length - before}`);
+    assert(/fill/.test(activeDrumPattern(d).name), `the fill is not the active pattern: ${activeDrumPattern(d).name}`);
+    const hits = activeDrumPattern(d).voices.reduce((n, v) => n + v.steps.filter((s) => s.active).length, 0);
+    assert(hits > 4, `the fill has only ${hits} hits`);
+    // Each generated pattern is one undo step; undoing all three puts the clip's pattern back
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    assert(/Add fill|New drum pattern/.test(await undo.getAttribute('aria-label')), `undo label: ${await undo.getAttribute('aria-label')}`);
+    for (let i = 0; i < 3; i++) await undo.click();
+    const back = await savedDrums();
+    assert(back.patterns.length === before, `undo left ${back.patterns.length - before} generated patterns`);
+  });
+
   let playingLevel = 0;
   await step('playback produces sound and the playhead moves', async () => {
     const before = await page.getByLabel('Song position').innerText();
@@ -373,10 +462,15 @@ try {
       await page.locator('[aria-pressed]').filter({ hasText: /^M$/ }).nth(i).click();
     }
     await page.waitForTimeout(150);
-    const muted = await page.evaluate(() => window.__level(600));
-    // Mute covers the whole track — its instrument's own reverb and delay too,
-    // which used to bypass the channel strip and keep sounding
-    assert(muted < 0.003, `still sounding while every track is muted (peak ${muted.toFixed(4)} vs ${playingLevel.toFixed(4)})`);
+    const early = await page.evaluate(() => window.__level(600));
+    // What was already in the shared reverb rings out, as on a mixing desk;
+    // nothing new may reach it. Mute covers the whole track — its
+    // instrument's own reverb and delay too, which used to bypass the channel
+    // strip and keep sounding.
+    await page.waitForTimeout(800);
+    const late = await page.evaluate(() => window.__level(400));
+    assert(early < playingLevel * 0.02, `still loud just after muting every track (peak ${early.toFixed(4)} vs ${playingLevel.toFixed(4)})`);
+    assert(late < 0.003, `still sounding while every track is muted (peak ${late.toFixed(4)} vs ${playingLevel.toFixed(4)})`);
     for (let i = 0; i < 4; i++) {
       await page.locator('[aria-pressed]').filter({ hasText: /^M$/ }).nth(i).click();
     }
@@ -420,6 +514,39 @@ try {
     await page.getByText(/Loaded/).first().waitFor({ timeout: 4000 });
     const lanes = await page.locator('[data-lane-track]').count();
     assert(lanes >= 5, `expected the example's tracks, saw ${lanes}`);
+  });
+
+  await step('the chord row detects the song\'s chords, edits one, and undoes as one step', async () => {
+    const ruler = page.locator('[data-arrange-lanes] canvas').first();
+    const box = await ruler.boundingBox();
+    const chordRowY = box.y + 20 + 9; // below the 20 px section row
+    await page.mouse.click(box.x + 40, chordRowY, { button: 'right' });
+    await page.getByRole('menuitem', { name: "Detect chords in the whole song" }).first().click();
+    await page.getByText(/Found \d+ chords?/).first().waitFor({ timeout: 3000 });
+    let chords = (await savedState()).sequencer.chords;
+    assert(chords.length >= 2, `expected detected chords, got ${chords.length}`);
+    const first = chords.find((c) => c.beat === 0) ?? chords[0];
+
+    // Edit the first chord by typing a symbol
+    await page.mouse.click(box.x + 40, chordRowY, { button: 'right' });
+    await page.getByRole('menuitem', { name: 'Edit chord…' }).click();
+    const dialog = page.getByRole('dialog', { name: /Chord at bar/ });
+    await dialog.getByLabel('Type a chord').fill('F#m7/A');
+    await dialog.getByLabel('Type a chord').press('Enter');
+    await dialog.waitFor({ state: 'detached', timeout: 2000 });
+    chords = (await savedState()).sequencer.chords;
+    const edited = chords.find((c) => c.id === first.id);
+    assert(edited && edited.root === 6 && edited.quality === 'm7' && edited.bass === 9, `chord not edited: ${JSON.stringify(edited)}`);
+
+    // Undo puts the detected chord back; undo again removes the detection
+    const undo = page.getByRole('group', { name: 'History' }).getByRole('button', { name: /^Undo/ });
+    assert(/Edit chord/.test(await undo.getAttribute('aria-label') ?? await undo.getAttribute('title') ?? ''), 'undo step is not named "Edit chord"');
+    await undo.click();
+    chords = (await savedState()).sequencer.chords;
+    assert(chords.find((c) => c.id === first.id)?.root === first.root, 'undo did not restore the chord');
+    await undo.click();
+    chords = (await savedState()).sequencer.chords;
+    assert(chords.length === 0, `undo did not remove the detected chords (${chords.length} left)`);
   });
 
   // ── Transport response: stop, seek and volume act at once ──

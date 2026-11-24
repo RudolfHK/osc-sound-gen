@@ -16,6 +16,7 @@ import type { DrumPattern } from '../store/drumStore';
 import type { OscillatorTab } from '../engine/oscillator';
 import { DEFAULT_EFFECTS, DELAY_DIVISIONS, type EffectsSettings } from '../engine/effects';
 import type { InstrumentPatch } from './music';
+import { QUALITIES, type ChordMark, type SongKey } from './harmony';
 
 // ─── Formats ──────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,10 @@ export interface ProjectV2 {
   tracks: Track[];
   patterns: Pattern[];
   markers: Marker[];
+  /** The chord track (files from before it existed have none). */
+  chords?: ChordMark[];
+  /** A chosen key; absent or null means detected from the notes. */
+  songKey?: SongKey | null;
   /** Drum patterns referenced by drum clips. */
   drumPatterns: DrumPattern[];
   /** Oscillator lab tabs referenced by oscillator-source tracks. */
@@ -73,6 +78,7 @@ export interface LoadedProject {
   oscillators: OscillatorTab[];
   /** Master effects the project was made with. */
   effects: EffectsSettings;
+  songKey: SongKey | null;
   /** Human-readable notes about anything that needed migrating. */
   warnings: string[];
 }
@@ -141,6 +147,7 @@ export function serializeProject(input: {
   effects: EffectsSettings;
   /** The instrument library's own edits, per preset (they apply to every track using it). */
   libraryOverrides?: Record<string, InstrumentPatch>;
+  songKey?: SongKey | null;
 }): ProjectV2 {
   const { doc } = input;
   const lib = input.libraryOverrides ?? {};
@@ -175,6 +182,8 @@ export function serializeProject(input: {
     })),
     patterns: Object.values(doc.patterns).filter((p) => usedNotePatterns.has(p.id)),
     markers: doc.markers,
+    chords: doc.chords,
+    songKey: input.songKey ?? null,
     drumPatterns: input.allDrumPatterns
       .filter((p) => usedDrumPatterns.has(p.id))
       .map((p) => ({ ...p, voices: p.voices.map((v) => ({ ...v, solo: false })) })),
@@ -210,6 +219,28 @@ export function parseEffects(raw: unknown): EffectsSettings {
 // ─── Loading ──────────────────────────────────────────────────────────────────
 
 export class ProjectError extends Error {}
+
+/** Chords from a file or a saved session: only well-formed ones, in order. */
+export function parseChords(raw: unknown): ChordMark[] {
+  if (!Array.isArray(raw)) return [];
+  const ok = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n < 12;
+  return raw
+    .filter((c): c is ChordMark => !!c && typeof c === 'object'
+      && typeof (c as ChordMark).beat === 'number' && (c as ChordMark).beat >= 0
+      && ok((c as ChordMark).root) && (c as ChordMark).quality in QUALITIES)
+    .map((c) => ({
+      id: typeof c.id === 'string' ? c.id : uid('ch'), beat: c.beat, root: c.root, quality: c.quality,
+      ...(ok(c.bass) && c.bass !== c.root ? { bass: c.bass } : {}),
+    }))
+    .sort((a, b) => a.beat - b.beat);
+}
+
+function parseKey(raw: unknown): SongKey | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const k = raw as SongKey;
+  return Number.isInteger(k.tonic) && k.tonic >= 0 && k.tonic < 12 && (k.mode === 'major' || k.mode === 'minor')
+    ? { tonic: k.tonic, mode: k.mode } : null;
+}
 
 export function parseProject(raw: unknown): LoadedProject {
   if (!raw || typeof raw !== 'object') throw new ProjectError('Not a project file.');
@@ -257,10 +288,11 @@ function loadV2(p: ProjectV2): LoadedProject {
     songLengthBars: Math.max(1, p.songLengthBars || 16),
     loop: p.loop ?? { enabled: false, startBeat: 0, endBeat: 16 },
     masterVolume: p.masterVolume ?? 0.8,
-    doc: { tracks, patterns, markers: (p.markers ?? []).map((m) => ({ ...m })) },
+    doc: { tracks, patterns, markers: (p.markers ?? []).map((m) => ({ ...m })), chords: parseChords(p.chords) },
     drumPatterns: p.drumPatterns ?? [],
     oscillators: p.oscillators ?? [],
     effects: parseEffects(p.effects),
+    songKey: parseKey(p.songKey),
     warnings,
   };
 }
@@ -290,10 +322,11 @@ function loadV1(p: LegacyProject): LoadedProject {
     // v1 projects looped their whole length by default
     loop: { enabled: true, startBeat: 0, endBeat: songBeats },
     masterVolume: p.masterVolume ?? 0.8,
-    doc: { tracks, patterns, markers: [] },
+    doc: { tracks, patterns, markers: [], chords: [] },
     drumPatterns: [],
     oscillators: [],
     effects: { ...DEFAULT_EFFECTS },
+    songKey: null,
     warnings: ['Converted from an older project format. Instruments were chosen from each part\'s range — change any of them from the track header.'],
   };
 }
@@ -337,7 +370,7 @@ export function migrateLegacySequencer(
     if (pattern) patterns[pattern.id] = pattern;
   });
 
-  return { tracks, patterns, markers: [] };
+  return { tracks, patterns, markers: [], chords: [] };
 }
 
 export function isLegacyTrackList(tracks: unknown): tracks is LegacyTrack[] {
@@ -356,5 +389,6 @@ export function makeStarterDoc(): DocSnapshot {
     tracks: [drums, bass, keys, pad],
     patterns: {},
     markers: [{ id: uid('mk'), beat: 0, name: 'Intro', color: '#6366f1' }],
+    chords: [],
   };
 }

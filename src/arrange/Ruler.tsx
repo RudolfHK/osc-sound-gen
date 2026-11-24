@@ -3,9 +3,13 @@ import { useAppStore, useAccent } from '../store/appStore';
 import { sectionsFromMarkers, SECTION_COLORS, type Marker } from '../utils/music';
 import { ContextMenu, type MenuItem } from '../ui/ContextMenu';
 import {
-  beatToX, xToBeat, snapTo, labelEvery,
-  RULER_H, RULER_SECTION_H, RULER_BARS_H, type ArrView,
+  beatToX, xToBeat, snapTo, labelEvery, arrangeGrid,
+  RULER_H, RULER_SECTION_H, RULER_CHORDS_H, RULER_BARS_H, RULER_BARS_TOP, type ArrView,
 } from './geometry';
+import { chordName, chordSpans, keyUsesFlats, PROGRESSIONS, progressionChords, type ChordMark } from '../utils/harmony';
+import { detectChordsInRange } from '../utils/songAnalysis';
+import { ChordDialog, useSongKey } from './ChordDialog';
+import { notify } from '../ui/notices';
 import { gray, shade, useTheme } from '../ui/theme';
 import { canvasPixelRatio, localPoint } from '../ui/scale';
 
@@ -17,12 +21,13 @@ interface Props {
 
 type Drag =
   | { kind: 'marker'; id: string; grabBeat: number; origBeat: number; moved: boolean }
+  | { kind: 'chord'; id: string; grabBeat: number; origBeat: number; moved: boolean }
   | { kind: 'loop-new'; anchor: number; moved: boolean; downX: number }
   | { kind: 'loop-start' | 'loop-end' };
 
 /**
- * Two-row ruler. The top row holds song sections; the bottom row is the bar
- * ruler with the loop brace.
+ * Three-row ruler: song sections on top, the chord track in the middle, and
+ * the bar ruler with the loop brace at the bottom.
  */
 export function Ruler({ view, width, onSeek }: Props) {
   const { state, dispatch } = useAppStore();
@@ -32,10 +37,14 @@ export function Ruler({ view, width, onSeek }: Props) {
   const dragRef = useRef<Drag | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[]; title?: string } | null>(null);
   const [renaming, setRenaming] = useState<{ id: string; x: number; value: string } | null>(null);
+  const [chordDialog, setChordDialog] = useState<{ beat: number; existing?: ChordMark } | null>(null);
 
   const songEnd = seq.songLengthBars * seq.beatsPerBar;
   const sections = useMemo(() => sectionsFromMarkers(seq.markers, songEnd), [seq.markers, songEnd]);
   const bar = seq.beatsPerBar;
+  const chords = useMemo(() => chordSpans(seq.chords, songEnd), [seq.chords, songEnd]);
+  const { key } = useSongKey();
+  const flats = keyUsesFlats(key);
 
   const theme = useTheme();
 
@@ -80,8 +89,36 @@ export function Ruler({ view, width, onSeek }: Props) {
       ctx.fillText('Double-click here to add a section (Intro, Verse, Drop…)', 8, RULER_SECTION_H / 2);
     }
 
+    // Chords row
+    const ctop = RULER_SECTION_H;
+    ctx.fillStyle = gray('#0e0e0e');
+    ctx.fillRect(0, ctop, width, RULER_CHORDS_H);
+    ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
+    ctx.textBaseline = 'middle';
+    chords.forEach((c, i) => {
+      const x0 = beatToX(c.beat, view);
+      const x1 = beatToX(c.endBeat, view);
+      if (x1 < 0 || x0 > width) return;
+      ctx.fillStyle = i % 2 ? gray('#1c1c1c') : gray('#222');
+      ctx.fillRect(x0, ctop + 2, Math.max(1, x1 - x0 - 1), RULER_CHORDS_H - 4);
+      ctx.fillStyle = accent;
+      ctx.fillRect(x0, ctop + 2, 2, RULER_CHORDS_H - 4);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x0, ctop, Math.max(0, x1 - x0 - 2), RULER_CHORDS_H);
+      ctx.clip();
+      ctx.fillStyle = gray('#e5e5e5');
+      ctx.fillText(chordName(c, flats), Math.max(x0, 0) + 6, ctop + RULER_CHORDS_H / 2 + 0.5);
+      ctx.restore();
+    });
+    if (chords.length === 0) {
+      ctx.fillStyle = gray('#404040');
+      ctx.font = '10px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillText('Chords: double-click to add one, right-click to detect them or fill a progression', 8, ctop + RULER_CHORDS_H / 2);
+    }
+
     // Bars row
-    const top = RULER_SECTION_H;
+    const top = RULER_BARS_TOP;
     ctx.fillStyle = gray('#111');
     ctx.fillRect(0, top, width, RULER_BARS_H);
 
@@ -127,7 +164,7 @@ export function Ruler({ view, width, onSeek }: Props) {
     ctx.moveTo(0, RULER_H - 0.5);
     ctx.lineTo(width, RULER_H - 0.5);
     ctx.stroke();
-  }, [width, view, sections, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, songEnd, bar, accent, theme]);
+  }, [width, view, sections, chords, flats, seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat, songEnd, bar, accent, theme]);
 
   // ── Hit testing ──
   const local = (e: { clientX: number; clientY: number }) => localPoint(e, canvasRef.current!);
@@ -191,6 +228,18 @@ export function Ruler({ view, width, onSeek }: Props) {
       return;
     }
 
+    if (y < RULER_BARS_TOP) {
+      const c = chordAtX(x);
+      if (e.button === 2) {
+        setMenu(chordMenu(e.clientX, e.clientY, beat));
+        return;
+      }
+      if (e.button !== 0 || !c) return;
+      dispatch({ type: 'SEQ_PUSH_UNDO' });
+      dragRef.current = { kind: 'chord', id: c.id, grabBeat: beat, origBeat: c.beat, moved: false };
+      return;
+    }
+
     if (e.button === 2) {
       // Bar row: playhead and loop at this bar
       const at = snapTo(beat, bar);
@@ -226,6 +275,60 @@ export function Ruler({ view, width, onSeek }: Props) {
     dragRef.current = { kind: 'loop-new', anchor: snapTo(beat, bar), moved: false, downX: x };
   };
 
+  const chordAtX = (x: number) => {
+    const beat = xToBeat(x, view);
+    return chords.find((c) => beat >= c.beat && beat < c.endBeat) ?? null;
+  };
+
+  /** Right-click on the chord row: edit, detect chords, fill a progression. */
+  const chordMenu = (x: number, y: number, beat: number): { x: number; y: number; items: MenuItem[]; title?: string } => {
+    const at = chords.find((c) => beat >= c.beat && beat < c.endBeat);
+    const sec = sections.find((s) => beat >= s.beat && beat < s.endBeat);
+    const [from, to] = sec ? [sec.beat, sec.endBeat] : [0, songEnd];
+    const where = sec ? `“${sec.name}”` : 'the whole song';
+    const snapped = Math.max(0, Math.floor(beat / arrangeGrid(seq)) * arrangeGrid(seq));
+    const replace = (label: string, list: Omit<ChordMark, 'id'>[]) => {
+      dispatch({ type: 'SEQ_PUSH_UNDO', label });
+      dispatch({ type: 'CHORDS_REPLACE', fromBeat: from, toBeat: to, chords: list });
+    };
+    const detect = (a: number, b: number, label: string) => {
+      const found = detectChordsInRange(seq.tracks, seq.patterns, a, b, bar);
+      if (!found.length) { notify('No chords found there — it needs notes on instrument tracks.', 'warn'); return; }
+      dispatch({ type: 'SEQ_PUSH_UNDO', label });
+      dispatch({ type: 'CHORDS_REPLACE', fromBeat: a, toBeat: b, chords: found });
+      notify(`Found ${found.length} chord${found.length === 1 ? '' : 's'}.`);
+    };
+    const inRange = seq.chords.filter((c) => c.beat >= from && c.beat < to).length;
+    return {
+      x, y, title: at ? chordName(at, flats) : 'Chords',
+      items: [
+        ...(at ? [
+          { label: 'Edit chord…', onSelect: () => setChordDialog({ beat: at.beat, existing: at }) },
+          { label: 'Remove chord', danger: true, onSelect: () => dispatch({ type: 'CHORD_REMOVE', id: at.id }) },
+        ] : []),
+        { label: 'Add a chord here…', onSelect: () => setChordDialog({ beat: snapped }) },
+        { divider: true, label: '' },
+        { label: `Detect chords in ${where}`, onSelect: () => detect(from, to, 'Detect chords') },
+        ...(sec ? [{ label: 'Detect chords in the whole song', onSelect: () => detect(0, songEnd, 'Detect chords') }] : []),
+        {
+          label: `Fill ${where} with a progression`,
+          submenu: PROGRESSIONS.map((p) => {
+            const list = progressionChords(key, p.numerals, p.mode);
+            return {
+              label: p.name,
+              hint: list.map((c) => chordName(c, flats)).join(' – '),
+              onSelect: () => replace('Chord progression', Array.from(
+                { length: Math.ceil((to - from) / bar) },
+                (_, i) => ({ beat: from + i * bar, ...list[i % list.length] }),
+              )),
+            };
+          }),
+        },
+        { label: `Clear chords in ${where}`, disabled: inRange === 0, onSelect: () => replace('Clear chords', []) },
+      ],
+    };
+  };
+
   const addMarker = useCallback((beat: number) => {
     dispatch({ type: 'SEQ_PUSH_UNDO' });
     dispatch({ type: 'MARKER_ADD', beat: snapTo(beat, bar) });
@@ -238,7 +341,13 @@ export function Ruler({ view, width, onSeek }: Props) {
       const { x } = local(e);
       const beat = Math.max(0, xToBeat(x, view));
       const free = e.shiftKey;
-      if (d.kind === 'marker') {
+      if (d.kind === 'chord') {
+        const target = Math.max(0, snapTo(d.origBeat + (beat - d.grabBeat), free ? 1 : arrangeGrid(seq)));
+        if (target !== d.origBeat || d.moved) {
+          d.moved = true;
+          dispatch({ type: 'CHORD_UPDATE', id: d.id, patch: { beat: target } });
+        }
+      } else if (d.kind === 'marker') {
         const target = Math.max(0, snapTo(d.origBeat + (beat - d.grabBeat), bar, free));
         if (target !== d.origBeat || d.moved) {
           d.moved = true;
@@ -264,6 +373,11 @@ export function Ruler({ view, width, onSeek }: Props) {
       // A click that didn't drag is a seek
       if (d.kind === 'loop-new' && !d.moved) onSeek(snapTo(beat, e.shiftKey ? 0.25 : 1));
       if (d.kind === 'marker' && !d.moved) onSeek(d.origBeat);
+      // A click on a chord (no drag) opens it
+      if (d.kind === 'chord' && !d.moved) {
+        const c = seq.chords.find((x) => x.id === d.id);
+        if (c) setChordDialog({ beat: c.beat, existing: c });
+      }
     };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
@@ -271,7 +385,7 @@ export function Ruler({ view, width, onSeek }: Props) {
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', up);
     };
-  }, [view, bar, dispatch, onSeek, seq.loopEndBeat, seq.loopStartBeat]);
+  }, [view, bar, dispatch, onSeek, seq]);
 
   /** Width of a section's name label, which is where double-click renames. */
   const labelWidth = (name: string) => {
@@ -285,6 +399,14 @@ export function Ruler({ view, width, onSeek }: Props) {
   // section at that bar (splitting the one it lands in).
   const onDoubleClick = (e: React.MouseEvent) => {
     const { x, y } = local(e);
+    if (y >= RULER_SECTION_H && y < RULER_BARS_TOP) {
+      // Chord row: add a chord at the grid line under the mouse
+      const g = arrangeGrid(seq);
+      const beat = Math.max(0, Math.floor(xToBeat(x, view) / g) * g);
+      const existing = seq.chords.find((c) => Math.abs(c.beat - beat) < 1e-6);
+      setChordDialog({ beat, existing });
+      return;
+    }
     if (y >= RULER_SECTION_H) return;
     const s = sectionAt(x);
     const startX = s ? Math.max(0, beatToX(s.beat, view)) : 0;
@@ -300,6 +422,8 @@ export function Ruler({ view, width, onSeek }: Props) {
       <canvas
         ref={canvasRef}
         className="block cursor-pointer"
+        role="img"
+        aria-label={rulerDescription(sections, chords, flats, bar)}
         onMouseDown={onMouseDown}
         onDoubleClick={onDoubleClick}
         onContextMenu={(e) => e.preventDefault()}
@@ -307,14 +431,17 @@ export function Ruler({ view, width, onSeek }: Props) {
           if (dragRef.current) return;
           const { x, y } = local(e);
           let cursor = 'pointer';
-          if (y >= RULER_SECTION_H && seq.loopEnabled) {
+          if (y >= RULER_SECTION_H && y < RULER_BARS_TOP) {
+            cursor = chordAtX(x) ? 'grab' : 'copy';
+          } else if (y >= RULER_BARS_TOP && seq.loopEnabled) {
             const near = Math.abs(x - beatToX(seq.loopStartBeat, view)) <= 5 || Math.abs(x - beatToX(seq.loopEndBeat, view)) <= 5;
             if (near) cursor = 'ew-resize';
           } else if (y < RULER_SECTION_H && sectionAt(x)) cursor = 'grab';
           e.currentTarget.style.cursor = cursor;
         }}
-        title="Sections: double-click to start a new section, double-click a name to rename, drag to move, right-click for options. Bars: click to move the playhead, drag to set the loop."
+        title="Sections: double-click to start a new section, double-click a name to rename, drag to move, right-click for options. Chords: double-click to add, click to edit, drag to move, right-click to detect or fill. Bars: click to move the playhead, drag to set the loop."
       />
+      {chordDialog && <ChordDialog beat={chordDialog.beat} existing={chordDialog.existing} onClose={() => setChordDialog(null)} />}
       {renaming && (
         <input
           autoFocus
@@ -336,4 +463,14 @@ export function Ruler({ view, width, onSeek }: Props) {
       {menu && <ContextMenu {...menu} onClose={() => setMenu(null)} />}
     </div>
   );
+}
+
+/** What the ruler shows, for screen readers: the sections and the chords by bar. */
+function rulerDescription(
+  sections: { name: string; beat: number }[], chords: ChordMark[], flats: boolean, beatsPerBar: number,
+): string {
+  const at = (beat: number) => `bar ${Math.floor(beat / beatsPerBar) + 1}`;
+  const secs = sections.map((s) => `${s.name} at ${at(s.beat)}`).join(', ');
+  const shown = chords.slice(0, 24).map((c) => `${chordName(c, flats)} at ${at(c.beat)}`).join(', ');
+  return `Timeline ruler. Sections: ${secs || 'none'}. Chords: ${shown || 'none'}${chords.length > 24 ? ', and more' : ''}.`;
 }

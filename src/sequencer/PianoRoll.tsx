@@ -13,6 +13,7 @@ import { getFocusZone, isTypingTarget, setFocusZone } from '../ui/focus';
 import { isOverlayOpen } from '../ui/overlay';
 import { useShortcuts } from '../ui/shortcuts';
 import { getSettings } from '../store/settings';
+import { chordName, chordPitchClasses, chordSpans, keyUsesFlats, type ChordMark } from '../utils/harmony';
 import { gray, ink, shade, useTheme } from '../ui/theme';
 import { canvasPixelRatio, localPoint } from '../ui/scale';
 
@@ -58,6 +59,39 @@ export function previewNote(track: Track, tabs: OscillatorTab[], midi: number, v
 
 // ─── Canvas renderer ──────────────────────────────────────────────────────────
 
+/** A chord from the chord track, in pattern time. */
+interface ChordBand {
+  start: number;
+  end: number;
+  pitchClasses: number[];
+  name: string;
+}
+
+/**
+ * The chords the clip plays over, mapped into its pattern: the first pass of
+ * the pattern in the clip (a pattern looped over changing chords can only
+ * show one set). Splits a chord where the pattern's loop wraps.
+ */
+function chordBands(clip: Clip, lengthBeats: number, chords: (ChordMark & { endBeat: number })[], flats: boolean): ChordBand[] {
+  const L = lengthBeats;
+  if (!chords.length || L <= 0) return [];
+  const pass = Math.min(L, clip.lengthBeats);
+  const off = clip.offsetBeats % L;
+  const out: ChordBand[] = [];
+  for (const c of chords) {
+    const a = Math.max(c.beat, clip.startBeat);
+    const b = Math.min(c.endBeat, clip.startBeat + pass);
+    if (b - a < 1e-6) continue;
+    const band = { pitchClasses: [...chordPitchClasses(c)], name: chordName(c, flats) };
+    let pa = a - clip.startBeat + off;
+    let pb = b - clip.startBeat + off;
+    if (pa >= L - 1e-9) { pa -= L; pb -= L; }
+    if (pb <= L + 1e-9) out.push({ start: pa, end: pb, ...band });
+    else out.push({ start: pa, end: L, ...band }, { start: 0, end: pb - L, ...band });
+  }
+  return out;
+}
+
 function drawPianoRoll(
   ctx: CanvasRenderingContext2D,
   W: number,
@@ -66,7 +100,7 @@ function drawPianoRoll(
   color: string,
   vp: ViewParams,
   selected: Set<string>,
-  opts: { beatsPerBar: number; showVelocityLane: boolean },
+  opts: { beatsPerBar: number; showVelocityLane: boolean; chords?: ChordBand[] },
   selectionRect: { x1: number; y1: number; x2: number; y2: number } | null,
 ) {
   const visibleBeats = (W - KEY_W) / vp.pxPerBeat;
@@ -110,6 +144,17 @@ function drawPianoRoll(
     ctx.beginPath(); ctx.moveTo(x, RULER_H); ctx.lineTo(x, RULER_H + gridH); ctx.stroke();
   }
 
+  // Chord track: the rows of the chord's notes are tinted where it sounds
+  for (const band of opts.chords ?? []) {
+    const x0 = Math.max(KEY_W, beatToX(band.start, vp));
+    const x1 = Math.min(W, beatToX(band.end, vp));
+    if (x1 <= x0) continue;
+    ctx.fillStyle = color + '1c';
+    for (let midi = vp.viewLowNote; midi <= vp.viewHighNote; midi++) {
+      if (band.pitchClasses.includes(((midi % 12) + 12) % 12)) ctx.fillRect(x0, noteToY(midi, vp), x1 - x0, SEMITONE_H);
+    }
+  }
+
   // Outside the pattern's loop: dimmed, because notes there don't play
   const loopX = beatToX(pattern.lengthBeats, vp);
   if (loopX < W) {
@@ -141,6 +186,14 @@ function drawPianoRoll(
   }
   ctx.strokeStyle = gray('#333');
   ctx.beginPath(); ctx.moveTo(0, RULER_H + 0.5); ctx.lineTo(W, RULER_H + 0.5); ctx.stroke();
+  // Chord names, right of each change, in the ruler
+  ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
+  for (const band of opts.chords ?? []) {
+    const x = beatToX(band.start, vp);
+    if (x > W || beatToX(band.end, vp) < KEY_W) continue;
+    ctx.fillStyle = color;
+    ctx.fillText(band.name, Math.max(KEY_W + 2, x + 3) + (band.start % opts.beatsPerBar === 0 ? 14 : 0), RULER_H / 2 - 2);
+  }
 
   // Notes
   ctx.save();
@@ -259,6 +312,12 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
   const theme = useTheme();
   const selectedNoteIds = seq.selectedNoteIds;
   const { beatsPerBar, showVelocityLane } = seq;
+  const songEnd = seq.songLengthBars * seq.beatsPerBar;
+  const flats = keyUsesFlats(seq.songKey);
+  const bands = useMemo(
+    () => chordBands(clip, pattern.lengthBeats, chordSpans(seq.chords, songEnd), flats),
+    [clip, pattern.lengthBeats, seq.chords, songEnd, flats],
+  );
   useLayoutEffect(() => {
     const selectedSet = new Set(selectedNoteIds);
     const c = canvasRef.current;
@@ -272,8 +331,8 @@ export function PianoRoll({ track, clip, pattern, height, onSeek }: PianoRollPro
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawPianoRoll(ctx, width, canvasH, pattern, track.color, vp, selectedSet,
-      { beatsPerBar, showVelocityLane }, selRect);
-  }, [width, canvasH, pattern, track.color, vp, selectedNoteIds, beatsPerBar, showVelocityLane, selRect, theme]);
+      { beatsPerBar, showVelocityLane, chords: bands }, selRect);
+  }, [width, canvasH, pattern, track.color, vp, selectedNoteIds, beatsPerBar, showVelocityLane, selRect, theme, bands]);
 
   // ── Playhead overlay: the song position mapped into this pattern ──
   useEffect(() => {
