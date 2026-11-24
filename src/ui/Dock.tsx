@@ -10,6 +10,8 @@ import { EffectsPanel } from '../sampler/EffectsPanel';
 import { SNAP_OPTIONS, type SnapValue } from '../utils/music';
 import { setFocusZone } from './focus';
 import { isMac, withShortcut } from './shortcuts';
+import { ContextMenu } from './ContextMenu';
+import { transformItems } from './transformMenu';
 import { toLayout } from './scale';
 
 export type DockTab = 'editor' | 'mixer' | 'instruments' | 'fx';
@@ -209,6 +211,8 @@ function EditorToolbar() {
   const patternId = found?.clip.patternId;
   const off = 'border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-neutral-200';
   const on = { borderColor: accent, color: accent, backgroundColor: accent + '18' };
+  const [transformMenu, setTransformMenu] = useState<{ x: number; y: number } | null>(null);
+  const selected = seq.selectedNoteIds.length;
 
   return (
     <div className="flex items-center gap-2 px-2 py-1 border-b border-neutral-800 bg-neutral-900/40 shrink-0 flex-wrap">
@@ -249,6 +253,28 @@ function EditorToolbar() {
         className={`px-2 py-0.5 text-xs border ${off} disabled:opacity-30 disabled:pointer-events-none`}
         title={withShortcut('Quantize selected notes to the grid', 'editor.quantize')}
       >Q</button>
+      <button
+        onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setTransformMenu({ x: r.left, y: r.bottom + 2 }); }}
+        disabled={!patternId || found?.track.source.type === 'drums'}
+        className={`px-2 py-0.5 text-xs border tracking-widest ${off} disabled:opacity-30 disabled:pointer-events-none`}
+        title={selected ? `Transform the ${selected} selected note${selected === 1 ? '' : 's'}` : 'Transform every note in this clip'}
+        aria-haspopup="menu"
+        data-testid="transform-button"
+      >TRANSFORM ▾</button>
+      {transformMenu && patternId && (
+        <ContextMenu
+          x={transformMenu.x} y={transformMenu.y}
+          title={selected ? `${selected} selected note${selected === 1 ? '' : 's'}` : 'Every note in the clip'}
+          items={transformItems((transform) => {
+            dispatch({ type: 'SEQ_PUSH_UNDO' });
+            dispatch({
+              type: 'PATTERN_TRANSFORM', patternId, transform,
+              noteIds: selected ? seq.selectedNoteIds : undefined, clipId: found?.clip.id,
+            });
+          })}
+          onClose={() => setTransformMenu(null)}
+        />
+      )}
       <span className="ml-auto text-neutral-500" style={{ fontSize: 11 }}>
         click keys or type A–; to audition · right-click deletes · ↑↓ transpose · {isMac() ? '⌘' : 'Ctrl'}+wheel zoom · Shift+wheel pitch
       </span>

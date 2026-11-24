@@ -40,6 +40,7 @@ import { restoreParticipants, setUndoStepRequester, snapshotParticipants } from 
 import { notify } from '../ui/notices';
 import { accentFor, useTheme } from '../ui/theme';
 import { makeLaneId, makePointId, withPoint } from '../engine/automation';
+import { transformLabel, transformNotes, type NoteTransform } from '../utils/transforms';
 import {
   isLegacyTrackList, makeStarterDoc, migrateLegacySequencer,
   type LoadedProject, type LegacyTrack,
@@ -126,6 +127,11 @@ export type Action =
   | { type: 'CLIP_REPLACE_RANGE'; trackId: string; startBeat: number; endBeat: number; patternId: string; clipId?: string }
   | { type: 'PATTERN_RENAME'; patternId: string; name: string }
   | { type: 'PATTERN_SET_LENGTH'; patternId: string; lengthBeats: number }
+  /**
+   * Transform a pattern's notes (or only `noteIds`). A whole-pattern speed
+   * change also scales the pattern's loop and, given `clipId`, that clip.
+   */
+  | { type: 'PATTERN_TRANSFORM'; patternId: string; transform: NoteTransform; noteIds?: string[]; clipId?: string }
   // ── Notes (within a pattern) ─────────────────────────────────────────────────
   | { type: 'SEQ_ADD_NOTE'; patternId: string; note: SequencerNote }
   | { type: 'SEQ_REMOVE_NOTE'; patternId: string; noteId: string }
@@ -888,6 +894,24 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'PATTERN_RENAME':
       return patchPattern(state, action.patternId, (p) => ({ ...p, name: action.name.trim() || p.name }));
 
+    case 'PATTERN_TRANSFORM': {
+      const pat = seq.patterns[action.patternId];
+      if (!pat) return state;
+      const t = action.transform;
+      const only = action.noteIds?.length ? new Set(action.noteIds) : undefined;
+      const notes = transformNotes(pat.notes, t, { lengthBeats: pat.lengthBeats, only });
+      const f = t.op === 'stretch' && !only ? Math.max(0.125, Math.min(8, t.factor)) : 1;
+      let lengthBeats = Math.max(0.25, Math.min(512, pat.lengthBeats * f));
+      // Notes pushed past the loop end grow it to the next bar
+      const end = Math.max(0, ...notes.map((n) => n.startBeat + n.durationBeats));
+      if (end > lengthBeats + 1e-9) lengthBeats = Math.min(512, Math.ceil(end / seq.beatsPerBar - 1e-9) * seq.beatsPerBar);
+      let next = patchPattern(state, pat.id, (p) => ({ ...p, notes, lengthBeats }));
+      if (f !== 1 && action.clipId) {
+        next = patchClip(next, action.clipId, (c) => ({ ...c, lengthBeats: Math.max(0.25, c.lengthBeats * f), offsetBeats: c.offsetBeats * f }));
+      }
+      return fitSongLength(next);
+    }
+
     case 'PATTERN_SET_LENGTH':
       return patchPattern(state, action.patternId, (p) => ({
         ...p, lengthBeats: Math.max(0.25, Math.min(512, action.lengthBeats)),
@@ -1519,6 +1543,7 @@ export function undoLabel(action: Action, state?: AppState): string | undefined 
     }
     case 'SEQ_SET_ARP': return onTrack('Arpeggiator', action.trackId);
     case 'TRACK_SET_SOURCE': return onTrack('Change instrument', action.trackId);
+    case 'PATTERN_TRANSFORM': return transformLabel(action.transform);
     default: return UNDO_LABELS[action.type];
   }
 }

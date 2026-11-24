@@ -4,6 +4,7 @@ import { useDrumStore } from '../store/drumStore';
 import { useClipActions, hasClipboard } from './useClipActions';
 import { promptDialog } from '../ui/kit/dialogs';
 import { makeFill } from '../utils/drumGen';
+import { transformItems } from '../ui/transformMenu';
 import { requestUndoStep } from '../store/history';
 import { PRESETS_BY_ID } from '../engine/instruments';
 import { AUTOMATION_TARGETS, AUTOMATION_TARGET_LIST } from '../engine/automation';
@@ -358,6 +359,13 @@ export function ArrangementView({ onSeek, openDock }: Props) {
       { label: 'Edit', shortcut: 'dbl-click', onSelect: () => openDock('editor') },
       { label: 'Rename…', onSelect: () => { void rename(); } },
       { label: 'Colour', submenu: colourItems([clip.id], clip.color) },
+      ...(!isDrums ? [{
+        label: linked ? 'Transform (all linked clips)' : 'Transform',
+        submenu: transformItems((transform) => {
+          dispatch({ type: 'SEQ_PUSH_UNDO' });
+          dispatch({ type: 'PATTERN_TRANSFORM', patternId: clip.patternId, transform, clipId: clip.id });
+        }),
+      }] : []),
       { divider: true, label: '' },
       { label: 'Copy', shortcut: shortcutLabel('arrange.copy'), onSelect: () => { clipActions.copySelected(); } },
       { label: 'Paste at playhead', shortcut: shortcutLabel('arrange.paste'), disabled: !hasClipboard(), onSelect: () => { clipActions.paste(); } },
@@ -394,11 +402,21 @@ export function ArrangementView({ onSeek, openDock }: Props) {
   /** Menu for several selected clips. */
   const groupMenu = (ids: string[], x: number, y: number) => {
     const allMuted = ids.every((id) => findClip(seqRef.current, id)?.clip.muted);
+    // Each note pattern once, even when several selected clips share it
+    const notePatterns = [...new Set(ids.map((id) => findClip(seqRef.current, id))
+      .filter((f) => f && f.track.source.type !== 'drums').map((f) => f!.clip.patternId))];
     const undoableAll = (fn: () => void) => () => { dispatch({ type: 'SEQ_PUSH_UNDO' }); fn(); };
     const items: MenuItem[] = [
       { label: 'Copy', shortcut: shortcutLabel('arrange.copy'), onSelect: () => { clipActions.copySelected(); } },
       { label: 'Duplicate', shortcut: shortcutLabel('arrange.duplicate'), onSelect: () => { clipActions.duplicateSelected(); } },
       { label: 'Colour', submenu: colourItems(ids) },
+      ...(notePatterns.length ? [{
+        label: 'Transform',
+        submenu: transformItems((transform) => {
+          dispatch({ type: 'SEQ_PUSH_UNDO' });
+          for (const patternId of notePatterns) dispatch({ type: 'PATTERN_TRANSFORM', patternId, transform });
+        }, { speed: false }),
+      }] : []),
       {
         label: allMuted ? 'Unmute clips' : 'Mute clips',
         onSelect: undoableAll(() => {
