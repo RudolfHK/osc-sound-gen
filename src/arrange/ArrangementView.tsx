@@ -6,7 +6,8 @@ import { promptDialog } from '../ui/kit/dialogs';
 import { makeFill } from '../utils/drumGen';
 import { transformItems } from '../ui/transformMenu';
 import { requestUndoStep } from '../store/history';
-import { PRESETS_BY_ID } from '../engine/instruments';
+import { getInstrumentEngine } from '../engine/instruments';
+import { useInstrumentStore } from '../store/instrumentStore';
 import { AUTOMATION_TARGETS, AUTOMATION_TARGET_LIST } from '../engine/automation';
 import { getPlayhead, subscribePlayhead } from '../engine/playhead';
 import { AutomationCanvas } from '../sequencer/AutomationLane';
@@ -51,7 +52,7 @@ export function sourceLabel(track: Track, tabs: { id: string; label: string }[])
   const s = track.source;
   if (s.type === 'drums') return 'Drum kit';
   if (s.type === 'oscillator') return `Oscillator · ${tabs.find((t) => t.id === s.tabId)?.label ?? 'missing'}`;
-  return PRESETS_BY_ID.get(s.presetId)?.name ?? s.presetId;
+  return getInstrumentEngine().info(s.presetId)?.name ?? 'Missing sound';
 }
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
@@ -756,6 +757,7 @@ function TrackHeaderCell({
   openDock: (t: DockTab) => void;
 }) {
   const { dispatch } = useAppStore();
+  useInstrumentStore(); // re-render when the user renames one of their sounds
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(track.name);
 

@@ -17,6 +17,7 @@ import type { OscillatorTab } from '../engine/oscillator';
 import { DEFAULT_EFFECTS, DELAY_DIVISIONS, type EffectsSettings } from '../engine/effects';
 import type { InstrumentPatch } from './music';
 import { QUALITIES, type ChordMark, type SongKey } from './harmony';
+import { isUserPresetId, parseUserPreset, type UserPreset } from './userPresets';
 
 // ─── Formats ──────────────────────────────────────────────────────────────────
 
@@ -43,6 +44,8 @@ export interface ProjectV2 {
   oscillators: OscillatorTab[];
   /** Master effects. Files saved before this field existed use the defaults. */
   effects?: EffectsSettings;
+  /** The user's own sounds that tracks play, so the file sounds the same anywhere. */
+  userPresets?: UserPreset[];
 }
 
 /** A track as v1 projects and pre-v2 sessions stored it. */
@@ -79,6 +82,8 @@ export interface LoadedProject {
   /** Master effects the project was made with. */
   effects: EffectsSettings;
   songKey: SongKey | null;
+  /** The user's own sounds the file brought with it. */
+  userPresets: UserPreset[];
   /** Human-readable notes about anything that needed migrating. */
   warnings: string[];
 }
@@ -148,6 +153,8 @@ export function serializeProject(input: {
   /** The instrument library's own edits, per preset (they apply to every track using it). */
   libraryOverrides?: Record<string, InstrumentPatch>;
   songKey?: SongKey | null;
+  /** The user's own sounds; the ones tracks play are written into the file. */
+  userPresets?: UserPreset[];
 }): ProjectV2 {
   const { doc } = input;
   const lib = input.libraryOverrides ?? {};
@@ -156,8 +163,10 @@ export function serializeProject(input: {
   const usedNotePatterns = new Set<string>();
   const usedDrumPatterns = new Set<string>();
   const usedTabs = new Set<string>();
+  const usedPresets = new Set<string>();
   for (const t of doc.tracks) {
     if (t.source.type === 'oscillator') usedTabs.add(t.source.tabId);
+    if (t.source.type === 'preset' && isUserPresetId(t.source.presetId)) usedPresets.add(t.source.presetId);
     for (const c of t.clips) {
       (t.source.type === 'drums' ? usedDrumPatterns : usedNotePatterns).add(c.patternId);
     }
@@ -191,6 +200,7 @@ export function serializeProject(input: {
       .filter((t) => usedTabs.has(t.id))
       .map((t) => ({ ...t, isPlaying: false })),
     effects: { ...input.effects },
+    userPresets: (input.userPresets ?? []).filter((p) => usedPresets.has(p.id)),
   };
 }
 
@@ -263,6 +273,9 @@ function loadV2(p: ProjectV2): LoadedProject {
 
   const drumIds = new Set((p.drumPatterns ?? []).map((d) => d.id));
   const tabIds = new Set((p.oscillators ?? []).map((t) => t.id));
+  const userPresets = (Array.isArray(p.userPresets) ? p.userPresets : [])
+    .map(parseUserPreset).filter((x): x is UserPreset => !!x);
+  const presetIds = new Set(userPresets.map((x) => x.id));
 
   const tracks = p.tracks.map((t, i) => {
     const track = normalizeTrack(t, i);
@@ -277,6 +290,10 @@ function loadV2(p: ProjectV2): LoadedProject {
     if (track.source.type === 'oscillator' && !tabIds.has(track.source.tabId)) {
       track.source = { type: 'preset', presetId: 'keys-epiano' };
       warnings.push(`${track.name}: its oscillator wasn't in the file, so it now uses Electric Piano.`);
+    }
+    if (track.source.type === 'preset' && isUserPresetId(track.source.presetId) && !presetIds.has(track.source.presetId)) {
+      track.source = { type: 'preset', presetId: 'keys-epiano' };
+      warnings.push(`${track.name}: its sound wasn't in the file, so it now uses Electric Piano.`);
     }
     return track;
   });
@@ -293,6 +310,7 @@ function loadV2(p: ProjectV2): LoadedProject {
     oscillators: p.oscillators ?? [],
     effects: parseEffects(p.effects),
     songKey: parseKey(p.songKey),
+    userPresets,
     warnings,
   };
 }
@@ -327,6 +345,7 @@ function loadV1(p: LegacyProject): LoadedProject {
     oscillators: [],
     effects: { ...DEFAULT_EFFECTS },
     songKey: null,
+    userPresets: [],
     warnings: ['Converted from an older project format. Instruments were chosen from each part\'s range — change any of them from the track header.'],
   };
 }

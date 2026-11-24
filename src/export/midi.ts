@@ -10,7 +10,7 @@
 
 import { eventsInWindow, type TimelineInput } from '../engine/timeline';
 import { expandArpCached } from '../engine/arpeggiator';
-import { PRESETS_BY_ID, type InstrumentCategory } from '../engine/instruments';
+import { getInstrumentEngine, type InstrumentCategory } from '../engine/instruments';
 import type { SequencerState, Track } from '../utils/music';
 import type { DrumPattern } from '../store/drumStore';
 import type { DrumVoiceType } from '../engine/sampler';
@@ -130,7 +130,7 @@ export function encodeMidi(seq: SequencerState, title: string, opts: MidiOptions
       { tick: 0, order: 0, bytes: [0xff, 0x03, ...vlq(name.length), ...name] },
     ];
     if (!isDrums && track.source.type === 'preset') {
-      const preset = PRESETS_BY_ID.get(track.source.presetId);
+      const preset = getInstrumentEngine().info(track.source.presetId);
       const program = preset ? GM_PROGRAM[preset.category] : 0;
       events.push({ tick: 0, order: 1, bytes: [0xc0 | channel, program] });
     }

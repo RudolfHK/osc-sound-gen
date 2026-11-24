@@ -40,7 +40,7 @@ export function PartDialogHost() {
 /** The kind of part a track's sound suggests. */
 function kindFor(track: Track | undefined): PartKind {
   if (!track || track.source.type !== 'preset') return 'bass';
-  const cat = PRESETS_BY_ID.get(track.source.presetId)?.category ?? '';
+  const cat = getInstrumentEngine().info(track.source.presetId)?.category ?? '';
   if (cat === 'Synth Bass' || cat === 'Bass Guitar') return 'bass';
   if (cat === 'Synth Pluck') return 'arp';
   if (cat === 'Piano' || cat === 'Keys') return 'stabs';

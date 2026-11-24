@@ -498,6 +498,30 @@ describe('project files', () => {
     expect(e.limiterEnabled).toBe(false);
   });
 
+  it('carries the user\'s own sounds that tracks play, and falls back when one is missing', () => {
+    const s = fresh();
+    const used = { id: 'user-a', name: 'Dark Saw', base: 'bass-saw', patch: { cutoff: 400 }, createdAt: '2026-01-01T00:00:00.000Z' };
+    const unused = { ...used, id: 'user-b', name: 'Other' };
+    const tracks = s.sequencer.tracks.map((t, i) => (i === 1 ? { ...t, source: { type: 'preset' as const, presetId: 'user-a' } } : t));
+    const file = serializeProject({
+      name: 'T', bpm: 120, beatsPerBar: 4, songLengthBars: 4,
+      loop: { enabled: false, startBeat: 0, endBeat: 16 }, masterVolume: 0.8,
+      doc: { tracks, patterns: s.sequencer.patterns, markers: s.sequencer.markers, chords: [] },
+      allDrumPatterns: [], allOscillators: s.tabs, effects: DEFAULT_EFFECTS,
+      userPresets: [used, unused],
+    });
+    expect(file.userPresets).toEqual([used]);
+    const loaded = parseProject(JSON.parse(JSON.stringify(file)));
+    expect(loaded.userPresets).toEqual([used]);
+    expect(loaded.doc.tracks[1].source).toEqual({ type: 'preset', presetId: 'user-a' });
+
+    const raw = JSON.parse(JSON.stringify(file));
+    delete raw.userPresets;
+    const broken = parseProject(raw);
+    expect(broken.doc.tracks[1].source).toEqual({ type: 'preset', presetId: 'keys-epiano' });
+    expect(broken.warnings.join(' ')).toMatch(/sound wasn't in the file/);
+  });
+
   it('rejects files that are not projects', () => {
     expect(() => parseProject({ hello: 'world' })).toThrow();
     expect(() => parseProject(null)).toThrow();

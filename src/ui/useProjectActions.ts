@@ -5,6 +5,7 @@ import { useEffectsStore, effectsSettingsOf } from '../store/effectsStore';
 import { useInstrumentStore } from '../store/instrumentStore';
 import { DEFAULT_EFFECTS } from '../engine/effects';
 import { parseProject, serializeProject, ProjectError, type LoadedProject } from '../utils/project';
+import { mergePresets } from '../utils/userPresets';
 import { makeTemplate } from '../utils/templates';
 import { downloadBlob } from '../utils/wav';
 import { getSequencerEngine } from '../engine/sequencer';
@@ -84,7 +85,7 @@ export function useDocumentTracking(): void {
       seq.bpm, seq.beatsPerBar, seq.songLengthBars,
       seq.loopEnabled, seq.loopStartBeat, seq.loopEndBeat,
       state.projectName, state.masterVolume,
-      drumState.patterns, instState.overrides,
+      drumState.patterns, instState.overrides, instState.userPresets,
       ...state.tabs.flatMap((t) => [t.oscillator, t.advanced, t.label]),
       ...Object.values(effectsSettingsOf(fxState)),
     ]);
@@ -95,7 +96,7 @@ export function useProjectActions() {
   const { state, dispatch } = useAppStore();
   const { state: drumState, dispatch: drumDispatch } = useDrumStore();
   const { state: fxState, dispatch: fxDispatch } = useEffectsStore();
-  const { state: instState } = useInstrumentStore();
+  const { state: instState, dispatch: instDispatch } = useInstrumentStore();
   const seq = state.sequencer;
 
   const stopTransport = useCallback(() => {
@@ -105,14 +106,32 @@ export function useProjectActions() {
   }, [dispatch]);
 
   /** Replace the song with a parsed project. */
-  const applyProject = useCallback((project: LoadedProject) => {
+  const applyProject = useCallback((loaded: LoadedProject) => {
     stopTransport();
+    let project = loaded;
+    // The file's own sounds join the library; one whose id is taken by a
+    // different sound here comes in under a new id, and its tracks follow
+    if (loaded.userPresets.length) {
+      const { added, idMap } = mergePresets(instState.userPresets, loaded.userPresets);
+      if (added.length) instDispatch({ type: 'INST_ADD_USER_PRESETS', presets: added });
+      if (Object.keys(idMap).length) {
+        project = {
+          ...loaded,
+          doc: {
+            ...loaded.doc,
+            tracks: loaded.doc.tracks.map((t) => (t.source.type === 'preset' && idMap[t.source.presetId]
+              ? { ...t, source: { type: 'preset', presetId: idMap[t.source.presetId] } }
+              : t)),
+          },
+        };
+      }
+    }
     if (project.drumPatterns.length) {
       drumDispatch({ type: 'DRUM_IMPORT_PATTERNS', patterns: project.drumPatterns });
     }
     dispatch({ type: 'LOAD_PROJECT', project });
     fxDispatch({ type: 'FX_LOAD', settings: project.effects });
-  }, [dispatch, drumDispatch, fxDispatch, stopTransport]);
+  }, [dispatch, drumDispatch, fxDispatch, instDispatch, instState.userPresets, stopTransport]);
 
   /** Replace the song with a project file's contents. False if it couldn't be read. */
   const loadFromText = useCallback((text: string, sourceName: string): boolean => {
@@ -146,9 +165,10 @@ export function useProjectActions() {
       allOscillators: state.tabs,
       effects: effectsSettingsOf(fxState),
       libraryOverrides: instState.overrides,
+      userPresets: instState.userPresets,
     });
     return { name: fileNameFor(state.projectName), text: JSON.stringify(project, null, 1) };
-  }, [state, seq, drumState.patterns, fxState, instState.overrides]);
+  }, [state, seq, drumState.patterns, fxState, instState.overrides, instState.userPresets]);
 
   // The crash screen saves through this, after React has given up
   useEffect(() => { setProjectSerializer(buildProject); }, [buildProject]);

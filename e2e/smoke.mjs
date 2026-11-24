@@ -711,6 +711,51 @@ try {
     await page.getByText('MASTER FX').waitFor({ timeout: 2000 });
   });
 
+  await step('a track\'s edited sound saves as my own, plays on the track, stars and exports as a pack', async () => {
+    const seq = (await savedState()).sequencer;
+    const track = seq.tracks.find((t) => t.source.type === 'preset');
+    await page.locator('[data-arrange-lanes]').getByText(track.name, { exact: true }).first().click();
+    await page.getByRole('tab', { name: 'INSTRUMENTS' }).click();
+    await page.getByLabel('Category').selectOption('ALL');
+    const card = page.locator('[role="button"][aria-label*="on this track"]').first();
+    await card.click({ button: 'right' });
+    const editor = page.getByRole('dialog', { name: / settings$/ });
+    await editor.getByLabel('Cutoff').fill('700');
+    await editor.getByRole('button', { name: 'SAVE AS MY SOUND…' }).click();
+    const ask = page.getByRole('dialog', { name: 'Save as my sound' });
+    await ask.getByLabel('Name').fill('Night Bass');
+    await ask.getByRole('button', { name: 'Save' }).click();
+
+    const after = (await savedState()).sequencer.tracks.find((t) => t.id === track.id);
+    assert(after.source.presetId.startsWith('user-'), `the track doesn't play the new sound: ${after.source.presetId}`);
+    const lib = await page.evaluate(() => new Promise((r) => setTimeout(() => r(JSON.parse(localStorage.getItem('osc-instrument-state'))), 600)));
+    const mine = lib.userPresets.find((p) => p.name === 'Night Bass');
+    assert(mine && mine.patch.cutoff === 700, `saved sound: ${JSON.stringify(mine)}`);
+    await page.locator('[data-arrange-lanes]').getByText('♪ Night Bass').first().waitFor({ timeout: 2000 });
+
+    await page.getByRole('button', { name: 'Favourite: Night Bass' }).click();
+    await page.getByLabel('Category').selectOption('FAVORITES');
+    await page.locator('[role="button"][aria-label^="Night Bass, my sound"]').waitFor({ timeout: 2000 });
+
+    const download = page.waitForEvent('download', { timeout: 5000 });
+    await page.getByTestId('preset-packs').click();
+    await page.getByRole('menuitem', { name: 'Export my sounds as a pack…' }).click();
+    const file = await download;
+    assert(/\.oscpack\.json$/.test(file.suggestedFilename()), `pack file name: ${file.suggestedFilename()}`);
+    const pack = JSON.parse(readFileSync(await file.path(), 'utf8'));
+    assert(pack.format === 'osc-preset-pack' && pack.presets.some((p) => p.name === 'Night Bass'), 'the pack is missing the sound');
+
+    // Someone else's pack: a new sound comes in, a broken entry is skipped
+    const theirs = { ...pack, name: 'Friend', presets: [{ ...pack.presets[0], id: 'user-friend1', name: 'Warm Lead', base: 'lead-saw' }, { id: 'user-x', name: 'Bad', base: 'nope' }] };
+    const chooser = page.waitForEvent('filechooser', { timeout: 5000 });
+    await page.getByTestId('preset-packs').click();
+    await page.getByRole('menuitem', { name: 'Import a pack…' }).click();
+    await (await chooser).setFiles({ name: 'friend.oscpack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(theirs)) });
+    await page.getByText(/Added 1 sound from “Friend” \(1 couldn't be read\)/).waitFor({ timeout: 3000 });
+    await page.locator('[role="button"][aria-label^="Warm Lead, my sound"]').waitFor({ timeout: 2000 });
+    await page.getByLabel('Category').selectOption('ALL');
+  });
+
   await step('the oscillator lab is optional and still works', async () => {
     await button('OSC LAB').click();
     await page.waitForTimeout(300);

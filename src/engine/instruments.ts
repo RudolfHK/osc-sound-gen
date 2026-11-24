@@ -2587,6 +2587,7 @@ export class InstrumentEngine {
   /** Fallback output (no track strip) per audio context — the live one survives exports. */
   private outputs = new WeakMap<BaseAudioContext, GainNode>();
   private overrides = new Map<string, InstrumentOverride>();
+  private userPresets = new Map<string, { id: string; name: string; base: string; patch: InstrumentPatch }>();
   /**
    * Glide memory per track (and preset): the pitch of the last note and the
    * pitch before it. Notes that start together — a chord — all glide from the
@@ -2627,15 +2628,31 @@ export class InstrumentEngine {
     this.overrides = new Map(Object.entries(all));
   }
 
+  /** The user's own sounds: a factory preset plus saved settings, played by id. */
+  setUserPresets(list: { id: string; name: string; base: string; patch: InstrumentPatch }[]): void {
+    this.userPresets = new Map(list.map((p) => [p.id, p]));
+  }
+
+  /** Name, category and colour of a factory preset or one of the user's sounds. */
+  info(presetId: string): { name: string; category: InstrumentCategory; color: string; base: string; user: boolean } | null {
+    const user = this.userPresets.get(presetId);
+    const base = PRESETS_BY_ID.get(user ? user.base : presetId);
+    if (!base) return null;
+    return { name: user?.name ?? base.name, category: base.category, color: base.color, base: base.id, user: !!user };
+  }
+
   /** Preset with the user's overrides folded in. */
   /**
    * Preset with edits folded in: library-wide edits first, then the track's
    * own patch, so a track can sound different from the library default.
    */
   resolve(presetId: string, patch?: InstrumentPatch): InstrumentPreset | null {
-    const base = PRESETS_BY_ID.get(presetId);
+    // A user preset is its factory base plus its own saved settings; library
+    // edits to the base don't reach it, so it always sounds as it was saved
+    const user = this.userPresets.get(presetId);
+    const base = PRESETS_BY_ID.get(user ? user.base : presetId);
     if (!base) return null;
-    const lib = this.overrides.get(presetId);
+    const lib = user ? user.patch : this.overrides.get(presetId);
     const hasPatch = !!patch && Object.keys(patch).length > 0;
     if (!lib && !hasPatch) return base;
     const o: InstrumentOverride = hasPatch ? { ...lib, ...patch } : lib!;
@@ -2643,6 +2660,7 @@ export class InstrumentEngine {
     const spread = o.detune ?? 0;
     return {
       ...base,
+      ...(user ? { id: user.id, name: user.name } : {}),
       volume: o.volume ?? base.volume,
       pan: o.pan ?? base.pan,
       octave: o.octave ?? base.octave,
